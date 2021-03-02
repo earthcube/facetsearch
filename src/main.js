@@ -17,6 +17,7 @@ import App from './App.vue'
 
 Vue.config.productionTip = false
 
+export const bus = new Vue(); // https://blog.logrocket.com/using-event-bus-in-vue-js-to-pass-data-between-components/
 new Vue({
   render: h => h(App),
 }).$mount('#app')

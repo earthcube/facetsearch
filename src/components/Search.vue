@@ -8,9 +8,9 @@
     </div>
     <!-- Here comes the demo, if you want to copy and paste, start here -->
     <div class="row col-12" id="filterDiv"> <!-- filters -->
-      <div class="row col-3 align-items-start">
-        <Facets id="facetsDiv" class="row col-12" v-bind:settings="settings"
-        >
+      <div class="row col-3 align-items-start" v-on:facetupdate="warn('search cannot be submitted yet.', $event)">
+        <Facets id="facetsDiv" class="row col-12" v-bind:facets="facets" v-bind:facetStore="facetStore"
+        v-bind:state="state">
 
         </Facets>
 
@@ -19,18 +19,20 @@
       <div class="row col-8 align-self-start ">
         <div id="headingDiv" class="row col-12" style="height: 2em;"></div>
 
-        <Results id="resultsDiv" v-bind:settings="settings"></Results>
+        <Results id="resultsDiv" v-bind:currentResults="currentResults"></Results>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-//import axios from 'axios'
+import Vue from 'vue'
 import Results from "@/components/Results";
 import Facets from "./Facets";
 //import _, { map } from 'underscore';
 import _ from 'underscore';
+
+import {bus} from "../main.js"
 
 export default {
   name: "Search",
@@ -45,7 +47,7 @@ export default {
   },
   data() {
     return {
-      settings: {
+
         state: {
           orderBy: false,
           filters: {}
@@ -53,19 +55,24 @@ export default {
         items: [],
         currentResults: [],
         facetStore: {},
+      facetSortOption: {},
         //---- ok to edit facets
         facets: [{
           field: 'kw',
           title: 'Science Domain',
-          sort: 'acs'
+          sort: 'acs',
+          open: true
+
         }, {
           field: 'resourceType',
           title: 'Resource Type',
-          sort: 'acs'
-        },
+          sort: 'acs',
+          open: false
+        }
         ],
+
         // -- end edit  facets
-      },
+
 
 
     }
@@ -123,44 +130,46 @@ export default {
     this.axios.request(config).then(function (response) {
           var items = [];
           if (response.data.results.bindings) {
-            items = _.map(response.data.results.bindings, function (item) {
-
-              var flattened = _.mapObject(item, function (value, key) {
-                var elements = null;
-                if (key === 'kw') {
-                  elements = value.value.split(',')
-// if elements is zero, what happens if I return null?
-                  if (elements.length == 1) {
-                    if (elements[0].trim() === '') {
-                      elements = null;
-                    }
-                  }
-                  return elements;
-                }
-                if (key === 'placenames') {
-                  elements = value.value.split(',')
-                  return elements;
-                } else {
-// if (_.isEmpty(value.value)) {
-//     return null;
-// }
-                  return value.value;
-
-                }
-
-              })
-              flattened['s3endpoint'] = flattened['g'].replace('urn:gleaner:milled', '').replaceAll(':', '/')
-              if (_.isEqual("http///www.bigdata.com/rdf#nullGraph", flattened['s3endpoint'].toString())) {
-                flattened['s3endpoint'] = null;
-              }
-//  if g is http://www.bigdata.com/rdf#nullGraph then empty value, use empty value if empty, don't show
-              return flattened;
-            })
+            items = self.flattenSparqlResults(response.data.results.bindings)
+//             items = _.map(response.data.results.bindings, function (item) {
+//
+//               var flattened = _.mapObject(item, function (value, key) {
+//                 var elements = null;
+//                 if (key === 'kw') {
+//                   elements = value.value.split(',')
+// // if elements is zero, what happens if I return null?
+//                   if (elements.length == 1) {
+//                     if (elements[0].trim() === '') {
+//                       elements = null;
+//                     }
+//                   }
+//                   return elements;
+//                 }
+//                 if (key === 'placenames') {
+//                   elements = value.value.split(',')
+//                   return elements;
+//                 } else {
+// // if (_.isEmpty(value.value)) {
+// //     return null;
+// // }
+//                   return value.value;
+//
+//                 }
+//
+//               })
+//               flattened['s3endpoint'] = flattened['g'].replace('urn:gleaner:milled', '').replaceAll(':', '/')
+//               if (_.isEqual("http///www.bigdata.com/rdf#nullGraph", flattened['s3endpoint'].toString())) {
+//                 flattened['s3endpoint'] = null;
+//               }
+// //  if g is http://www.bigdata.com/rdf#nullGraph then empty value, use empty value if empty, don't show
+//               return flattened;
+//             })
           }
-          self.settings.items = items;
-          self.initFacetCounts(self.settings);
-          self.filter(self.settings);
-
+          self.items = items;
+          self.initFacetCounts();//items,facets, facetStore,  facetSortOption
+          self.filter();
+      bus.$emit('facetupdate');
+      Promise.resolve();
         }
     );
 
@@ -206,59 +215,67 @@ export default {
       return items;
     },
     //getItemsFromSparql: async function (q, n = 1000, o = 0) {
-    initFacetCounts: function (settings) {
-      _.each(settings.facets,
+    initFacetCounts: function () {
+      let items = this.items;
+      let facets = this.facets;
+      let facetStore = this.facetStore;
+      let facetSortOption = this.facetSortOption;
+
+      _.each(facets,
           function (facet) { //function(facettitle, facet) {
-            settings.facetStore[facet.field] = {};
+            facetStore[facet.field] = {};
           });
-      _.each(settings.items, function (item) {
+      _.each(items, function (item) {
         // intialize the count to be zero
-        _.each(settings.facets,
+        _.each(facets,
             function (facet) { //function(facettitle, facet) {
               if (_.isArray(item[facet.field])) {
                 _.each(item[facet.field], function (facetitem) {
                   if (_.isEmpty(facetitem)) {
                     return;
                   }
-                  settings.facetStore[facet.field][facetitem] = settings.facetStore[facet.field][facetitem] || {
+                  facetStore[facet.field][facetitem] = facetStore[facet.field][facetitem] || {
                     count: 0,
                     id: _.uniqueId("facet_")
                   }
+                  Vue.observable(facetStore[facet.field][facetitem] )
                 });
               } else {
                 if (item[facet.field] !== undefined) {
                   if (_.isEmpty(item[facet.field])) {
                     return;
                   }
-                  settings.facetStore[facet.field][item[facet.field]] = settings.facetStore[facet.field][item[facet.field]] || {
+                  facetStore[facet.field][item[facet.field]] = facetStore[facet.field][item[facet.field]] || {
                     count: 0,
                     id: _.uniqueId("facet_")
                   }
+                  Vue.observable(facetStore[facet.field][item[facet.field]]  )
                 }
               }
             });
       });
       // sort it:
-      _.each(settings.facetStore,
-          function (facet) { //function(facet, facettitle) {
-            var sorted = _.keys(settings.facetStore[facet.title]).sort();
-            if (settings.facetSortOption && settings.facetSortOption[facet.title]) {
-              sorted = _.union(settings.facetSortOption[facet.title], sorted);
+      _.each(facetStore,
+          function(facetData, facettitle) {
+            var sorted = _.keys(facetStore[facettitle]).sort();
+            if (facetSortOption && facetSortOption[facettitle]) {
+              sorted = _.union(facetSortOption[facettitle], sorted);
             }
             var sortedstore = {};
             _.each(sorted, function (el) {
-              sortedstore[el] = settings.facetStore[facet.field][el];
+              sortedstore[el] = facetStore[facettitle][el];
             });
-            settings.facetStore[facet.field] = sortedstore;
+            //settings.facetStore[facet.field] = sortedstore;
+            Vue.set(facetStore, facettitle, sortedstore)
           });
 
 
     },
     resetFacetCount: function () {
       var self= this;
-      _.each(self.settings.facetStore, function (items, facetname) {
+      _.each(self.facetStore, function (items, facetname) {
         _.each(items, function (value, itemname) {
-          self.settings.facetStore[facetname][itemname].count = 0;
+          self.facetStore[facetname][itemname].count = 0;
         });
       });
     },
@@ -269,11 +286,12 @@ export default {
      */
     filter: function () {
       // first apply the filters to the items
-      var settings = this.settings;
-      this.settings.currentResults = []
-      this.settings.currentResults = _.select(this.settings.items, function (item) {
+
+      this.currentResults = []
+      let self = this;
+      self.currentResults = _.select(this.items, function (item) {
         var filtersApply = true;
-        _.each(settings.state.filters, function (filter, facet) {
+        _.each(self.state.filters, function (filter, facet) {
           if (_.isArray(item[facet])) {
             var inters = _.intersection(item[facet], filter);
             if (inters.length == 0) {
@@ -289,28 +307,49 @@ export default {
       });
       this.resetFacetCount();
       // then reduce the items to get the current count for each facet
-      _.each(settings.facets, function( facet) {
-        _.each(settings.currentResults, function(item) {
+      _.each(self.facets, function( facet) {
+        _.each(self.currentResults, function(item) {
           if (_.isArray(item[facet.field])) {
             _.each(item[facet.field], function(facetitem) {
               if (_.isEmpty(facetitem )) {return;}
-              settings.facetStore[facet.field][facetitem].count += 1;
+              //self.facetStore[facet.field][facetitem].count += 1;
+              let newcount = self.facetStore[facet.field][facetitem].count +1;
+              Vue.set(self.facetStore[facet.field][facetitem],'count',
+                  newcount )
             });
           } else {
             if (item[facet.field] !== undefined) {
               if (_.isEmpty(item[facet.field] )) {return;}
-              settings.facetStore[facet.field][item[facet.field]].count += 1;
+              //self.facetStore[facet.field][item[facet.field]].count += 1;
+              let newcount = self.facetStore[facet.field][item[facet.field]].count +1;
+              Vue.set(self.facetStore[facet.field][item[facet.field]],'count',
+                  newcount )
             }
           }
         });
       });
       // remove confusing 0 from facets where a filter has been set
-      _.each(settings.state.filters, function(filters, facettitle) {
-        _.each(settings.facetStore[facettitle], function(facet) {
-          if (facet.count == 0 && settings.state.filters[facettitle].length) facet.count = "+";
+      _.each(self.state.filters, function(filters, facettitle) {
+        _.each(self.facetStore[facettitle], function(facet) {
+          if (facet.count == 0 && self.state.filters[facettitle].length) facet.count = "+";
         });
       });
-      settings.state.shownResults = 0;
+      self.state.shownResults = 0;
+    },
+    toggleFilter: function(key, value)
+    {
+      console.log('toggleFilter')
+      var state = this.state;
+      state.filters[key] = state.filters[key] || [];
+      if (_.indexOf(state.filters[key], value) == -1) {
+        state.filters[key].push(value);
+      } else {
+        state.filters[key] = _.without(state.filters[key], value);
+        if (state.filters[key].length == 0) {
+          delete state.filters[key];
+        }
+      }
+      this.filter();
     }
   }
 }

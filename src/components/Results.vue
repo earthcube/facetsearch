@@ -1,7 +1,7 @@
 <template>
   <div >
 
-     <ResultItem v-for="item in settings.currentResults" v-bind:key="item.subj" :item="item">
+     <ResultItem v-for="item in currentResults" v-bind:key="item.subj" :item="item">
      </ResultItem>
 
 
@@ -13,7 +13,7 @@ import ResultItem from "./ResultItem";
 
 export default {
 name: "Results",
-  props: ["settings"],
+  props: ["currentResults"],
   components: {
     ResultItem
   },

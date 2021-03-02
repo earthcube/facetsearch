@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
+  <div id="app" class="container-fluid">
     <navHeader></navHeader>
-    <Search title="Welcome to Your Vue.js App" :n="10" :o="0"/>
+    <Search title="EarthCube Faceted Search" :n="10" :o="0"/>
   </div>
 </template>
 

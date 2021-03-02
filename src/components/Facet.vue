@@ -1,17 +1,21 @@
-<template>
-  <div class="accordion col-12  rounded" :id="'accordian' + facetSetting.field ">
+<template  >
+  <div class="accordion col-12  rounded p-0 mt-1" :id="'accordian' + facetSetting.field ">
     <b-card >
-      <b-card-header header-tag="header" class="p-1" role="tab">
-        <b-button block v-b-toggle.accordion-1 variant="info"> {{facetSetting.title}}</b-button>
+      <b-card-header header-tag="header" class="p-0" role="tab">
+        <b-button block v-b-toggle="'accordion-'+ facetSetting.field" variant="info"> {{facetSetting.title}}</b-button>
       </b-card-header>
-      <b-collapse id="accordion-1" visible accordion="my-accordion" role="tabpanel">
+      <b-collapse :id="'accordion-'+ facetSetting.field" :visible="facetSetting.open" :accordion="facetSetting.field+'-accordion'" role="tabpanel">
         <b-card-body>
-          <b-card-text>I start opened because <code>visible</code> is <code>true</code></b-card-text>
-          <b-card-text>{{facetSetting.title}}</b-card-text>
-          <FacetItem v-for='(info, term) in facetStore' v-bind:key="info.id"
-                :term="term" :count="info.count">
+<!-- v-on:facetupdate="updateFacetItems"-->
+          <FacetItem   v-for='(info, term) in facetItems' v-bind:key="info.id"  v-on:click.native="_handleClick"
+                       v-bind:id="facetStore[facetSetting.field][term].id"
+                       :term="term" :count="info.count" :facetSetting="facetSetting">
           </FacetItem>
-
+<!--          <div v-for='(info, term) in facetItems'  v-bind:key="info.id" class="facetitem" v-on:click.native="_handleClick"-->
+<!--          v-bind:id="facetStore[facetSetting.field][term].id">-->
+<!--            <span>{{ term }}</span>-->
+<!--            <b-badge variant="light" class="ml-auto" > {{  info.count }} </b-badge>-->
+<!--          </div>-->
         </b-card-body>
       </b-collapse>
     </b-card>
@@ -21,19 +25,29 @@
 <script>
 import _ from "underscore";
 import FacetItem from "./FacetItem";
-
+import {bus} from "../main.js"
 export default {
   name: "Facet",
   components: {FacetItem},
-  props: {"facetSetting":Object, "settings":Object, },
+  props: {"facetSetting":Object, "facetStore":Object,"state":Object },
   data () {
     return {
       // watch facetStore
-      facetStore: this.settings.facetStore[this.facetSetting.field],
-      currentResults: this.settings.currentResults
+      facetItems: this.facetStore[this.facetSetting.field],
+
+
     }
   },
+  mounted(){
+    var self = this;
+      bus.$on('facetupdate', () => {
+        console.log("facetupdate event");
+        self.facetItems = self.facetStore[self.facetSetting.field];
+      })
+    }
+  ,
   computed:{
+
     facetList: function( ){
       var count = 0 ;
       var facetSetting = this.facetSetting;
@@ -42,7 +56,7 @@ export default {
       //this.resetFacetCount(settings);
       // then reduce the items to get the current count for each facet
      // _.each(settings.facets, function (facet) {
-     var facetItems =  _.each(this.settings.currentResults, function (item) {
+     var facetItems =  _.each(this.currentResults, function (item) {
           if (_.isArray(item[facetSetting.field])) {
             _.each(item[facetSetting.field], function (facetitem) {
               if (_.isEmpty(facetitem)) {
@@ -74,6 +88,52 @@ export default {
   methods:
 
       {
+        updateFacetItems: function(){
+          console.log("facetupdateitems methtod called event");
+          this.$forceUpdate();
+          //  this.facetItems = this.facetStore[this.facetSetting.field];
+        },
+        _handleClick: function(event){
+          console.log(event)
+          //var filter = this.getFilterById(this.id);
+          var filter = this.getFilterById(event.target.id);
+          //var filter = this.facetSetting
+         this.toggleFilter(filter.facetname, filter.filtername);
+          //this.toggleFilter(filter.field, filter.title);
+         // $(this.facetSelector).trigger("facetedsearchfacetclick", filter);
+          bus.$emit("facetedsearchfacetclick", filter)
+          //order();
+         // updateFacetUI();
+         // updateResults();
+        },
+
+        /**
+         * get a facetname and filtername by the unique id that is created in the beginning
+         */
+        getFilterById: function (id) {
+        var result = false;
+        _.each(this.facetStore, function(facet, facetname) {
+          _.each(facet, function(filter, filtername){
+            if (filter.id == id) {
+              result =  {'facetname': facetname, 'filtername': filtername};
+            }
+          });
+        });
+        return result;
+      },
+        toggleFilter: function(key, value)
+        {
+          this.state.filters[key] = this.state.filters[key] || [];
+          if (_.indexOf(this.state.filters[key], value) == -1) {
+            this.state.filters[key].push(value);
+          } else {
+            this.state.filters[key] = _.without(this.state.filters[key], value);
+            if (this.state.filters[key].length == 0) {
+              delete this.state.filters[key];
+            }
+          }
+         // filter();
+        },
         // facetCount: function( ){
         //   var count = 0 ;
         //   var facetSetting = this.facetSetting;
@@ -148,7 +208,7 @@ export default {
           // remove confusing 0 from facets where a filter has been set
           _.each(settings.state.filters, function (filters, facettitle) {
             _.each(settings.facetStore[facettitle], function (facet) {
-              if (facet.count == 0 && settings.state.filters[facettitle].length) facet.count = "+";
+              if (facet.count === 0 && settings.state.filters[facettitle].length) facet.count = "+";
             });
           });
         }
