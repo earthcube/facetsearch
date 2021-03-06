@@ -29,7 +29,11 @@ import {bus} from "../main.js"
 export default {
   name: "Facet",
   components: {FacetItem},
-  props: {"facetSetting":Object, "facetStore":Object,"state":Object },
+  props: {"facetSetting":Object,
+    "facetStore":Object,
+    "state":Object,
+    "currentResults": Array
+  },
   data () {
     return {
       // watch facetStore
@@ -46,45 +50,46 @@ export default {
       })
     }
   ,
-  computed:{
-
-    facetList: function( ){
-      var count = 0 ;
-      var facetSetting = this.facetSetting;
-      // Update the count for each facet and item:
-      // intialize the count to be zero
-      //this.resetFacetCount(settings);
-      // then reduce the items to get the current count for each facet
-     // _.each(settings.facets, function (facet) {
-     var facetItems =  _.each(this.currentResults, function (item) {
-          if (_.isArray(item[facetSetting.field])) {
-            _.each(item[facetSetting.field], function (facetitem) {
-              if (_.isEmpty(facetitem)) {
-                return;
-              }
-              count += 1;
-            });
-          } else {
-            if (item[facetSetting.field] !== undefined) {
-              if (_.isEmpty(item[facetSetting.field])) {
-                return;
-              }
-              count += 1;
-            }
-          }
-        });
-     // });
-
-      // remove confusing 0 from facets where a filter has been set
-
-          if (count == 0 && this.settings.state.filters[facetSetting.field].length) count = "+";
-
-
-
-      //return settings.facetStore[facetSetting.field][item[facetSetting]].count;
-      return facetItems;
-    }
-  },
+  // computed:{
+  //
+  //   facetList: function( ){
+  //     var self = this;
+  //     var count = 0 ;
+  //     var facetSetting = this.facetSetting;
+  //     // Update the count for each facet and item:
+  //     // intialize the count to be zero
+  //     //this.resetFacetCount(settings);
+  //     // then reduce the items to get the current count for each facet
+  //    // _.each(settings.facets, function (facet) {
+  //    var facetItems =  _.each(self.currentResults, function (item) {
+  //         if (_.isArray(item[facetSetting.field])) {
+  //           _.each(item[facetSetting.field], function (facetitem) {
+  //             if (!_.isEmpty(facetitem)) {
+  //               count += 1;
+  //             }
+  //
+  //           });
+  //         } else {
+  //           if (item[facetSetting.field] !== undefined) {
+  //             if (!_.isEmpty(item[facetSetting.field])) {
+  //               count += 1;
+  //             }
+  //
+  //           }
+  //         }
+  //       });
+  //    // });
+  //
+  //     // remove confusing 0 from facets where a filter has been set
+  //
+  //         if (count == 0 && self.settings.state.filters[facetSetting.field].length) count = "+";
+  //
+  //
+  //
+  //     //return settings.facetStore[facetSetting.field][item[facetSetting]].count;
+  //     return facetItems;
+  //   }
+  // },
   methods:
 
       {
@@ -132,7 +137,7 @@ export default {
               delete this.state.filters[key];
             }
           }
-         // filter();
+          this.$parent.$parent.filter();
         },
         // facetCount: function( ){
         //   var count = 0 ;

@@ -287,7 +287,7 @@ export default {
     filter: function () {
       // first apply the filters to the items
 
-      this.currentResults = []
+     // this.currentResults = [] // triggers reactive event and we are resetting it in the next lines, anyway
       let self = this;
       self.currentResults = _.select(this.items, function (item) {
         var filtersApply = true;
