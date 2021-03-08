@@ -1,7 +1,7 @@
 <template>
   <div >
 
-     <ResultItem v-for="item in currentResults" v-bind:key="item.subj" :item="item">
+     <ResultItem v-for="item in currentResults" v-bind:key="item.row" :item="item">
      </ResultItem>
 
 

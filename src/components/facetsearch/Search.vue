@@ -19,8 +19,8 @@
       <div class="row col-8 align-self-start ">
         <ResultHeader id="headingDiv"
                       class="row col-12" style="height: 2em;"
-        :current-count="currentResults.length"
-        :total-count="items.length"
+        :current="currentResults"
+        :total="items"
         :sort-options="facetSortOption"></ResultHeader>
 
         <Results id="resultsDiv" v-bind:currentResults="currentResults"></Results>
@@ -200,7 +200,9 @@ export default {
   ,
   methods: {
     //content.results.bindings
+
     flattenSparqlResults: function (bindings) {
+      var row = 0;
       var items = _.map(bindings, function (item) {
 
         var flattened = _.mapObject(item, function (value, key) {
@@ -232,6 +234,8 @@ export default {
           flattened['s3endpoint'] = null;
         }
 //  if g is http://www.bigdata.com/rdf#nullGraph then empty value, use empty value if empty, don't show
+        flattened[row]=row;
+        row++;
         return flattened;
       })
       return items;
