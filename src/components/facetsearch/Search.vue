@@ -23,7 +23,7 @@
         :total-count="items.length"
         :sort-options="facetSortOption"></ResultHeader>
 
-        <Results id="resultsDiv" v-bind:currentResults="currentResults"></Results>
+        <Results id="resultsDiv" v-bind:currentResults="currentResults" :state="state"></Results>
       </div>
     </div>
   </div>

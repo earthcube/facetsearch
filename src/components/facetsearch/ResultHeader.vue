@@ -8,8 +8,8 @@
 export default {
 name: "ResultHeader",
   props: {
-  "totalCount": Array,
-    "currentCount":Array,
+  "totalCount": Number,
+    "currentCount":Number,
    "sortOptions": Object
    }
    ,

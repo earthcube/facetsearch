@@ -9,8 +9,9 @@
         {{ item.description }}
       </div>
       <div v-show="item.kw" class="card-text pt-2">
-        <b>Keywords:</b> {{ item.kw }}
-      </div>
+        <b>Keywords:</b> <span v-html="highlightKw(filters,item.kw)">
+      </span>
+        </div>
     </div>
     <div class="card-footer">
       <div class="row">
@@ -35,10 +36,42 @@
 </template>
 
 <script>
+import _ from 'lodash'
+
 export default {
   name: "ResultItem",
-  props: ["item"]
+  props: ["item", "state"],
+  data () {
+    return {
+      filters : this.state.filters
+    }
+  }
+  , methods: {
+    highlightKw(filters, keywords) {
+      if (keywords) {
+        let kwList = [];
+        if (_.isArray(keywords)) {
+          kwList = keywords.map(function (kw) {
+            if (_.includes(filters['kw'], kw)) {
+              return `<b>${kw}</b>`;
+            } else {
+              return kw
+            }
+          })
+        } else {
+          if (_.includes(filters, keywords)) {
+            return [`<b>${keywords}<b/>`];
+          } else {
+            kwList = [keywords]
+          }
+        }
+        return kwList;
+      }
+
+    }
+  }
 }
+
 </script>
 
 <style scoped>
