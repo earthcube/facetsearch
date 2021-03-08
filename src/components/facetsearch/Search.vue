@@ -19,8 +19,8 @@
       <div class="row col-8 align-self-start ">
         <ResultHeader id="headingDiv"
                       class="row col-12" style="height: 2em;"
-        :current="currentResults"
-        :total="items"
+        :current-count="currentResults.length"
+        :total-count="items.length"
         :sort-options="facetSortOption"></ResultHeader>
 
         <Results id="resultsDiv" v-bind:currentResults="currentResults"></Results>

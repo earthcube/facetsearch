@@ -8,17 +8,12 @@
 export default {
 name: "ResultHeader",
   props: {
-  "items": Array,
-    "currentResults":Array,
+  "totalCount": Array,
+    "currentCount":Array,
    "sortOptions": Object
    }
    ,
-  data() {
-  return {
-    currentCount:  this.currentResults ?  this.currentResults.length : 0,
-    totalCount: this.totalCount ? this.totalCount.length : 0
-  }
-  }
+
 
 }
 </script>
