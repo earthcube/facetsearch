@@ -1,10 +1,11 @@
 <template>
-<div id="facets" v-on:facetupdate="warn('Form cannot be submitted yet.', $event)" >
+<div id="facets"  >
  <Facet v-for="facetSetting in facets" v-bind:key="facetSetting.title"
        :facetSetting="facetSetting"
-        :facetStore="facetStore2"
+        :facetStore="facetStore"
         :state="state"
-      :current-results="currentResults">
+
+ >
         </Facet>
 <!--  <Facet v-for="facetkey in Object.keys(facetStore2)" v-bind:key="facetkey"-->
 <!--         v-bind:facetSetting="facets.find( (obj) => obj.field === facetkey)"-->
@@ -23,7 +24,7 @@ name: "Facets",
   props: {"facetStore":Object,
   "facets":Array,
   "state":Object,
-   "currentResults": Array
+//   "currentResults": Array
   },
   data: function() {
   return {
@@ -32,9 +33,9 @@ name: "Facets",
   }
   },
   methods: {
-   updateFacets(){
-    this.$forceUpdate();
-  }
+  //  updateFacets(){
+  //   this.$forceUpdate();
+  // }
 }
 }
 </script>

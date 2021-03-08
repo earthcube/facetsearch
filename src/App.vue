@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import Search from './components/Search.vue'
+import Search from './components/facetsearch/Search.vue'
 import navHeader  from './components/navHeader.vue'
 
 
