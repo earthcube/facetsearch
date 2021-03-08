@@ -10,16 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
       - name: Create Node Environment
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: 10.x
-      - name: Install Packages and Build Application
-        run: |
-          npm install -g @vue/cli yarn
-          yarn install
-          yarn build
+          node-version: '14'
+      - run: npm install -g @vue/cli yarn
+      - run: yarn install
+      - run: yarn build
       - name: Deploy
         uses: s0/git-publish-subdir-action@develop
         env:
@@ -36,6 +34,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-west-1'   # optional: defaults to us-east-1
-          AWS_S3_ENDPOINT: ${{ secrets.S3_GEODEX_ENDPOINT }}
+          AWS_S3_ENDPOINT: ${{ secrets.S3_GEOCODES_ENDPOINT }}
           SOURCE_DIR: 'dist'      # optional: defaults to entire repository
           DEST_DIR: 'vue/website'
