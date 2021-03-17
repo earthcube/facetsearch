@@ -35,8 +35,8 @@ import Results from "./Results";
 import Facets from "./Facets";
 //import _, { DatasetLocation } from 'underscore';
 import _ from 'underscore';
-import axios from "axios";
-import FacetsConfig from '../../config.js'
+//import axios from "axios";
+//import FacetsConfig from '../../config.js'
 
 import {bus} from "../../main.js"
 import ResultHeader from "./ResultHeader";
@@ -105,13 +105,13 @@ export default {
     }
   },
 
-  async mounted() {
+  async created() {
     //const self = this;
-    const q = "water";
+    //const q = "water";
     const n = 10;
     const o = 0;
     this.$store.dispatch('getQueryTemplate',{ name:'fulltext', path:'/queries/sparql_query.txt'} ).then (
-        ()=>  this.$store.dispatch('getResults', {textQuery:q, limit:n,offset:o})
+        ()=>  this.$store.dispatch('getResults', {textQuery:this.q, limit:n,offset:o})
     )
 
 

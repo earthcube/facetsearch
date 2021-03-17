@@ -3,30 +3,10 @@
     <div class="row">
       <span class="font-weight-bold font-heavy my-4">  {{mapping.s_name}} </span>
     </div>
+
     <div class="row">
-      <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item">
-          <a class="nav-link active" id="md-tab" data-toggle="tab" href="#md" role="tab"
-             aria-controls="md" aria-selected="true">Metadata</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link " id="web-tab" data-toggle="tab" href="#web" role="tab"
-             aria-controls="web" aria-selected="true">Web Links</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link " id="citation-tab" data-toggle="tab" href="#cite" role="tab"
-             aria-controls="cite" aria-selected="true"
-          >Citation</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link " id="json-tab" data-toggle="tab" href="#json" role="tab"
-             aria-controls="json" aria-selected="true">Raw Metadata</a>
-        </li>
-      </ul>
-    </div>
-    <div class="row">
-      <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" id="md" role="tabpanel" aria-labelledby="md-tab">
+      <b-tabs  id="myTabContent">
+        <b-tab title="Metadata" active id="md"  aria-labelledby="md-tab">
           <div class="row">
 
             <span class="col-2 font-weight-bold">Type:</span>
@@ -56,8 +36,8 @@
             <span class="col-8">
                                {{mapping.s_publishedDate}}</span>
           </div>
-        </div>
-        <div class="tab-pane fade" id="web" role="tabpanel" aria-labelledby="web-tab">
+        </b-tab>
+        <b-tab title="Web Links" id="web"  aria-labelledby="web-tab">
           <div class="row">
 
             <span class="col-4 font-weight-bold">Name</span>
@@ -81,24 +61,24 @@
 
 
 
-        </div>
-        <div class="tab-pane fade" id="cite" role="tabpanel" aria-labelledby="cite-tab">
+        </b-tab>
+        <b-tab title="Citation" id="cite"  aria-labelledby="cite-tab">
           <div class="row">
 
             <span class="col-4 font-weight-bold">Citation</span>
 
             <a class="col-8" :href="mapping.s_citation" target="_blank">{{mapping.s_citation}}</a>
           </div>
-        </div>
-        <div class="tab-pane fade" id="json" role="tabpanel" aria-labelledby="json-tab">
+        </b-tab>
+        <b-tab title="JSON" id="json" aria-labelledby="json-tab">
           <div class="row">
 
             <span class="col-4 font-weight-bold">JSON</span>
 
             <pre>{{mapping.raw_json}}</pre>
           </div>
-        </div>
-      </div>
+        </b-tab>
+      </b-tabs>
     </div>
   </div>
 

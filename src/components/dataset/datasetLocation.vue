@@ -135,7 +135,7 @@ export default {
             } else if (box) {
               // calc centerpoint of box
               //var points = e.detail.box.split(" ")
-              let box = box
+
               var northing = (box[0][0] + box[1][0]) / 2
               var easting = (box[0][1] + box[1][1]) / 2
               console.log(`box ${northing} ${easting}`)
