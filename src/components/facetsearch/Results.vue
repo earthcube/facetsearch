@@ -10,6 +10,7 @@
 
 <script>
 import ResultItem from "./ResultItem";
+import {mapState} from "vuex";
 
 export default {
 name: "Results",
@@ -17,7 +18,9 @@ name: "Results",
   components: {
     ResultItem
   },
+  computed: { ...mapState ([ 'results'])
 
+  },
   // data() {
   // var items;
   //   return {

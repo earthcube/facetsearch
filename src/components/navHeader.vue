@@ -20,7 +20,11 @@
       </b-nav-form>
 
 
-
+        <b-nav-item  :to="{ name: 'landing'}">Home</b-nav-item>
+        <keep-alive>
+            <b-nav-item  :to="{ name: 'Search', query: { q: 'water' } }">Search</b-nav-item>
+        </keep-alive>
+        <b-nav-item  :to="{ name: 'dataset', params: { o: '/lipdverse/509e465d0793506b237cea8069c3cb2d276fe9c2.jsonld' } }">Dataset</b-nav-item>
         <b-nav-item  href="https://graph.geodex.org/blazegraph/#query">SPARQL Endpoint</b-nav-item>
           <b-nav-item  href="about.html">Help</b-nav-item>
       </b-navbar-nav>

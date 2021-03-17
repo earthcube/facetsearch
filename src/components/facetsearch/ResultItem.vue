@@ -26,9 +26,9 @@
         </span>
         <span class="col-auto">
 
-                        <a v-show="item.s3endpoint" class="card-link " target="_blank"
-                           :href="'dataset.html?o=' + item.s3endpoint + '.jsonld'">Details</a>
-
+<!--                        <a v-show="item.s3endpoint" class="card-link " target="_blank"-->
+<!--                           :href="'dataset.html?o=' + item.s3endpoint + '.jsonld'">Details</a>-->
+              <router-link  :to="{ name: 'dataset', params: { o: item.s3endpoint+'.jsonld' } }">Details</router-link>
         </span>
       </div>
     </div>

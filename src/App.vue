@@ -1,19 +1,25 @@
 <template>
-  <div id="app" class="container-fluid">
+  <div id="app" class="container-fluid mt-1">
     <navHeader></navHeader>
-    <Search title="EarthCube Faceted Search" :n="10" :o="0"/>
+
+      <router-view></router-view>
+
+
+
   </div>
 </template>
 
 <script>
-import Search from './components/facetsearch/Search.vue'
+//import Search from './components/facetsearch/Search.vue'
 import navHeader  from './components/navHeader.vue'
+//import Landing from "./components/landing/landing.vue";
 
 
 export default {
   name: 'App',
   components: {
-    Search,
+ //   Landing,
+ //   Search,
     navHeader
   }
 }
