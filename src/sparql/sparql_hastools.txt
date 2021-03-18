@@ -2,11 +2,12 @@ PREFIX schema:  <https://schema.org/>
 	PREFIX schemaold:  <http://schema.org/>
 	ASK
 	WHERE                    {
-	  graph < <%= g %> >
+	  graph  <${g}>
 		  {
 			{
 			  ?s schemaold:distribution|schema:distribution ?dist .
 			  ?dist  schemaold:encodingFormat|schema:encodingFormat ?type .
+              ?dist schemaold:contentUrl|schema:contentUrl|schema:url|schemaold:url ?curl
 			}
 			UNION {
 			  VALUES (?dataset) { ( schema:Dataset ) ( schemaold:Dataset ) }
@@ -18,10 +19,10 @@ PREFIX schema:  <https://schema.org/>
 		 SERVICE <http://132.249.238.169:8080/fuseki/ecrr/query> {
 		  GRAPH <http://earthcube.org/gleaner-summoned>
 		   {
-			  ?rrs schemaold:supportingData ?df.
-				  ?df schemaold:encodingFormat  ?label ;
-					  schemaold:position "input".
-				  ?rrs schemaold:name ?name.
+			  ?rrs schema:supportingData ?df.
+				  ?df schema:encodingFormat  ?label ;
+					  schema:position "input".
+				  ?rrs schema:name ?name.
 		   }
 	   }
 	}

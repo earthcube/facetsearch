@@ -1,12 +1,12 @@
 <template>
 <div class="row col-12">
   <div class="row col-12">
-    <Metadata class="col-9 border"  v-if="jsonLoaded"></Metadata>
-    <DatasetLocation class="col-3"  v-if="jsonLoaded"
+    <Metadata class="col-9 border" ></Metadata>
+    <DatasetLocation class="col-3"
      ></DatasetLocation>
   </div>
  <div class="row col-12">
-   <connected-tools  v-if="jsonLoaded"></connected-tools>
+   <connected-tools  :op="o"></connected-tools>
  </div>
 </div>
 </template>
@@ -27,7 +27,7 @@ name: "dataset",
   },
   data(){ return {
     //jsonLdobj: {},
-    jsonLoaded: true,
+    //jsonLoaded: true,
   }},
   async mounted() {
 
@@ -37,7 +37,7 @@ name: "dataset",
   //   // call again the method if the route changes
   //   '$route': 'fetchJsonLD'
   // },
-  computed: { ...mapState ([ 'jsonLdObj'])
+  computed: { ...mapState (['jsonLdObj', 'jsonLdCompact'])
 
   },
   methods: {...mapActions([

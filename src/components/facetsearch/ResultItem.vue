@@ -17,7 +17,9 @@
       <div class="row">
                 <span class="col-auto mr-auto">
                      <span class="badge badge-secondary">{{ item.resourceType }}  </span>
-                     <span class="tool " hidden="true">{{ item.g }}  </span>
+                  <span  ref="tool" class="tool " v-if="connectedTools">
+                    <span class="badge badge-info">Connected Tools</span>
+                  </span>
                   </span>
         <span class="col-auto ">
 
@@ -37,16 +39,28 @@
 
 <script>
 import _ from 'lodash'
+import {mapActions,mapGetters} from "vuex";
 
 export default {
   name: "ResultItem",
   props: ["item", "state"],
   data () {
     return {
-      filters : this.state.filters
+      filters : this.state.filters,
+      connectedTools: false
+
     }
+  }, computed: {
+    ...mapGetters ([
+                  'getConnectedTool'])
+}
+  ,mounted() {
+   this.hasTool();
+
   }
   , methods: {
+    ...mapActions([
+       'hasConnectedTools']),
     highlightKw(filters, keywords) {
       if (keywords) {
         let kwList = [];
@@ -66,6 +80,25 @@ export default {
           }
         }
         return kwList;
+      }
+
+    }
+    ,hasTool() {
+      var self = this;
+      let gg = self.item.g ;
+      if (self.getConnectedTool(gg)) {
+        self.connectedTools=self.getConnectedTool(gg);
+
+      } else {
+        self.hasConnectedTools(gg).then(
+            function(o){
+
+                self.connectedTools=o;
+
+            }
+        ).catch((err) => {
+          console.error(err);
+        })
       }
 
     }

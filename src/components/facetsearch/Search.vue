@@ -36,7 +36,7 @@ import Facets from "./Facets";
 //import _, { DatasetLocation } from 'underscore';
 import _ from 'underscore';
 //import axios from "axios";
-//import FacetsConfig from '../../config.js'
+import FacetsConfig from '../../config.js'
 
 import {bus} from "../../main.js"
 import ResultHeader from "./ResultHeader";
@@ -54,13 +54,15 @@ export default {
 
   },
   watch:{
-    results:'search'
+    results:'search',
+    q: 'newTextSearch'
+
   },
 
   props: {
     title: String,
-    o: Number,
-    n: Number,
+    o: { type: Number,default:0},
+    n: { type:Number,default:FacetsConfig.RESULT_SIZE},
     q:String,
     // results:[]
   },
@@ -84,19 +86,7 @@ export default {
         facetStore: {},
       facetSortOption: {},
         //---- ok to edit facets
-        facets: [{
-          field: 'kw',
-          title: 'Science Domain',
-          sort: 'acs',
-          open: true
-
-        }, {
-          field: 'resourceType',
-          title: 'Resource Type',
-          sort: 'acs',
-          open: false
-        }
-        ],
+        facets: FacetsConfig.FACETS,
 
         // -- end edit  facets
 
@@ -110,9 +100,8 @@ export default {
     //const q = "water";
     const n = 10;
     const o = 0;
-    this.$store.dispatch('getQueryTemplate',{ name:'fulltext', path:'/queries/sparql_query.txt'} ).then (
-        ()=>  this.$store.dispatch('getResults', {textQuery:this.q, limit:n,offset:o})
-    )
+    this.$store.dispatch('getResults', {textQuery:this.q, limit:n,offset:o})
+
 
 
 
@@ -122,6 +111,9 @@ export default {
     ...mapActions([
       'getResults','getQueryTemplate']),
     //content.results.bindings
+    newTextSearch: function (){
+      this.getResults({textQuery:this.q, limit:this.n,offset:this.o})
+},
     search: function(){
       this.items = this.results;
       this.initFacetCounts();//items,facets, facetStore,  facetSortOption
