@@ -180,6 +180,7 @@ export const store = new Vuex.Store({
         hasConnectedTools: async function (context, payload) {
             if (context.getters.getConnectedTool(payload)) {
                 console.log('hasConnectedTools:cached:' + context.getters.getConnectedTool(payload));
+               Promise.resolve()
                 return context.getters.getConnectedTool(payload)
 
             }
@@ -207,7 +208,7 @@ export const store = new Vuex.Store({
             }
             console.log('hasConnectedTools:ask:')
             console.log(params["query"]);
-            axios.request(config).then(function (response) {
+            return axios.request(config).then(function (response) {
                 var hasTool = response.data.boolean
                 console.log('hasConnectedTools:ask:result:' + hasTool);
 
