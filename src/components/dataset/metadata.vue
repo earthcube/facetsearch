@@ -71,11 +71,13 @@
           </div>
         </b-tab>
         <b-tab title="JSON" id="json" aria-labelledby="json-tab">
-          <div class="row">
+          <div class="row ml-2">
 
-            <span class="col-4 font-weight-bold">JSON</span>
+            <div >JSON</div>
 
-            <pre>{{mapping.raw_json}}</pre>
+            <json-view class="text-left " :data="mapping.raw_json"/>
+            <!-- need to modify value-key to include class text-wrap -->
+
           </div>
         </b-tab>
       </b-tabs>
@@ -89,9 +91,13 @@
 //import _ from 'lodash'
 import { schemaItem,hasSchemaProperty,getFirstGeoShape,geoplacename,getDistributions,getGeoCoordinates} from '../../api/jsonldObject.js'
 import {mapState} from "vuex";
+import { JSONView } from "vue-json-component";
 
 export default {
   name:  "metadata",
+  components: {
+    "json-view": JSONView
+  },
   // props:{
   //   jsonLdobj: Object,
   // },
@@ -148,7 +154,7 @@ export default {
         var j = JSON.stringify(self.jsonLdCompact, null, 2);
         var jp = JSON.parse(j);
         console.log(j.toString());
-        mapping.raw_json = j;
+        mapping.raw_json = jp;
         //const detailsTemplate = [];
         // detailsTemplate.push(html`<h3>Digital Document metadata</h3>`);
         mapping.s_name = schemaItem('name', jp);
@@ -254,6 +260,13 @@ export default {
   }
 }
 </script>
+
+<!-- unscoped to override json-view white-space:nowrap -->
+<style >
+.value-key {
+  white-space:normal !important
+}
+</style>
 
 <style scoped>
 

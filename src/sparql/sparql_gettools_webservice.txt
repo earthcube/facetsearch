@@ -1,6 +1,6 @@
 prefix sdos: <https://schema.org/>
    PREFIX schemaold: <http://schema.org/>
-   select DISTINCT ?dataname ?appname   ?durl  ?turl ?frss
+   select DISTINCT ?dataname ?appname   ?durl  ?turl ?rrs
    WHERE
    {
        graph <urn:gleaner:milled${op}> {

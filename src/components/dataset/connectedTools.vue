@@ -1,12 +1,23 @@
 <template>
-  <div>
-    <div v-if="hasTools">Connected Tool</div>
-    <div v-for="i in downloadTools" v-bind:key="i.rrs +i.name">
-      {{ i.rrs }} {{ i.name }}
-    </div>
-    <div v-for="i in webserviceTools" v-bind:key="i.dataname + i.appname">
-      {{ i.dataname }} {{ i.appname }}
-    </div>
+  <div class="mr-2" >
+    <div class="row h4 mr-2" v-if="hasTools">Connected Tools</div>
+
+      <div v-if="downloadTools.length >0" class="row h6 ">Downloadable:</div>
+      <!-- ?rrs ?name ?curl ?landingPage -->
+      <div class="row" v-for="i in downloadTools" v-bind:key="i.index">
+        <a class="ml-3" :href="i.landingPage.value">{{ i.name.value }}</a>
+        <a class="ml-auto" :href=" i.rrs.value ">Tool Metadata</a>
+      </div>
+
+
+      <div v-if="webserviceTools.length >0" class="row h6 ">Web Applications:</div>
+      <!--  ?dataname ?appname   ?durl  ?turl ?rrs -->
+      <div class="row" v-for="i in webserviceTools" v-bind:key="i.index">
+        <a class="ml-3"  :href="i.durl.value">{{ i.appname.value }} for {{ i.dataname.value }} </a>
+        <a class="ml-auto" :href=" i.rrs.value ">Tool Metadata</a>
+      </div>
+
+
   </div>
 </template>
 
@@ -24,7 +35,7 @@ let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
 export default {
   name: "connectedTools",
   props: {
-    op: {type:String, default:''}
+    op: {type: String, default: ''}
   },
   data() {
     return {
@@ -44,14 +55,14 @@ export default {
     ...mapActions([
       'hasConnectedTools']),
     checkTools() {
-      let graphUri = this.op.replaceAll("/", ":").replace('.jsonld',"");
-      this.hasTools= this.hasConnectedTools(graphUri)
+      let graphUri = this.op.replaceAll("/", ":").replace('.jsonld', "");
+      this.hasTools = this.hasConnectedTools(graphUri)
       this.getDownloadableTools(graphUri)
       this.getWebTools(graphUri)
     }
     , getWebTools(graphUri) {
       var self = this
-     const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, esTemplateOptions)
+      const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, esTemplateOptions)
       // const resultsTemplate = _.template(SpaqlToolsDownloadQuery, esTemplateOptions)
       let hasToolsQuery = resultsTemplate({op: graphUri});
 
@@ -70,11 +81,14 @@ export default {
         params: params
       }
       console.log('webtools:query:')
-      console.log( params["query"]);
+      console.log(params["query"]);
       axios.request(config).then(function (response) {
-        self.webserviceTools =  response.data.results.bindings
+        //self.webserviceTools =  response.data.results.bindings
+        var bindings = response.data.results.bindings
+        let index = 0;
+        bindings.forEach((i) => (i.index = index++));
 
-
+        self.webserviceTools = bindings
       })
     }
     , getDownloadableTools(graphUri) {
@@ -98,7 +112,11 @@ export default {
       }
       console.log('donwloadtools:query:' + params["query"]);
       axios.request(config).then(function (response) {
-        self.downloadTools = response.data.results.bindings
+        // self.downloadTools = response.data.results.bindings
+        var bindings = response.data.results.bindings
+        let index = 0;
+        bindings.forEach((i) => (i.index = index++));
+        self.downloadTools = bindings
 
 
       })

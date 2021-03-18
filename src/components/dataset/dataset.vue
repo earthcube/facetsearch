@@ -6,7 +6,8 @@
      ></DatasetLocation>
   </div>
  <div class="row col-12">
-   <connected-tools  :op="o"></connected-tools>
+   <connected-tools class="col-6" :op="o"></connected-tools>
+   <div class="col-6"><!-- future related links --></div>
  </div>
 </div>
 </template>
