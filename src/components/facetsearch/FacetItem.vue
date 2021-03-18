@@ -1,5 +1,5 @@
 <template>
-  <div  class="facetitem"  v-bind:class="{ activeFacet: isActive}">
+  <div  class="facetitem row"  v-bind:class="{ activeFacet: isActive}">
     <!-- wrapping in a span mucks with event. child noted as clicked. -->
 <!--   <span>{{ term }}</span> -->
     {{ term }}
