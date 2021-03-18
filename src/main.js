@@ -42,7 +42,7 @@ const router=new Router({
 //   router.replace(router.currentRoute.fullPath);
 // });
 Vue.config.productionTip = false
-
+Vue.config.devtools = true
 export const bus = new Vue(); // https://blog.logrocket.com/using-event-bus-in-vue-js-to-pass-data-between-components/
 new Vue({
   render: h => h(App),
