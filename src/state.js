@@ -23,6 +23,9 @@ export const store = new Vuex.Store({
         lastTextQueries: [], // query, num results
         lastDatasetIds: [],
         connectedTools: new Map(), // object id, hasConnectedTools
+        // query: '',
+        // searchExactMatch: false,
+        // resultLimit: FacetsConfig.LIMIT_DEFAULT,
 
     },
     getters: {
@@ -68,7 +71,16 @@ export const store = new Vuex.Store({
         },
         addConnectedTools(state, payload) {
             state.connectedTools.set(payload.id, payload.hasTool)
-        }
+        },
+        // setQuery(state, obj){
+        //     state.query = obj
+        // },
+        // setSearchExactMatch(state, obj){
+        //     state.searchExactMatch = obj
+        // },
+        // setResultLimit(state, obj){
+        //     state.resultLimit = obj
+        // },
     },
     actions: {
         async fetchJsonLd(context, o) {
@@ -139,6 +151,7 @@ export const store = new Vuex.Store({
             var q = queryObject.textQuery;
             let o = queryObject.offset;
             let n = queryObject.limit;
+            let exact = queryObject.searchExactMatch
             // const template_name='fulltext'
             // const hasToolsTemplate = self.getQueryTemplate(context, {
             //     object: SpaqlQuery,
@@ -146,7 +159,7 @@ export const store = new Vuex.Store({
             // })
             const resultsTemplate = _.template(SpaqlQuery, esTemplateOptions)
             //var sparql = self.state.queryTemplates[template_name]({'n': n, 'o': o, 'q': q})
-            var sparql = resultsTemplate({'n': n, 'o': o, 'q': q})
+            var sparql = resultsTemplate({'n': n, 'o': o, 'q': q, 'exact': exact})
             //var url = "https://graph.geodex.org/blazegraph/namespace/nabu/sparql";
             var url = FacetsConfig.TRIPLESTORE_URL;
             var params = {

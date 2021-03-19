@@ -32,7 +32,7 @@
       </b-nav-form>
 </b-navbar-nav>
       <b-nav-text class="font-weight-bold ml-auto">GeoCODES
-        <span class="font-weight-normal font-italic"> a schema.org/Dataset search</span>
+        <span class="font-weight-normal font-italic">an interdisciplinary geoscience data and tool search portal</span>
       </b-nav-text>
 
       <b-navbar-nav class="ml-auto">

@@ -1,6 +1,10 @@
 <template>
   <div id="FacetSearch">
+
+
+
     <div id="wrapper row">
+
       <div id="description">
         <h6>{{ title }}</h6>
 
@@ -22,7 +26,7 @@
         :current-count="currentResults.length"
         :total-count="items.length"
         :filters="state.filters"></ResultHeader>
-
+        <b-spinner v-if='queryRunning' label="Loading..."></b-spinner>
         <Results  v-bind:currentResults="currentResults" :state="state"></Results>
       </div>
     </div>
@@ -51,6 +55,8 @@ export default {
       order: this.order,
       clearFilters: this.clearFilters,
       setResultLimit: this.setResultLimit,
+      setSearchExactmatch: this.setSearchExactmatch,
+
     }
   },
   computed: { ...mapState ([ 'results'])
@@ -58,9 +64,9 @@ export default {
   },
   watch:{
     results:'search',
-    q: 'newTextSearch',
-    n:'newTextSearch'
-
+    query: 'newTextSearch',
+    resultLimit:'newTextSearch',
+    searchExactMatch:'newTextSearch',
   },
 
   props: {
@@ -78,6 +84,7 @@ export default {
     return {
       o: 0,
       n: FacetsConfig.LIMIT_DEFAULT,
+      searchExactMatch: false,
       esTemplateOptions: { interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g } ,
         queryTemplates:{
 
@@ -93,7 +100,7 @@ export default {
         facets: FacetsConfig.FACETS,
 
         // -- end edit  facets
-
+      queryRunning: false,
 
 
     }
@@ -104,7 +111,8 @@ export default {
     //const q = "water";
     const n = 10;
     const o = 0;
-    this.$store.dispatch('getResults', {textQuery:this.q, limit:n,offset:o})
+    this.queryRunning = true;
+    this.$store.dispatch('getResults', {textQuery:this.q, limit:n,offset:o, searchExactMatch:this.searchExactMatch})
 
 
 
@@ -116,9 +124,11 @@ export default {
       'getResults','getQueryTemplate']),
     //content.results.bindings
     newTextSearch: function (){
-      this.getResults({textQuery:this.q, limit:this.n,offset:this.o})
+      this.queryRunning = true;
+      this.getResults({textQuery:this.q, limit:this.n,offset:this.o, searchExactMatch:this.searchExactMatch})
 },
     search: function(){
+      this.queryRunning = false;
       this.items = this.results;
       this.initFacetCounts();//items,facets, facetStore,  facetSortOption
       this.filter();
@@ -127,7 +137,9 @@ export default {
     setResultLimit(n){
       this.n = n
     },
-
+    setSearchExactmatch(b){
+      this.searchExactMatch = b
+    },
 
     initFacetCounts: function () {
       let items = this.items;

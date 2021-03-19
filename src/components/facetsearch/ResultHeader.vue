@@ -13,7 +13,11 @@
   </b-input-group>
 
   <div class="my-2" >{{currentCount}} &nbsp;   selected of &nbsp; {{totalCount}} results</div>
-
+  <div class="m-2">
+    <b-form-checkbox v-model="searchExact" name="Exact Search" switch>
+      Exact Search
+    </b-form-checkbox>
+  </div>
   <b-input-group class="col-3" prepend="Result Limit:">
     <b-form-select
 
@@ -41,16 +45,18 @@ import FacetsConfig from '../../config.js'
 
 export default {
 name: "ResultHeader",
-  inject: ["clearFilters", "order","setResultLimit"],
+  inject: ["clearFilters", "order","setResultLimit","setSearchExactmatch"],
   props: {
   "totalCount": Number,
     "currentCount":Number,
    "sortOptions": Object,
-    "filters": Object
+    "filters": Object,
+
    },
   watch:{
     orderBy: 'orderByChanged',
-    limit: 'limitChanged'
+    limit: 'limitChanged',
+    searchExact:'searchExactChanged'
   },
   data(){
   return {
@@ -58,6 +64,7 @@ name: "ResultHeader",
     orderByOptions : FacetsConfig.ORDER_BY_OPTIONS,//{field:'name', title: 'Name', sort: 'asc' },
     limit: FacetsConfig.LIMIT_DEFAULT,
     limitOptions: FacetsConfig.LIMIT_OPTIONS,
+    searchExact:  true,
   }
   }
 
@@ -73,6 +80,9 @@ methods: {
   limitChanged(){
     this.setResultLimit(this.limit)
   },
+  searchExactChanged(){
+    this.setSearchExactmatch( this.searchExact)
+  }
 //   $('.orderbyitem').each(function(){
 //   var id = this.id.substr(8);
 //   if (settings.state.orderBy == id) {
