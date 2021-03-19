@@ -65,13 +65,12 @@ export default {
   watch:{
     results:'search',
     query: 'newTextSearch',
-    resultLimit:'newTextSearch',
+    n:'newTextSearch',
     searchExactMatch:'newTextSearch',
   },
 
   props: {
     title: String,
-
     q:String,
     // results:[]
   },
@@ -109,10 +108,15 @@ export default {
   async created() {
     //const self = this;
     //const q = "water";
-    const n = 10;
+
     const o = 0;
     this.queryRunning = true;
-    this.$store.dispatch('getResults', {textQuery:this.q, limit:n,offset:o, searchExactMatch:this.searchExactMatch})
+    this.$store.dispatch('getResults', {
+      textQuery:this.q,
+      limit:this.n,
+      offset:o,
+      searchExactMatch:this.searchExactMatch}
+      )
 
 
 
@@ -125,8 +129,13 @@ export default {
     //content.results.bindings
     newTextSearch: function (){
       this.queryRunning = true;
-      this.getResults({textQuery:this.q, limit:this.n,offset:this.o, searchExactMatch:this.searchExactMatch})
-},
+      this.getResults({
+        textQuery:this.q,
+        limit:this.n,
+        offset:this.o,
+        searchExactMatch:this.searchExactMatch
+      })
+    },
     search: function(){
       this.queryRunning = false;
       this.items = this.results;

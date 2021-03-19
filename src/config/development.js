@@ -1,5 +1,4 @@
 export default {
-    RESULT_SIZE: 10,
     API_URL: 'https://localhost',
     TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql',
     SPARQL_QUERY:'queries/sparql_query.txt',
@@ -44,7 +43,6 @@ export default {
             open: false
 
         },
-
     ],
     ORDER_BY_DEFAULT: 'score',
     ORDER_BY_OPTIONS:
@@ -54,7 +52,8 @@ export default {
             {field:'date', title: 'Date', sort:  'asc' },
             {field:'score', title: 'Relevance', sort: 'asc' },
 
-        ],
+        ]
+    ,
     LIMIT_DEFAULT: 10,
     LIMIT_OPTIONS: [10,50,100,1000,5000],
 }
