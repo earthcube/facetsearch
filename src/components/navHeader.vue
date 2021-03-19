@@ -1,5 +1,5 @@
 <template>
-  <b-navbar type="dark" variant="info">
+  <b-navbar type="dark" variant="primary">
     <b-navbar-brand  href="https://www.earthcube.org/">
       <img src="../assets/EarthCube-White-Long-Tagline.png" height="30"
            class="d-inline-block align-top" alt="EarthCube" loading="lazy">

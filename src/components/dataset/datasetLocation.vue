@@ -27,11 +27,7 @@
 <!--      </l-map>-->
 
     </div>
-    <div class="row font-weight-bold">Downloads</div>
-    <div class="row">
-      <!--    ${this.s_downloads.DatasetLocation(i => html`<a class="btn btn-primary w-150" target="_blank" href="${i.contentUrl}">${i.linkName}</a>`)}-->
 
-    </div>
   </div>
 </template>
 

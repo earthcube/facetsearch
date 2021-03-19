@@ -56,7 +56,8 @@ export default {
       'hasConnectedTools']),
     checkTools() {
       let graphUri = this.op.replaceAll("/", ":").replace('.jsonld', "");
-      this.hasTools = this.hasConnectedTools(graphUri)
+      graphUri = "urn:gleaner:milled"+ graphUri
+      this.hasConnectedTools(graphUri).then(i => this.hasTools=i)
       this.getDownloadableTools(graphUri)
       this.getWebTools(graphUri)
     }
@@ -86,7 +87,7 @@ export default {
         //self.webserviceTools =  response.data.results.bindings
         var bindings = response.data.results.bindings
         let index = 0;
-        bindings.forEach((i) => (i.index = index++));
+        bindings.forEach((i) => (i.index = 'wtool-'+index++));
 
         self.webserviceTools = bindings
       })
@@ -115,7 +116,7 @@ export default {
         // self.downloadTools = response.data.results.bindings
         var bindings = response.data.results.bindings
         let index = 0;
-        bindings.forEach((i) => (i.index = index++));
+        bindings.forEach((i) => (i.index = 'dtool-'+index++));
         self.downloadTools = bindings
 
 

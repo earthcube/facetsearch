@@ -9,7 +9,8 @@ export default {
     JSONLD_PROXY: "https://dx.geodex.org/id/summoned${o}",
     // allow us to use the same delimiters as lithtml
     ES_TEMPLATE_OPTIONS : {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
-    FACETS: [ {
+    FACETS: [
+        {
         field: 'resourceType',
         title: 'Resource Type',
         sort: 'acs',
@@ -45,4 +46,15 @@ export default {
         },
 
     ],
+    ORDER_BY_DEFAULT: 'score',
+    ORDER_BY_OPTIONS:
+        [
+            {field:'name', title: 'Name', sort: 'asc' },
+            {field:'pubname', title: 'Publisher', sort:  'asc' },
+            {field:'date', title: 'Date', sort:  'asc' },
+            {field:'score', title: 'Relevance', sort: 'asc' },
+
+        ],
+    LIMIT_DEFAULT: 10,
+    LIMIT_OPTIONS: [10,50,100,1000,5000],
 }

@@ -2,12 +2,15 @@
 <div class="row col-12">
   <div class="row col-12">
     <Metadata class="col-9 border" ></Metadata>
-    <DatasetLocation class="col-3"
-     ></DatasetLocation>
+    <div class="col-3">
+      <DatasetLocation class="w-100"
+       ></DatasetLocation>
+      <downloadfiles class="w-100"><!-- future related links --></downloadfiles>
+    </div>
   </div>
  <div class="row col-12">
    <connected-tools class="col-6" :op="o"></connected-tools>
-   <div class="col-6"><!-- future related links --></div>
+
  </div>
 </div>
 </template>
@@ -16,13 +19,14 @@
 import Metadata from "./metadata.vue";
 import DatasetLocation from "./datasetLocation.vue";
 import ConnectedTools from "./connectedTools.vue";
+import Downloadfiles from "./downloadfiles.vue"
 //import {getJsonLD} from '../../api/jsonldObject.js'
 //import axios from "axios";
 import { mapState,mapActions} from 'vuex'
 
 export default {
 name: "dataset",
-  components: {ConnectedTools, DatasetLocation, Metadata},
+  components: {ConnectedTools, DatasetLocation, Metadata, Downloadfiles},
   props:{
    o: String,
   },

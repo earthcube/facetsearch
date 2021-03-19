@@ -23,6 +23,7 @@ export const store = new Vuex.Store({
         lastTextQueries: [], // query, num results
         lastDatasetIds: [],
         connectedTools: new Map(), // object id, hasConnectedTools
+
     },
     getters: {
         // prep for when we expand queries beyond text

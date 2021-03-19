@@ -1,11 +1,16 @@
 <template  >
   <div class="accordion col-12  rounded p-0 mt-1" :id="'accordian' + facetSetting.field ">
-    <b-card >
+    <b-card no-body >
       <b-card-header header-tag="header" class="p-0" role="tab">
-        <b-button block v-b-toggle="'accordion-'+ facetSetting.field" variant="info"> {{facetSetting.title}}</b-button>
+        <b-button block v-b-toggle="'accordion-'+ facetSetting.field" variant="primary">
+          <span class="float-left">{{facetSetting.title}} </span>
+          <b-icon  class="when-open float-right" icon="chevron-up" aria-hidden="true"></b-icon>
+          <b-icon  class="when-closed float-right" icon="chevron-down" aria-hidden="true"></b-icon>
+          </b-button>
       </b-card-header>
-      <b-collapse :id="'accordion-'+ facetSetting.field" :visible="facetSetting.open" :accordion="facetSetting.field+'-accordion'" role="tabpanel">
-        <b-card-body>
+      <b-collapse :id="'accordion-'+ facetSetting.field"
+                  :visible="facetSetting.open" :accordion="facetSetting.field+'-accordion'" role="tabpanel">
+        <b-card-body class="mx-2">
 <!-- v-on:facetupdate="updateFacetItems"-->
           <FacetItem   v-for='(info, term) in facetItems' v-bind:key="info.id"  v-on:click.native="_handleClick"
                        v-bind:id="facetStore[facetSetting.field][term].id"
@@ -241,5 +246,8 @@ export default {
 </script>
 
 <style scoped>
-
+.collapsed > .when-open,
+.not-collapsed > .when-closed {
+  display: none;
+}
 </style>

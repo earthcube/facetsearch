@@ -17,13 +17,13 @@
 
       </div>
       <div class="row col-8 align-self-start ">
-        <ResultHeader id="headingDiv"
-                      class="row col-12" style="height: 2em;"
+        <ResultHeader
+         class="mx-2"
         :current-count="currentResults.length"
         :total-count="items.length"
-        :sort-options="facetSortOption"></ResultHeader>
+        :filters="state.filters"></ResultHeader>
 
-        <Results id="resultsDiv" v-bind:currentResults="currentResults" :state="state"></Results>
+        <Results  v-bind:currentResults="currentResults" :state="state"></Results>
       </div>
     </div>
   </div>
@@ -47,7 +47,10 @@ export default {
   provide: function () {
     return {
       toggleFilter: this.toggleFilter,
-      esTemplateOptions: this.esTemplateOptions
+      esTemplateOptions: this.esTemplateOptions,
+      order: this.order,
+      clearFilters: this.clearFilters,
+      setResultLimit: this.setResultLimit,
     }
   },
   computed: { ...mapState ([ 'results'])
@@ -55,14 +58,14 @@ export default {
   },
   watch:{
     results:'search',
-    q: 'newTextSearch'
+    q: 'newTextSearch',
+    n:'newTextSearch'
 
   },
 
   props: {
     title: String,
-    o: { type: Number,default:0},
-    n: { type:Number,default:FacetsConfig.RESULT_SIZE},
+
     q:String,
     // results:[]
   },
@@ -73,18 +76,19 @@ export default {
   },
   data() {
     return {
+      o: 0,
+      n: FacetsConfig.LIMIT_DEFAULT,
       esTemplateOptions: { interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g } ,
         queryTemplates:{
-          fulltext: ''
+
         },
         state: {
-          orderBy: false,
+          orderBy: 'score',
           filters: {}
         },
         items: [],
         currentResults: [],
         facetStore: {},
-      facetSortOption: {},
         //---- ok to edit facets
         facets: FacetsConfig.FACETS,
 
@@ -119,6 +123,9 @@ export default {
       this.initFacetCounts();//items,facets, facetStore,  facetSortOption
       this.filter();
       bus.$emit('facetupdate');
+    },
+    setResultLimit(n){
+      this.n = n
     },
 
 
@@ -277,7 +284,30 @@ export default {
         }
       }
      this.filter();
+    },
+    clearFilters: function( ){
+      this.state.filters ={}
+    },
+    order: function (orderBy) {
+      let self = this;
+      self.state.orderBy = orderBy.field
+     if (this.state.orderBy) {
+    //$(".activeorderby").removeClass("activeorderby");
+    //$('#orderby_'+self.state.orderBy).addClass("activeorderby");
+    self.currentResults = _.sortBy(self.currentResults, function(item) {
+      if (self.state.orderBy == 'RANDOM') {
+        return Math.random()*10000;
+      } else {
+        return item[self.state.orderBy];
+      }
+    });
+    //if (this.orderByOptionsSort[self.state.orderBy] === 'desc')
+    if (orderBy.sort === 'desc') // nice to be passing around objects
+    {
+      self.currentResults = self.currentResults.reverse();
     }
+  }
+}
   }
 }
 </script>

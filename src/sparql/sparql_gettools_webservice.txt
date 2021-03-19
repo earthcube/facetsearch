@@ -3,7 +3,7 @@ prefix sdos: <https://schema.org/>
    select DISTINCT ?dataname ?appname   ?durl  ?turl ?rrs
    WHERE
    {
-       graph <urn:gleaner:milled${op}> {
+       graph <${op}> {
        ?s schemaold:distribution|sdos:distribution ?dist ;
             schemaold:name|sdos:name ?dataname  .
        ?dist  schemaold:encodingFormat|sdos:encodingFormat ?type .

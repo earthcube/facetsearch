@@ -5,7 +5,7 @@
     </div>
 
     <div class="row">
-      <b-tabs  id="myTabContent">
+      <b-tabs  id="myTabContent" >
         <b-tab title="Metadata" active id="md"  aria-labelledby="md-tab">
           <div class="row">
 
@@ -38,23 +38,19 @@
           </div>
         </b-tab>
         <b-tab title="Web Links" id="web"  aria-labelledby="web-tab">
-          <div class="row">
+          <div class="row w-100">
 
             <span class="col-4 font-weight-bold">Name</span>
             <span class="col-8 font-weight-bold">link </span>
 
           </div>
 
-          <div class="row" v-if="mapping.has_s_url">
-
+          <div class="row" v-if="mapping.s_url">
             <span class="col-4">Object URL</span>
             <a class="col-8" :href="mapping.s_url" target="_blank"> {{mapping.s_url}} </a>
-
           </div>
 
-
-
-          <div class="row" v-for="i in mapping.downloads" v-bind:key="i.name">
+          <div class="row" v-for="i in mapping.s_downloads" v-bind:key="i.name">
             <span class="col-4 ">{{i.name}}</span>
             <a class="col-8" target="_blank" :href="i.contentUrl">{{i.contentUrl}}</a>
           </div>
