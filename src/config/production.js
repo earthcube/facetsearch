@@ -54,6 +54,6 @@ export default {
 
         ]
     ,
-    LIMIT_DEFAULT: 1000,
-    LIMIT_OPTIONS: [10,50,100,1000,5000],
+    LIMIT_DEFAULT: 100,
+    LIMIT_OPTIONS: [10,50,100,500,1000,5000],
 }
