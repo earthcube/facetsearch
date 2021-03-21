@@ -23,8 +23,8 @@ export const store = new Vuex.Store({
         lastTextQueries: [], // query, num results
         lastDatasetIds: [],
         connectedTools: new Map(), // object id, hasConnectedTools
-        // query: '',
-        // searchExactMatch: false,
+        q: '',
+        searchExactMatch: false,
         // resultLimit: FacetsConfig.LIMIT_DEFAULT,
 
     },
@@ -41,7 +41,13 @@ export const store = new Vuex.Store({
         },
         hasQueryTemplate: (state) => (name) => {
             return state.queryTemplates.has(name)
-        }
+        },
+        getTextQuery:(state) => {
+            return state.q;
+        },
+        // getSearchExactMatch:(state) => {
+        //     return state.searchExactMatch
+        // }
 
     },
     mutations: {
@@ -72,9 +78,9 @@ export const store = new Vuex.Store({
         addConnectedTools(state, payload) {
             state.connectedTools.set(payload.id, payload.hasTool)
         },
-        // setQuery(state, obj){
-        //     state.query = obj
-        // },
+        setTextQuery(state, obj){
+            state.q = obj
+        },
         // setSearchExactMatch(state, obj){
         //     state.searchExactMatch = obj
         // },

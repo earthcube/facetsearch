@@ -14,7 +14,7 @@
         <b-nav-item  :to="{ name: 'landing'}">Home</b-nav-item>
         <keep-alive>
           <!--            <b-nav-item  :to="{ name: 'Search', query: { q: 'water' } }">Search</b-nav-item>-->
-          <b-nav-item  :to="{ name: 'Search' }">Search</b-nav-item>
+          <b-nav-item  :to="{ name: 'Search', query:{q:q}}">Search</b-nav-item>
         </keep-alive>
         <!--        <b-nav-item  :to="{ name: 'dataset', params: { o: '/lipdverse/509e465d0793506b237cea8069c3cb2d276fe9c2.jsonld' } }">Dataset</b-nav-item>-->
         <b-nav-item disabled  :to="{ name: 'dataset',params: { o: '/lipdverse/509e465d0793506b237cea8069c3cb2d276fe9c2.jsonld' } }">Dataset</b-nav-item>
@@ -23,7 +23,7 @@
 
 <b-navbar-nav class="col-4">
         <b-nav-form v-on:submit.prevent="onSubmitNavbar" >
-        <b-form-input v-model="qnavbar"  type="search" id="q"
+        <b-form-input v-model="textQuery" type="search" id="q-textbox"
                       placeholder="Search" aria-label="Search"></b-form-input>
         <b-button class="my-2 my-sm-0" type="submit" >
             <img src="../assets/icons/search.svg" alt="" width="32" height="32" title="Search">
@@ -47,17 +47,29 @@
 </template>
 
 <script>
+import {mapState} from "vuex";
+
 export default {
 name: "navHeader",
+  computed: {
+    ...mapState(['results','searchExactMatch', 'q'])
+
+  },
+  watch:{
+  q: 'qUpdated'
+  },
   data() {
   return {
-    qnavbar:''
+    textQuery:''
   }
   },
   methods:{
+  qUpdated() {
+    this.textQuery = this.q
+  },
     onSubmitNavbar(){
-      var query = this.qnavbar;
-      this.$router.push({name: 'Search', query:{q:query} })
+      this.$store.state.q = this.textQuery;
+      this.$router.push({name: 'Search', query:{q:this.q} }).catch(err => {console.log('ignore'+err)})
     },
   }
 }

@@ -42,6 +42,7 @@
 
 <script>
 import FacetsConfig from '../../config.js'
+//import {mapState} from "vuex";
 
 export default {
 name: "ResultHeader",

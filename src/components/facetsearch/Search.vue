@@ -2,34 +2,35 @@
   <div id="FacetSearch">
 
 
+    <b-overlay :show="queryRunning" rounded="sm">
+      <div id="wrapper row">
 
-    <div id="wrapper row">
+        <div id="description">
+          <h6>{{ title }}</h6>
 
-      <div id="description">
-        <h6>{{ title }}</h6>
-
+        </div>
       </div>
-    </div>
-    <!-- Here comes the demo, if you want to copy and paste, start here -->
-    <div class="row col-12" id="filterDiv"> <!-- filters -->
-      <div class="row col-3 align-items-start" v-on:facetupdate="warn('search cannot be submitted yet.', $event)">
-        <Facets id="facetsDiv" class="row col-12" v-bind:facets="facets" v-bind:facetStore="facetStore"
-        v-bind:state="state">
+      <!-- Here comes the demo, if you want to copy and paste, start here -->
+      <div class="row col-12" id="filterDiv"> <!-- filters -->
+        <div class="row col-3 align-items-start" v-on:facetupdate="warn('search cannot be submitted yet.', $event)">
+          <Facets id="facetsDiv" class="row col-12" v-bind:facets="facets" v-bind:facetStore="facetStore"
+                  v-bind:state="state">
 
-        </Facets>
+          </Facets>
 
 
+        </div>
+        <div class="row col-8 align-self-start ">
+          <ResultHeader
+              class="mx-2"
+              :current-count="currentResults.length"
+              :total-count="items.length"
+              :filters="state.filters"></ResultHeader>
+
+          <Results v-bind:currentResults="currentResults" :state="state"></Results>
+        </div>
       </div>
-      <div class="row col-8 align-self-start ">
-        <ResultHeader
-         class="mx-2"
-        :current-count="currentResults.length"
-        :total-count="items.length"
-        :filters="state.filters"></ResultHeader>
-        <b-spinner v-if='queryRunning' label="Loading..."></b-spinner>
-        <Results  v-bind:currentResults="currentResults" :state="state"></Results>
-      </div>
-    </div>
+    </b-overlay>
   </div>
 </template>
 
@@ -44,7 +45,10 @@ import FacetsConfig from '../../config.js'
 
 import {bus} from "../../main.js"
 import ResultHeader from "./ResultHeader";
-import {mapActions, mapState} from "vuex";
+import {mapActions,
+  mapState,
+ // mapGetters
+} from "vuex";
 
 export default {
   name: "Search",
@@ -59,21 +63,23 @@ export default {
 
     }
   },
-  computed: { ...mapState ([ 'results'])
-
+  computed: {
+    ...mapState(['results','searchExactMatch']),
+    //...mapGetters(['q',])
   },
-  watch:{
-    results:'search',
-    query: 'newTextSearch',
-    n:'newTextSearch',
-    searchExactMatch:'newTextSearch',
+  watch: {
+    results: 'search',
+    textQuery: 'newTextSearch',
+    n: 'newTextSearch',
+    searchExactMatch: 'newTextSearch',
   },
 
   props: {
     title: String,
-    q:String,
+    textQuery: String, // this needs to be here route passes as a prop
     // results:[]
   },
+
   components: {
     ResultHeader,
     Results,
@@ -81,72 +87,72 @@ export default {
   },
   data() {
     return {
+
       o: 0,
       n: FacetsConfig.LIMIT_DEFAULT,
-      searchExactMatch: false,
-      esTemplateOptions: { interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g } ,
-        queryTemplates:{
 
-        },
-        state: {
-          orderBy: 'score',
-          filters: {}
-        },
-        items: [],
-        currentResults: [],
-        facetStore: {},
-        //---- ok to edit facets
-        facets: FacetsConfig.FACETS,
+      esTemplateOptions: {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
+      queryTemplates: {},
+      state: {
+        orderBy: 'score',
+        filters: {}
+      },
+      items: [],
+      currentResults: [],
+      facetStore: {},
+      //---- ok to edit facets
+      facets: FacetsConfig.FACETS,
 
-        // -- end edit  facets
+      // -- end edit  facets
       queryRunning: false,
 
 
     }
   },
 
-  async created() {
+  mounted() {
     //const self = this;
     //const q = "water";
 
     const o = 0;
     this.queryRunning = true;
+    this.$store.state.q = this.textQuery
     this.$store.dispatch('getResults', {
-      textQuery:this.q,
-      limit:this.n,
-      offset:o,
-      searchExactMatch:this.searchExactMatch}
-      )
-
-
+          textQuery: this.textQuery,
+          limit: this.n,
+          offset: o,
+          searchExactMatch: this.searchExactMatch
+        }
+    )
 
 
   }
   ,
   methods: {
     ...mapActions([
-      'getResults','getQueryTemplate']),
+      'getResults', 'getQueryTemplate']),
     //content.results.bindings
-    newTextSearch: function (){
+    newTextSearch: function () {
       this.queryRunning = true;
+      this.$store.state.q = this.textQuery
       this.getResults({
-        textQuery:this.q,
-        limit:this.n,
-        offset:this.o,
-        searchExactMatch:this.searchExactMatch
+        textQuery: this.textQuery,
+        limit: this.n,
+        offset: this.o,
+        searchExactMatch: this.searchExactMatch
       })
     },
-    search: function(){
+    search: function () {
       this.queryRunning = false;
       this.items = this.results;
       this.initFacetCounts();//items,facets, facetStore,  facetSortOption
       this.filter();
       bus.$emit('facetupdate');
     },
-    setResultLimit(n){
+    setResultLimit(n) {
       this.n = n
     },
-    setSearchExactmatch(b){
+    setSearchExactmatch(b) {
       this.searchExactMatch = b
     },
 
@@ -175,7 +181,7 @@ export default {
                     id: _.uniqueId("facet_"),
                     isActive: false
                   }
-                 // Vue.observable(facetStore[facet.field][facetitem] )
+                  // Vue.observable(facetStore[facet.field][facetitem] )
                 });
               } else {
                 if (item[facet.field] !== undefined) {
@@ -187,14 +193,14 @@ export default {
                     id: _.uniqueId("facet_"),
                     isActive: false
                   }
-                //  Vue.observable(facetStore[facet.field][item[facet.field]]  )
+                  //  Vue.observable(facetStore[facet.field][item[facet.field]]  )
                 }
               }
             });
       });
       // sort it:
       _.each(facetStore,
-          function(facetData, facettitle) {
+          function (facetData, facettitle) {
             var sorted = _.keys(facetStore[facettitle]).sort();
             if (facetSortOption && facetSortOption[facettitle]) {
               sorted = _.union(facetSortOption[facettitle], sorted);
@@ -210,7 +216,7 @@ export default {
 
     },
     resetFacetCount: function () {
-      var self= this;
+      var self = this;
       _.each(self.facetStore, function (items, facetname) {
         _.each(items, function (value, itemname) {
           self.facetStore[facetname][itemname].count = 0;
@@ -231,10 +237,10 @@ export default {
     filter: function () {
       // first apply the filters to the items
 
-     // this.currentResults = [] // triggers reactive event and we are resetting it in the next lines, anyway
+      // this.currentResults = [] // triggers reactive event and we are resetting it in the next lines, anyway
       let self = this;
-     // self.currentResults = _.select(this.items, function (item) {
-       let newResults = _.select(this.items, function (item) {
+      // self.currentResults = _.select(this.items, function (item) {
+      let newResults = _.select(this.items, function (item) {
         let filtersApply = true;
         _.each(self.state.filters, function (filter, facet) {
           if (_.isArray(item[facet])) {
@@ -251,46 +257,48 @@ export default {
         return filtersApply;
       });
 
-       // the next two lines are needed to make the vue reactivity work.
+      // the next two lines are needed to make the vue reactivity work.
       // vue cannot easily detect array length changes, so.
-        //self.currentResults =self.currentResults.splice(0, 0);
+      //self.currentResults =self.currentResults.splice(0, 0);
       let len = self.currentResults.length;
-       self.currentResults.splice(0, len);
-        newResults.forEach((i) =>self.currentResults.push(i) )
-
+      self.currentResults.splice(0, len);
+      newResults.forEach((i) => self.currentResults.push(i))
 
 
       this.resetFacetCount();
       // then reduce the items to get the current count for each facet
-      _.each(self.facets, function( facet) {
-        _.each(self.currentResults, function(item) {
+      _.each(self.facets, function (facet) {
+        _.each(self.currentResults, function (item) {
           if (_.isArray(item[facet.field])) {
-            _.each(item[facet.field], function(facetitem) {
-              if (_.isEmpty(facetitem )) {return;}
+            _.each(item[facet.field], function (facetitem) {
+              if (_.isEmpty(facetitem)) {
+                return;
+              }
               //self.facetStore[facet.field][facetitem].count += 1;
-              let newcount = self.facetStore[facet.field][facetitem].count +1;
-              self.facetStore[facet.field][facetitem].count=newcount
+              let newcount = self.facetStore[facet.field][facetitem].count + 1;
+              self.facetStore[facet.field][facetitem].count = newcount
             });
           } else {
             if (item[facet.field] !== undefined) {
-              if (_.isEmpty(item[facet.field] )) {return;}
+              if (_.isEmpty(item[facet.field])) {
+                return;
+              }
               //self.facetStore[facet.field][item[facet.field]].count += 1;
-              let newcount = self.facetStore[facet.field][item[facet.field]].count +1;
-              self.facetStore[facet.field][item[facet.field]].count=newcount
+              let newcount = self.facetStore[facet.field][item[facet.field]].count + 1;
+              self.facetStore[facet.field][item[facet.field]].count = newcount
             }
           }
         });
       });
       // remove confusing 0 from facets where a filter has been set
-      _.each(self.state.filters, function(filters, facettitle) {
-        _.each(self.facetStore[facettitle], function(facet) {
+      _.each(self.state.filters, function (filters, facettitle) {
+        _.each(self.facetStore[facettitle], function (facet) {
           if (facet.count == 0 && self.state.filters[facettitle].length) facet.count = "+";
         });
       });
       self.state.shownResults = 0;
     },
-    toggleFilter: function(key, value)
-    {
+    toggleFilter: function (key, value) {
       console.log('toggleFilter')
       var state = this.state;
       state.filters[key] = state.filters[key] || [];
@@ -304,31 +312,31 @@ export default {
           // don't do isActive here. resetFacetCount is called later
         }
       }
-     this.filter();
+      this.filter();
     },
-    clearFilters: function( ){
-      this.state.filters ={}
+    clearFilters: function () {
+      this.state.filters = {}
     },
     order: function (orderBy) {
       let self = this;
       self.state.orderBy = orderBy.field
-     if (this.state.orderBy) {
-    //$(".activeorderby").removeClass("activeorderby");
-    //$('#orderby_'+self.state.orderBy).addClass("activeorderby");
-    self.currentResults = _.sortBy(self.currentResults, function(item) {
-      if (self.state.orderBy == 'RANDOM') {
-        return Math.random()*10000;
-      } else {
-        return item[self.state.orderBy];
+      if (this.state.orderBy) {
+        //$(".activeorderby").removeClass("activeorderby");
+        //$('#orderby_'+self.state.orderBy).addClass("activeorderby");
+        self.currentResults = _.sortBy(self.currentResults, function (item) {
+          if (self.state.orderBy == 'RANDOM') {
+            return Math.random() * 10000;
+          } else {
+            return item[self.state.orderBy];
+          }
+        });
+        //if (this.orderByOptionsSort[self.state.orderBy] === 'desc')
+        if (orderBy.sort === 'desc') // nice to be passing around objects
+        {
+          self.currentResults = self.currentResults.reverse();
+        }
       }
-    });
-    //if (this.orderByOptionsSort[self.state.orderBy] === 'desc')
-    if (orderBy.sort === 'desc') // nice to be passing around objects
-    {
-      self.currentResults = self.currentResults.reverse();
     }
-  }
-}
   }
 }
 </script>

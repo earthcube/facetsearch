@@ -1,0 +1,8 @@
+https://peachscript.github.io/vue-infinite-loading/guide/#installation
+
+Components list:
+  https://github.com/PureConstructs/awesome-vue
+Vue Components
+- google tag manager: https://github.com/mib200/vue-gtm
+- https://github.com/gabrielmbmb/vuex-multi-tab-state share state across tabs using local storage
+- https://www.js-data.io/
