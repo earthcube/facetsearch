@@ -24,7 +24,8 @@ export const store = new Vuex.Store({
         lastDatasetIds: [],
         connectedTools: new Map(), // object id, hasConnectedTools
         q: '',
-        searchExactMatch: true,
+        //searchExactMatch: true,
+        searchExactMatch: false,
         // resultLimit: FacetsConfig.LIMIT_DEFAULT,
 
     },
