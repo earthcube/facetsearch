@@ -77,6 +77,7 @@ export default {
   props: {
     title: String,
     textQuery: String, // this needs to be here route passes as a prop
+    resourceType: String
     // results:[]
   },
 

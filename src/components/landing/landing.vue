@@ -18,12 +18,12 @@
           </b-button>
         </b-input-group>
         <b-form-group>
-          <b-form-checkbox-group v-model="toolOptionsSelected"
+          <b-form-radio-group v-model="toolOptionsSelected"
                                  :options="toolOptions"
-                                 value-field="item"
-                                 text-field="name">
+                                 name="resourceType"
+                                 id="resourceType">
 
-          </b-form-checkbox-group>
+          </b-form-radio-group>
         </b-form-group>
 
       </b-form>
@@ -73,11 +73,11 @@ export default {
   data() {
     return {
       q: '',
-      toolOptionsSelected: [],
+      toolOptionsSelected: 'all',
       toolOptions: [
-        {item: 'all', name: "All"},
-        {item: 'tool', name: "Tool"},
-        {item: 'data', name: "Data"}
+        {value: 'all', text: "All"},
+        {value: 'tool', text: "Tool"},
+        {value: 'data', text: "Data"}
       ]
 ,slide: 0,
 
@@ -86,7 +86,8 @@ export default {
   methods: {
     onSubmit() {
       var query = this.q;
-      this.$router.push({name: 'Search', query: {q: query}})
+      var resourceType = this.toolOptionsSelected
+      this.$router.push({name: 'Search', query: {q: query, resourceType: resourceType}})
     },
     onReset() {
       this.q = ''

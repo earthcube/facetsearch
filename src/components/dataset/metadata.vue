@@ -1,7 +1,7 @@
 <template>
   <div class="col-8">
     <div class="row">
-      <span class="font-weight-bold font-heavy my-4">  {{ mapping.s_name }} </span>
+      <span class="font-weight-bold font-heavy my-4" v-html="mapping.s_name">   </span>
     </div>
 
 
@@ -16,8 +16,8 @@
             <div class="row">
 
               <span class="col-2 font-weight-bold">Abstract:</span>
-              <span class="col-8">
-                          {{ mapping.s_description }}</span></div>
+              <span class="col-8" v-html="mapping.s_description">
+                          </span></div>
 
             <div class="row">
 

@@ -1,12 +1,12 @@
 <template>
   <div class="item card rounded mt-2 w-100">
     <div class="card-header">
-      <div class="card-title">{{ item.name }}</div>
+      <div class="card-title" v-html="item.name"></div>
       <div class="card-subtitle mb-2 text-muted">{{ item.pubname }}</div>
     </div>
     <div class="tags card-body overflow-auto">
-      <div v-show="item.description" class="card-text">
-        {{ item.description }}
+      <div v-show="item.description" class="card-text" v-html="item.description">
+
       </div>
       <div v-show="item.kw" class="card-text pt-2">
         <b>Keywords:</b> <span v-html="highlightKw(filters,item.kw)">
