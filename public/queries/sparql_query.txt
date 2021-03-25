@@ -4,14 +4,15 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                         prefix sschema: <https://schema.org/>
                         SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", ") AS ?placenames)
         (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)
-        ?datep  (MIN(?url) as ?disurl) ?score  ?name ?description ?resourceType ?g
+        ?datep  (GROUP_CONCAT(DISTINCT ?url; SEPARATOR=", ") AS ?disurl) 
+        (MAX(?score1) as ?score)  ?name ?description ?resourceType ?g
         WHERE {
             ?lit bds:search "${ q }" .
             ?lit bds:matchAllTerms "false" .
-            ?lit bds:relevance ?score .
+            ?lit bds:relevance ?score1 .
             ?subj ?p ?lit .
             BIND (IF (exists {?subj a schema:Dataset .} ||exists{?subj a sschema:Dataset .} , "data", "tool") AS ?resourceType).
-            filter( ?score > 0.04).
+            filter( ?score1 > 0.04).
 					Minus {?subj a sschema:ResearchProject } .
                      Minus {?subj a schema:ResearchProject } .
                      Minus {?subj a schema:Person } .
