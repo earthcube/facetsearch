@@ -37,7 +37,7 @@
 
       <b-navbar-nav class="ml-auto">
         <b-nav-item  href="https://graph.geodex.org/blazegraph/#query">SPARQL Endpoint</b-nav-item>
-          <b-nav-item  href="about.html">Help</b-nav-item>
+          <b-nav-item  href="about.html" target="_blank">Help</b-nav-item>
 
       </b-navbar-nav>
 

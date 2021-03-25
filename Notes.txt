@@ -6,3 +6,12 @@ Vue Components
 - google tag manager: https://github.com/mib200/vue-gtm
 - https://github.com/gabrielmbmb/vuex-multi-tab-state share state across tabs using local storage
 - https://www.js-data.io/
+
+
+todo:
+* set active on navbar tab to highlight item
+* look at routing gaurds to see if we can avoid requrying spaql
+   https://router.vuejs.org/guide/advanced/navigation-guards.html#in-component-guards
+   https://router.vuejs.org/guide/advanced/data-fetching.html#fetching-before-navigation
+** beforeRouteEnter... see if query has changed. if not. do not requery
+** beforeRouteLeave... save last query and filter parameters

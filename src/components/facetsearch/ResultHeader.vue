@@ -1,89 +1,96 @@
 <template>
-<div class="row w-100">
-<div class="row w-100">
-  <b-input-group prepend="Sort By:" class="col-4 ">
-  <b-form-select
+  <div class="row w-100">
+    <div class="row w-100">
+      <b-input-group prepend="Sort By:" class="col-4 ">
+        <b-form-select
 
-      v-model="orderBy"
-      :options="orderByOptions"
-      value-field="field"
-      text-field="title"
-      disabled-field="notEnabled"
-  ></b-form-select>
-  </b-input-group>
+            v-model="orderBy"
+            :options="orderByOptions"
+            value-field="field"
+            text-field="title"
+            disabled-field="notEnabled"
+        ></b-form-select>
+      </b-input-group>
 
-  <div class="my-2" >{{currentCount}} &nbsp;   selected of &nbsp; {{totalCount}} results</div>
-  <div class="m-2">
-    <b-form-checkbox v-model="searchExact" name="Exact Search" switch>
-      Exact Search
-    </b-form-checkbox>
+      <div class="my-2">{{ currentCount }} &nbsp; selected of &nbsp; {{ totalCount }} results</div>
+      <div class="m-2">
+        <b-form-checkbox v-model="searchExact" name="Exact Search" switch>
+          Exact Search
+        </b-form-checkbox>
+      </div>
+      <b-input-group class="col-3" prepend="Result Limit:">
+        <b-form-select
+
+            v-model="limit"
+            :options="limitOptions"
+            value-field="value"
+            text-field="title"
+            disabled-field="notEnabled"
+        ></b-form-select>
+      </b-input-group>
+      <b-btn class="ml-auto" ref="deselect" v-on:click="deselect">Clear All Filters</b-btn>
+    </div>
+
+    <div class="row w-100" v-for="f in Object.keys(filters)" v-bind:key="f">
+      <b-badge class="m-2" v-for=" applied in filters[f]" v-bind:key="applied">
+
+        {{ f }}/{{ applied }}
+      </b-badge>
+    </div>
   </div>
-  <b-input-group class="col-3" prepend="Result Limit:">
-    <b-form-select
-
-        v-model="limit"
-        :options="limitOptions"
-        value-field="value"
-        text-field="title"
-        disabled-field="notEnabled"
-    ></b-form-select>
-  </b-input-group>
-  <b-btn class="ml-auto" ref="deselect" v-on:click="deselect" >Clear All Filters</b-btn>
-</div>
-
-  <div class="row w-100" v-for="f in Object.keys(filters)" v-bind:key="f">
-    <b-badge class="m-2" v-for=" applied in filters[f]" v-bind:key="applied">
-
-      {{f}}/{{applied}}
-    </b-badge>
-  </div>
-</div>
 </template>
 
 <script>
 import FacetsConfig from '../../config.js'
+import {mapState} from "vuex";
 //import {mapState} from "vuex";
 
 export default {
-name: "ResultHeader",
-  inject: ["clearFilters", "order","setResultLimit","setSearchExactmatch"],
+  name: "ResultHeader",
+  inject: ["clearFilters", "order", "setResultLimit"
+ //   , "setSearchExactmatch"
+  ],
+  computed: {
+    ...mapState(['searchExactMatch']),
+  },
   props: {
-  "totalCount": Number,
-    "currentCount":Number,
-   "sortOptions": Object,
+    "totalCount": Number,
+    "currentCount": Number,
+    "sortOptions": Object,
     "filters": Object,
 
-   },
-  watch:{
+  },
+  watch: {
     orderBy: 'orderByChanged',
     limit: 'limitChanged',
-    searchExact:'searchExactChanged'
+    searchExact: 'searchExactChanged'
   },
-  data(){
-  return {
-    orderBy: FacetsConfig.ORDER_BY_DEFAULT,
-    orderByOptions : FacetsConfig.ORDER_BY_OPTIONS,//{field:'name', title: 'Name', sort: 'asc' },
-    limit: FacetsConfig.LIMIT_DEFAULT,
-    limitOptions: FacetsConfig.LIMIT_OPTIONS,
-    searchExact:  true,
-  }
+  data() {
+    return {
+      orderBy: FacetsConfig.ORDER_BY_DEFAULT,
+      orderByOptions: FacetsConfig.ORDER_BY_OPTIONS,//{field:'name', title: 'Name', sort: 'asc' },
+      limit: FacetsConfig.LIMIT_DEFAULT,
+      limitOptions: FacetsConfig.LIMIT_OPTIONS,
+      searchExact: this.searchExactMatch,
+    }
   }
 
-   ,
-methods: {
-  deselect(){
+  ,
+  methods: {
+    deselect() {
 
-    this.clearFilters()
-  },
-  orderByChanged(){
-    this.order(this.orderByOptions.find(o=> o.field = this.orderBy) )
-  },
-  limitChanged(){
-    this.setResultLimit(this.limit)
-  },
-  searchExactChanged(){
-    this.setSearchExactmatch( this.searchExact)
-  }
+      this.clearFilters()
+    },
+    orderByChanged() {
+      this.order(this.orderByOptions.find(o => o.field = this.orderBy))
+    },
+    limitChanged() {
+      this.setResultLimit(this.limit)
+    },
+    searchExactChanged() {
+     // this.setSearchExactmatch(this.searchExact)
+      this.$store.state.searchExactMatch = this.searchExact
+    }
 //   $('.orderbyitem').each(function(){
 //   var id = this.id.substr(8);
 //   if (settings.state.orderBy == id) {
@@ -99,7 +106,7 @@ methods: {
 //   order();
 //   updateResults();
 // });
- }
+  }
 
 }
 </script>

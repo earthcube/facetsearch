@@ -24,7 +24,7 @@ export const store = new Vuex.Store({
         lastDatasetIds: [],
         connectedTools: new Map(), // object id, hasConnectedTools
         q: '',
-        searchExactMatch: false,
+        searchExactMatch: true,
         // resultLimit: FacetsConfig.LIMIT_DEFAULT,
 
     },
@@ -81,9 +81,9 @@ export const store = new Vuex.Store({
         setTextQuery(state, obj){
             state.q = obj
         },
-        // setSearchExactMatch(state, obj){
-        //     state.searchExactMatch = obj
-        // },
+        setSearchExactMatch(state, obj){
+            state.searchExactMatch = obj
+        },
         // setResultLimit(state, obj){
         //     state.resultLimit = obj
         // },
@@ -189,6 +189,10 @@ export const store = new Vuex.Store({
 
                 }
                 //self.items = items;
+                // if we want to remove dupes
+                // items = _.uniq(items, false, function(item, key, subj){
+                //     return item.subj
+                // })
                 context.commit('setResults', items)
                 // self.initFacetCounts();//items,facets, facetStore,  facetSortOption
                 // self.filter();

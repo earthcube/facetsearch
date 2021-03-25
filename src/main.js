@@ -18,24 +18,10 @@ Vue.use(Router)
 
 
 import App from './App.vue'
-import landing from './components/landing/landing.vue'
-import Search from './components/facetsearch/Search.vue'
-import dataset from './components/dataset/dataset.vue'
+import router from './routes'
 import {store} from './state.js'
 
-const router=new Router({
-  mode: "history",
-  hash: false,
-  routes:[
-      {path:'/landing',name:'landing',component:landing,},
-    // {path:'/search/?q=:q',name:'Search',component:Search,props:true},
-    // {path:'/dataset/?o=id',name:'dataset',component:dataset,props:true,},
-    {path:'/search/',name:'Search',component:Search,props: route => ({ textQuery :route.query.q })},
-    {path:'/dataset/:o',name:'dataset',component:dataset,props:true},
-// catch all case
-    { path: '*'},
-  ]
-})
+
 //router.replace(router.currentRoute.fullPath);
 //router.go(document.URL)
 // router.onReady(() => {

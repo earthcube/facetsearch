@@ -4,7 +4,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                         prefix sschema: <https://schema.org/>
                         SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", ") AS ?placenames)
         (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)
-        ?datep  (MIN(?url) as ?disurl) ?score  ?name ?description ?resourceType ?g
+        ?datep   (GROUP_CONCAT(DISTINCT ?url; SEPARATOR=", ") AS ?disurl) (MAX(?score) as ?maxScore)   ?name ?description ?resourceType ?g
         WHERE {
             ?lit bds:search "${q}" .
             ?lit bds:matchAllTerms "${exact}" .
@@ -31,7 +31,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 		        BIND ( IF ( BOUND(?pub_name), ?pub_name, "No Publisher") as ?pubname ) .
             BIND ( IF ( BOUND(?place_name), ?place_name, "No spatialCoverage") as ?placename ) .
         }
-        GROUP BY ?subj ?datep ?pubname ?name ?description ?url ?score ?resourceType ?g
+        GROUP BY ?subj ?datep ?pubname ?name ?description  ?resourceType ?g
         ORDER BY DESC(?score)
         LIMIT ${n}
         OFFSET ${o}
