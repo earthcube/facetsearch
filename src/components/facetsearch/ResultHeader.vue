@@ -14,8 +14,8 @@
 
       <div class="my-2">{{ currentCount }} &nbsp; selected of &nbsp; {{ totalCount }} results</div>
       <div class="m-2">
-        <b-form-checkbox v-model="searchExact" name="Exact Search" switch>
-          Exact Search
+        <b-form-checkbox v-model="searchExact" name="Match All Terms" switch>
+          Match All Terms
         </b-form-checkbox>
       </div>
       <b-input-group class="col-3" prepend="Result Limit:">

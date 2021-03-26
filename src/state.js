@@ -204,8 +204,8 @@ export const store = new Vuex.Store({
         hasConnectedTools: async function (context, payload) {
             if (context.getters.getConnectedTool(payload)) {
                 console.log('hasConnectedTools:cached:' + context.getters.getConnectedTool(payload));
-               Promise.resolve()
-                return context.getters.getConnectedTool(payload)
+               Promise.resolve(context.getters.getConnectedTool(payload))
+                //return
 
             }
             // const template_name = "hasTools"
@@ -235,8 +235,11 @@ export const store = new Vuex.Store({
             return axios.request(config).then(function (response) {
                 var hasTool = response.data.boolean
                 console.log('hasConnectedTools:ask:result:' + hasTool);
-
-                context.commit('addConnectedTools', {id: payload, hasTool})
+                if (hasTool) {
+                    console.log('hasConnectedTools:ask:')
+                    console.log(params["query"]);
+                }
+                context.commit('addConnectedTools', {id: payload, hasTool: hasTool})
                 return hasTool;
 
             })
