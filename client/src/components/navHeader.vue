@@ -18,6 +18,7 @@
         </keep-alive>
         <!--        <b-nav-item  :to="{ name: 'dataset', params: { o: '/lipdverse/509e465d0793506b237cea8069c3cb2d276fe9c2.jsonld' } }">Dataset</b-nav-item>-->
         <b-nav-item disabled  :to="{ name: 'dataset',params: { o: '/lipdverse/509e465d0793506b237cea8069c3cb2d276fe9c2.jsonld' } }">Dataset</b-nav-item>
+        <b-nav-item disabled  :to="{ name: 'tool',params: { o: 'http://n2t.net/ark:/23942/g2600027' } }">Tool</b-nav-item>
       </b-navbar-nav>
 
 

@@ -6,7 +6,8 @@
       <!-- ?rrs ?name ?curl ?landingPage -->
       <div class="row" v-for="i in downloadTools" v-bind:key="i.index">
         <a class="ml-3" :href="i.landingPage.value">{{ i.name.value }}</a>
-        <a class="ml-auto" :href=" i.rrs.value ">Tool Metadata</a>
+<!--        <a class="ml-auto" :href=" i.rrs.value ">Tool Metadata</a>-->
+        <router-link  :to="{ name: 'tool', params: { o: i.rrs.value } }">Tool Metadata</router-link>
       </div>
 
 
@@ -14,7 +15,8 @@
       <!--  ?dataname ?appname   ?durl  ?turl ?rrs -->
       <div class="row" v-for="i in webserviceTools" v-bind:key="i.index">
         <a class="ml-3"  :href="i.durl.value">{{ i.appname.value }} for {{ i.dataname.value }} </a>
-        <a class="ml-auto" :href=" i.rrs.value ">Tool Metadata</a>
+<!--        <a class="ml-auto" :href=" i.rrs.value ">Tool Metadata</a>-->
+        <router-link  class="ml-auto" :to="{ name: 'tool', params: { o: i.rrs.value } }">Tool Metadata</router-link>
       </div>
 
 
