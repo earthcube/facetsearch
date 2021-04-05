@@ -8,13 +8,13 @@ on:
 defaults:
   run:
     working-directory: ./client
-  env:
-    DOCKER_CONFIG: ./server
 jobs:
   deploy:
     name: Dockerize Vue Client
     runs-on: ubuntu-latest
     steps:
+      - env:
+          DOCKER_CONFIG: ./server
       - name: Checkout Repo
         uses: actions/checkout@v2
       - name: Create Node Environment
