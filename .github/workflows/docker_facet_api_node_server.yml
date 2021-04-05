@@ -19,9 +19,10 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '14'
-      - run: npm install -g  yarn
-      - run: yarn install
-      - run: yarn build
+      - run: npm install
+      #- run: npm install -g  yarn
+      #- run: yarn install
+      #- run: yarn build
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
