@@ -8,6 +8,7 @@ on:
 defaults:
   run:
     working-directory: ./client
+    DOCKER_CONFIG: ./server
 jobs:
   deploy:
     name: Dockerize Vue Client

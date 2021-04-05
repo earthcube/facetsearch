@@ -8,6 +8,7 @@ on:
 defaults:
   run:
     working-directory: ./server
+    DOCKER_CONFIG: ./server
 jobs:
   deploy:
     name: Dockerize NodeJS Server
