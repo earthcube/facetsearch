@@ -62,14 +62,6 @@ export const store = new Vuex.Store({
 
             state.jsonLdCompact = obj
         },
-        setToolLdObj(state, obj) {
-
-            state.toolLdObj = obj
-        },
-        setToolLdCompact(state, obj) {
-
-            state.toolLdObjCompact = obj
-        },
         setQueryTemplate(state, payload) {
             let name = payload.name
             let obj = payload.obj
@@ -132,62 +124,6 @@ export const store = new Vuex.Store({
                         console.log(j.toString());
                         context.commit('setJsonLdCompact', jp)
                     })
-                }
-            )
-
-        },
-        async fetchToolJsonLd(context, toolArk) {
-
-            // var self = this;
-
-            var url = new URL(toolArk); // adding ?  or ?? to ark returns some info  eg http://n2t.net/ark:/23942/g2600027??
-            fetch(url, {
-                redirect: "manual"
-            }).then((res) => {
-                console.log([...res.headers.keys()])
-            })
-
-
-            const config = {
-                url: url,
-                method: 'get',
-                maxRedirects: 0,
-                // headers: {
-                //     'Accept': 'application/xhtml+xml',
-                //     'Content-Type': 'application/xhtml+xml'
-                // },
-                crossDomain: true,
-
-
-            }
- //           return axios.get(url,{
-//                headers: { 'crossDomain': true },
- //           }
-            return axios.request(config
-            ).then(
-                //const content = await rawResponse.json();
-                function (r) {
-                    var location = r.headers['Location']
-                //: https://drive.google.com/file/d/1jV0uTRwBGLcYt_tP0KLN-8eC-wiDqXdg/view?usp=drivesdk]
-                    return axios.get(location). then(
-                        function(toolResponse){
-                            var content = toolResponse.data;
-                            console.log(content);
-
-                            let toolLdObj = JSON.parse(content)
-
-                            context.commit('setToolLdObj', toolLdObj)
-
-                            const toolLdContext = {};
-                            jsonld.compact(toolLdObj, toolLdContext).then((providers) => {
-                                var j = JSON.stringify(providers, null, 2);
-                                var jp = JSON.parse(j);
-                                console.log(j.toString());
-                                context.commit('setToolLdCompactLdCompact', jp)
-                            })
-                        }
-                    )
-
                 }
             )
 
