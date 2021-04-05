@@ -8,6 +8,7 @@ on:
 defaults:
   run:
     working-directory: ./client
+  env:
     DOCKER_CONFIG: ./server
 jobs:
   deploy:
