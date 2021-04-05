@@ -1,4 +1,4 @@
-name: Deploy to Github Pages
+name: Deploy to facetsearch client to Geodex site s3
 on:
   push:
     branches:
@@ -6,8 +6,9 @@ on:
 
 jobs:
   deploy:
-    name: Deploy Application
+    name: Deploy Vue Facetsearch to s3 dev
     runs-on: ubuntu-latest
+    working-directory: client
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2

@@ -1,37 +1,85 @@
+var jsonLdObj = require("./jsonldObject");
+var jsonld = require('jsonld')
 var axios = require('axios')
 const https = require('https')
+const minio = require('minio')
+
 var S3_BASE ='http://gleaner.oss.geodex.org/summoned'
 
-exports.getDataset =async function(uri) {
-//var url = new URL(toolArk); //adding ?  or ?? to ark returns some info  eg http://n2t.net/ark:/23942/g2600027??
-    var parts = uri.split(':')
-//urn:gleaner:milled:magic:c164daaca4ae58122d76ec48ecae1c1c45819fcf
-    var url =`${S3_BASE}/${parts[3]}/${parts[4]}.jsonld`
+const getJson =async function(datasetUrn) {
+    return  new Promise((resolve, reject) => {
+        var part = datasetUrn.split(':')
 
-    const agent = new https.Agent({
-        rejectUnauthorized: false
-    });
-    const config = {
-    url: url,
-    method: 'get',
-    maxRedirects: 5,
-    // headers: {
-    //     'Accept': 'application/xhtml+xml',
-    //     'Content-Type': 'application/xhtml+xml'
-    // },
-    crossDomain: true,
-    httpsAgent: agent
+        var s3Path = `summoned/${part[3]}/${part[4]}.jsonld`
 
+        const mc = new minio.Client(global.gConfig.config.jsonldStore)
+        //https://gleaner.oss.geodex.org/summoned/opentopo/0281f678daa333bdc4d9b6bbdf6c07974244e0a4.jsonld
+        let jsonld = "";
+        mc.getObject('gleaner', s3Path,
+            function (err, dataStream) {
+                if (err) {
+                    // need better error messaging
+                    //res.status(404)
+                    //res.render('error', { error: err.message + err.resource })
+                    console.log(err)
 
-    }
-    return axios.request(config
-    ).then(
-        //const content = await rawResponse.json();
-        function (r) {
-
-            //: https://drive.google.com/file/d/1jV0uTRwBGLcYt_tP0KLN-8eC-wiDqXdg/view?usp=drivesdk]
-            return r.data
-
-        }
-    )
+                    //throw Error(err.message + err.resource)
+                    reject({status:404, error:err.message + err.resource})
+                }
+                let jsonld = ""
+                dataStream.on('data', function (chunk) {
+                    //res.write(chunk)
+                    jsonld += chunk
+                })
+                dataStream.on('end', function () {
+                    //res.end()
+                   resolve(jsonld)
+                })
+                dataStream.on('error', function (err) {
+                    console.log(err)
+                    //res.status(500)
+                    //res.render('error', { error: err.message  })
+                   // throw Error(err.message)
+                    reject({status:500, error:err.message})
+                })
+            }
+        )
+    }) // promise
 }
+exports.getDataset = getJson
+
+const jsonCompact = async function(jsonldObj)
+{
+    const toolLdContext = {};
+    return jsonld.compact(toolLdObj, toolLdContext).then((providers) => {
+        var j = JSON.stringify(providers, null, 2);
+        var jp = JSON.parse(j);
+        console.log(j.toString());
+        return jp
+
+    })
+}
+
+exports.getDownloads =async function(uri) {
+    return  new Promise((resolve, reject) => {
+        getJson(uri).then(function(data){
+            {
+                let jsonObj = JSON.parse(data)
+                const toolLdContext = {};
+                jsonld.compact(jsonObj, toolLdContext).then(
+                    json => {
+                        var s_distribution = jsonLdObj.schemaItem('distribution', json);
+                        var downloads = jsonLdObj.getDistributions(s_distribution)
+                        resolve( JSON.stringify(downloads, null,2));
+                    }
+                ).catch(err => reject(err))
+            }
+        }).catch(
+            err =>  reject(err)
+        )
+    })
+}
+
+
+
+
