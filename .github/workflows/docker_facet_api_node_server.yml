@@ -32,7 +32,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          context: ./server
       - name: Build and push
         env:
           DOCKER_CONFIG: ./server
