@@ -37,7 +37,7 @@ let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
 export default {
   name: "connectedTools",
   props: {
-    op: {type: String, default: ''}
+    g: {type: String, default: ''}
   },
   data() {
     return {
@@ -57,8 +57,9 @@ export default {
     ...mapActions([
       'hasConnectedTools']),
     checkTools() {
-      let graphUri = this.op.replaceAll("/", ":").replace('.jsonld', "");
-      graphUri = "urn:gleaner:milled"+ graphUri
+      //let graphUri = this.op.replaceAll("/", ":").replace('.jsonld', "");
+      //graphUri = "urn:gleaner:milled"+ graphUri
+      let graphUri = this.g
       this.hasConnectedTools(graphUri).then(i => this.hasTools=i)
       this.getDownloadableTools(graphUri)
       this.getWebTools(graphUri)
@@ -67,7 +68,7 @@ export default {
       var self = this
       const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, esTemplateOptions)
       // const resultsTemplate = _.template(SpaqlToolsDownloadQuery, esTemplateOptions)
-      let hasToolsQuery = resultsTemplate({op: graphUri});
+      let hasToolsQuery = resultsTemplate({g: graphUri});
 
       var url = FacetsConfig.TRIPLESTORE_URL;
       var params = {
@@ -97,7 +98,7 @@ export default {
     , getDownloadableTools(graphUri) {
       var self = this;
       const resultsTemplate = _.template(SpaqlToolsDownloadQuery, esTemplateOptions)
-      let hasToolsQuery = resultsTemplate({op: graphUri});
+      let hasToolsQuery = resultsTemplate({g: graphUri});
 
       var url = FacetsConfig.TRIPLESTORE_URL;
       var params = {

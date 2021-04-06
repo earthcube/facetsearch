@@ -106,7 +106,7 @@ export default {
   //   jsonLdobj: Object,
   // },
   watch: {
-   toolLdCompact: 'toMetadata'
+    toolLdCompact: 'toMetadataTools'
   },
 
   data() {
@@ -142,12 +142,12 @@ export default {
     //   this.toMetadata();
   },
   computed: {
-    ...mapState(['toolLdObj','toolLdObjCompact'])
+    ...mapState(['toolLdObj','toolLdCompact'])
 
   },
 
   methods: {
-    toMetadata() {
+    toMetadataTools() {
       var self = this;
       var mapping = this.mapping;
       console.log(self.toolLdObj)
@@ -156,7 +156,7 @@ export default {
       // const compacted = jsonld.compact(content, context).then((providers) => {
       //  jsonld.compact(self.jsonLdObj, context).then((providers) => {
       //    var j = JSON.stringify(providers, null, 2);
-      var j = JSON.stringify(self.toolLdObjCompact, null, 2);
+      var j = JSON.stringify(self.toolLdCompact, null, 2);
       var jp = JSON.parse(j);
       console.log(j.toString());
       mapping.raw_json = jp;

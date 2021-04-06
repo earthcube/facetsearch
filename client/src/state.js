@@ -68,7 +68,7 @@ export const store = new Vuex.Store({
         },
         setToolLdCompact(state, obj) {
 
-            state.toolLdObjCompact = obj
+            state.toolLdCompact = obj
         },
         setQueryTemplate(state, payload) {
             let name = payload.name
@@ -105,8 +105,9 @@ export const store = new Vuex.Store({
             // var self = this;
 
             //const fetchURL = `https://dx.geodex.org/id/summoned${o}`
-            const proxyLocation = _.template(FacetsConfig.JSONLD_PROXY, esTemplateOptions)
-            const fetchURL = proxyLocation({o: o})
+            //const proxyLocation = _.template(FacetsConfig.JSONLD_PROXY, esTemplateOptions)
+            //const fetchURL = proxyLocation({o: o})
+            const fetchURL = FacetsConfig.API_URL +`/dataset/${o}`
             console.log(fetchURL);
             var url = new URL(fetchURL);
             return axios.get(url).then(
@@ -137,16 +138,9 @@ export const store = new Vuex.Store({
 
         },
         async fetchToolJsonLd(context, toolArk) {
-
             // var self = this;
-
-            var url = new URL(toolArk); // adding ?  or ?? to ark returns some info  eg http://n2t.net/ark:/23942/g2600027??
-            fetch(url, {
-                redirect: "manual"
-            }).then((res) => {
-                console.log([...res.headers.keys()])
-            })
-
+            //var url = new URL(toolArk); // adding ?  or ?? to ark returns some info  eg http://n2t.net/ark:/23942/g2600027??
+            var url = FacetsConfig.API_URL +`/tools/${toolArk}`
 
             const config = {
                 url: url,
@@ -157,8 +151,6 @@ export const store = new Vuex.Store({
                 //     'Content-Type': 'application/xhtml+xml'
                 // },
                 crossDomain: true,
-
-
             }
  //           return axios.get(url,{
 //                headers: { 'crossDomain': true },
@@ -166,16 +158,13 @@ export const store = new Vuex.Store({
             return axios.request(config
             ).then(
                 //const content = await rawResponse.json();
-                function (r) {
-                    var location = r.headers['Location']
-                //: https://drive.google.com/file/d/1jV0uTRwBGLcYt_tP0KLN-8eC-wiDqXdg/view?usp=drivesdk]
-                    return axios.get(location). then(
-                        function(toolResponse){
+                function (toolResponse) {
+
                             var content = toolResponse.data;
                             console.log(content);
 
-                            let toolLdObj = JSON.parse(content)
-
+                          //  let toolLdObj = JSON.parse(content)
+                            let toolLdObj = content
                             context.commit('setToolLdObj', toolLdObj)
 
                             const toolLdContext = {};
@@ -183,12 +172,10 @@ export const store = new Vuex.Store({
                                 var j = JSON.stringify(providers, null, 2);
                                 var jp = JSON.parse(j);
                                 console.log(j.toString());
-                                context.commit('setToolLdCompactLdCompact', jp)
+                                context.commit('setToolLdCompact', jp)
                             })
                         }
-                    )
 
-                }
             )
 
         },

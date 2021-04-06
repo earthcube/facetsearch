@@ -9,7 +9,7 @@
     </div>
   </div>
  <div class="row col-12">
-   <connected-tools class="col-6" :op="o"></connected-tools>
+   <connected-tools class="col-6" :g="o"></connected-tools>
 
  </div>
 </div>
