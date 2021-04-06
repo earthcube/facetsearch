@@ -11,7 +11,7 @@
             <div class="row">
 
               <span class="col-2 font-weight-bold">Type:</span>
-              <span class="col-8">Data</span>
+              <span class="col-8"> <b-badge v-for="t in mapping.types" v-bind:key="t"> {{t}} </b-badge> </span>
             </div>
             <div class="row">
 
@@ -113,9 +113,10 @@ export default {
     return {
       // jsonldObj : this.$store.state.jsonLdObj,
       mapping: {
+        types:[],
         s_name: '',
         s_description: '',
-        s_url: '',
+        s_installUrl: '',
         s_contributor: '',
         s_datePublished: '',
         s_sdPublisher: '',
@@ -134,7 +135,7 @@ export default {
         s_publishedDate: '',
         has_s_url: false,
         downloads: [],
-        s_distribution: '',
+        s_installURL: '',
       }
     }
   },
@@ -162,11 +163,13 @@ export default {
       mapping.raw_json = jp;
       //const detailsTemplate = [];
       // detailsTemplate.push(html`<h3>Digital Document metadata</h3>`);
+      const types = jp["@type"]
+      mapping.types = types.map(t => t.substring(t.indexOf('schema.org/')+11) )
       mapping.s_name = schemaItem('name', jp);
       mapping.s_url = schemaItem('url', jp);
       mapping.s_description = schemaItem('description', jp);
 
-      mapping.s_distribution = schemaItem('distribution', jp);
+      mapping.s_installURL = schemaItem('distribution', jp);
 
       if (hasSchemaProperty('datePublished', jp)) {
         mapping.s_datePublished = schemaItem('datePublished', jp);
