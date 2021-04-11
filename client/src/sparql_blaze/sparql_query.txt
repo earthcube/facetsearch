@@ -1,8 +1,5 @@
-PREFIX con: <http://www.ontotext.com/connectors/lucene#>
-PREFIX luc: <http://www.ontotext.com/owlim/lucene#>
-PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 prefix schema: <http://schema.org/>
 prefix sschema: <https://schema.org/>
 SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", ") AS ?placenames)
@@ -10,16 +7,18 @@ SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", "
         ?datep  (GROUP_CONCAT(DISTINCT ?url; SEPARATOR=", ") AS ?disurl) (MAX(?score1) as ?score)
         ?name ?description ?resourceType ?g
         WHERE {
-           [] a con-inst:geocodes_fts ;
-             con:query "${q}" ;
-            con:entities ?subj .
-             VALUES (?dataset) { ( schema:Dataset ) ( sschema:Dataset ) }
-               ?subj a ?dataset .
-             OPTIONAL {?subj con:score ?score1} .
+            ?lit bds:search "${q}" .
+            ?lit bds:matchAllTerms ${exact} .
+            ?lit bds:relevance ?score1 .
+            ?subj ?p ?lit .
             BIND (IF (exists {?subj a schema:Dataset .} ||exists{?subj a sschema:Dataset .} , "data", "tool") AS ?resourceType).
-
+            filter( ?score1 > 0.04).
           graph ?g {
+            Minus {?subj a sschema:ResearchProject } .
+            Minus {?subj a schema:ResearchProject } .
 
+            Minus {?subj a schema:Person } .
+            Minus {?subj a sschema:Person } .
              ?subj schema:name|sschema:name ?name .
                        ?subj schema:description|sschema:description ?description . }
             optional {?subj schema:distribution/schema:url|schema:subjectOf/schema:url ?url .}
@@ -31,7 +30,7 @@ SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", "
             BIND ( IF ( BOUND(?pub_name), ?pub_name, "No Publisher") as ?pubname ) .
             BIND ( IF ( BOUND(?place_name), ?place_name, "No spatialCoverage") as ?placename ) .
         }
-        GROUP BY ?subj ?pubname ?placename ?kwu ?datep ?url  ?name ?description  ?resourceType ?g
+        GROUP BY ?subj ?pubname ?placenames ?kw ?datep ?disurl  ?name ?description  ?resourceType ?g
         ORDER BY DESC(?score)
 LIMIT ${n}
 OFFSET ${o}
