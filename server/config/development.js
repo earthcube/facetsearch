@@ -1,3 +1,5 @@
+var debug = require('debug')('config')
+debug('in development config')
 exports.config = {
     jsonldStore: {
         "type": "minio",

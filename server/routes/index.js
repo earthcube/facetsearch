@@ -1,4 +1,5 @@
 var express = require('express');
+var debug = require('debug')('routing')
 var router = express.Router();
 const url = require('url');
 const querystring = require('querystring');
@@ -15,6 +16,7 @@ router.get('/tools/*', function(req,
                               res,
                               next) {
   var path = url.parse(req.url).pathname;
+    debug('tools path ' + path);
   var arkurl = path.replace('/tools/','')
   var arkuri = path.substring(path.indexOf('ark:'))
   toolsController.getTool(arkurl).then(
@@ -51,28 +53,45 @@ router.get('/dataset/*/downloads', function(req
                                             ,res
                                             , next){
     var path = url.parse(req.url).pathname;
-
+    debug('dataset path ' + path);
     var datasetFromPath = path.replace('/dataset/','')
     var datasetUrn = path.substring(path.indexOf('urn:') , path.indexOf('/downloads'))
     var part = datasetUrn.split(':')
     datasetController.getDownloads(datasetUrn).then(
         jsonld => res.send(jsonld)
     ).catch(
-        err => {res.status(err.status); res.send(err.error)}
+        err => {
+            debug('dataset error ' + err);
+            if (err.status ){
+                res.status(err.status);
+            }  else {
+                res.status(500);
+            }
+            res.send(err.error)
+        }
     )
 })
 router.get('/dataset/*', function(req,
                                 res,
                                 next) {
   var path = url.parse(req.url).pathname;
-
+    debug('dataset path ' + path);
   var datasetFromPath = path.replace('/dataset/','')
   var datasetUrn = path.substring(path.indexOf('urn:') )
     var part = datasetUrn.split(':')
     datasetController.getDataset(datasetUrn).then(
         jsonld => res.send(jsonld)
     ).catch(
-        err => {res.status(err.status); res.send(err.error)}
+
+        err => {debug('dataset error ' + err);
+            if (err.status ){
+                res.status(err.status);
+            }  else {
+                res.status(500);
+            }
+
+            res.send(err.error)
+        }
         )
     // var s3Path = `summoned/${part[3]}/${part[4]}.jsonld`
     //

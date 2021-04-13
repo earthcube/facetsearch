@@ -3,6 +3,9 @@ var jsonld = require('jsonld')
 var axios = require('axios')
 const https = require('https')
 const minio = require('minio')
+var d = require('debug')('dataset:dataset')
+var t = require('debug')('dataset:tools')
+var g = require('debug')('dataset:getJson')
 
 var S3_BASE ='http://gleaner.oss.geodex.org/summoned'
 
@@ -11,7 +14,7 @@ const getJson =async function(datasetUrn) {
         var part = datasetUrn.split(':')
 
         var s3Path = `summoned/${part[3]}/${part[4]}.jsonld`
-
+        g('config'+global.gConfig)
         const mc = new minio.Client(global.gConfig.config.jsonldStore)
         //https://gleaner.oss.geodex.org/summoned/opentopo/0281f678daa333bdc4d9b6bbdf6c07974244e0a4.jsonld
         let jsonld = "";

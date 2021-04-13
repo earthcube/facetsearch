@@ -6,7 +6,7 @@ export default {
     SPARQL_HASTOOLS:'queries/sparql_hastools.txt',
     SPARQL_TOOLS_WEBSERVICE:'queries/sparql_gettools_webservice.txt',
     SPARQL_TOOLS_DOWNLOAD:'queries/sparql_gettools_download.txt',
-    JSONLD_PROXY: "http://localhost:3000${o}",
+    JSONLD_PROXY: "http://localhost:3000/${o}",
     // allow us to use the same delimiters as lithtml
     ES_TEMPLATE_OPTIONS : {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
     FACETS: [

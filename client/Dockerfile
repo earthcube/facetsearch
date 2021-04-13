@@ -1,5 +1,7 @@
 FROM node:14
 
+RUN npm install -g http-server
+
 # Create app directory
 WORKDIR /usr/src/app
 
@@ -18,4 +20,4 @@ COPY . .
 RUN npm run build
 
 EXPOSE 8080
-CMD [ "http-server", " dist" ]
+CMD [ "http-server", "/usr/src/app/dist" ]
