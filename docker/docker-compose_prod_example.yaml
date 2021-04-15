@@ -19,42 +19,18 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.entrypoints=http"
-      - "traefik.http.routers.traefik.rule=Host(`${HOST:?HOST environment varaible is required}`) && PATH(`/admin`)"
-      - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$apr1$$KvvXT.Bz$$wSzv.UV1OLZn48/mwm8pU/"
+      - "traefik.http.routers.traefik.rule=Host(alpha.`${HOST:?HOST environment varaible is required}`)&& ( PathPrefix(`/dashboard`) || PathPrefix(`/api`) )"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$2y$$05$$0M37fViQ3uHTqkNl0c9C1.disDp5hKPRhVdDetC8MNZ11VXq6msly"
       - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
       - "traefik.http.routers.traefik-secure.entrypoints=https"
-      - "traefik.http.routers.traefik-secure.rule=Host(`${HOST:?HOST environment varaible is required}`) && PATH(`/admin`)"
+      - "traefik.http.routers.traefik-secure.rule=Host(alpha.`${HOST:?HOST environment varaible is required}`) && ( PathPrefix(`/dashboard`) || PathPrefix(`/api`) )"
       - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
       - "traefik.http.routers.traefik-secure.tls=true"
       - "traefik.http.routers.traefik-secure.tls.certresolver=http"
       - "traefik.http.routers.traefik-secure.service=api@internal"
-  alpha-client:
-    image: nsfearthcube/ec_facets_client:latest
-    #build: ./client
-    environment:
-      - NODE_ENV=production
-      - DOMAIN=https://${HOST:?HOST environment varaible is required}/
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.alpha.entrypoints=http"
-      - "traefik.http.routers.alpha.rule=Host(`${HOST:?HOST environment varaible is required}`) && PATH(`/client`)"
-      - "traefik.http.middlewares.alpha-https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.routers.alpha.middlewares=alpha-https-redirect"
-      - "traefik.http.routers.alpha-secure.entrypoints=https"
-      - "traefik.http.routers.alpha-secure.rule=Host(`alpha.${HOST:?HOST environment is required}`) && PATH(`/client`)"
-      - "traefik.http.routers.alpha-secure.tls=true"
-      - "traefik.http.routers.alpha-secure.tls.certresolver=http"
-      - "traefik.http.routers.alpha-secure.service=alpha"
-      - "traefik.http.services.alpha.loadbalancer.server.port=8080"
-      - "traefik.docker.network=traefik_default"
-      - "traefik.http.middlewares.alpha.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
-      - "traefik.http.middlewares.alpha.headers.accesscontrolalloworigin=*"
-      - "traefik.http.middlewares.alpha.headers.accesscontrolmaxage=100"
-      - "traefik.http.middlewares.alpha.headers.addvaryheader=true"
-    networks:
-      - traefik_default
-  alpha-server:
+
+  vue-services:
     image: nsfearthcube/ec_facets_api_nodejs:latest
     #build: ./server
     environment:
@@ -62,17 +38,17 @@ services:
       - S3ADDRESS=s3system:9000
       - S3BUCKET=sites
       - S3PREFIX=alpha
-      - DOMAIN=https://${HOST:?HOST environment varaible is required}/
+      - DOMAIN=https://alpha.${HOST:?HOST environment varaible is required}/
       - S3KEY={EXAMPLE}
       - S3SECRET={EXAMPLEKEY}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.alpha-server.entrypoints=http"
-      - "traefik.http.routers.alpha-server.rule=Host(`${HOST:?HOST environment variable is required}`) && PATH(`/api`)"
+      - "traefik.http.routers.alpha-server.rule=Host(alpha.`${HOST:?HOST environment variable is required}`) && PATH(`/api`)"
       - "traefik.http.middlewares.alpha-server-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.routers.alpha-server.middlewares=alpha-server-https-redirect"
       - "traefik.http.routers.alpha-server-secure.entrypoints=https"
-      - "traefik.http.routers.alpha-server-secure.rule=Host(`${HOST:?HOST environment is required}`) && PATH(`/api`)"
+      - "traefik.http.routers.alpha-server-secure.rule=Host(alpha.`${HOST:?HOST environment is required}`) && PATH(`/api`)"
       - "traefik.http.routers.alpha-server-secure.tls=true"
       - "traefik.http.routers.alpha-server-secure.tls.certresolver=http"
       - "traefik.http.routers.alpha-server-secure.service=alpha-server"
@@ -82,6 +58,31 @@ services:
       - "traefik.http.middlewares.alpha-server.headers.accesscontrolalloworigin=*"
       - "traefik.http.middlewares.alpha-server.headers.accesscontrolmaxage=100"
       - "traefik.http.middlewares.alpha-server.headers.addvaryheader=true"
+    networks:
+      - traefik_default
+  vue-client:
+    image: nsfearthcube/ec_facets_client:latest
+    #build: ./client
+    environment:
+      - NODE_ENV=production
+      - DOMAIN=https://alpha.${HOST:?HOST environment varaible is required}/
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.alpha.entrypoints=http"
+      - "traefik.http.routers.alpha.rule=Host(`alpha.${HOST:?HOST environment varaible is required}`)"
+      - "traefik.http.middlewares.alpha-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.alpha.middlewares=alpha-https-redirect"
+      - "traefik.http.routers.alpha-secure.entrypoints=https"
+      - "traefik.http.routers.alpha-secure.rule=Host(`alpha.${HOST:?HOST environment is required}`)"
+      - "traefik.http.routers.alpha-secure.tls=true"
+      - "traefik.http.routers.alpha-secure.tls.certresolver=http"
+      - "traefik.http.routers.alpha-secure.service=alpha"
+      - "traefik.http.services.alpha.loadbalancer.server.port=8080"
+      - "traefik.docker.network=traefik_default"
+      - "traefik.http.middlewares.alpha.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
+      - "traefik.http.middlewares.alpha.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.alpha.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.alpha.headers.addvaryheader=true"
     networks:
       - traefik_default
 networks:

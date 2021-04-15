@@ -62,7 +62,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.alpha.entrypoints=http"
-      - "traefik.http.routers.alpha.rule=Host(`${HOST:?HOST environment varaible is required}`) && PathPrefix(`/client`)"
+      - "traefik.http.routers.alpha.rule=Host(`${HOST:?HOST environment varaible is required}`) "
       #      - "traefik.http.routers.alpha.rule=Host(`${HOST:?HOST environment varaible is required}`) "
       - "traefik.http.routers.alpha.service=alpha"
       - "traefik.http.services.alpha.loadbalancer.server.port=8080"
