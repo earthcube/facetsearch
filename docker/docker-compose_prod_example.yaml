@@ -44,11 +44,13 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.alpha-server.entrypoints=http"
-      - "traefik.http.routers.alpha-server.rule=Host(alpha.`${HOST:?HOST environment variable is required}`) && PATH(`/api`)"
+      - "traefik.http.routers.alpha-server.priority=90"
+      - "traefik.http.routers.alpha-server.rule=Host(`alpha.${HOST:?HOST environment variable is required}`) && PATH(`/api`)"
       - "traefik.http.middlewares.alpha-server-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.routers.alpha-server.middlewares=alpha-server-https-redirect"
+      - "traefik.http.routers.alpha-server-secure.priority=91"
       - "traefik.http.routers.alpha-server-secure.entrypoints=https"
-      - "traefik.http.routers.alpha-server-secure.rule=Host(alpha.`${HOST:?HOST environment is required}`) && PATH(`/api`)"
+      - "traefik.http.routers.alpha-server-secure.rule=Host(`alpha.${HOST:?HOST environment is required}`) && PATH(`/api`)"
       - "traefik.http.routers.alpha-server-secure.tls=true"
       - "traefik.http.routers.alpha-server-secure.tls.certresolver=http"
       - "traefik.http.routers.alpha-server-secure.service=alpha-server"
@@ -58,6 +60,8 @@ services:
       - "traefik.http.middlewares.alpha-server.headers.accesscontrolalloworigin=*"
       - "traefik.http.middlewares.alpha-server.headers.accesscontrolmaxage=100"
       - "traefik.http.middlewares.alpha-server.headers.addvaryheader=true"
+      - "traefik.http.middlewares.ecapi_prefix.StripPrefix.prefixes=/ec/api"
+      - "traefik.http.routers.alpha-server.middlewares=ecapi_prefix"
     networks:
       - traefik_default
   vue-client:
@@ -69,10 +73,12 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.alpha.entrypoints=http"
+      - "traefik.http.routers.alpha.priority=10"
       - "traefik.http.routers.alpha.rule=Host(`alpha.${HOST:?HOST environment varaible is required}`)"
       - "traefik.http.middlewares.alpha-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.routers.alpha.middlewares=alpha-https-redirect"
       - "traefik.http.routers.alpha-secure.entrypoints=https"
+      - "traefik.http.routers.alpha-secure.priority=11"
       - "traefik.http.routers.alpha-secure.rule=Host(`alpha.${HOST:?HOST environment is required}`)"
       - "traefik.http.routers.alpha-secure.tls=true"
       - "traefik.http.routers.alpha-secure.tls.certresolver=http"

@@ -1,12 +1,12 @@
 <template>
-  <a
+  <b-nav-item
       v-bind:to="to"
       v-bind:href="href"
-      v-bind:class="{ active: isActive }"
+      v-bind:class="{ active: isActive($root.currentRoute) }"
       v-on:click="go"
   >
     <slot></slot>
-  </a>
+  </b-nav-item>
 </template>
 
 <script>
@@ -23,12 +23,14 @@ export default {
       type: String
     }
   },
-  computed: {
+
+  // computed: {
+  //
+  // },
+  methods: {
     isActive () {
       return this.to === this.$root.currentRoute
-    }
-  },
-  methods: {
+    },
     go (event) {
       event.preventDefault()
       this.$root.currentRoute = this.to

@@ -17,8 +17,8 @@
           <b-nav-item  :to="{ name: 'Search', query:{q:q}}">Search</b-nav-item>
         </keep-alive>
         <!--        <b-nav-item  :to="{ name: 'dataset', params: { o: '/lipdverse/509e465d0793506b237cea8069c3cb2d276fe9c2.jsonld' } }">Dataset</b-nav-item>-->
-        <b-nav-item disabled  :to="{ name: 'dataset',params: { o: '/lipdverse/509e465d0793506b237cea8069c3cb2d276fe9c2.jsonld' } }">Dataset</b-nav-item>
-        <b-nav-item disabled  :to="{ name: 'tool',params: { o: 'http://n2t.net/ark:/23942/g2600027' } }">Tool</b-nav-item>
+        <b-nav-item   :to="{ name: 'dataset'}" @click="console.log('click')" >Dataset</b-nav-item>
+        <b-nav-item   :to="{ name: 'tool' }" @click="console.log('click')">Tool</b-nav-item>
       </b-navbar-nav>
 
 
@@ -33,7 +33,7 @@
       </b-nav-form>
 </b-navbar-nav>
       <b-nav-text class="font-weight-bold ml-auto">GeoCODES
-        <span class="font-weight-normal font-italic">an interdisciplinary geoscience data and tool search portal</span>
+        <span class="font-weight-normal font-italic">Find and use geosciences data and tools</span>
       </b-nav-text>
 
       <b-navbar-nav class="ml-auto">
@@ -49,9 +49,11 @@
 
 <script>
 import {mapState} from "vuex";
+//import navBarToLink from "@/components/navBarToLink";
 
 export default {
 name: "navHeader",
+//  components: {navBarToLink} ,
   computed: {
     ...mapState(['results','searchExactMatch', 'q'])
 
@@ -61,7 +63,7 @@ name: "navHeader",
   },
   data() {
   return {
-    textQuery:''
+    textQuery:'',
   }
   },
   methods:{
