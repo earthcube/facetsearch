@@ -1,0 +1,4 @@
+
+dockerzing
+https://www.openshift.com/blog/deploy-vuejs-applications-on-openshift
+https://developer.ibm.com/recipes/tutorials/a-best-practice-in-dockerizing-vue-js-application/

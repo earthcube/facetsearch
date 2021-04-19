@@ -1,0 +1,80 @@
+version: '3'
+services:
+  traefik:
+    image: traefik:v2.0.2
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - traefik_default
+    ports:
+      - 8888:80
+      - 8443:443
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/traefik.yml:/traefik.yml:ro
+      - ./config/acme/acme.json:/acme.json
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=http"
+      - "traefik.http.routers.traefik.rule=Host(`${HOST:?HOST environment varaible is required}`) && ( PathPrefix(`/dashboard`) || PathPrefix(`/api`) )"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$2y$$05$$0M37fViQ3uHTqkNl0c9C1.disDp5hKPRhVdDetC8MNZ11VXq6msly"
+      - "traefik.http.routers.traefik.middlewares=traefik-auth"
+      - "traefik.http.routers.traefik.service=api@internal"
+      #- "traefik.http.middlewares.admin_prefix.stripprefix.prefixes=/admin"
+      #- "traefik.http.routers.traefik.middlewares=admin_prefix"
+  vue-services:
+    #image: nsfearthcube/ec_facets_api_nodejs:latest
+    build: ../server
+    environment:
+      - NODE_ENV=production
+      #- NODE_ENV=development
+      - DEBUG=*
+      - S3ADDRESS=s3system:9000
+      - S3BUCKET=sites
+      - S3PREFIX=alpha
+      - DOMAIN=http://${HOST:?HOST environment varaible is required}/
+      - S3KEY={EXAMPLE}
+      - S3SECRET={EXAMPLEKEY}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.alpha-server.entrypoints=http"
+      - "traefik.http.routers.alpha-server.rule=Host(`${HOST:?HOST environment variable is required}`) && PathPrefix(`/ec/api`)"
+      - "traefik.http.routers.alpha-server.service=alpha-server"
+      - "traefik.http.services.alpha-server.loadbalancer.server.port=3000"
+      - "traefik.docker.network=traefik_default"
+      - "traefik.http.middlewares.alpha-server.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
+      - "traefik.http.middlewares.alpha-server.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.alpha-server.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.alpha-server.headers.addvaryheader=true"
+      - "traefik.http.middlewares.ecapi_prefix.StripPrefix.prefixes=/ec/api"
+      - "traefik.http.routers.alpha-server.middlewares=ecapi_prefix"
+    networks:
+      - traefik_default
+  vue-client:
+    #image: nsfearthcube/ec_facets_client:latest
+    build: ../client
+    environment:
+      - NODE_ENV=production
+      - DOMAIN=https://${HOST:?HOST environment varaible is required}/
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.alpha.entrypoints=http"
+      - "traefik.http.routers.alpha.rule=Host(`${HOST:?HOST environment varaible is required}`) "
+      #      - "traefik.http.routers.alpha.rule=Host(`${HOST:?HOST environment varaible is required}`) "
+      - "traefik.http.routers.alpha.service=alpha"
+      - "traefik.http.services.alpha.loadbalancer.server.port=8080"
+      - "traefik.docker.network=traefik_default"
+      - "traefik.http.middlewares.alpha.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
+      - "traefik.http.middlewares.alpha.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.alpha.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.alpha.headers.addvaryheader=true"
+#      - "traefik.http.middlewares.client_prefix.stripprefixregex.regex=/client/[a-z0-9]+/[0-9]+/"
+      - "traefik.http.middlewares.client_prefix.StripPrefix.prefixes=/client"
+      - "traefik.http.routers.alpha.middlewares=client_prefix"
+    networks:
+      - traefik_default
+networks:
+  traefik_default:

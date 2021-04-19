@@ -1,0 +1,56 @@
+openapi: 3.0.0
+info:
+  title: Earthcube
+  description: This is our Earthcube Search API.
+  version: '1.0'
+paths:
+  /tools:
+    get:
+      x-swagger-router-controller: toolsRoute
+      operationId: toolsGet
+      tags:
+        - /tools
+      description: >-
+        Returns tools from an ark, or a URL
+      parameters:
+        - name: ark
+          in: query
+          description: just the  ark
+          required: false
+          schema:
+            type: string
+        - name: u
+          in: query
+          description: url of jsonld
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hello'
+        default:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+servers:
+  - url: '/api'
+components:
+  schemas:
+    tools:
+      properties:
+        msg:
+          type: string
+      required:
+        - msg
+    Error:
+      properties:
+        message:
+          type: string
+      required:
+        - message

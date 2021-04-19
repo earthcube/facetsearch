@@ -1,0 +1,30 @@
+prefix sdos: <https://schema.org/>
+   PREFIX schemaold: <http://schema.org/>
+   select DISTINCT ?dataname ?appname   ?durl  ?turl ?rrs
+   WHERE
+   {
+       graph <${g}> {
+       ?s schemaold:distribution|sdos:distribution ?dist ;
+            schemaold:name|sdos:name ?dataname  .
+       ?dist  schemaold:encodingFormat|sdos:encodingFormat ?type .
+             OPTIONAL {?dist sdos:contentUrl ?durl }.
+     }
+     BIND (str(?type) as ?label)
+    SERVICE <http://132.249.238.169:8080/fuseki/ecrr/query> {
+      GRAPH <http://earthcube.org/gleaner-summoned>
+
+            {
+
+              ?rrs a sdos:SoftwareApplication ;
+                   sdos:name ?appname ;
+                   sdos:supportingData ?df.
+            ?df sdos:encodingFormat ?label ;
+                   sdos:position "input".
+              ?rrs sdos:potentialAction ?act.
+              ?act sdos:target ?tar.
+              ?tar a sdos:EntryPoint ;
+               sdos:urlTemplate ?turl.
+              filter contains(?turl,"{contentURL}")
+       }
+    }
+   }
