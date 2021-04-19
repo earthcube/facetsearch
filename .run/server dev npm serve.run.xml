@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="server dev npm serve" type="js.build_tools.npm">
+    <package-json value="$PROJECT_DIR$/server/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="dev" />
+    </scripts>
+    <node-interpreter value="project" />
+    <node-options value="-r esm" />
+    <envs />
+    <method v="2" />
+  </configuration>
+</component>
