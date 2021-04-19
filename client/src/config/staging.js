@@ -1,20 +1,22 @@
 export default {
     RESULT_SIZE: 10,
-    API_URL: 'https://dev.earthcube.org',
-    TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql',
+    API_URL: `alpha.geocodes.earthcube.org/ec/api`,
+    //TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql',
+    TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',
     SPARQL_QUERY:'queries/sparql_query.txt',
     SPARQL_HASTOOLS:'queries/sparql_hastools.txt',
     SPARQL_TOOLS_WEBSERVICE:'queries/sparql_gettools_webservice.txt',
     SPARQL_TOOLS_DOWNLOAD:'queries/sparql_gettools_download.txt',
-    JSONLD_PROXY: "https://dx.geodex.org/id/summoned${o}",
+    JSONLD_PROXY: "alpha.geocodes.earthcube.org/ec/api/dataset/${o}",
     // allow us to use the same delimiters as lithtml
     ES_TEMPLATE_OPTIONS : {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
-    FACETS: [ {
-        field: 'resourceType',
-        title: 'Resource Type',
-        sort: 'acs',
-        open: false
-    },
+    FACETS: [
+        {
+            field: 'resourceType',
+            title: 'Resource Type',
+            sort: 'acs',
+            open: false
+        },
         {
             field: 'kw',
             title: 'Keywords',
@@ -43,6 +45,17 @@ export default {
             open: false
 
         },
-
     ],
+    ORDER_BY_DEFAULT: 'score',
+    ORDER_BY_OPTIONS:
+        [
+            {field:'name', title: 'Name', sort: 'asc' },
+            {field:'pubname', title: 'Publisher', sort:  'asc' },
+            {field:'date', title: 'Date', sort:  'asc' },
+            {field:'score', title: 'Relevance', sort: 'asc' },
+
+        ]
+    ,
+    LIMIT_DEFAULT: 100,
+    LIMIT_OPTIONS: [10,50,100,500,1000,5000],
 }
