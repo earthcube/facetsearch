@@ -1,4 +1,4 @@
-name: Deploy to Github Pages
+name: Deploy to Github pages and alpha s3
 on:
   push:
     branches:
@@ -25,7 +25,7 @@ jobs:
         env:
           REPO: self
           BRANCH: gh-pages
-          FOLDER: dist
+          FOLDER: client/dist
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Deploy to s3
         uses: jakejarvis/s3-sync-action@master
