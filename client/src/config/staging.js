@@ -1,13 +1,13 @@
 export default {
     RESULT_SIZE: 10,
-    API_URL: `alpha.geocodes.earthcube.org/ec/api`,
+    API_URL: `https://alpha.geocodes.earthcube.org/ec/api`,
     //TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql',
     TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',
     SPARQL_QUERY:'queries/sparql_query.txt',
     SPARQL_HASTOOLS:'queries/sparql_hastools.txt',
     SPARQL_TOOLS_WEBSERVICE:'queries/sparql_gettools_webservice.txt',
     SPARQL_TOOLS_DOWNLOAD:'queries/sparql_gettools_download.txt',
-    JSONLD_PROXY: "alpha.geocodes.earthcube.org/ec/api/dataset/${o}",
+    JSONLD_PROXY: "https://alpha.geocodes.earthcube.org/ec/api/dataset/${o}",
     // allow us to use the same delimiters as lithtml
     ES_TEMPLATE_OPTIONS : {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
     FACETS: [
