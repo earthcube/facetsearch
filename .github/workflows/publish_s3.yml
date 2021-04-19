@@ -6,6 +6,8 @@ on:
 defaults:
   run:
     working-directory: ./client
+  env:
+    NODE_ENV: staging
 jobs:
   deploy:
     name: Deploy Application
