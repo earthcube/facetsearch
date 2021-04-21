@@ -317,6 +317,7 @@ export default {
     },
     clearFilters: function () {
       this.state.filters = {}
+      this.filter()
     },
     order: function (orderBy) {
       let self = this;

@@ -56,6 +56,7 @@ export default {
       bus.$on('facetupdate', () => {
         console.log("facetupdate event");
         self.facetItems = self.facetStore[self.facetSetting.field];
+        self.updateFacetItems()
       })
     }
   ,
