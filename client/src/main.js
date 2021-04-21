@@ -17,16 +17,16 @@ Vue.use(VueAxios, axios)
 Vue.use(Router)
 import VueGtag from "vue-gtag";
 
-Vue.use(VueGtag, {
-  config: { id: "G-15XD8YBF5L" }
-});
+
 
 
 import App from './App.vue'
 import router from './routes'
 import {store} from './state.js'
 
-
+Vue.use(VueGtag, {
+  config: { id: "G-15XD8YBF5L" }
+}, router);
 //router.replace(router.currentRoute.fullPath);
 //router.go(document.URL)
 // router.onReady(() => {
