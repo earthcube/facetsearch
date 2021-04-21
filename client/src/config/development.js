@@ -53,7 +53,7 @@ export default {
             {field:'date', title: 'Date', sort:  'asc' },
             {field:'score', title: 'Relevance', sort: 'asc' },
 
-        ]
-    ,
+        ],
+    LIMIT_DEFAULT: 10,
     LIMIT_OPTIONS: [10,50,100,1000,5000],
 }

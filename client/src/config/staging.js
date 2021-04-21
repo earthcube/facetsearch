@@ -1,5 +1,4 @@
 export default {
-    RESULT_SIZE: 10,
     API_URL: `https://alpha.geocodes.earthcube.org/ec/api`,
     //TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql',
     TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',

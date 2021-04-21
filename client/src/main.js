@@ -15,6 +15,11 @@ Vue.use(BootstrapVue)
 Vue.use(IconsPlugin, BootstrapVueIcons)
 Vue.use(VueAxios, axios)
 Vue.use(Router)
+import VueGtag from "vue-gtag";
+
+Vue.use(VueGtag, {
+  config: { id: "G-15XD8YBF5L" }
+});
 
 
 import App from './App.vue'
