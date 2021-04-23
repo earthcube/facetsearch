@@ -28,6 +28,7 @@ const getJson =async function(datasetUrn) {
 
                     //throw Error(err.message + err.resource)
                     reject({status:404, error:err.message + err.resource})
+                    return
                 }
                 let jsonld = ""
                 dataStream.on('data', function (chunk) {

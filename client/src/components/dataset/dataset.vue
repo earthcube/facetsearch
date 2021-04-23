@@ -10,7 +10,7 @@
     </div>
   </div>
  <div class="row col-12">
-   <connected-tools class="col-6" :g="o"></connected-tools>
+   <connected-tools class="col-6" :d="d"></connected-tools>
 
  </div>
 </div>
@@ -29,7 +29,7 @@ export default {
 name: "dataset",
   components: {ConnectedTools, DatasetLocation, Metadata, Downloadfiles},
   props:{
-   o: String,
+   d: String,
   },
   data(){ return {
     //jsonLdobj: {},
@@ -37,7 +37,7 @@ name: "dataset",
   }},
   async mounted() {
 
-    this.$store.dispatch('fetchJsonLd', this.o)
+    this.$store.dispatch('fetchJsonLd', this.d)
   },
   // watch: {
   //   // call again the method if the route changes

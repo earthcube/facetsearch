@@ -66,7 +66,7 @@
               <a class="col-8" :href="mapping.s_citation" target="_blank">{{ mapping.s_citation }}</a>
             </div>
           </b-tab>
-          <b-tab title="JSON" id="json" aria-labelledby="json-tab">
+          <b-tab title="Tool JSON-LD" id="json" aria-labelledby="json-tab">
             <div class="row ml-2">
 
               <div>JSON</div>
@@ -173,8 +173,6 @@ export default {
 
       if (hasSchemaProperty('datePublished', jp)) {
         mapping.s_datePublished = schemaItem('datePublished', jp);
-      } else if (hasSchemaProperty('datePublished', mapping.s_distribution)) { // in distribution
-        mapping.s_datePublished = schemaItem('datePublished', mapping.s_distribution);
       } else if (hasSchemaProperty('dateCreated', jp)) {
         mapping.s_datePublished = schemaItem('dateCreated', jp);
       }

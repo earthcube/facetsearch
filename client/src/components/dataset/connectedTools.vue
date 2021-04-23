@@ -7,7 +7,7 @@
       <div class="row" v-for="i in downloadTools" v-bind:key="i.index">
         <a class="ml-3" :href="i.landingPage.value">{{ i.name.value }}</a>
 <!--        <a class="ml-auto" :href=" i.rrs.value ">Tool Metadata</a>-->
-        <router-link  :to="{ name: 'tool', params: { o: i.rrs.value } }">Tool Metadata</router-link>
+        <router-link  :to="{ name: 'tool', params: { t: i.rrs.value },  query:{ d:d} }">Tool Metadata</router-link>
       </div>
 
 
@@ -16,7 +16,7 @@
       <div class="row" v-for="i in webserviceTools" v-bind:key="i.index">
         <a class="ml-3"  :href="i.durl.value">{{ i.appname.value }} for {{ i.dataname.value }} </a>
 <!--        <a class="ml-auto" :href=" i.rrs.value ">Tool Metadata</a>-->
-        <router-link  class="ml-auto" :to="{ name: 'tool', params: { o: i.rrs.value } }">Tool Metadata</router-link>
+        <router-link  class="ml-auto" :to="{ name: 'tool', params: { t: i.rrs.value} ,  query:{ d:d} }">Tool Metadata</router-link>
       </div>
 
 
@@ -37,7 +37,8 @@ let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
 export default {
   name: "connectedTools",
   props: {
-    g: {type: String, default: ''}
+    d: {type: String, default: ''},
+
   },
   data() {
     return {
@@ -59,7 +60,7 @@ export default {
     checkTools() {
       //let graphUri = this.op.replaceAll("/", ":").replace('.jsonld', "");
       //graphUri = "urn:gleaner:milled"+ graphUri
-      let graphUri = this.g
+      let graphUri = this.d
       this.hasConnectedTools(graphUri).then(i => this.hasTools=i)
       this.getDownloadableTools(graphUri)
       this.getWebTools(graphUri)

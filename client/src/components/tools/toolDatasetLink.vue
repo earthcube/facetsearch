@@ -1,84 +1,53 @@
 <template>
   <div class="col-8">
     <div class="row">
-      <span class="font-weight-bold font-heavy my-4" v-html="mapping.s_name">   </span>
+     <span class="font-weight-bold font-heavy my-4">(prototyping) Actions for dataset: </span> <span class="font-weight-bold font-heavy my-4" v-html="mapping.s_name">   </span>
     </div>
 
 
-      <b-card no-body>
-        <b-tabs card id="myTabContent">
-          <b-tab title="Metadata" active id="md" aria-labelledby="md-tab">
-            <div class="row">
+    <b-card no-body>
+      <b-tabs card id="myTabContent">
+        <b-tab title="Dataset links to Tool (Prototyping)" active id="dst" aria-labelledby="dst-tab">
+          <div class="row">
 
-              <span class="col-2 font-weight-bold">Type:</span>
-              <span class="col-8">Data</span>
-            </div>
-            <div class="row">
-
-              <span class="col-2 font-weight-bold">Abstract:</span>
-              <span class="col-8" v-html="mapping.s_description">
-                          </span></div>
-
-            <div class="row">
-
-              <span class="col-2 font-weight-bold">Creator:</span>
-              <span class="col-8">
-{{ mapping.s_contributor }}</span>
-            </div>
-            <div class="row">
-
-              <span class="col-2 font-weight-bold">Publisher:</span>
-              <span class="col-8">
-{{ mapping.s_publisher }}</span>
-            </div>
-            <div class="row">
-
-              <span class="col-2 font-weight-bold">Date:</span>
-              <span class="col-8">
-                               {{ mapping.s_publishedDate }}</span>
-            </div>
-          </b-tab>
-          <b-tab title="Web Links" id="web" aria-labelledby="web-tab">
-            <div class="row w-100">
-
-              <span class="col-4 font-weight-bold">Name</span>
-              <span class="col-8 font-weight-bold">link </span>
-
-            </div>
-
-            <div class="row" v-if="mapping.s_url">
-              <span class="col-4">Object URL</span>
-              <a class="col-8" :href="mapping.s_url" target="_blank"> {{ mapping.s_url }} </a>
-            </div>
-
-            <div class="row" v-for="i in mapping.s_downloads" v-bind:key="i.name">
-              <span class="col-4 ">{{ i.name }}</span>
-              <a class="col-8" target="_blank" :href="i.contentUrl">{{ i.contentUrl }}</a>
-            </div>
+            <span class="col-2 font-weight-bold">Type:</span>
+            <span class="col-8">Data</span>
+          </div>
 
 
-          </b-tab>
-          <b-tab title="Citation" id="cite" aria-labelledby="cite-tab">
-            <div class="row">
+          <div class="row w-100">
 
-              <span class="col-4 font-weight-bold">Citation</span>
+            <span class="col-4 font-weight-bold">Name</span>
+            <span class="col-8 font-weight-bold">link </span>
 
-              <a class="col-8" :href="mapping.s_citation" target="_blank">{{ mapping.s_citation }}</a>
-            </div>
-          </b-tab>
-          <b-tab title="Dataset JSON-LD" id="json" aria-labelledby="json-tab">
-            <div class="row ml-2">
+          </div>
 
-              <div>JSON</div>
+          <div class="row" v-if="mapping.s_url">
+            <span class="col-4">Object URL</span>
+            <a class="col-8" :href="mapping.s_url" target="_blank"> {{ mapping.s_url }} </a>
+          </div>
 
-              <json-view class="text-left " :data="mapping.raw_json"/>
-              <!-- need to modify value-key to include class text-wrap -->
+          <div class="row" v-for="i in mapping.s_downloads" v-bind:key="i.name">
+            <span class="col-4 ">{{ i.name }}</span>
+            <a class="col-8" target="_blank" :href="i.contentUrl">{{ i.contentUrl }}</a>
+          </div>
 
-            </div>
-          </b-tab>
-        </b-tabs>
-      </b-card>
-    </div>
+
+        </b-tab>
+
+        <b-tab title="Dataset JSON-LD" id="json" aria-labelledby="json-tab">
+          <div class="row ml-2">
+
+            <div>JSON</div>
+
+            <json-view class="text-left " :data="mapping.raw_json"/>
+            <!-- need to modify value-key to include class text-wrap -->
+
+          </div>
+        </b-tab>
+      </b-tabs>
+    </b-card>
+  </div>
 
 
 </template>
@@ -98,13 +67,13 @@ import {mapState} from "vuex";
 import {JSONView} from "vue-json-component";
 
 export default {
-  name: "metadata",
+  name: "tool-dataset-link",
   components: {
     "json-view": JSONView
   },
-  // props:{
-  //   jsonLdobj: Object,
-  // },
+  props:{
+    d: String,
+  },
   watch: {
     jsonLdCompact: 'toMetadata'
   },
@@ -139,7 +108,7 @@ export default {
     }
   },
   mounted() {
-    //   this.toMetadata();
+    this.$store.dispatch('fetchJsonLd', this.d)
   },
   computed: {
     ...mapState(['jsonLdObj', 'jsonLdCompact'])
@@ -276,3 +245,4 @@ export default {
 <style scoped>
 
 </style>
+

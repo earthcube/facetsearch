@@ -17,8 +17,18 @@ export default  new Router({
         // {path:'/dataset/?o=id',name:'dataset',component:dataset,props:true,},
         {path:'/search/',name:'Search',component:Search,
             props: route => ({ textQuery :route.query.q, resourceType : route.query.resourceType})},
-        {path:'/dataset/:o',name:'dataset',component:dataset,props:true},
-        {path:'/tool/:o',name:'tool',component:tool,props:true},
+        {path:'/dataset/:d',name:'dataset',component:dataset,props:true},
+        // t tool object id, d dataset object id
+        {
+            path: '/tool/:t', name: 'tool',
+            component: tool,
+            props:
+                route => ({
+                    d: route.query.d,
+                    t:route.params.t
+                })
+            ,
+        },
 // catch all case
         { path: '*'},
     ]
