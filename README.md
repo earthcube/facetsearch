@@ -66,3 +66,5 @@ yarn lint
 # Docker
 If all you want to do is test, then a 'dockerized' component is available in docker.
 docker-compose up -d -f docker-compose_dev.yaml
+
+For using with a stack and traefik, docker-compose_prod_example.yaml
