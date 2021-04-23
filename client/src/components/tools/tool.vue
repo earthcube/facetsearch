@@ -1,5 +1,6 @@
 <template>
 <div class="row col-12">
+  <b-btn variant="outline-info"  v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
   <div class="row col-12">
     <ToolMetadata class="col-9 border" ></ToolMetadata>
 

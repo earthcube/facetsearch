@@ -17,8 +17,9 @@
           <b-nav-item  :to="{ name: 'Search', query:{q:q}}">Search</b-nav-item>
         </keep-alive>
         <!--        <b-nav-item  :to="{ name: 'dataset', params: { o: '/lipdverse/509e465d0793506b237cea8069c3cb2d276fe9c2.jsonld' } }">Dataset</b-nav-item>-->
-        <b-nav-item   :to="{ name: 'dataset'}" @click="console.log('click')" >Dataset</b-nav-item>
+ <!--       <b-nav-item   :to="{ name: 'dataset'}" @click="console.log('click')" >Dataset</b-nav-item>
         <b-nav-item   :to="{ name: 'tool' }" @click="console.log('click')">Tool</b-nav-item>
+        -->
       </b-navbar-nav>
 
 
