@@ -1,8 +1,11 @@
 <template>
     <b-container fluid="md" class="mt-5">
-        <div class="logo d-flex justify-content-center"><img src="../../assets/geocodes_2021.png" height="66" alt="GeoCODES" /></div>
+        <!-- allow logo to size according to container. fill with primary color from bootstrap variables -->
+        <b-container class="col-md-7 pt-5">
+            <logoGeoCodes fill="#18598b" width="100%" />
+        </b-container>
 
-        <b-container class="col-md-6 mt-4">
+        <b-container class="col-md-5 mt-4">
             <b-form @submit="onSubmit" @reset="onReset">
                 <b-input-group>
                     <b-form-input v-model="q" id="q" name="q" placeholder="Search" aria-label="Search"></b-form-input>
@@ -46,9 +49,11 @@
 
 <script>
 //import VueRouter from 'vue-router'
+import logoGeoCodes from "@/components/logos/logoGeoCodes";
 
 export default {
   name: "landing",
+  components: {logoGeoCodes},
   data() {
     return {
       q: '',

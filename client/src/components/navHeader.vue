@@ -3,11 +3,15 @@
         <!-- keep nav centered on wide screens -->
         <b-container fluid="md">
             <!-- only show the back arrow on certain pages and ONLY on small or medium sized devices -->
-            <b-navbar-nav class="d-lg-none" v-show="['dataset', 'tool'].includes($route.name.toLowerCase())">
+            <b-navbar-nav class="d-lg-none" v-show="showBackButton()">
                 <b-nav-item v-on:click="$router.back()" class="mr-2"><b-btn variant="outline-primary"><b-icon icon="arrow-left" /></b-btn></b-nav-item>
             </b-navbar-nav>
 
-            <b-navbar-brand :to="{ name: 'landing'}"><img src="../assets/EarthCube-White-Long-Tagline.png" height="30" alt="EarthCube" loading="lazy"></b-navbar-brand>
+            <!-- can use the :disabled attribute to trigger hidding the logo...but only hiding on small screens (see css below) -->
+            <b-navbar-brand :to="{name: 'landing'}" class="mr-0"><logoEarthcube width="120px" /></b-navbar-brand>
+            <b-navbar-brand :to="{name: 'landing'}" class="border-left border-light pl-2 ml-2 mr-auto"
+                :disabled="showBackButton()"
+            ><logoGeoCodes width="100px" /></b-navbar-brand>
 
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -43,11 +47,12 @@
 
 <script>
 import {mapState} from "vuex";
-//import navBarToLink from "@/components/navBarToLink";
+import logoEarthcube from "@/components/logos/logoEarthcube";
+import logoGeoCodes from "@/components/logos/logoGeoCodes";
 
 export default {
 name: "navHeader",
-//  components: {navBarToLink} ,
+  components: {logoEarthcube, logoGeoCodes},
   computed: {
     ...mapState(['results','searchExactMatch', 'q'])
 
@@ -61,9 +66,12 @@ name: "navHeader",
   }
   },
   methods:{
-  qUpdated() {
-    this.textQuery = this.q
-  },
+    showBackButton() {
+        return (['dataset', 'tool'].includes(this.$route.name.toLowerCase())) ? true : false;
+    },
+    qUpdated() {
+        this.textQuery = this.q
+    },
     onSubmitNavbar(){
       this.$store.state.q = this.textQuery;
       this.$router.push({name: 'Search', query:{q:this.q} }).catch(err => {console.log('ignore'+err)})
@@ -117,6 +125,15 @@ name: "navHeader",
                 right: $spacer / 4;
                 left: $spacer / 4;
             }
+        }
+    }
+}
+
+.navbar-brand {
+    //only hide the logo when on smaller screens
+    @include media-breakpoint-down(md) {
+        &.disabled {
+            display: none;
         }
     }
 }

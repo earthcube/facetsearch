@@ -340,6 +340,19 @@ name: "dataset",
                 }
             }
         }
+
+        ul,
+        ol {
+            margin: {
+                top: $spacer;
+            }
+        }
+
+        b {
+            font: {
+                weight: 600; //semi-bold
+            }
+        }
     }
 
     @include media-breakpoint-down(md) {

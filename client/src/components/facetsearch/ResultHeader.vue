@@ -34,16 +34,21 @@
             </b-col>
         </b-row>
 
-        <b-row align-v="center" class="filters mt-2"
-            v-for="f in Object.keys(filters)"
-            v-bind:key="f"
-        >
-            <b-badge class="m-2" v-for=" applied in filters[f]" v-bind:key="applied">
-                {{ f }}/{{ applied }}
-            </b-badge>
+        <div class="mt-3" v-if="Object.keys(filters).length > 0">
+            <span align-v="center" class="filters"
+                v-for="f in Object.keys(filters)"
+                v-bind:key="f"
+            >
+                <b-badge variant="info" class="m-1"
+                    v-for="applied in filters[f]"
+                    v-bind:key="applied"
+                >
+                    <!--{{ f }} / -->{{ applied }}
+                </b-badge>
+            </span>
 
-            <b-btn size="sm" class="ml2-auto" ref="deselect" v-on:click="deselect">Clear All Filters</b-btn>
-        </b-row>
+            <b-button variant="link" size="sm" class="ml2-auto" ref="deselect" v-on:click="deselect"><b-icon icon="x"></b-icon>Clear All Filters</b-button>
+        </div>
   </b-container>
 </template>
 
