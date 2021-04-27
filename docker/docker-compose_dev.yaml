@@ -27,7 +27,13 @@ services:
       #- "traefik.http.routers.traefik.middlewares=admin_prefix"
   vue-services:
     #image: nsfearthcube/ec_facets_api_nodejs:latest
-    build: ../server
+    build:
+      context: ../server
+      dockerfile: ./Dockerfile
+    command: yarn start
+    volumes:
+        - ../server:/usr/src/app
+        - node_modules_server:/usr/src/app/node_modules
     environment:
       - NODE_ENV=production
       #- NODE_ENV=development
@@ -55,7 +61,13 @@ services:
       - traefik_default
   vue-client:
     #image: nsfearthcube/ec_facets_client:latest
-    build: ../client
+    build:
+      context: ../client
+      dockerfile: ./Dockerfile
+    command: yarn serve
+    volumes:
+      - ../client:/usr/src/app
+      - node_modules_client:/usr/src/app/node_modules
     environment:
       - NODE_ENV=production
       - DOMAIN=https://${HOST:?HOST environment varaible is required}/
@@ -76,5 +88,8 @@ services:
       - "traefik.http.routers.alpha.middlewares=client_prefix"
     networks:
       - traefik_default
+volumes:
+  node_modules_server:
+  node_modules_client:
 networks:
   traefik_default:

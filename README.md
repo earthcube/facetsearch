@@ -11,8 +11,25 @@ Generally,
 run server,
 run client.
 
-# client
+## Quick Instructions:
+### Terminal 1 server:
+```
+cd server
+yarn install
+yarn dev 
+```
+### Terminal 2 client:
+```
 cd client
+```
+
+# client
+```
+cd client
+yarn install
+yarn serve
+```
+
 ## Project setup
 ```
 yarn install
@@ -42,20 +59,27 @@ If you add one, it need to be added to client/src/config.js
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 # server
-cd server
-## Project setup
+```cd server
+yarn install
+yarn dev
+```
+# Project setup
 ```
 yarn install
 ```
 
 ### Compiles and hot-reloads for development
 ```
-yarn serve
+yarn dev
 ```
 
-### Compiles and minifies for production
+## Compiles and minifies for production
 ```
 yarn build
+```
+## run for production
+```
+yarn start
 ```
 
 ### Lints and fixes files
