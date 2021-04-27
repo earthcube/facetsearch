@@ -1,30 +1,29 @@
 <template  >
-  <div class="accordion col-12  rounded p-0 mt-1" :id="'accordian' + facetSetting.field ">
-    <b-card no-body >
-      <b-card-header header-tag="header" class="p-0" role="tab">
-        <b-button block v-b-toggle="'accordion-'+ facetSetting.field" variant="primary">
-          <span class="float-left">{{facetSetting.title}} </span>
-          <b-icon  class="when-open float-right" icon="chevron-up" aria-hidden="true"></b-icon>
-          <b-icon  class="when-closed float-right" icon="chevron-down" aria-hidden="true"></b-icon>
-          </b-button>
-      </b-card-header>
-      <b-collapse :id="'accordion-'+ facetSetting.field"
-                  :visible="facetSetting.open" :accordion="facetSetting.field+'-accordion'" role="tabpanel">
-        <b-card-body class="mx-2">
-<!-- v-on:facetupdate="updateFacetItems"-->
-          <FacetItem   v-for='(info, term) in facetItems' v-bind:key="info.id"  v-on:click.native="_handleClick"
-                       v-bind:id="facetStore[facetSetting.field][term].id"
-                       :term="term" :count="info.count" :facetSetting="facetSetting" :isActive="info.isActive">
-          </FacetItem>
-<!--          <div v-for='(info, term) in facetItems'  v-bind:key="info.id" class="facetitem" v-on:click.native="_handleClick"-->
-<!--          v-bind:id="facetStore[facetSetting.field][term].id">-->
-<!--            <span>{{ term }}</span>-->
-<!--            <b-badge variant="light" class="ml-auto" > {{  info.count }} </b-badge>-->
-<!--          </div>-->
-        </b-card-body>
-      </b-collapse>
-    </b-card>
-  </div>
+    <div class="filter_card">
+        <b-button block squared v-b-toggle="'accordion_'+ facetSetting.field">
+            {{facetSetting.title}}
+            <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
+            <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>
+        </b-button>
+
+        <b-collapse
+            :id="'accordion_'+ facetSetting.field"
+            :visible="facetSetting.open"
+        >
+            <b-list-group flush>
+                <FacetItem
+                    v-for='(info, term) in facetItems'
+                    v-bind:key="info.id"
+                    v-on:click.native="_handleClick"
+                    v-bind:id="facetStore[facetSetting.field][term].id"
+                    :term="term"
+                    :count="info.count"
+                    :facetSetting="facetSetting"
+                    :isActive="info.isActive"
+                ></FacetItem>
+            </b-list-group>
+        </b-collapse>
+    </div>
 </template>
 
 <script>
@@ -246,9 +245,59 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    @import '~/src/assets/bootstrapcss/custom';
+
+.filter_card {
+    background: {
+        color: #f5f5f5;
+    }
+
+    border: 1px solid rgba(0,0,0, .125);
+
+    & + .filter_card {
+        margin: {
+            top: $spacer / 2;
+        }
+    }
+
+    & > .btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        &:not(:hover) {
+            color: $gray-700;
+            background: {
+                color: $gray-300;
+            }
+        }
+
+        border: 0px;
+    }
+
+    .list-group {
+        overflow: {
+            y: auto;
+        }
+
+        max: {
+            height: 170px;
+        }
+    }
+}
+
+//make flat color
+.btn-secondary,
+.btn-secondary:hover {
+    background: {
+        image: none;
+    }
+}
+
 .collapsed > .when-open,
 .not-collapsed > .when-closed {
-  display: none;
+    display: none;
 }
+
 </style>

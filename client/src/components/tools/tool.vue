@@ -1,15 +1,25 @@
 <template>
-<div class="row col-12">
-  <b-btn variant="outline-info"  v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
-  <div class="row col-12">
-    <ToolMetadata class="col-9 border" ></ToolMetadata>
+    <b-container fluid="md">
+        <b-row class="title_row">
+            <b-col md="12">
+                <b-btn variant="outline-info" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
 
-  </div>
-  <div class="row col-12">
-    <ToolDatasetLink v-if='d' class="col-9 border" :d="d"></ToolDatasetLink>
+                <h4 class="page_title">[[page title]]</h4>
+            </b-col>
+        </b-row>
 
-  </div>
-</div>
+        <b-row>
+            <b-col md="12">
+                <ToolMetadata></ToolMetadata>
+            </b-col>
+        </b-row>
+
+        <b-row>
+            <b-col md="12">
+                <ToolDatasetLink v-if='d' :d="d"></ToolDatasetLink>
+            </b-col>
+        </b-row>
+    </b-container>
 </template>
 
 <script>
@@ -64,6 +74,81 @@ name: "dataset",
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    @import '~/src/assets/bootstrapcss/custom';
+
+.row {
+    padding: {
+        bottom: $spacer;
+    }
+
+    &.title_row {
+        position: sticky;
+        top: 0px;
+        z-index: 1010;
+
+        background: {
+            color: rgba($white, .95); //rgba($gray-300, .95);
+        }
+
+        padding: {
+            top: $spacer;
+        }
+    }
+
+    //add a border between rows
+    & + .row {
+        padding: {
+            top: $spacer * 1.5;
+        }
+
+        border: {
+            top: 1px solid $gray-300;
+        }
+    }
+
+    .page_title {
+        color: $primary;
+
+        margin: {
+            top: $spacer;
+        }
+    }
+
+    @include media-breakpoint-down(md) {
+        &.title_row {
+            background: {
+                color: rgba($gray-300, .95);
+            }
+        }
+
+        &:not(.title_row) {
+            padding: {
+                bottom: $spacer * 2.5;
+            }
+        }
+
+        & + .row {
+            padding: {
+                top: $spacer * 2;
+            }
+
+            border: {
+                width: 10px;
+            }
+        }
+
+        .page_title {
+            margin: {
+                top: $spacer * 2;
+                bottom: $spacer;
+            }
+
+            font: {
+                size: 130%;
+            }
+        }
+    }
+}
 
 </style>

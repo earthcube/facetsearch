@@ -1,3 +1,8 @@
+//custom variables
+@import "variables";
+
 /* import only the necessary Bootstrap files */
+//do not include anything that would actually create css, these are only functions, mixins, variables that are shared across the project
 @import "~bootstrap/scss/functions";
 @import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";

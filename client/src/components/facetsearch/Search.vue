@@ -1,37 +1,40 @@
 <template>
-  <div id="FacetSearch">
+    <b-container fluid="md" class="mt-3">
+        <b-overlay rounded="sm"
+            :show="queryRunning"
 
+            :variant="white"
+            :opacity=".85"
+        >
+            <b-row>
+                <!-- sidebar -->
+                <b-col md="3" class="sidebar">
+                    <Facets
+                        v-bind:facets="facets"
+                        v-bind:facetStore="facetStore"
+                        v-bind:state="state"
+                    ></Facets>
+                </b-col>
 
-    <b-overlay :show="queryRunning" rounded="sm">
-      <div id="wrapper row">
+                <!-- filter and results -->
+                <b-col md="9" class="results">
+                    <!-- Here comes the demo, if you want to copy and paste, start here -->
+                    <ResultHeader
+                        :current-count="currentResults.length"
+                        :total-count="items.length"
+                        :filters="state.filters"
+                    ></ResultHeader>
 
-        <div id="description">
-          <h6>{{ title }}</h6>
+                    <Results
+                        v-bind:currentResults="currentResults"
+                        :state="state"
+                    ></Results>
 
-        </div>
-      </div>
-      <!-- Here comes the demo, if you want to copy and paste, start here -->
-      <div class="row col-12" id="filterDiv"> <!-- filters -->
-        <div class="row col-3 align-items-start" v-on:facetupdate="warn('search cannot be submitted yet.', $event)">
-          <Facets id="facetsDiv" class="row col-12" v-bind:facets="facets" v-bind:facetStore="facetStore"
-                  v-bind:state="state">
-
-          </Facets>
-
-
-        </div>
-        <div class="row col-8 align-self-start ">
-          <ResultHeader
-              class="mx-2"
-              :current-count="currentResults.length"
-              :total-count="items.length"
-              :filters="state.filters"></ResultHeader>
-
-          <Results v-bind:currentResults="currentResults" :state="state"></Results>
-        </div>
-      </div>
-    </b-overlay>
-  </div>
+                    <b-button variant="outline-primary" class="mt-5">Load More</b-button>
+                </b-col>
+            </b-row>
+        </b-overlay>
+    </b-container>
 </template>
 
 <script>

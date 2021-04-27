@@ -1,43 +1,50 @@
 <template>
-  <div class="row w-100">
-    <div class="row w-100">
-      <b-input-group prepend="Sort By:" class="col-4 ">
-        <b-form-select
+    <b-container fluid="md" class="result_header mt-3">
+        <b-row align-v="center">
+            <b-col sm class="text-nowrap">
+                <b-input-group prepend="Sort By:" size="sm">
+                    <b-form-select
+                        v-model="orderBy"
+                        :options="orderByOptions"
+                        value-field="field"
+                        text-field="title"
+                        disabled-field="notEnabled"
+                    ></b-form-select>
+                </b-input-group>
+            </b-col>
 
-            v-model="orderBy"
-            :options="orderByOptions"
-            value-field="field"
-            text-field="title"
-            disabled-field="notEnabled"
-        ></b-form-select>
-      </b-input-group>
+            <b-col sm class="text-nowrap">
+                {{ currentCount }} &nbsp; selected of &nbsp; {{ totalCount }} results
+            </b-col>
+<!--
+            <b-col sm>
+                <b-form-checkbox v-model="searchExact" name="Match All Terms" switch>Match All Terms</b-form-checkbox>
+            </b-col>
+-->
+            <b-col sm class="ml-auto">
+                <b-input-group prepend="Result Limit:" size="sm" class="text-nowrap">
+                    <b-form-select
+                        v-model="limit"
+                        :options="limitOptions"
+                        value-field="value"
+                        text-field="title"
+                        disabled-field="notEnabled"
+                    ></b-form-select>
+                </b-input-group>
+            </b-col>
+        </b-row>
 
-      <div class="my-2">{{ currentCount }} &nbsp; selected of &nbsp; {{ totalCount }} results</div>
-      <div class="m-2">
-        <b-form-checkbox v-model="searchExact" name="Match All Terms" switch>
-          Match All Terms
-        </b-form-checkbox>
-      </div>
-      <b-input-group class="col-3" prepend="Result Limit:">
-        <b-form-select
+        <b-row align-v="center" class="filters mt-2"
+            v-for="f in Object.keys(filters)"
+            v-bind:key="f"
+        >
+            <b-badge class="m-2" v-for=" applied in filters[f]" v-bind:key="applied">
+                {{ f }}/{{ applied }}
+            </b-badge>
 
-            v-model="limit"
-            :options="limitOptions"
-            value-field="value"
-            text-field="title"
-            disabled-field="notEnabled"
-        ></b-form-select>
-      </b-input-group>
-      <b-btn class="ml-auto" ref="deselect" v-on:click="deselect">Clear All Filters</b-btn>
-    </div>
-
-    <div class="row w-100" v-for="f in Object.keys(filters)" v-bind:key="f">
-      <b-badge class="m-2" v-for=" applied in filters[f]" v-bind:key="applied">
-
-        {{ f }}/{{ applied }}
-      </b-badge>
-    </div>
-  </div>
+            <b-btn size="sm" class="ml2-auto" ref="deselect" v-on:click="deselect">Clear All Filters</b-btn>
+        </b-row>
+  </b-container>
 </template>
 
 <script>
@@ -113,6 +120,10 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    @import '~/src/assets/bootstrapcss/custom';
+
+.filters {
+}
 
 </style>

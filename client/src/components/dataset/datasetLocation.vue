@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <div class="row mt-4">
-<div ref="myMap" id="myMap" style="width: 600px; height: 400px;"></div>
+    <div>
+        <div ref="myMap" id="myMap" style="width: 100%; height: 320px;"></div>
+
 <!--      <l-map ref="myMap" id="myMap" :zoom="zoom"-->
 <!--             :center="center"-->
 <!--             style="height: 400px; width:400px"-->
@@ -25,10 +25,7 @@
 <!--        &lt;!&ndash;          </l-marker>&ndash;&gt;-->
 
 <!--      </l-map>-->
-
     </div>
-
-  </div>
 </template>
 
 <script>

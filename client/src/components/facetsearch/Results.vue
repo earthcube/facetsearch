@@ -1,10 +1,12 @@
 <template>
-  <div >
-
-     <ResultItem v-for="item in currentResults" v-bind:key="item.row" :item="item" :state="state">
-     </ResultItem>
-
-
+  <div class="mt-3">
+    <!-- list of results -->
+     <ResultItem
+        v-for="item in currentResults"
+        v-bind:key="item.row"
+        :item="item"
+        :state="state"
+    ></ResultItem>
   </div>
 </template>
 
@@ -30,6 +32,7 @@ name: "Results",
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    @import '~/src/assets/bootstrapcss/custom';
 
 </style>

@@ -17,7 +17,7 @@ $gray-800: #333 !default;
 $gray-900: #2d2d2d !default;
 $black:    #000 !default;
 
-$blue:    #0c3c60 !default;
+$blue:    #18598b !default;
 $indigo:  #6610f2 !default;
 $purple:  #6f42c1 !default;
 $pink:    #e83e8c !default;
@@ -29,7 +29,7 @@ $teal:    #20c997 !default;
 $cyan:    #3399f3 !default;
 
 $primary:       $blue !default;
-$secondary:     $gray-500 !default;
+$secondary:     $gray-600 !default;
 $success:       $green !default;
 $info:          $cyan !default;
 $warning:       $yellow !default;
@@ -60,3 +60,31 @@ $navbar-dark-hover-color:           $white !default;
 $navbar-light-color:                rgba($black, .4) !default;
 $navbar-light-hover-color:          $info !default;
 $navbar-light-active-color:         $info !default;
+
+
+
+
+
+
+// custom mixins
+
+@mixin word-wrap() {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    -ms-word-break: break-all;
+    word-break: break-all;
+    word-break: break-word;
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+
+//translate
+@mixin translate($x, $y) {
+	-webkit-transform: translate($x, $y);
+	-moz-transform: translate($x, $y);
+	-ms-transform: translate($x, $y);
+	-o-transform: translate($x, $y);
+	transform: translate($x, $y);
+}

@@ -1,41 +1,26 @@
 <template>
-  <div class="item card rounded mt-2 w-100">
-    <div class="card-header">
-      <div class="card-title" v-html="item.name"></div>
-      <div class="card-subtitle mb-2 text-muted">{{ item.pubname }}</div>
-    </div>
-    <div class="tags card-body overflow-auto">
-      <div v-show="item.description" class="card-text" v-html="item.description">
+    <b-card tag="article" class="rounded-0" v-on:click="showDetails">
+        <b-card-title class="name" v-html="item.name"></b-card-title>
+        <b-card-title class="publisher" v-if="item.pubname" v-html="item.pubname"></b-card-title>
 
-      </div>
-      <div v-show="item.kw" class="card-text pt-2">
-        <b>Keywords:</b> <span v-html="highlightKw(filters,item.kw)">
-      </span>
+        <b-card-text class="small mb-2" v-if="item.description" v-html="item.description"></b-card-text>
+
+        <div class="keywords" v-if="item.kw">
+            <div class="label">Keywords</div>
+            <div class="values">
+                <div class="keyword" v-html="highlightKw(filters, item.kw)"></div>
+            </div>
         </div>
-    </div>
-    <div class="card-footer">
-      <div class="row">
-                <span class="col-auto mr-auto">
-                     <span class="badge badge-secondary">{{ item.resourceType }}  </span>
-                  <span  ref="tool" class="tool " v-if="connectedTools">
-                    <span class="badge badge-info">Connected Tools</span>
-                  </span>
-                  </span>
-        <span class="col-auto ">
 
-                        <a v-show="item.disurl" class="card-link " target="_blank"
-                           :href="item.disurl">{{ item.disurl }}  </a>
-        </span>
-        <span class="col-auto">
-
-<!--                        <a v-show="item.s3endpoint" class="card-link " target="_blank"-->
-<!--                           :href="'dataset.html?o=' + item.s3endpoint + '.jsonld'">Details</a>-->
-<!--              <router-link  :to="{ name: 'dataset', params: { d: item.s3endpoint+'.jsonld' } }">Details</router-link>-->
-              <router-link  :to="{ name: 'dataset', params: { d: item.g } }">Details</router-link>
-       </span>
-      </div>
-    </div>
-  </div>
+        <div class="badges mt-2">
+            <b-badge variant="secondary" class="mr-1">{{item.resourceType}}</b-badge>
+            <b-badge variant="secondary" class="mr-1" v-if="connectedTools">Connected Tools</b-badge>
+            <b-badge variant="secondary" class="mr-1" v-if="item.disurl">
+                <a class="card-link" target="_blank" :href="item.disurl">{{ item.disurl }}</a>
+            </b-badge>
+            <b-badge variant="outline-primary" class="mr-1" v-on:click="showDetails">View Details</b-badge>
+        </div>
+    </b-card>
 </template>
 
 <script>
@@ -62,7 +47,15 @@ export default {
   , methods: {
     ...mapActions([
        'hasConnectedTools']),
-    highlightKw(filters, keywords) {
+    showDetails() {
+        this.$router.push({
+            name: 'dataset',
+            params: {
+                d: this.item.g
+            }
+        });
+    }
+    ,highlightKw(filters, keywords) {
       if (keywords) {
         let kwList = [];
         if (_.isArray(keywords)) {
@@ -108,6 +101,79 @@ export default {
 
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    @import '~/src/assets/bootstrapcss/custom';
+
+article {
+    cursor: pointer;
+
+    border: {
+        right: 0px;
+        left: 0px;
+    }
+
+    &:hover {
+        background: {
+            color: $gray-300;
+        }
+    }
+
+    .card-body {
+        padding: ($spacer * 1.5) $spacer;
+    }
+}
+
+.keywords {
+    display: flex;
+
+    font: {
+        size: 80%;
+    }
+
+    .label {
+        font: {
+            weight: bold;
+        }
+        text: {
+            transform: uppercase;
+        }
+    }
+
+    .values {
+        display: flex;
+        flex-wrap: wrap;
+
+        .keyword {
+            padding: {
+                left: $spacer / 2;
+            }
+        }
+    }
+}
+
+.name {
+    color: $primary;
+
+    font: {
+        weight: 600;
+        size: 120%;
+    }
+    line: {
+        height: 120%;
+    }
+}
+
+.publisher {
+    color: $gray-700;
+
+    margin: {
+        top: -($spacer * .4);
+    }
+
+    font: {
+        style: italic;
+        size: 90%;
+    }
+}
 
 </style>

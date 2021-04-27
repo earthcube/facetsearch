@@ -1,68 +1,47 @@
 <template>
-  <div>
-  <div class="row justify-content-center">
-    <div class="col-8">
-      <div class="my-4 py-4">
+    <b-container fluid="md" class="mt-5">
+        <div class="logo d-flex justify-content-center"><img src="../../assets/geocodes_2021.png" height="66" alt="GeoCODES" /></div>
 
-        <img src="../../assets/geocodes_2021.png" height="66"/>
+        <b-container class="col-md-6 mt-4">
+            <b-form @submit="onSubmit" @reset="onReset">
+                <b-input-group>
+                    <b-form-input v-model="q" id="q" name="q" placeholder="Search" aria-label="Search"></b-form-input>
 
-      </div>
+                    <b-input-group-append>
+                        <b-button variant="primary" type="submit"><b-icon icon="search" /></b-button>
+                    </b-input-group-append>
+                </b-input-group>
+                <b-form-group>
+                    <b-form-radio-group
+                        v-model="toolOptionsSelected"
+                        :options="toolOptions"
+                        name="resourceType"
+                        id="resourceType"
+                    ></b-form-radio-group>
+                </b-form-group>
+            </b-form>
+        </b-container>
 
-      <b-form @submit="onSubmit" @reset="onReset" class="w-80">
-        <b-input-group>
-          <b-input v-model="q" id="q" name="q" type="search" placeholder="Search" aria-label="Search">
-
-          </b-input>
-          <b-button id="update" :to="{name: 'Search', query:{q: q} }">
-            <img src="/img/search.174272f3.svg" title="Search"/>
-          </b-button>
-        </b-input-group>
-        <b-form-group>
-          <b-form-radio-group v-model="toolOptionsSelected"
-                                 :options="toolOptions"
-                                 name="resourceType"
-                                 id="resourceType">
-
-          </b-form-radio-group>
-        </b-form-group>
-
-      </b-form>
-    </div>
-
-  </div>
-    <div class="row justify-content-center">
-    <b-carousel
-        id="carousel-1"
-        v-model="slide"
-        :interval="4000"
-        no-animation
-
-
-        img-width="1024"
-        img-height="200"
-        style="text-shadow: 1px 1px 2px #333;"
-
-    >
-      <!-- Text slides with image -->
-      <b-carousel-slide img-blank  img-width="1024"
-                        img-height="200">
-        <h2>an interdisciplinary geoscience data and tool search engine</h2>
-      </b-carousel-slide>
-
-      <!-- Slides with custom text -->
-      <b-carousel-slide img-blank  img-width="1024"
-                        img-height="200">
-        <h2>a schema.org/Dataset search</h2>
-      </b-carousel-slide>
-
-      <!-- Slides with image only -->
-      <b-carousel-slide img-blank img-width="1024"
-                        img-height="200">
-        <h2>Geoscience Cyberinfrastructure for Open Discovery in the Earth Sciences</h2>
-      </b-carousel-slide>
-    </b-carousel>
-    </div>
-  </div>
+        <b-container fluid="md" class="mt-5">
+            <b-carousel
+                id="carousel-landing"
+                v-model="slide"
+                :interval="4000"
+                fade
+                indicators
+            >
+                <b-carousel-slide>
+                    an interdisciplinary geoscience data <span class="text-nowrap">and tool search engine</span>
+                </b-carousel-slide>
+                <b-carousel-slide>
+                    a schema.org/Dataset search
+                </b-carousel-slide>
+                <b-carousel-slide>
+                    Geoscience Cyberinfrastructure <span class="text-nowrap">for Open Discovery</span> <span class="text-nowrap">in the Earth Sciences</span>
+                </b-carousel-slide>
+            </b-carousel>
+        </b-container>
+    </b-container>
 </template>
 
 <script>
@@ -96,6 +75,51 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    @import '~/src/assets/bootstrapcss/custom';
+
+//use v-deep to style the inner carousel components
+.carousel::v-deep {
+    .carousel-inner {
+        .carousel-item {
+            height: 240px;
+
+            background: {
+                color: $white;
+            }
+
+            .carousel-caption {
+                top: 0px;
+                left: 0px !important;
+                right: 0px !important;
+                bottom: auto !important;
+
+                color: $gray-500;
+
+                padding: 0px;
+
+                font: {
+                    size: 150%;
+                }
+                line: {
+                    height: 140%;
+                }
+
+//                @include translate(0%, 50%); //set top: 50% and activate this line if you want vertically centered text
+
+                @include media-breakpoint-down(md) {
+                    font: {
+                        size: 120%;
+                    }
+                    
+                    .text-nowrap {
+                        //remove no wrap on small screens
+                        white-space: normal !important;
+                    }
+                }
+            }
+        }
+    }
+}
 
 </style>

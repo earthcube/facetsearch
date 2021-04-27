@@ -1,13 +1,14 @@
 <template>
-  <div >
-    <div class="row font-weight-bold">Downloads</div>
-    <div class="row" v-for="d in mapping.s_downloads" v-bind:key="d.linkName">
-     <a class="btn btn-primary w-100" target="_blank" :href="d.contentUrl">{{d.linkName}}
-       <b-icon class="float-right" icon="cloud-download" aria-hidden="true"></b-icon></a>
-
+    <div class="buttons">
+        <b-button block size="sm" variant="primary" class="p-3 text-left"
+            v-for="(d, index) in mapping.s_downloads"
+            v-bind:key="index"
+            v-bind:href="d.contentUrl"
+        >
+            {{d.linkName}}
+            <b-icon icon="download" class="ml-3" aria-hidden="true"></b-icon>
+        </b-button>
     </div>
-  </div>
-
 </template>
 
 <script>
@@ -67,7 +68,6 @@ export default {
         mapping.s_name = schemaItem('name', jp);
         mapping.s_url = schemaItem('url', jp);
 
-
         mapping.s_distribution = schemaItem('distribution', jp);
 
         mapping.s_downloads = getDistributions(mapping.s_distribution, this.s_url)
@@ -103,6 +103,30 @@ export default {
 }
 </style>
 
-<style scoped>
+<style scoped lang="scss">
+    @import '~/src/assets/bootstrapcss/custom';
+
+.buttons {
+    .btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        line: {
+            height: 130%;
+        }
+
+        @include word-wrap();
+    }
+
+    @include media-breakpoint-down(md) {
+        .btn {
+            padding: {
+                top: ($spacer * 1.4) !important;
+                bottom: ($spacer * 1.4) !important;
+            }
+        }
+    }
+}
 
 </style>
