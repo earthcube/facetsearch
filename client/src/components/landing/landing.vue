@@ -1,7 +1,7 @@
 <template>
     <b-container fluid="md" class="mt-5">
         <!-- allow logo to size according to container. fill with primary color from bootstrap variables -->
-        <b-container class="col-md-7 pt-5">
+        <b-container class="col-md-5 pt-5">
             <logoGeoCodes fill="#18598b" width="100%" />
         </b-container>
 
@@ -14,7 +14,8 @@
                         <b-button variant="primary" type="submit"><b-icon icon="search" /></b-button>
                     </b-input-group-append>
                 </b-input-group>
-                <b-form-group>
+
+                <b-form-group class="mt-2">
                     <b-form-radio-group
                         v-model="toolOptionsSelected"
                         :options="toolOptions"
@@ -104,7 +105,7 @@ export default {
                 padding: 0px;
 
                 font: {
-                    size: 150%;
+                    size: 140%;
                 }
                 line: {
                     height: 140%;

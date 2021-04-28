@@ -37,6 +37,11 @@ $danger:        $red !default;
 $light:         $gray-200 !default;
 $dark:          $gray-800 !default;
 
+//add custom project colors
+$data:          desaturate(lighten(#e09500, 20%), 15%) !default;
+$tool:          $cyan !default;
+
+
 $yiq-contrasted-threshold: 200 !default;
 
 // Body
@@ -62,11 +67,17 @@ $navbar-light-hover-color:          $info !default;
 $navbar-light-active-color:         $info !default;
 
 
+//add custom theme colors
+$theme-colors: (
+    "data": $data,
+    "tool": $tool
+);
 
 
 
 
 // custom mixins
+// TODO: move these to a separate scss file as this list of mixins will grow
 
 @mixin word-wrap() {
     overflow-wrap: break-word;

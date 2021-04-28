@@ -2,7 +2,7 @@
     <b-container fluid="md">
         <b-row class="title_row">
             <b-col md="12">
-                <b-btn variant="outline-info" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
+                <b-btn variant="outline-primary" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
 
                 <h4 class="page_title"><b>Mulder, F.G. (1965).</b> Paleomagnetic investigation in the Vanern district (Sweden). <i>Geologie en Mijnbouw, Netherlands Journal of Geosciences 44: 307-312.</i> (Dataset)</h4>
             </b-col>
@@ -12,7 +12,13 @@
             <b-col md="8">
                 <div class="metadata">
                     <div class="label">Type</div>
-                    <div class="value">Data</div>
+                    <div class="value">
+                        <b-icon font-scale="2" class="mr-1" shift-v="-2"
+                            :icon="('data' == 'data') ? 'server' : 'tools'" 
+                            :variant="('data' == 'data') ? 'data' : 'tool'" 
+                        ></b-icon>
+                        <b-badge variant="data" class="mr-1 mb-1">Data</b-badge>
+                    </div>
                 </div>
 
                 <div class="metadata">
@@ -208,16 +214,18 @@ name: "dataset",
     }
 
     &.title_row {
-        position: sticky;
-        top: 0px;
-        z-index: 1010;
-
         background: {
             color: rgba($white, .95);
         }
 
         padding: {
             top: $spacer;
+        }
+
+        &.is_sticky {
+            position: sticky;
+            top: 0px;
+            z-index: 1010;
         }
     }
 

@@ -1,5 +1,5 @@
 <template>
-    <b-navbar toggleable="lg" type="dark" variant="primary" sticky="true">
+    <b-navbar toggleable="lg" type="dark" variant="primary" sticky>
         <!-- keep nav centered on wide screens -->
         <b-container fluid="md">
             <!-- only show the back arrow on certain pages and ONLY on small or medium sized devices -->
@@ -38,7 +38,7 @@
                 </b-nav-form>
 
                 <b-nav-item href="https://graph.geodex.org/blazegraph/#query" class="text-nowrap">SPARQL</b-nav-item>
-                <b-nav-item href="about.html" target="_blank">Help</b-nav-item>
+                <b-nav-item href="about.html" target="_blank">About</b-nav-item>
               </b-navbar-nav>
             </b-collapse>
         </b-container>
@@ -67,7 +67,8 @@ name: "navHeader",
   },
   methods:{
     showBackButton() {
-        return (['dataset', 'tool'].includes(this.$route.name.toLowerCase())) ? true : false;
+    return false;
+//        return (['dataset', 'tool'].includes(this.$route.name.toLowerCase())) ? true : false;
     },
     qUpdated() {
         this.textQuery = this.q

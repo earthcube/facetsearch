@@ -1,9 +1,12 @@
 <template>
-    <b-card tag="article" class="rounded-0" v-on:click="showDetails">
+    <b-card tag="article" class="rounded-0"
+        v-on:click="showDetails"
+        v-bind:class="['type_' + item.resourceType.toLowerCase()]"
+    >
         <b-card-title class="name" v-html="item.name"></b-card-title>
         <b-card-title class="publisher" v-if="item.pubname" v-html="item.pubname"></b-card-title>
 
-        <b-card-text class="small mb-2" v-if="item.description" v-html="item.description"></b-card-text>
+        <b-card-text class="description small mb-2" v-if="item.description" v-html="item.description"></b-card-text>
 
         <div class="keywords" v-if="item.kw">
             <div class="label">Keywords</div>
@@ -13,12 +16,11 @@
         </div>
 
         <div class="badges mt-2">
-            <b-badge variant="secondary" class="mr-1">{{item.resourceType}}</b-badge>
-            <b-badge variant="secondary" class="mr-1" v-if="connectedTools">Connected Tools</b-badge>
+            <b-badge variant="data" class="mr-1"><b-icon class="mr-1" icon="server"></b-icon>{{item.resourceType}}</b-badge>
+            <b-badge variant="tool" class="mr-1" v-if="connectedTools"><b-icon class="mr-1" icon="tools"></b-icon>Connected Tools</b-badge>
             <b-badge variant="secondary" class="mr-1" v-if="item.disurl">
                 <a class="card-link" target="_blank" :href="item.disurl">{{ item.disurl }}</a>
             </b-badge>
-            <b-badge variant="outline-primary" class="mr-1" v-on:click="showDetails">View Details</b-badge>
         </div>
     </b-card>
 </template>
@@ -118,6 +120,24 @@ article {
         }
     }
 
+    //special css treatment for data or tool results
+/*
+    &.type_data {
+        &:not(:hover) {
+            background: {
+                color: rgba($data, .1);
+            }
+        }
+    }
+
+    &.type_tool {
+        &:not(:hover) {
+            background: {
+                color: rgba($tool, .1);
+            }
+        }
+    }
+*/
     .card-body {
         padding: ($spacer * 1.5) $spacer;
     }
@@ -152,7 +172,7 @@ article {
 }
 
 .name {
-    color: $primary;
+    color: $gray-800;
 
     font: {
         weight: 600;
@@ -164,7 +184,7 @@ article {
 }
 
 .publisher {
-    color: $gray-700;
+    color: $gray-500;
 
     margin: {
         top: -($spacer * .4);
@@ -174,6 +194,10 @@ article {
         style: italic;
         size: 90%;
     }
+}
+
+.description {
+    color: $gray-500;
 }
 
 </style>

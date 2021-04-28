@@ -14,7 +14,10 @@
                     v-b-toggle="'collapse_' + i.index"
                 >
                     <div class="tool_info pr-3">
-                        <b-link class="small metadata_link" v-on:click.stop="$router.push({ name: 'tool', params: { t: i.rrs.value },  query:{ d:d} })">Tool Metadata</b-link>
+                        <b-link class="small metadata_link" v-on:click.stop="$router.push({ name: 'tool', params: { t: i.rrs.value },  query:{ d:d} })">
+                            <b-icon class="mr-1" icon="tools" variant="tool"></b-icon>
+                            Tool Metadata
+                        </b-link>
 
                         <h6 class="tool_title text-primary">
                             {{ i.name.value }}
@@ -46,7 +49,10 @@
                     v-b-toggle="'collapse_' + i.index"
                 >
                     <div class="tool_info pr-3">
-                        <b-link class="small metadata_link" v-on:click.stop="$router.push({ name: 'tool', params: { t: i.rrs.value },  query:{ d:d} })">Tool Metadata</b-link>
+                        <b-link class="small metadata_link" v-on:click.stop="$router.push({ name: 'tool', params: { t: i.rrs.value },  query:{ d:d} })">
+                            <b-icon class="mr-1" icon="tools" variant="tool"></b-icon>
+                            Tool Metadata
+                        </b-link>
 
                         <h6 class="tool_title text-primary">
                             {{ i.appname.value }}
