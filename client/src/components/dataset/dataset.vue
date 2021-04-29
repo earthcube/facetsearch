@@ -127,7 +127,12 @@ import { mapState,mapActions} from 'vuex'
 
 export default {
 name: "dataset",
-  components: {ConnectedTools, DatasetLocation, Metadata, Downloadfiles, relatedData},
+  components: {ConnectedTools, DatasetLocation,
+  //  Metadata,
+    Downloadfiles,
+    "json-view": JSONView,
+    relatedData
+    },
   props:{
    d: String,
   },
