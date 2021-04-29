@@ -53,7 +53,7 @@
   <p>
   <p>
 
-  <h5 class="center m-bottom" class="font_7" style="font-size:26px" title="hover over each for a description">
+  <h5 class="center m-bottom font_7" style="font-size:26px" title="hover over each for a description">
     <p> &emsp; &emsp; Council of Data Facilities (<a id="repo-list"
                                                      href=https://www.earthcube.org/council-of-data-facilities>CDF
     </a>)
@@ -101,12 +101,12 @@
         <img style="max-width: 180px; max-height: 90px"
                      src=images/repo/hydroshare.png><br>
 
-          Consortium of Universities for the Advancement of Hydrologic Science, Inc. (CUAHSI)
+          Consortium of Universities for the Advancement of Hydrologic Science, Inc. (CUAHSI)
       </a>
       <br><small>[4185 records]</small>
+    </div>
   </td>
-  </div>
-  </tr>
+
   <tr>
 
     <td width=33%>
@@ -117,6 +117,7 @@
             IEDA (Integrated Earth Data Applications)
         </a>
         <br><small>[7147 records]</small>
+      </div>
     </td>
     </div>
 
@@ -129,8 +130,9 @@
             OpenTopography
         </a>
         <br><small>[502 records]</small>
+      </div>
     </td>
-    </div>
+
 
     <td width=33%>
       <div title="UNAVCO promotes research by providing access to data that our community of geodetic scientists uses for quantifying the motions of rock, ice and water that are monitored by a variety of sensor types at or near the Earth's surface. After processing, these data enable millimeter-scale surface motion detection and monitoring at discrete points, and high-resolution strain imagery over areas of tens of square meters to hundreds of square kilometers. The data types include GPS/GNSS, imaging data such as from SAR and TLS, strain and seismic borehole data, and meteorological data. Most of these can be accessed via web services. In addition, GPS/GNSS datasets, TLS datasets, and InSAR products are assigned digital object identifiers. [5086 records]">
@@ -141,9 +143,8 @@
             UNAVCO
         </a>
         <br><small>[5086 records]</small>
+      </div>
     </td>
-    </div>
-  </tr>
   <tr>
 
     <td width=33%>
@@ -154,8 +155,9 @@
             IODP Site Survey Databank
         </a>
         <br><small>[5344 records]</small>
+      </div>
     </td>
-    </div>
+
 
     <td width=33%>
       <div title="Driven by data-rich use cases that span geodesy, geodynamics, seismology, and ecohydrology, the BALTO project will enable brokered access to diverse geoscience data, including data that have been collected/organized by individual scientists in novel or unusual forms, also known as “long-tail” datasets. [89 records]">
@@ -166,8 +168,9 @@
             Balto
         </a>
         <br><small>[89 records]</small>
+      </div>
     </td>
-    </div>
+
 
     <td width=33%>
       <div title="The LinkedEarth wiki is an EarthCube-funded platform that: enables the curation of publicly-accessible database by paleoclimate experts, and, fosters the development of standards, so paleoclimate data are easier to analyze, share, and re-use. [17964 records]">
@@ -178,8 +181,9 @@
             Linked Earth
         </a>
         <br><small>[17964 records]</small>
+      </div>
     </td>
-    </div>
+
   </tr>
   <tr>
 
@@ -203,8 +207,9 @@
             UCAR
         </a>
         <br><small>[11672 records]</small>
+      </div>
     </td>
-    </div>
+
 
     <td width=33%>
       <div title="Open Core Data is an implementation of the RDA Digital Object Cloud. Open Core Data contains digital objects from the contintental and ocena drilling research projects funded by the National Science Foundation. [18171 records]">
@@ -215,8 +220,9 @@
             opencoredata
         </a>
         <br><small>[18171 records]</small>
+      </div>
     </td>
-    </div>
+
   </tr>
   <tr>
 
@@ -229,8 +235,9 @@
             Magnetics Information Consortium (MagIC)
         </a>
         <br><small>[4136 records]</small>
+      </div>
     </td>
-    </div>
+
 
     <td width=33%>
       <div title="Neotoma is a multiproxy paleoecological database that covers the Pliocene-Quaternary, including modern microfossil samples. The database is an international collaborative effort among individuals from 19 institutions, representing multiple constituent databases. There are over 20 data-types within the Neotoma Paleoecological Database, including pollen microfossils, plant macrofossils, vertebrate fauna, diatoms, charcoal, biomarkers, ostracodes, physical sedimentology and water chemistry. Neotoma provides an underlying cyberinfrastructure that enables the development of common software tools for data ingest, discovery, display, analysis, and distribution, while giving domain scientists control over critical taxonomic and other data quality issues. [11955 records]">
@@ -241,8 +248,9 @@
             Neotoma
         </a>
         <br><small>[11955 records]</small>
+      </div>
     </td>
-    </div>
+
 
     <td width=33%>
       <div title="Community-driven preservation, discovery, access, and visualization of geochemical, geochronological, and petrological data. [639 records]">
@@ -253,8 +261,9 @@
             earthchem
         </a>
         <br><small>[639 records]</small>
+      </div>
     </td>
-    </div>
+
   </tr>
   <tr>
 
@@ -267,8 +276,9 @@
             xdomes
         </a>
         <br><small>[17 records]</small>
+      </div>
     </td>
-    </div>
+
 
     <td width=33%>
       <div title="The National Ecological Observatory Network (NEON) is a continental-scale observatory designed to gather and provide 30 years of ecological data on the impacts of climate change, land use change and invasive species on natural resources and biodiversity. NEON is a project of the National Science Foundation, with many other U.S. agencies and NGOs cooperating. [179 records]">
@@ -279,8 +289,9 @@
             National Ecological Observatory Network (NEON)
         </a>
         <br><small>[179 records]</small>
+      </div>
     </td>
-    </div>
+
 
     <td width=33%>
       <div title="The EarthCube Resource Registry (ECRR) is intended to provide immediate access to a list of EC capabilities to understand what EC is, and what it isn’t. To support this goal, the ECRR project has developed several persistent resources available for wider EarthCube use. [274 records]">
@@ -292,13 +303,14 @@
             Resource Registry
         </a>
         <br><small>[274 records]</small>
+      </div>
     </td>
-    </div>
+
 
   </tr>
-  </tbody>
-  </table>
-  </div>
+<!--  </tbody>-->
+<!--  </table>-->
+<!--  </div>-->
   <!--
   <div class="row">
   <p>
@@ -308,11 +320,10 @@
   <h3>Feedback:</h3>
   Create an <a href="https://github.com/earthcube/geodexui/issues" target="_blank">issue</a> and a feedback email coming
   soon.
+<!--  </div>-->
 
-  </div>
 
-
-  </div>
+<!--  </div>-->
   <!-- <footer style="padding-bottom:5px;background-image: linear-gradient(#7391ff, #625354);"> -->
   <footer style="padding-bottom:5px;background-color: rgba(66,109,148,0.8)">
     <!-- <div class="container"> -->
@@ -324,11 +335,12 @@
         <!-- <h6 style="color:grey">Simple Grid by <a style="color:grey" href="http://zcole.me" target="_blank">Zach Cole</a> -->
         &emsp; &emsp; <a style="color:blue" href="https://github.com/earthcube" target="_blank">Open source</a> <a
           style="color:blue" href="https://opensource.org/licenses/MIT" target="_blank">under the MIT License</a>
-        </h6>
+<!--        </h6>-->
       </div>
     </div>
   </footer>
-  </div>
+<!--  </div>-->
+</div>
 </template>
 
 <script>
