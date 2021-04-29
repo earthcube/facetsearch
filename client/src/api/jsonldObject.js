@@ -171,7 +171,17 @@ const makeLinkObj = function(obj_dist){
     if (hasSchemaProperty('url', obj_dist)) {
         url = schemaItem('url', obj_dist);
     } else if ( hasSchemaProperty('contentUrl',obj_dist) ) {
-        url = schemaItem('contentUrl', obj_dist)
+       let contentUrl = schemaItem('contentUrl', obj_dist)
+        if ( _.isString(contentUrl) ){
+            url= contentUrl
+        } else {
+            if (_.isObject(contentUrl)){
+                if (Object.prototype.hasOwnProperty.call(contentUrl,'@id')){
+                    url =contentUrl["@id"]
+
+                }
+            }
+        }
     }
     encodingFormats = schemaItem('encodingFormat', obj_dist)
 
