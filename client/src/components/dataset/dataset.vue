@@ -61,8 +61,8 @@
                     <div class="label"></div>
                     <div class="value buttons">
 <!--                    <b-button variant="outline-secondary">Website</b-button>-->
-                        <b-button variant="outline-secondary">Cite</b-button>
-                        <b-button variant="outline-secondary">Metadata</b-button>
+                        <b-button variant="outline-secondary"><b-icon icon="chat-square-quote" class="mr-1"></b-icon>Cite</b-button>
+                        <b-button variant="outline-secondary"><b-icon icon="code-slash" class="mr-1"></b-icon>Metadata</b-button>
                     </div>
                 </div>
 
@@ -86,10 +86,12 @@
         <connected-tools :d="d"></connected-tools>
 
         <b-row>
-            <b-col md="12">
+            <b-col md="6">
                 <h5>Related Data</h5>
-                <div>[[ TODO: replace this with real data ]]</div>
-                <div>Coral densities and extension rates from scientific literature collected in the field or in laboratories</div>
+                <relatedData></relatedData>
+            </b-col>
+            <b-col md="6">
+                <div>[[TODO add data or remove column]]</div>
             </b-col>
         </b-row>
 
@@ -116,13 +118,16 @@ import Metadata from "./metadata.vue";
 import DatasetLocation from "./datasetLocation.vue";
 import ConnectedTools from "./connectedTools.vue";
 import Downloadfiles from "./downloadfiles.vue"
+import relatedData from "./relatedData.vue";
+
 //import {getJsonLD} from '../../api/jsonldObject.js'
 //import axios from "axios";
 import { mapState,mapActions} from 'vuex'
 
+
 export default {
 name: "dataset",
-  components: {ConnectedTools, DatasetLocation, Metadata, Downloadfiles},
+  components: {ConnectedTools, DatasetLocation, Metadata, Downloadfiles, relatedData},
   props:{
    d: String,
   },
