@@ -130,9 +130,7 @@ name: "dataset",
   components: {ConnectedTools, DatasetLocation,
   //  Metadata,
     Downloadfiles,
-    "json-view": JSONView,
-    relatedData
-    },
+    "json-view": JSONView},
   props:{
    d: String,
   },
