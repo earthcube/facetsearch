@@ -65,7 +65,7 @@
                       <div  v-for="i in mapping.s_downloads" v-bind:key="i.name">
                         <div style="font-weight:600;">{{ i.name }} </div>
                         <!-- do we want this? -->
-                        <div style="font-weight:600;" v-if="i.encodingFormat">{{i.encodingFormat}}</div>
+                        <div style="font-weight:600;" v-if="i.encodingFormat && (i.name !== i.encodingFormat)">{{i.encodingFormat}}</div>
                         <div>  <a  target="_blank" :href="i.contentUrl">{{ i.contentUrl }}</a> </div>
                         </div>
                     </div>
