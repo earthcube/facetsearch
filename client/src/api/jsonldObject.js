@@ -167,11 +167,22 @@ const makeLinkObj = function(obj_dist){
     var downloads = []
     let url = ""
     let name =""
+    let linkName=""
     let encodingFormats = ""
     if (hasSchemaProperty('url', obj_dist)) {
         url = schemaItem('url', obj_dist);
     } else if ( hasSchemaProperty('contentUrl',obj_dist) ) {
-        url = schemaItem('contentUrl', obj_dist)
+       let contentUrl = schemaItem('contentUrl', obj_dist)
+        if ( _.isString(contentUrl) ){
+            url= contentUrl
+        } else {
+            if (_.isObject(contentUrl)){
+                if (Object.prototype.hasOwnProperty.call(contentUrl,'@id')){
+                    url =contentUrl["@id"]
+
+                }
+            }
+        }
     }
     encodingFormats = schemaItem('encodingFormat', obj_dist)
 
@@ -191,7 +202,10 @@ const makeLinkObj = function(obj_dist){
     if (Array.isArray(encodingFormats)) {
         for (let e=0 ; e < encodingFormats.length; e++ )
         {
-            name = hasSchemaProperty('name',obj_dist)? schemaItem('name', obj_dist): encodingFormats[e];
+            name =  schemaItem('name', obj_dist);
+            linkName = hasSchemaProperty('name',obj_dist)?
+                `${schemaItem('name', obj_dist)} format:${encodingFormats[e]}`:
+                `${encodingFormats[e]}`;
             downloads.push ({
                     distType: name,
                     contentUrl: url,
@@ -203,11 +217,14 @@ const makeLinkObj = function(obj_dist){
         }
     } else {
         name = hasSchemaProperty('name',obj_dist)? schemaItem('name', obj_dist): encodingFormats;
-        var linkName= ''
+
         if (_.isEmpty(encodingFormats)) {
              linkName= name
         } else {
-             linkName= encodingFormats
+             //linkName= encodingFormats
+            linkName = hasSchemaProperty('name',obj_dist)?
+                `${schemaItem('name', obj_dist)} format:${encodingFormats}`:
+                `${encodingFormats}`;
         }
         downloads.push ({
             distType: name,
