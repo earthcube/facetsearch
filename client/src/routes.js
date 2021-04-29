@@ -3,6 +3,7 @@ import landing from "./components/landing/landing";
 import Search from "./components/facetsearch/Search";
 import dataset from "./components/dataset/dataset";
 import tool from "./components/tools/tool"
+import about from "./components/help/about"
 
 export default  new Router({
     //mode: "history",
@@ -19,6 +20,7 @@ export default  new Router({
             props: route => ({ textQuery :route.query.q, resourceType : route.query.resourceType})},
         {path:'/dataset/:o',name:'dataset',component:dataset,props:true},
         {path:'/tool/:o',name:'tool',component:tool,props:true},
+        {path:'/about',name:'about',component:about,},
 // catch all case
         { path: '*'},
     ]
