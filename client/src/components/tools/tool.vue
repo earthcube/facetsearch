@@ -57,7 +57,7 @@
           <div class="value">
 
             <div v-for="i in mapping.s_installURL" v-bind:key="i">
-              <a v-if="i.url" href="i.url">{{ i.name }}</a>
+              <a v-if="i.url" :href="i.url">{{ i.name }}</a>
               <span v-if="! i.url"> {{ i.name }}</span>
             </div>
 
