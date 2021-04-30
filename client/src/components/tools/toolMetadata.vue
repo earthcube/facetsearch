@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="col-8">
     <div class="row">
       <span class="font-weight-bold font-heavy my-4" v-html="mapping.s_name">   </span>
     </div>

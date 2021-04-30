@@ -15,3 +15,15 @@ todo:
    https://router.vuejs.org/guide/advanced/data-fetching.html#fetching-before-navigation
 ** beforeRouteEnter... see if query has changed. if not. do not requery
 ** beforeRouteLeave... save last query and filter parameters
+
+===
+adding a page to header and routes
+Create component page eg help/about.vue
+
+add page to routes.js
+   import about from "help/about.vue"
+modify routes add
+   {path:'/about',name:'about',component:about,},
+modify nav_header so b-nav-item about.html uses route..
+  import about from "help/about.vue"
+   <b-nav-item  :to="{ name: 'about'}">About</b-nav-item>

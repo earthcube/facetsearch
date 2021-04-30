@@ -4,7 +4,7 @@
             <b-col md="12">
                 <b-btn variant="outline-primary" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
 
-                <h4 class="page_title"><b>Mulder, F.G. (1965).</b> Paleomagnetic investigation in the Vanern district (Sweden). <i>Geologie en Mijnbouw, Netherlands Journal of Geosciences 44: 307-312.</i> (Dataset)</h4>
+                <h4 class="page_title" v-html="mapping.s_name"></h4>
             </b-col>
         </b-row>
 
@@ -14,8 +14,8 @@
                     <div class="label">Type</div>
                     <div class="value">
                         <b-icon font-scale="2" class="mr-1" shift-v="-2"
-                            :icon="('data' == 'data') ? 'server' : 'tools'" 
-                            :variant="('data' == 'data') ? 'data' : 'tool'" 
+                            :icon="('data' == 'data') ? 'server' : 'tools'"
+                            :variant="('data' == 'data') ? 'data' : 'tool'"
                         ></b-icon>
                         <b-badge variant="data" class="mr-1 mb-1">Data</b-badge>
                     </div>
@@ -23,37 +23,51 @@
 
                 <div class="metadata">
                     <div class="label">Abstract</div>
-                    <div class="value">Paleomagnetic, rock magnetic, or geomagnetic data found in the MagIC data repository from a paper titled: <b>Mulder, F.G. (1965).</b> Paleomagnetic investigation in the Vanern district (Sweden). <i>Geologie en Mijnbouw, Netherlands Journal of Geosciences 44: 307-312.</i></div>
+                    <div class="value" v-html="mapping.s_description"></div>
                 </div>
 
-                <div class="metadata" v-if="true">
+                <div class="metadata" v-if="mapping.s_contributor">
                     <div class="label">Creator</div>
-                    <div class="value">- [use v-if to hide if no value]</div>
+                  <div class="value" v-if="! Array.isArray(mapping.s_contributor )" >{{ mapping.s_contributor }}</div>
+                    <div class="value" v-if="Array.isArray(mapping.s_contributor )" >
+                      <div  v-for="i in mapping.s_contributor" v-bind:key="i">{{i}}</div>
+                    </div>
                 </div>
 
-                <div class="metadata" v-if="true">
+                <div class="metadata" v-if="mapping.s_publisher">
                     <div class="label">Publisher</div>
-                    <div class="value">-</div>
+                    <div class="value">{{ mapping.publisher }}</div>
                 </div>
 
-                <div class="metadata" v-if="true">
+                <div class="metadata" v-if="mapping.s_datePublished">
                     <div class="label">Date</div>
-                    <div class="value">-</div>
+                    <div class="value">{{ mapping.s_datePublished }}</div>
                 </div>
 
-                <div class="metadata" v-if="true">
+                <div class="metadata" v-if="mapping.has_citation">
                     <div class="label">Citation</div>
-                    <div class="value"><a href="https://dx.doi.org/10.1016/J.PALAEO.2004.07.018">https://dx.doi.org/10.1016/J.PALAEO.2004.07.018</a></div>
+                    <div class="value">{{mapping.s_citation}}</div>
                 </div>
 
-                <div class="metadata" v-if="true">
+                <div class="metadata" v-if="mapping.s_downloads">
                     <div class="label">Links</div>
                     <div class="value">
-                        <div style="font-weight:600;">Object URL text/plain; application=magic-tsv</div>
+<!--                        <div style="font-weight:600;">Object URL text/plain; application=magic-tsv</div>-->
 
-                        <div><a href="#">https://earthref.org/MagIC/3484</a></div>
-                        <div><a href="#">https://earthref.org/MagIC/download/3484/magic_contribution_348415032.txt</a></div>
-                        <div><a href="#">https://earthref.org/MagIC/download/9843/magic_contribution_176534821.txt</a></div>
+<!--                        <div><a href="#">https://earthref.org/MagIC/3484</a></div>-->
+<!--                        <div><a href="#">https://earthref.org/MagIC/download/3484/magic_contribution_348415032.txt</a></div>-->
+<!--                        <div><a href="#">https://earthref.org/MagIC/download/9843/magic_contribution_176534821.txt</a></div>-->
+                      <div  v-if="mapping.s_url">
+                        <div style="font-weight:600;">Object URL</div>
+                       <div> <a  :href="mapping.s_url" target="_blank"> {{ mapping.s_url }} </a></div>
+                      </div>
+
+                      <div  v-for="i in mapping.s_downloads" v-bind:key="i.name">
+                        <div style="font-weight:600;">{{ i.name }} </div>
+                        <!-- do we want this? -->
+                        <div style="font-weight:600;" v-if="i.encodingFormat && (i.name !== i.encodingFormat)">{{i.encodingFormat}}</div>
+                        <div>  <a  target="_blank" :href="i.contentUrl">{{ i.contentUrl }}</a> </div>
+                        </div>
                     </div>
                 </div>
 
@@ -61,13 +75,13 @@
                     <div class="label"></div>
                     <div class="value buttons">
 <!--                    <b-button variant="outline-secondary">Website</b-button>-->
-                        <b-button variant="outline-secondary">Cite</b-button>
-                        <b-button variant="outline-secondary">Metadata</b-button>
+                        <b-button variant="outline-secondary"><b-icon icon="chat-square-quote" class="mr-1"></b-icon>Cite</b-button>
+                        <b-button variant="outline-secondary"><b-icon icon="code-slash" class="mr-1"></b-icon>Metadata</b-button>
                     </div>
                 </div>
 
 <!-- TODO remove this or change to new structure -->
-                <Metadata style="display: none;"></Metadata>
+             <!--   <Metadata style="display: none;"></Metadata> -->
             </b-col>
 
             <b-col md="4">
@@ -86,10 +100,12 @@
         <connected-tools :d="d"></connected-tools>
 
         <b-row>
-            <b-col md="12">
+            <b-col md="6">
                 <h5>Related Data</h5>
-                <div>[[ TODO: replace this with real data ]]</div>
-                <div>Coral densities and extension rates from scientific literature collected in the field or in laboratories</div>
+                <relatedData></relatedData>
+            </b-col>
+            <b-col md="6">
+                <div>[[TODO add data or remove column]]</div>
             </b-col>
         </b-row>
 
@@ -103,7 +119,7 @@
                 <b-collapse id="collapse_json" class="mt-2">
                     <b-card>
 <!-- TODO remove inline style attributes -->
-                        <b-card-text style="min-height: 300px;">Collapse JSON contents Here</b-card-text>
+                      <json-view class="text-left " :data="mapping.raw_json"/>
                     </b-card>
                 </b-collapse>
             </b-col>
@@ -112,24 +128,68 @@
 </template>
 
 <script>
-import Metadata from "./metadata.vue";
+//import Metadata from "./metadata.vue";
 import DatasetLocation from "./datasetLocation.vue";
 import ConnectedTools from "./connectedTools.vue";
 import Downloadfiles from "./downloadfiles.vue"
+import relatedData from "./relatedData.vue";
+
 //import {getJsonLD} from '../../api/jsonldObject.js'
 //import axios from "axios";
 import { mapState,mapActions} from 'vuex'
+import {
+  geoplacename,
+  getDistributions,
+  getFirstGeoShape,
+  getGeoCoordinates,
+  hasSchemaProperty,
+  schemaItem
+} from "../../api/jsonldObject";
+import {JSONView} from "vue-json-component";
+
 
 export default {
 name: "dataset",
-  components: {ConnectedTools, DatasetLocation, Metadata, Downloadfiles},
+  components: {ConnectedTools, DatasetLocation,
+  //  Metadata,
+    Downloadfiles,
+    "json-view": JSONView,
+    relatedData
+    },
   props:{
    d: String,
   },
   data(){ return {
+    mapping: {
+      s_name: '',
+      s_description: '',
+      s_url: '',
+      s_contributor: '',
+      s_datePublished: '',
+      s_sdPublisher: '',
+      s_citation: '',
+      has_citation: '',
+      s_keywords: [],
+      s_landingpage: '',
+      s_downloads: [],
+      s_identifier_doi: '',
+      details: {},
+      raw_json: '',
+      html_name: '',
+      publisher: '',
+      description: '',
+      s_publisher: '',
+      s_publishedDate: '',
+      has_s_url: false,
+      downloads: [],
+      s_distribution: '',
+    }
     //jsonLdobj: {},
     //jsonLoaded: true,
   }},
+  watch:{
+    jsonLdCompact: "toMetadata"
+  },
   async mounted() {
 
     this.$store.dispatch('fetchJsonLd', this.d)
@@ -143,7 +203,108 @@ name: "dataset",
   },
   methods: {...mapActions([
       'fetchJsonLd',]),
+    toMetadata() {
+      var self = this;
+      var mapping = this.mapping;
+      //console.log(self.jsonLdObj)
+      //const context = {};
+      // const compacted = jsonld.compact(obj, context).then(sC, fC);
+      // const compacted = jsonld.compact(content, context).then((providers) => {
+      //  jsonld.compact(self.jsonLdObj, context).then((providers) => {
+      //    var j = JSON.stringify(providers, null, 2);
+     // var j = JSON.stringify(self.jsonLdCompact, null, 2);
+      //var jp = JSON.parse(j);
+      var jp = self.jsonLdCompact;
+     // console.log(j.toString());
+      mapping.raw_json = jp;
+      //const detailsTemplate = [];
+      // detailsTemplate.push(html`<h3>Digital Document metadata</h3>`);
+      mapping.s_name = schemaItem('name', jp);
+      mapping.s_url = schemaItem('url', jp);
+      mapping.s_description = schemaItem('description', jp);
 
+      mapping.s_distribution = schemaItem('distribution', jp);
+
+      if (hasSchemaProperty('datePublished', jp)) {
+        mapping.s_datePublished = schemaItem('datePublished', jp);
+      } else if (hasSchemaProperty('datePublished', mapping.s_distribution)) { // in distribution
+        mapping.s_datePublished = schemaItem('datePublished', mapping.s_distribution);
+      } else if (hasSchemaProperty('dateCreated', jp)) {
+        mapping.s_datePublished = schemaItem('dateCreated', jp);
+      }
+      if (hasSchemaProperty('publisher', jp)) {
+        var p = schemaItem('publisher', jp);
+        if (hasSchemaProperty('name', p)) {
+          mapping.publisher = schemaItem('name', p);
+        } else if (hasSchemaProperty('legalName', p)) {
+          mapping.publisher = schemaItem('legalName', p);
+        } else {
+          mapping.publisher = 'Publsher Quirkiness. Please alert us'
+        }
+      } else {
+        mapping.publisher = schemaItem('sdPublisher', jp);
+      }
+      //this.s_contributor = schemaItem('contributor', jp);
+      if (hasSchemaProperty('contributor', jp)) {
+        var c = schemaItem('contributor', jp);
+        if (Array.isArray(c)) {
+          mapping.s_contributor = c.map(function (obj) {
+                if (hasSchemaProperty('name', obj)) {
+                  return schemaItem('name', obj) + ", "
+                }
+              }
+          )
+          console.log('contributor ' + mapping.s_contributor)
+
+        } else {
+          mapping.s_contributor = schemaItem('name', c);
+        }
+      }
+      if (hasSchemaProperty('creator', jp)) {
+        var cr = schemaItem('creator', jp);
+        if (Array.isArray(cr)) {
+          mapping.s_contributor = cr.map(function (obj) {
+                if (hasSchemaProperty('name', obj)) {
+                  return schemaItem('name', obj) + ", "
+                }
+              }
+          )
+          console.log('contributor' + mapping.s_contributor)
+
+        } else {
+          mapping.s_contributor = schemaItem('name', cr);
+        }
+
+      }
+      // else {
+      //     this.s_contributor = schemaItem('contributor', jp);
+      // }
+
+      if (hasSchemaProperty('citation', jp)) {
+        mapping.s_citation = schemaItem('citation', jp);
+        mapping.hide_citation_tab = false;
+      }
+      mapping.s_keywords = schemaItem('keywords', jp);
+      mapping.s_landingpage = schemaItem('description', jp);
+      //var s_distribution = schemaItem('distribution', jp); // moved up
+      // var dist_type = s_distribution['@type'];
+      // var encodingFormat = schemaItem('encodingFormat', s_distribution);
+      // var contentUrl = schemaItem('contentUrl', s_distribution);
+      // var distUrl = schemaItem('url', s_distribution);
+      mapping.s_downloads = getDistributions(mapping.s_distribution, this.s_url)
+      // let downloadsurl = contentUrl ? contentUrl : distUrl;
+      // this.s_downloads = [{
+      //     distType: dist_type,
+      //     contentUrl: downloadsurl,
+      //     encodingFormat: encodingFormat
+      // }]
+      let s_spatialCoverage = schemaItem('spatialCoverage', jp)
+      let placename = geoplacename(s_spatialCoverage)
+      let box = getFirstGeoShape(s_spatialCoverage, 'box')
+      let poly = getFirstGeoShape(s_spatialCoverage, 'polygon')
+      let points = getGeoCoordinates(s_spatialCoverage)
+      console.info(`placename:${placename} box:${box} poly:${poly} points:${points}`)
+    }
     // getJsonLD(this.o).then(
     //     function(response) {
     //       self.jsonLdobj= response
