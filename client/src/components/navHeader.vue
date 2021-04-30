@@ -19,7 +19,7 @@
         <!--        <b-nav-item  :to="{ name: 'dataset', params: { o: '/lipdverse/509e465d0793506b237cea8069c3cb2d276fe9c2.jsonld' } }">Dataset</b-nav-item>-->
         <b-nav-item   :to="{ name: 'dataset'}" @click="console.log('click')" >Dataset</b-nav-item>
         <b-nav-item   :to="{ name: 'tool' }" @click="console.log('click')">Tool</b-nav-item>
-        <b-nav-item   :to="{ name: 'about' }" @click="console.log('click')">About</b-nav-item>
+
       </b-navbar-nav>
 
 
@@ -39,7 +39,7 @@
 
       <b-navbar-nav class="ml-auto">
         <b-nav-item  href="https://graph.geodex.org/blazegraph/#query">SPARQL Endpoint</b-nav-item>
-          <b-nav-item  href="about.html" target="_blank">Help</b-nav-item>
+        <b-nav-item   :to="{ name: 'about' }" @click="console.log('click')">About</b-nav-item>
 
       </b-navbar-nav>
 
