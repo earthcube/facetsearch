@@ -1,51 +1,85 @@
 <template>
+    <b-container fluid="md" class="mt-5">
+        <!-- intro paragraph -->
+        <b-jumbotron text-variant="white" bg-variant="primary">
+            <template #header><span class="text-white">What is GeoCODES?</span></template>
+
+            <template #lead><span class="p-5">
+                GeoCODES is an NSF Earthcube program effort to better enable cross-domain discovery of and access to geoscience data and research tools. GeoCODES is made up of three components respectively.
+            </span></template>
+        </b-jumbotron>
+
+        <b-card-group deck>
+            <b-card bg-variant="light" class="text-center" title="An evolving standard">
+                <b-card-text>for exposing data called <a href="https://github.com/ESIPFed/science-on-schema.org" target="_blank" rel="noopener" class="text-nowrap">science on schema</a></b-card-text>
+            </b-card>
+
+            <b-card bg-variant="light" class="text-center" title="A set of tools">
+                <b-card-text>to index relevant data from partners within the Council of Data Facilities who have adopted science on schema, plus a prototype portal to query that data</b-card-text>
+            </b-card>
+
+            <b-card bg-variant="light" class="text-center" title="A Resource Registry">
+                <b-card-text>by which to <a href="http://tinyurl.com/2register-ecrr" target="_blank" rel="noopener">register</a> and <a href="http://www.earthcube.org/resourceregistry/" target="_blank" rel="noopener">discover</a> <span class="text-nowrap">relevant tools</span></b-card-text>
+            </b-card>
+        </b-card-group>
+
+        <b-container fluid="md" class="mt-5">
+            <h2>Council of Data Facilities (<a href="https://www.earthcube.org/council-of-data-facilities" target="_blank">CDF</a>)</h2>
+            <h5>Repositories crawled and indexed</h5>
+        </b-container>
+
+        <b-card-group columns>
+            <b-card no-body class="text-center"
+                title="Environmental Data Initiative"
+            >
+                <b-card-body >
+                    <b-card-title>
+                        <b-link href="http://environmentaldatainitiative.org" target="_blank" class="d-flex flex-column align-items-center">
+                            <b-img fluid src="/images/repo/edi.png"></b-img>
+                            Environmental Data Initiative
+                        </b-link>
+                    </b-card-title>
+
+                    <b-card-text v-b-toggle.collapse-1>
+                        <i>28248 records</i>
+
+                        <b-collapse id="collapse-1" class="text-left small">
+                            <p class="mt-3">
+                                The Environmental Data Initiative is an NSF-funded project meant to accelerate curation and  archive of environmental data, emphasizing data from projects funded by the NSF Division of Environmental Biology. Aside from hosting the LTER data repository and collaborating with the LTER Information Managers, EDI serves the ecological research community including but not limited to research funded by the Long TermResearch in Environmental Biology (LTREB), Organization for Biological Field Stations (OBFS), and Macrosystems Biology (MSB). The Environmental Data Initiative maintains and develops the PASTA infrastructure for its data repositories, and has recently become DataONE’s 40th member node.
+                            </p>
+                        </b-collapse>
+
+                        <p><b-icon icon="caret-down-fill" scale=".8"></b-icon></p>
+                    </b-card-text>
+
+                </b-card-body>
+            </b-card>
+        </b-card-group>
+
+        <b-container fluid="md" class="mt-5">
+            <h2>Feedback</h2>
+
+            <p><a href="https://github.com/earthcube/geodexui/issues" target="_blank">Create an issue</a> and a feedback email coming soon.</p>
+        </b-container>
+
+        <b-container fluid="md" class="mt-5">
+            <h2>Supported by</h2>
+
+            <p>Work on this site is supported by</p>
+
+            <div><img src="https://www.nsf.gov/images/logos/NSF_4-Color_bitmap_Logo.png" width="38" alt="NSF"></div>
+            <h5>NSF EarthCube</h5>
+            <div><i>NSF award #1928208</i></div>
+
+            <p class="mt-4"><a href="https://github.com/earthcube" target="_blank">Open source</a> under the <a href="https://opensource.org/licenses/MIT" target="_blank">MIT License</a></p>
+        </b-container>
+<!--
+in case more intro paragraph text is needed
+        <b-container class="col-md-8 mt-5">
+        </b-container>
+-->
+
   <div>
-    <b-row>
-      <!-- <div class="jumbotron" style="background-image: linear-gradient(#7391ff, #625354);"> -->
-      <div>
-
-
-        <h3>
-          <!-- 	class="center m-bottom" class="font_7" style="font-size:26px;color:black"> -->
-          <a href="https://www.earthcube.org/geocodes" target="_blank">What is GeoCODES?</a>
-        </h3>
-
-
-        <p class="text-left m-4" style="font-size:18px">
-          GeoCODES is an NSF Earthcube program effort to better enable cross-domain discovery of and access to
-          geoscience data and research tools. GeoCODES is made up of three components respectively:
-        </p>
-        <!-- list -->
-        <b-row>
-          <ul class="text-left  m-4">
-            <li>
-              <!-- <p class="font_7" style="font-size:18px"><span style="font-size:18px"> -->
-              An evolving standard for exposing data called<span style="text-decoration:underline"><a
-                href="https://github.com/ESIPFed/science-on-schema.org" target="_blank" rel="noopener">
-            science on schema</a>
-             </span><!--</span></p> -->
-            </li>
-            <li>
-              <!-- <p class="font_7" style="font-size:18px"><span style="font-size:18px"> -->
-              A set of <a href="tech.html" target="_blank">tools</a> to index relevant data <a href=#repo-list>from
-              partners</a> within the Council of Data Facilities who have adopted science on schema, plus a <span
-                style="text-decoration:underline"><a href="https://alpha.geocodes.earthcube.org/" target="_blank"
-                                                     rel="noopener">prototype portal</a></span> to query that data
-              <!-- </span></p> -->
-            </li>
-            <li>
-              <!-- <p class="font_7" style="font-size:18px"><span style="font-size:18px"> -->
-              A Resource Registry by which to <span style="text-decoration:underline;"><a
-                href="http://tinyurl.com/2register-ecrr" target="_blank" rel="noopener">register</a></span> and <span
-                style="text-decoration:underline"><a href="http://www.earthcube.org/resourceregistry/" target="_blank"
-                                                     rel="noopener">discover</a></span> relevant tools
-              <!-- </span></p> -->
-            </li>
-          </ul>
-
-        </b-row>
-      </div>
-    </b-row>
 
     <b-row class="mt-5" align-content="center" title="hover over each for a description">
       <b-col class="m-5 display-4"> &emsp; &emsp; Council of Data Facilities (<a id="repo-list"
@@ -364,6 +398,8 @@
     </b-row>
 
   </div>
+
+    </b-container>
 </template>
 
 <script>
@@ -372,16 +408,7 @@ export default {
 }
 </script>
 
-<style scoped>
-
-
-table, th, td {
-  border: 30px solid white;
-  padding: 5px;
-}
-
-table {
-  border-spacing: 15px;
-}
+<style scoped lang="scss">
+@import '~/src/assets/bootstrapcss/custom';
 
 </style>
