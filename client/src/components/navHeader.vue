@@ -107,7 +107,7 @@ name: "navHeader",
                 top: $spacer;
                 bottom: $spacer * 2;
             }
-            
+
             form {
                 width: 100%;
 
