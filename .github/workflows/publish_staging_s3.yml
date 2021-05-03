@@ -2,7 +2,7 @@ name: Deploy to Github pages and alpha s3
 on:
   push:
     branches:
-      - template_changes
+      - master
 defaults:
   run:
     working-directory: ./client

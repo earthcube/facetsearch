@@ -38,7 +38,7 @@
                 </b-nav-form>
 
                 <b-nav-item href="https://graph.geodex.org/blazegraph/#query" class="text-nowrap">SPARQL</b-nav-item>
-                <b-nav-item href="about.html" target="_blank">About</b-nav-item>
+                <b-nav-item :to="{name: 'about'}" class="mr-0">About</b-nav-item>
               </b-navbar-nav>
             </b-collapse>
         </b-container>
