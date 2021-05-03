@@ -79,8 +79,8 @@
 
 <script>
 import {mapActions, mapState} from "vuex";
-import SpaqlToolsDownloadQuery from 'raw-loader!../../sparql/sparql_gettools_download.txt'
-import SpaqlToolsWebserviceQuery from 'raw-loader!../../sparql/sparql_gettools_webservice.txt'
+import SpaqlToolsDownloadQuery from 'raw-loader!../../sparql_blaze/sparql_gettools_download.txt'
+import SpaqlToolsWebserviceQuery from 'raw-loader!../../sparql_blaze/sparql_gettools_webservice.txt'
 import _ from "underscore";
 
 import FacetsConfig from "../../config";

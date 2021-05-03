@@ -1,7 +1,7 @@
 export default {
     API_URL: 'http://localhost:3000',
-    //TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql',
-    TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',
+    TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql',
+    //TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',
     SPARQL_QUERY:'queries/sparql_query.txt',
     SPARQL_HASTOOLS:'queries/sparql_hastools.txt',
     SPARQL_TOOLS_WEBSERVICE:'queries/sparql_gettools_webservice.txt',

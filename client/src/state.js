@@ -8,8 +8,8 @@ import jsonld from "jsonld";
 import _ from "underscore";
 import FacetsConfig from "./config";
 //import {bus} from "./main";
-import SpaqlQuery from 'raw-loader!./sparql/sparql_query.txt'
-import SpaqlHasToolsQuery from 'raw-loader!./sparql/sparql_hastools.txt'
+import SpaqlQuery from 'raw-loader!./sparql_blaze/sparql_query.txt'
+import SpaqlHasToolsQuery from 'raw-loader!./sparql_blaze/sparql_hastools.txt'
 
 let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
 
