@@ -10,7 +10,8 @@
 
         <div class="keywords" v-if="item.kw">
             <div class="label">Keywords</div>
-            <div class="values mx-1" v-for="kw in highlightKw(filters, item.kw)" v-bind:key="kw" v-html="kw">
+            <div class="values "  >
+              <span class="keyword mx-2 text-secondary" v-for="kw in highlightKw(filters, item.kw)" v-bind:key="kw" v-html="kw"></span>
 
             </div>
         </div>
@@ -163,10 +164,12 @@ article {
     }
 
     .values {
-        display: flex;
-        flex-wrap: wrap;
+      display: flex;
+      white-space:nowrap;
+      flex-wrap: wrap;
 
         .keyword {
+
             padding: {
                 left: $spacer / 2;
             }

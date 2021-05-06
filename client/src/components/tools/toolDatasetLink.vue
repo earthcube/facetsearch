@@ -47,6 +47,36 @@
         </b-tab>
       </b-tabs>
     </b-card>
+    <div class="tool border rounded"
+         v-for="i in webserviceTools"
+         v-bind:key="i.index"
+
+         v-b-toggle="'collapse_' + i.index"
+    >
+      <div class="tool_info pr-3">
+        <b-link class="small metadata_link" v-on:click.stop="$router.push({ name: 'tool', params: { t: i.rrs.value },  query:{ d:d} })">
+          <b-icon class="mr-1" icon="tools" variant="tool"></b-icon>
+          Dataset
+        </b-link>
+
+        <h6 class="tool_title text-primary">
+          (prototyping) Actions for dataset:
+          <div class="tool_subtitle small text-secondary" v-html="mapping.s_name"></div>
+        </h6>
+        <div class="small">
+          <b-collapse :id="'collapse_' + i.index">
+            <p>{{ i.description.value }}</p>
+          </b-collapse>
+
+          <b-icon icon="caret-down-fill" scale="1" class="when_open"></b-icon>
+          <b-icon icon="caret-up-fill" scale="1" class="when_closed"></b-icon>
+        </div>
+      </div>
+
+      <div class="buttons mt-3">
+        <b-button variant="outline-primary" v-on:click.stop="servicetemplate(i.turl.value, i.durl.value)">Open Tool</b-button>
+      </div>
+    </div>
   </div>
 
 
