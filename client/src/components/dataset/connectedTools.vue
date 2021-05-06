@@ -24,7 +24,8 @@
                         </h6>
                         <div class="small">
                             <b-collapse :id="'collapse_' + i.index">
-                                <p>any extra summary or descriptive text can go here...or this can be removed</p>
+                              <!-- i.altName would be better if it exists -->
+                                <p>{{ i.description.value }}</p>
                             </b-collapse>
 
                             <b-icon icon="caret-down-fill" scale="1" class="when_open"></b-icon>
@@ -60,7 +61,7 @@
                         </h6>
                         <div class="small">
                             <b-collapse :id="'collapse_' + i.index">
-                                <p>any extra summary or descriptive text can go here...or this can be removed</p>
+                                <p>{{ i.description.value }}</p>
                             </b-collapse>
 
                             <b-icon icon="caret-down-fill" scale="1" class="when_open"></b-icon>
@@ -69,7 +70,7 @@
                     </div>
 
                     <div class="buttons mt-3">
-                        <b-button variant="outline-primary" v-on:click.stop="openWindow(i.landingPage.value)">Download</b-button>
+                        <b-button variant="outline-primary" v-on:click.stop="servicetemplate(i.turl.value, i.durl.value)">Open Tool</b-button>
                     </div>
                 </div>
             </b-container>
@@ -81,7 +82,7 @@
 import {mapActions, mapState} from "vuex";
 import SpaqlToolsDownloadQuery from 'raw-loader!../../sparql_blaze/sparql_gettools_download.txt'
 import SpaqlToolsWebserviceQuery from 'raw-loader!../../sparql_blaze/sparql_gettools_webservice.txt'
-import _ from "underscore";
+import _ from "lodash";
 
 import FacetsConfig from "../../config";
 import axios from "axios";
@@ -105,7 +106,8 @@ export default {
     jsonLdCompact: 'checkTools',
 
   }, computed: {
-    ...mapState(['jsonLdObj', 'jsonLdCompact'])
+    ...mapState(['jsonLdObj', 'jsonLdCompact']),
+
 
   },
   methods: {
@@ -113,6 +115,13 @@ export default {
       'hasConnectedTools']),
     openWindow(url) {
         window.open(url, '_blank');
+    },
+    servicetemplate (turl, durl){
+      // template url has {contentURL} that needs to be substituted.
+      let urltemplate = _.template(turl, {interpolate: /\{([^\\}]*(?:\\.[^\\}]*)*)\}/g})
+      let serviceUrl = urltemplate({'contentURL':durl})
+      this.openWindow( serviceUrl)
+
     },
     checkTools() {
       //let graphUri = this.op.replaceAll("/", ":").replace('.jsonld', "");

@@ -10,17 +10,20 @@
 
         <div class="keywords" v-if="item.kw">
             <div class="label">Keywords</div>
-            <div class="values">
-                <div class="keyword" v-html="highlightKw(filters, item.kw)"></div>
+            <div class="values mx-1" v-for="kw in highlightKw(filters, item.kw)" v-bind:key="kw" v-html="kw">
+
             </div>
         </div>
 
         <div class="badges mt-2">
             <b-badge variant="data" class="mr-1"><b-icon class="mr-1" icon="server"></b-icon>{{item.resourceType}}</b-badge>
             <b-badge variant="tool" class="mr-1" v-if="connectedTools"><b-icon class="mr-1" icon="tools"></b-icon>Connected Tools</b-badge>
-            <b-badge variant="secondary" class="mr-1" v-if="item.disurl">
-                <a class="card-link" target="_blank" :href="item.disurl">{{ item.disurl }}</a>
+          <span v-if="item.disurl"> <!-- array created in state.js/flatten... -->
+            <b-badge variant="secondary" class="mr-1" :href="i"  v-for="i in item.disurl" v-bind:key="i">
+
+                <a class="card-link" target="_blank" v-if="i.length >0" >{{ i}}</a>
             </b-badge>
+          </span>
         </div>
     </b-card>
 </template>

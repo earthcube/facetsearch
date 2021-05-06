@@ -24,6 +24,12 @@ import App from './App.vue'
 import router from './routes'
 import {store} from './state.js'
 
+import { applyPolyfills, defineCustomElements } from 'throughput-widget/loader';
+Vue.config.ignoredElements = ["throughput-widget"];
+applyPolyfills().then(() => {
+  defineCustomElements();
+});
+
 Vue.use(VueGtag, {
   config: { id: "G-15XD8YBF5L" }
 }, router);

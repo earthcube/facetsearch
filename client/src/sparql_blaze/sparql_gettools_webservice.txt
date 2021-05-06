@@ -1,6 +1,6 @@
 prefix sdos: <https://schema.org/>
    PREFIX schemaold: <http://schema.org/>
-   select DISTINCT ?dataname ?appname   ?durl  ?turl ?rrs
+   select DISTINCT ?dataname ?appname   ?durl  ?turl ?rrs  ?altName ?description
    WHERE
    {
        graph <${g}> {
@@ -17,7 +17,8 @@ prefix sdos: <https://schema.org/>
 
               ?rrs a sdos:SoftwareApplication ;
                    sdos:name ?appname ;
-                   sdos:supportingData ?df.
+                   sdos:supportingData ?df;
+                  sdos:description ?description .
             ?df sdos:encodingFormat ?label ;
                    sdos:position "input".
               ?rrs sdos:potentialAction ?act.
@@ -25,6 +26,7 @@ prefix sdos: <https://schema.org/>
               ?tar a sdos:EntryPoint ;
                sdos:urlTemplate ?turl.
               filter contains(?turl,"{contentURL}")
+              OPTIONAL{ ?rrs sdos:alternateName ?altName }
        }
     }
    }

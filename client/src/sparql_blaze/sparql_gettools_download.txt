@@ -1,6 +1,6 @@
 PREFIX schema:  <https://schema.org/>
 PREFIX schemaold:  <http://schema.org/>
-select DISTINCT ?rrs ?name ?curl ?landingPage
+select DISTINCT ?rrs ?name ?curl ?landingPage  ?altName ?description
 WHERE                    {
     graph <${g}>
       {
@@ -22,8 +22,11 @@ WHERE                    {
           ?rrs schema:supportingData ?df.
               ?df schema:encodingFormat  ?label ;
                   schema:position "input".
-              ?rrs schema:name ?name.
+              ?rrs schema:name ?name;
+                   schema:description ?description .
+
                ?rrs schema:subjectOf/schema:url ?landingPage
+               OPTIONAL{ ?rrs schema:alternateName ?altName }
        }
    }
 }

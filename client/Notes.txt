@@ -27,3 +27,24 @@ modify routes add
 modify nav_header so b-nav-item about.html uses route..
   import about from "help/about.vue"
    <b-nav-item  :to="{ name: 'about'}">About</b-nav-item>
+
+Issues:
+Node crashed. dig.
+
+Dataset:
+* make sure tools downloads work
+* cite should display a string to cite, DOI url?
+** doi:   http://dx.doi.org/10.1594/IEDA/111473  Accept: text/x-bibliography
+*** returns Moore, N., Grunder, A., Bohrson, W., Carlson, R., &amp; Bindeman, I. (2020). <i>Steens Basalt Sr, Nd, Pb, Hf, Os, and O Isotopic Compositional Data</i> (Version 1.0) [Data set]. Interdisciplinary Earth Data Alliance (IEDA). https://doi.org/10.1594/IEDA/111473
+* metadata should display a link to the JSON-LD
+
+Tools:
+* make sure tools downloads work
+* Match Formats url, make it a card like tools on dataset
+
+
+Wild ID;s
+D
+http://dx.doi.org/10.1594/IEDA/111473
+Use Crossref to get citation
+use connected paper to see if a DOI is in there, and display connected papers.

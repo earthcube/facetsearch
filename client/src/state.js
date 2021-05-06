@@ -327,6 +327,10 @@ let flattenSparqlResults = function (bindings) {
             if (key === 'placenames') {
                 elements = value.value.split(regex)
                 return elements;
+            }
+            if (key === 'disurl') {
+                elements = value.value.split(regex)
+                return elements;
             } else {
 // if (_.isEmpty(value.value)) {
 //     return null;

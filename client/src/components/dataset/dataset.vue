@@ -99,7 +99,7 @@
 
         <connected-tools :d="d"></connected-tools>
 
-        <b-row>
+        <b-row v-if="false">
             <b-col md="6">
                 <h5>Related Data</h5>
                 <relatedData></relatedData>
