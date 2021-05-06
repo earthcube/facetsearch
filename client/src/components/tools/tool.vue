@@ -67,7 +67,11 @@
       <b-col md="4">
       </b-col>
     </b-row>
-
+    <b-row>
+      <b-col md="12">
+        <ToolDatasetLink v-if='d' :d="d"></ToolDatasetLink>
+      </b-col>
+    </b-row>
     <!-- TODO move this into a component if keeping for final public view -->
     <b-row>
       <b-col md="12">
@@ -84,20 +88,6 @@
       </b-col>
     </b-row>
 
-    <b-row>
-      <b-col md="12">
-
-        <h5 class="text-warning">[[TODO determine what info needs to be displayed from below this line and reformat to
-          the above structure]]</h5>
-<!--        <ToolMetadata></ToolMetadata>-->
-      </b-col>
-    </b-row>
-
-    <b-row>
-      <b-col md="12">
-        <ToolDatasetLink v-if='d' :d="d"></ToolDatasetLink>
-      </b-col>
-    </b-row>
   </b-container>
 </template>
 

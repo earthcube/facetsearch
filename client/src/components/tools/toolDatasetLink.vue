@@ -1,71 +1,32 @@
 <template>
   <div>
     <div class="row">
-     <span class="font-weight-bold font-heavy my-4">(prototyping) Actions for dataset: </span> <span class="font-weight-bold font-heavy my-4" v-html="mapping.s_name">   </span>
+     <div class="font-weight-bold font-heavy my-2">YOU ARRIVED VIA THIS DATASET </div>
+      <div class="font-heavy ml-4" v-html="mapping.s_name">   </div>
+      <div class=" my-2">(FUTURE) Actions for dataset (Just links for now): </div>
     </div>
 
 
-    <b-card no-body>
-      <b-tabs card id="myTabContent">
-        <b-tab title="Dataset links to Tool (Prototyping)" active id="dst" aria-labelledby="dst-tab">
-          <div class="row">
 
-            <span class="col-2 font-weight-bold">Type:</span>
-            <span class="col-8">Data</span>
-          </div>
-
-
-          <div class="row w-100">
-
-            <span class="col-4 font-weight-bold">Name</span>
-            <span class="col-8 font-weight-bold">link </span>
-
-          </div>
-
-          <div class="row" v-if="mapping.s_url">
-            <span class="col-4">Object URL</span>
-            <a class="col-8" :href="mapping.s_url" target="_blank"> {{ mapping.s_url }} </a>
-          </div>
-
-          <div class="row" v-for="i in mapping.s_downloads" v-bind:key="i.name">
-            <span class="col-4 ">{{ i.name }}</span>
-            <a class="col-8" target="_blank" :href="i.contentUrl">{{ i.contentUrl }}</a>
-          </div>
-
-
-        </b-tab>
-
-        <b-tab title="Dataset JSON-LD" id="json" aria-labelledby="json-tab">
-          <div class="row ml-2">
-
-            <div>JSON</div>
-
-            <json-view class="text-left " :data="mapping.raw_json"/>
-            <!-- need to modify value-key to include class text-wrap -->
-
-          </div>
-        </b-tab>
-      </b-tabs>
-    </b-card>
     <div class="tool border rounded"
-         v-for="i in webserviceTools"
-         v-bind:key="i.index"
+         v-for="i in mapping.s_downloads" v-bind:key="i.name"
 
          v-b-toggle="'collapse_' + i.index"
     >
       <div class="tool_info pr-3">
-        <b-link class="small metadata_link" v-on:click.stop="$router.push({ name: 'tool', params: { t: i.rrs.value },  query:{ d:d} })">
+        <b-link class="small " >
           <b-icon class="mr-1" icon="tools" variant="tool"></b-icon>
           Dataset
         </b-link>
 
         <h6 class="tool_title text-primary">
-          (prototyping) Actions for dataset:
-          <div class="tool_subtitle small text-secondary" v-html="mapping.s_name"></div>
+
+          <div class="tool_subtitle small text-secondary">{{ i.name }}</div>
         </h6>
         <div class="small">
           <b-collapse :id="'collapse_' + i.index">
-            <p>{{ i.description.value }}</p>
+            <span class="col-4 "></span>
+            <a class="col-8" target="_blank" :href="i.contentUrl">{{ i.contentUrl }}</a>
           </b-collapse>
 
           <b-icon icon="caret-down-fill" scale="1" class="when_open"></b-icon>
@@ -74,7 +35,7 @@
       </div>
 
       <div class="buttons mt-3">
-        <b-button variant="outline-primary" v-on:click.stop="servicetemplate(i.turl.value, i.durl.value)">Open Tool</b-button>
+        <b-button variant="outline-primary" v-on:click.stop="openWindow( i.contentUrl )">{{ i.contentUrl }}</b-button>
       </div>
     </div>
   </div>
@@ -94,12 +55,12 @@ import {
   getGeoCoordinates
 } from '../../api/jsonldObject.js'
 import {mapState} from "vuex";
-import {JSONView} from "vue-json-component";
+//import {JSONView} from "vue-json-component";
 
 export default {
   name: "tool-dataset-link",
   components: {
-    "json-view": JSONView
+//    "json-view": JSONView
   },
   props:{
     d: String,
@@ -146,6 +107,9 @@ export default {
   },
 
   methods: {
+  openWindow(url) {
+    window.open(url, '_blank');
+  },
     toMetadata() {
       var self = this;
       var mapping = this.mapping;
@@ -272,7 +236,107 @@ export default {
 }
 </style>
 
-<style scoped>
+<style scoped lang="scss">
+@import '~/src/assets/bootstrapcss/custom';
 
+.connected_tools {
+@include media-breakpoint-down(md) {
+  margin: {
+    top: $spacer;
+  }
+  padding: {
+    top: $spacer;
+  }
+}
+}
+
+.tools {
+  padding: 0px !important;
+
+.tool {
+  position: relative;
+  cursor: pointer;
+
+  display: inline-flex;
+  justify-content: space-between;
+
+  width: calc(50% - 24px);
+
+  margin: $spacer / 2;
+  padding: $spacer;
+
+border: {
+  top: 10px solid $gray-300 !important;
+}
+
+&.collapsed .when_closed,
+&.not-collapsed .when_open {
+   display: none;
+ }
+
+&:hover {
+border: {
+  color: $primary !important;
+}
+}
+}
+
+.tool_info {
+}
+
+.buttons {
+}
+
+.tool_title {
+font: {
+  weight: 600; //semi-bold
+}
+}
+
+.metadata_link {
+  display: inline-block;
+  cursor: pointer;
+
+margin: {
+  left: -($spacer / 2);
+}
+padding: ($spacer / 5) ($spacer / 2);
+
+text: {
+  decoration: underline;
+}
+}
+
+@include media-breakpoint-down(md) {
+  padding: 0px;
+
+  .tool {
+    display: block;
+    width: auto;
+
+  background: {
+    color: $gray-100;
+  }
+
+  margin: ($spacer * 2) 0px $spacer 0px;
+  padding: {
+    bottom: $spacer * 1.5;
+  }
+}
+
+.buttons {
+margin: {
+  top: $spacer / 2;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+
+  padding: ($spacer * .75) $spacer;
+}
+}
+}
+}
 </style>
 
