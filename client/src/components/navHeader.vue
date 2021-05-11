@@ -37,7 +37,8 @@
                     </b-input-group>
                 </b-nav-form>
 
-                <b-nav-item href="https://graph.geodex.org/blazegraph/#query" class="text-nowrap" target="_blank">SPARQL</b-nav-item>
+                <b-nav-item v-on:click.stop="showSparqlQuery" href="https://graph.geodex.org/blazegraph/#query" class="text-nowrap" target="_blank">SPARQL</b-nav-item>
+                <b-nav-item :to="{name: 'sparqlgui'}" class="mr-0">local sparql</b-nav-item>
                 <b-nav-item :to="{name: 'about'}" class="mr-0">About</b-nav-item>
               </b-navbar-nav>
             </b-collapse>
@@ -77,6 +78,9 @@ name: "navHeader",
       this.$store.state.q = this.textQuery;
       this.$router.push({name: 'Search', query:{q:this.q} }).catch(err => {console.log('ignore'+err)})
     },
+    showSparqlQuery(){
+      window.open("https://graph.geodex.org/blazegraph/#query")
+    }
   }
 }
 </script>
