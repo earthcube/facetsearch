@@ -105,6 +105,10 @@
                 <relatedData></relatedData>
             </b-col>
             <b-col md="6">
+              <h5>Annotation Data</h5>
+              <annotation></annotation>
+            </b-col>
+            <b-col md="6">
                 <div>[[TODO add data or remove column]]</div>
             </b-col>
         </b-row>
@@ -133,6 +137,7 @@ import DatasetLocation from "./datasetLocation.vue";
 import ConnectedTools from "./connectedTools.vue";
 import Downloadfiles from "./downloadfiles.vue"
 import relatedData from "./relatedData.vue";
+import annotation from "./annotation.vue";
 
 //import {getJsonLD} from '../../api/jsonldObject.js'
 //import axios from "axios";
@@ -154,7 +159,8 @@ name: "dataset",
   //  Metadata,
     Downloadfiles,
     "json-view": JSONView,
-    relatedData
+    relatedData,
+    annotation
     },
   props:{
    d: String,
