@@ -12,7 +12,7 @@ import SpaqlQuery from 'raw-loader!./sparql_blaze/sparql_query.txt'
 import SpaqlHasToolsQuery from 'raw-loader!./sparql_blaze/sparql_hastools.txt'
 
 let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
-
+let TRIPLESTORE_URL = FacetsConfig.TRIPLESTORE_URL
 
 export const store = new Vuex.Store({
     state: {
@@ -28,6 +28,12 @@ export const store = new Vuex.Store({
         toolsMap: new Map(), // object id, hasConnectedTools
         q: '',
         searchExactMatch: false,
+        // add them to simplify changes
+        // should I just dump the facet config object in here/?
+        esTemplateOptions:esTemplateOptions,
+        SpaqlQuery: SpaqlQuery,
+        SpaqlHasToolsQuery: SpaqlHasToolsQuery,
+        TRIPLESTORE_URL:TRIPLESTORE_URL
         // resultLimit: FacetsConfig.LIMIT_DEFAULT,
 
     },
