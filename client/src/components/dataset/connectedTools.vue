@@ -2,7 +2,41 @@
     <b-row class="connected_tools" v-if="hasTools">
         <b-col md="12">
             <h4>Connected Tools</h4>
+          <!-- web service tools -->
+          <b-container class="tools" v-if="webserviceTools.length > 0 > 0">
+            <h6 class="mt-4">Web Applications</h6>
 
+            <div class="tool border rounded"
+                 v-for="i in webserviceTools"
+                 v-bind:key="i.index"
+
+                 v-b-toggle="'collapse_' + i.index"
+            >
+              <div class="tool_info pr-3">
+                <b-link class="small metadata_link" v-on:click.stop="$router.push({ name: 'tool', params: { t: i.rrs.value },  query:{ d:d} })">
+                  <b-icon class="mr-1" icon="tools" variant="tool"></b-icon>
+                  Tool Metadata
+                </b-link>
+
+                <h6 class="tool_title text-primary">
+                  {{ i.appname.value }}
+                  <div class="tool_subtitle small text-secondary">for {{ i.dataname.value }}</div>
+                </h6>
+                <div class="small">
+                  <b-collapse :id="'collapse_' + i.index">
+                    <p>{{ i.description.value }}</p>
+                  </b-collapse>
+
+                  <b-icon icon="caret-down-fill" scale="1" class="when_open"></b-icon>
+                  <b-icon icon="caret-up-fill" scale="1" class="when_closed"></b-icon>
+                </div>
+              </div>
+
+              <div class="buttons mt-3">
+                <b-button variant="outline-primary" v-on:click.stop="servicetemplate(i.turl.value, i.durl.value)">Open Tool</b-button>
+              </div>
+            </div>
+          </b-container>
             <!-- download tools -->
             <b-container class="tools" v-if="downloadTools.length > 0">
                 <h6 class="mt-4">Downloadable</h6>
@@ -39,41 +73,7 @@
                 </div>
             </b-container>
 
-            <!-- web service tools -->
-            <b-container class="tools" v-if="webserviceTools.length > 0 > 0">
-                <h6 class="mt-4">Web Applications</h6>
 
-                <div class="tool border rounded"
-                    v-for="i in webserviceTools"
-                    v-bind:key="i.index"
-
-                    v-b-toggle="'collapse_' + i.index"
-                >
-                    <div class="tool_info pr-3">
-                        <b-link class="small metadata_link" v-on:click.stop="$router.push({ name: 'tool', params: { t: i.rrs.value },  query:{ d:d} })">
-                            <b-icon class="mr-1" icon="tools" variant="tool"></b-icon>
-                            Tool Metadata
-                        </b-link>
-
-                        <h6 class="tool_title text-primary">
-                            {{ i.appname.value }}
-                            <div class="tool_subtitle small text-secondary">for {{ i.dataname.value }}</div>
-                        </h6>
-                        <div class="small">
-                            <b-collapse :id="'collapse_' + i.index">
-                                <p>{{ i.description.value }}</p>
-                            </b-collapse>
-
-                            <b-icon icon="caret-down-fill" scale="1" class="when_open"></b-icon>
-                            <b-icon icon="caret-up-fill" scale="1" class="when_closed"></b-icon>
-                        </div>
-                    </div>
-
-                    <div class="buttons mt-3">
-                        <b-button variant="outline-primary" v-on:click.stop="servicetemplate(i.turl.value, i.durl.value)">Open Tool</b-button>
-                    </div>
-                </div>
-            </b-container>
         </b-col>
     </b-row>
 </template>
