@@ -1,6 +1,7 @@
 export default {
     API_URL: `https://alpha.geocodes.earthcube.org/ec/api`,
     TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql',
+    THROUGHPUTDB_URL: 'https://throughputdb.com/api/ccdrs/annotations',
     //TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',
     SPARQL_QUERY:'queries/sparql_query.txt',
     SPARQL_HASTOOLS:'queries/sparql_hastools.txt',
