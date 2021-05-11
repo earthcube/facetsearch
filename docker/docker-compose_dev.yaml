@@ -59,6 +59,27 @@ services:
       - "traefik.http.routers.alpha-server.middlewares=ecapi_prefix"
     networks:
       - traefik_default
+  yasgui:
+    image: erikap/yasgui
+    environment:
+      DEFAULT_SPARQL_ENDPOINT: "https://graph.geodex.org/blazegraph/namespace/nabu/sparql"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sparqlgui.entrypoints=http"
+      - "traefik.http.routers.sparqlgui.rule=Host(`${HOST:?HOST environment varaible is required}`) && PathPrefix(`/sparqlgui`) "
+      #      - "traefik.http.routers.alpha.rule=Host(`${HOST:?HOST environment varaible is required}`) "
+      - "traefik.http.routers.sparqlgui.service=sparqlgui"
+      - "traefik.http.services.sparqlgui.loadbalancer.server.port=80"
+      - "traefik.docker.network=traefik_default"
+      - "traefik.http.middlewares.sparqlgui.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
+      - "traefik.http.middlewares.sparqlgui.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.sparqlgui.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.sparqlgui.headers.addvaryheader=true"
+      #      - "traefik.http.middlewares.client_prefix.stripprefixregex.regex=/client/[a-z0-9]+/[0-9]+/"
+      - "traefik.http.middlewares.sparqlgui_prefix.StripPrefix.prefixes=/sparqlgui"
+      - "traefik.http.routers.sparqlgui.middlewares=sparqlgui_prefix"
+    networks:
+      - traefik_default
   vue-client:
     #image: nsfearthcube/ec_facets_client:latest
     build:
@@ -88,6 +109,7 @@ services:
       - "traefik.http.routers.alpha.middlewares=client_prefix"
     networks:
       - traefik_default
+
 volumes:
   node_modules_server:
   node_modules_client:
