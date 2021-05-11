@@ -1,4 +1,7 @@
 <template>
+  <b-col md="6" v-if="list.length >0">
+    <h5>Annotation Data</h5>
+
   <div role="tablist">
     <div class="annotate_data_item mt-3"
          v-for="(item, index) in list"
@@ -20,6 +23,8 @@
       </b-collapse>
     </div>
   </div>
+
+  </b-col>
 </template>
 
 <script>
