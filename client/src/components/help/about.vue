@@ -190,7 +190,7 @@ export default {
                 title: 'Magnetics Information Consortium (MagIC)',
                 website: 'http://www.earthref.org/MagIC',
                 image: 'magic.png',
-                description: "These objects are described using the structured data on the web patterns promoted by the ESIP Science on Schema work. The object landing pages implement FAIR data practices and expose stuctured data in JSON-LD.",
+                description: "Magnetics Information Consortium (MagIC) improves research capacity in the Earth and Ocean sciences by maintaining an open community digital data repository for rock and paleomagnetic data with portals that allow users access to archive, search, visualize, download, and combine these versioned datasets.",
                 record_count: 4136
             },
             {
