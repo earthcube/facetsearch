@@ -99,18 +99,13 @@
 
         <connected-tools :d="d"></connected-tools>
 
-        <b-row v-if="false">
-            <b-col md="6">
-                <h5>Related Data</h5>
-                <relatedData></relatedData>
-            </b-col>
-            <b-col md="6">
-              <h5>Annotation Data</h5>
+        <b-row >
+
+                <relatedData :d="d"></relatedData>
+
               <annotation></annotation>
-            </b-col>
-            <b-col md="6">
-                <div>[[TODO add data or remove column]]</div>
-            </b-col>
+
+
         </b-row>
 
 <!-- TODO move this into a component if keeping for final public view -->

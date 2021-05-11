@@ -20,7 +20,7 @@ export const store = new Vuex.Store({
         jsonLdCompact: {},
         toolLdObj:{},
         toolLdCompact: {},
-        results: {},
+        results: [],
         queryTemplates: new Map(),
         lastTextQueries: [], // query, num results
         lastDatasetIds: [],
