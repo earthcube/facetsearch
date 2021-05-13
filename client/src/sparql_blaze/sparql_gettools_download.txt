@@ -1,7 +1,7 @@
 PREFIX schema:  <https://schema.org/>
 PREFIX schemaold:  <http://schema.org/>
 select DISTINCT ?rrs ?name (GROUP_CONCAT(DISTINCT ?curl1; SEPARATOR=", ") AS ?curl)  (GROUP_CONCAT(DISTINCT ?landingPage1; SEPARATOR=", ") AS ?landingPage)
-(GROUP_CONCAT(DISTINCT ?altName1; SEPARATOR=", ") AS ?altName)  ?description
+(GROUP_CONCAT(DISTINCT ?altName1; SEPARATOR=", ") AS ?altName) ?version ?identifier ?description
 WHERE                    {
     graph <${g}>
       {
@@ -28,9 +28,11 @@ WHERE                    {
 
                ?rrs schema:subjectOf/schema:url ?landingPage1
                OPTIONAL{ ?rrs schema:alternateName ?altName1 }
+               OPTIONAL{ ?rrs schema:version ?version }
+                OPTIONAL{ ?rrs schema:identifier ?identifier }
       }
 
    }
   }
 }
- GROUP BY ?rrs ?name   ?description
+ GROUP BY ?rrs ?name   ?description ?version  ?identifier
