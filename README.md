@@ -1,5 +1,7 @@
 # facetsearch
 
+this repo currently supports https://alpha.geocodes.earthcube.org/
+
 ## Overall
 There are two portions, a node server for services, and a vue client.
 
