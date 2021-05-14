@@ -4,10 +4,10 @@ prefix schema: <https://schema.org/>
    WHERE
    {
        graph <${g}> {
-       ?s schemaold:distribution|sdos:distribution ?dist ;
+       ?s schemaold:distribution|schema:distribution ?dist ;
             schemaold:name|schema:name ?dataname  .
        ?dist  schemaold:encodingFormat|schema:encodingFormat ?type .
-             OPTIONAL {?dist sdos:contentUrl ?durl }.
+             OPTIONAL {?dist schema:contentUrl ?durl }.
      }
      BIND (str(?type) as ?label)
     SERVICE <http://132.249.238.169:8080/fuseki/ecrr/query> {
