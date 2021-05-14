@@ -153,7 +153,7 @@ export default {
             },
             {
                 title: 'IODP Site Survey Databank',
-                website: 'http://www.ssdb.iodp.org',
+                website: 'https://ssdb.iodp.org',
                 image: 'ssdb.iodp.png',
                 description: "The Site Survey Data Bank (SSDB) is a repository for site survey data submitted in support of International Ocean Discovery Program (IODP) proposals and expeditions. SSDB serves different roles for different sets of users.",
                 record_count: 5344
