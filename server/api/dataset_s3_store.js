@@ -11,7 +11,15 @@ var S3_BASE ='http://gleaner.oss.geodex.org/summoned'
 
 const getJson =async function(datasetUrn) {
     return  new Promise((resolve, reject) => {
-        var part = datasetUrn.split(':')
+        if (datasetUrn === undefined) {
+           reject ({status:404, error:"empty datasetUrn"})
+            return;
+        }
+        var part = datasetUrn.split(':');
+        if (part.length <4) {
+            reject ({status:404, error:"improper datasetUrn. Missing parts"})
+            return;
+        }
 
         var s3Path = `summoned/${part[3]}/${part[4]}.jsonld`
         g('config'+global.gConfig)

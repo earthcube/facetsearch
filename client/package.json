@@ -23,6 +23,7 @@
     "vue-axios": "^3.2.4",
     "vue-gtag": "^1.14.0",
     "vue-json-component": "^0.4.1",
+    "vue-json-pretty": "^1.8.0",
     "vue-router": "^3.5.1",
     "vue2-leaflet": "^2.6.0",
     "vuex": "^3.6.2"

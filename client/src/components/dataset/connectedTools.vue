@@ -160,7 +160,7 @@ export default {
         bindings.forEach((i) => (i.index = 'wtool-'+index++));
 
         self.webserviceTools = bindings
-      })
+      }).catch(e => console.error("webtools:query failed" + e.toString()))
     }
     , getDownloadableTools(graphUri) {
       var self = this;
@@ -189,7 +189,7 @@ export default {
         bindings.forEach((i) => (i.index = 'dtool-'+index++));
 
         self.downloadTools = bindings
-      })
+      }).catch(e => console.error("donwloadtools:query failed" + e.toString()))
     }
   }
 }

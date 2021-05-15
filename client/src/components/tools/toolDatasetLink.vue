@@ -1,37 +1,26 @@
 <template>
-  <div>
+  <div v-if="d">
     <div class="row">
      <div class="font-weight-bold font-heavy my-2">YOU ARRIVED VIA THIS DATASET </div>
-      <div class="font-heavy ml-4" v-html="mapping.s_name">   </div>
+
       <div class=" my-2">(FUTURE) Actions for dataset (Just links for now): </div>
     </div>
 
 
 
     <div class="tool border rounded"
-         v-for="i in mapping.s_downloads" v-bind:key="i.name"
-
-         v-b-toggle="'collapse_' + i.index"
+         v-for="i in matchedDatasetDistributions" v-bind:key="i.name"
     >
       <div class="tool_info pr-3">
-        <b-link class="small " >
-          <b-icon class="mr-1" icon="tools" variant="tool"></b-icon>
-          Dataset
-        </b-link>
-
         <h6 class="tool_title text-primary">
+          <div class="small " >
+            <b-icon class="mr-1" icon="tools" variant="tool"></b-icon>
+            Dataset <span class="font-heavy ml-4" v-html="mapping.s_name">   </span>
+          </div>
 
-          <div class="tool_subtitle small text-secondary">{{ i.name }}</div>
+          <div class="tool_subtitle small text-secondary"><span class="font-heavy mr-2">Distribution Name:</span>{{ i.linkName }}</div>
         </h6>
-        <div class="small">
-          <b-collapse :id="'collapse_' + i.index">
-            <span class="col-4 "></span>
-            <a class="col-8" target="_blank" :href="i.contentUrl">{{ i.contentUrl }}</a>
-          </b-collapse>
-
-          <b-icon icon="caret-down-fill" scale="1" class="when_open"></b-icon>
-          <b-icon icon="caret-up-fill" scale="1" class="when_closed"></b-icon>
-        </div>
+        <div >{{matchEncoding(i.encodingFormat)}}</div>
       </div>
 
       <div class="buttons mt-3">
@@ -49,6 +38,7 @@
 import {
   schemaItem,
   hasSchemaProperty,
+  matchDistributions,
   getFirstGeoShape,
   geoplacename,
   getDistributions,
@@ -64,6 +54,7 @@ export default {
   },
   props:{
     d: String,
+    ef : []
   },
   watch: {
     jsonLdCompact: 'toMetadata'
@@ -72,6 +63,7 @@ export default {
   data() {
     return {
       // jsonldObj : this.$store.state.jsonLdObj,
+      matchedDatasetDistributions: [],
       mapping: {
         s_name: '',
         s_description: '',
@@ -95,6 +87,7 @@ export default {
         has_s_url: false,
         downloads: [],
         s_distribution: '',
+        s_distribution_encodingFormats: []
       }
     }
   },
@@ -110,10 +103,16 @@ export default {
   openWindow(url) {
     window.open(url, '_blank');
   },
+    matchEncoding(e){
+    if (Array.isArray(this.ef)) {
+      this.ef.find(i => e === i)
+    }
+    },
     toMetadata() {
       var self = this;
       var mapping = this.mapping;
-      console.log(self.jsonLdObj)
+      var toolEncodingFormats = this.ef
+      //console.log(self.jsonLdObj)
       //const context = {};
       // const compacted = jsonld.compact(obj, context).then(sC, fC);
       // const compacted = jsonld.compact(content, context).then((providers) => {
@@ -130,6 +129,8 @@ export default {
       mapping.s_description = schemaItem('description', jp);
 
       mapping.s_distribution = schemaItem('distribution', jp);
+      this.matchedDatasetDistributions = matchDistributions(mapping.s_distribution, toolEncodingFormats)
+
 
       if (hasSchemaProperty('datePublished', jp)) {
         mapping.s_datePublished = schemaItem('datePublished', jp);

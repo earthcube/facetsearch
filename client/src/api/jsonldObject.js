@@ -138,7 +138,50 @@ const getGeoCoordinates = function(s_spatialCoverage){
     }
     return coords;
 }
+const matchDistributions = function(s_distribution, s_encodingFormatArray) {
+    var downloads = []
+    if (s_encodingFormatArray === undefined || s_encodingFormatArray.length < 1 ) return downloads
+    //if (! s_distribution &&  ! s_url) return [];
+    if (! s_distribution ) return downloads;
+    if (Array.isArray(s_distribution)){
 
+        let matched = s_distribution.filter( (obj) => {
+            let encodingFormats = schemaItem('encodingFormat', obj)
+            if (encodingFormats == undefined) return null; // in filter
+
+            if (Array.isArray(encodingFormats)){
+              return   encodingFormats.find(ef =>  s_encodingFormatArray.includes(ef))
+            }  else {
+                if (s_encodingFormatArray.contains(encodingFormats) ) return obj
+            }
+            return null // in filter
+        })
+         if (matched) {
+             return downloads.concat(makeLinkObj(matched))
+         }
+       return downloads;
+    } else {
+        let encodingFormats = schemaItem('encodingFormat', s_distribution)
+        if (encodingFormats == undefined) return downloads;
+        if (Array.isArray(encodingFormats)){
+            let matchesAFormat = encodingFormats.find(ef =>  s_encodingFormatArray.includes(ef))
+            if (matchesAFormat) downloads= downloads.concat (makeLinkObj(s_distribution))
+        }  else {
+            if (s_encodingFormatArray.includes(encodingFormats) )  downloads.push  ( s_distribution)
+        }
+
+    }
+    // if (s_url) {
+    //    var link =  {
+    //         distType: "URL",
+    //             contentUrl: s_url,
+    //         encodingFormat: "Website",
+    //         name: "Document URL"
+    //     }
+    //     downloads.push(link)
+    // }
+    return downloads
+}
 const getDistributions = function(s_distribution) {
     var downloads = []
     //if (! s_distribution &&  ! s_url) return [];
@@ -186,35 +229,36 @@ const makeLinkObj = function(obj_dist){
     }
     encodingFormats = schemaItem('encodingFormat', obj_dist)
 
-    // if (hasSchemaProperty('name',obj_dist)){
-    //     name = schemaItem('name', obj_dist)
-    // } else {
-    //     if (encodingFormats && Array.isArray(encodingFormats))
-    //     {
-    //          name = encodingFormats[0]
-    //     } else {
-    //         name = 'None Provided'
-    //     }
-    // }
-    // there can be multiple encoding formats.
-    // cant send back an array, or could but would require some
-    // handling in way response is handled
     if (Array.isArray(encodingFormats)) {
-        for (let e=0 ; e < encodingFormats.length; e++ )
-        {
+        // for (let e=0 ; e < encodingFormats.length; e++ )
+        // {
+        //     name =  schemaItem('name', obj_dist);
+        //     linkName = hasSchemaProperty('name',obj_dist)?
+        //         `${schemaItem('name', obj_dist)} format:${encodingFormats[e]}`:
+        //         `${encodingFormats[e]}`;
+        //     downloads.push ({
+        //             distType: name,
+        //             contentUrl: url,
+        //             encodingFormat: encodingFormats[e],
+        //             name: name,
+        //             linkName:encodingFormats[e]
+        //         }
+        //     )
+        // }
+            let encodingFormatString = encodingFormats.join(' ; ')
             name =  schemaItem('name', obj_dist);
             linkName = hasSchemaProperty('name',obj_dist)?
-                `${schemaItem('name', obj_dist)} format:${encodingFormats[e]}`:
-                `${encodingFormats[e]}`;
+                `${schemaItem('name', obj_dist)} format:${encodingFormatString}`:
+                `${encodingFormatString}`;
             downloads.push ({
                     distType: name,
                     contentUrl: url,
-                    encodingFormat: encodingFormats[e],
+                    encodingFormat: encodingFormatString,
                     name: name,
-                    linkName:encodingFormats[e]
+                    linkName:linkName
                 }
             )
-        }
+
     } else {
         name = hasSchemaProperty('name',obj_dist)? schemaItem('name', obj_dist): encodingFormats;
 
@@ -249,5 +293,5 @@ const makeLinkObj = function(obj_dist){
 // module.exports.makeLinkObj=makeLinkObj
 
 
-export { getJsonLD, schemaItem, hasSchemaProperty, getGeoCoordinates,geoplacename,getFirstGeoShape,getDistributions,makeLinkObj};
+export { getJsonLD, schemaItem, hasSchemaProperty, getGeoCoordinates,geoplacename,getFirstGeoShape,getDistributions,makeLinkObj, matchDistributions};
 

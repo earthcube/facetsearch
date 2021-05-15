@@ -32,8 +32,8 @@
         </div>
 
         <div class="metadata" v-if="true">
-          <div class="label">Creator</div>
-          <div class="value">- [use v-if to hide if no value]</div>
+          <div class="label">Code Repository</div>
+          <div class="value">{{ mapping.s_codeRepository }}</div>
         </div>
 
         <div class="metadata" v-if="mapping.s_programmingLanguages">
@@ -41,9 +41,9 @@
           <b-badge  variant="secondary" class="mr-1 mb-1" v-for=" l in mapping.s_programmingLanguages" v-bind:key="l">{{l}}</b-badge>
         </div>
 
-        <div class="metadata" v-if="true">
-          <div class="label">Date</div>
-          <div class="value">-</div>
+        <div class="metadata" v-if="mapping.s_version">
+          <div class="label">version</div>
+          <div class="value">{{ mapping.s_version }}</div>
         </div>
 
         <div class="metadata" v-if="false">
@@ -56,7 +56,7 @@
           <div class="label">InstallURL</div>
           <div class="value">
 
-            <div v-for="i in mapping.s_installURL" v-bind:key="i">
+            <div v-for="i in mapping.s_installURL" v-bind:key="i.name">
               <a v-if="i.url" :href="i.url">{{ i.name }}</a>
               <span v-if="! i.url"> {{ i.name }}</span>
             </div>
@@ -69,7 +69,7 @@
     </b-row>
     <b-row>
       <b-col md="12">
-        <ToolDatasetLink v-if='d' :d="d"></ToolDatasetLink>
+        <ToolDatasetLink v-if='d' :d="d" :ef="mapping.s_sd_encodingFormat"></ToolDatasetLink>
       </b-col>
     </b-row>
     <!-- TODO move this into a component if keeping for final public view -->
@@ -126,10 +126,11 @@ export default {
         s_description: '',
         s_installUrl: '',
         s_codeRepository: '',
+        s_version: '',
         s_keywords: [],
         s_programmingLanguages: [],
         s_supportingdata: {},
-        s_sd_encodingFormats: [],
+        s_sd_encodingFormat: [],
         // additional properties
         ap_citation: {},
         ap_maturity: {},
@@ -185,6 +186,8 @@ export default {
       mapping.s_description = schemaItem('description', jp);
 
       mapping.s_keywords = schemaItem('keywords', jp);
+      mapping.s_codeRepository = schemaItem('codeRepository', jp)
+      mapping.s_version = schemaItem('version', jp)
       mapping.s_programmingLanguages = schemaItem('programmingLanguage', jp)
 // needs to be done with framing
       let installUrl = schemaItem('installURL', jp);
@@ -196,6 +199,22 @@ export default {
       }
 
     //  mapping.s_ontologyTerms = self.getAboutValues(jp)
+      mapping.s_supportingdata = schemaItem('supportingData', jp)
+
+      if (mapping.s_supportingdata) {
+        if (Array.isArray(mapping.s_supportingdata)){
+          mapping.s_supportingdata.forEach(
+              sd => {
+                let items = schemaItem('encodingFormat',sd)
+                mapping.s_sd_encodingFormat = mapping.s_sd_encodingFormat.concat(items )
+              }
+          )
+        } else {
+          mapping.s_sd_encodingFormat =  mapping.s_sd_encodingFormat.concat(schemaItem('encodingFormat',mapping.s_supportingdata) )
+        }
+
+      }
+
 
     }
 
