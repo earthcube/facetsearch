@@ -1,5 +1,5 @@
 <template>
-  <div v-if="d">
+  <div v-if="matchedDatasetReturned">
     <div class="row">
      <div class="font-weight-bold font-heavy my-2">YOU ARRIVED VIA THIS DATASET </div>
 
@@ -39,10 +39,10 @@ import {
   schemaItem,
   hasSchemaProperty,
   matchDistributions,
-  getFirstGeoShape,
-  geoplacename,
+ // getFirstGeoShape,
+ // geoplacename,
   getDistributions,
-  getGeoCoordinates
+ // getGeoCoordinates
 } from '../../api/jsonldObject.js'
 import {mapState} from "vuex";
 //import {JSONView} from "vue-json-component";
@@ -64,6 +64,7 @@ export default {
     return {
       // jsonldObj : this.$store.state.jsonLdObj,
       matchedDatasetDistributions: [],
+      matchedDatasetReturned: false,
       mapping: {
         s_name: '',
         s_description: '',
@@ -130,7 +131,11 @@ export default {
 
       mapping.s_distribution = schemaItem('distribution', jp);
       this.matchedDatasetDistributions = matchDistributions(mapping.s_distribution, toolEncodingFormats)
-
+      if (this.matchedDatasetDistributions.length >0 ){
+        this.matchedDatasetReturned = true
+      } else {
+        this.matchedDatasetReturned = false
+      }
 
       if (hasSchemaProperty('datePublished', jp)) {
         mapping.s_datePublished = schemaItem('datePublished', jp);
@@ -183,9 +188,7 @@ export default {
         }
 
       }
-      // else {
-      //     this.s_contributor = schemaItem('contributor', jp);
-      // }
+
 
       if (hasSchemaProperty('citation', jp)) {
         mapping.s_citation = schemaItem('citation', jp);
@@ -193,38 +196,9 @@ export default {
       }
       mapping.s_keywords = schemaItem('keywords', jp);
       mapping.s_landingpage = schemaItem('description', jp);
-      //var s_distribution = schemaItem('distribution', jp); // moved up
-      // var dist_type = s_distribution['@type'];
-      // var encodingFormat = schemaItem('encodingFormat', s_distribution);
-      // var contentUrl = schemaItem('contentUrl', s_distribution);
-      // var distUrl = schemaItem('url', s_distribution);
+
       mapping.s_downloads = getDistributions(mapping.s_distribution, this.s_url)
-      // let downloadsurl = contentUrl ? contentUrl : distUrl;
-      // this.s_downloads = [{
-      //     distType: dist_type,
-      //     contentUrl: downloadsurl,
-      //     encodingFormat: encodingFormat
-      // }]
-      let s_spatialCoverage = schemaItem('spatialCoverage', jp)
-      let placename = geoplacename(s_spatialCoverage)
-      let box = getFirstGeoShape(s_spatialCoverage, 'box')
-      let poly = getFirstGeoShape(s_spatialCoverage, 'polygon')
-      let points = getGeoCoordinates(s_spatialCoverage)
-      console.info(`placename:${placename} box:${box} poly:${poly} points:${points}`)
-      //this.s_identifier_doi= ""
 
-
-      //   if (jp["https://schema.org/description"] || jp["http://schema.org/description"]) {
-      //     detailsTemplate.push(html`
-      //                   <details>
-      //                       <summary>JSON-LD Object</summary>
-      //                       <pre>${j}</pre>
-      //                   </details>`);
-      //   } else detailsTemplate.push(html`
-      //               <div>No object available</div>`);
-      // }
-
-      // }) // end jsonld compact then
     }
   }
 }
