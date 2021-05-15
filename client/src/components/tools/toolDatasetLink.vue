@@ -54,7 +54,7 @@ export default {
   },
   props:{
     d: String,
-    ef : []
+    ef : Array,
   },
   watch: {
     jsonLdCompact: 'toMetadata'
@@ -144,58 +144,7 @@ export default {
       } else if (hasSchemaProperty('dateCreated', jp)) {
         mapping.s_datePublished = schemaItem('dateCreated', jp);
       }
-      if (hasSchemaProperty('publisher', jp)) {
-        var p = schemaItem('publisher', jp);
-        if (hasSchemaProperty('name', p)) {
-          mapping.publisher = schemaItem('name', p);
-        } else if (hasSchemaProperty('legalName', p)) {
-          mapping.publisher = schemaItem('legalName', p);
-        } else {
-          mapping.publisher = 'Publsher Quirkiness. Please alert us'
-        }
-      } else {
-        mapping.publisher = schemaItem('sdPublisher', jp);
-      }
-      //this.s_contributor = schemaItem('contributor', jp);
-      if (hasSchemaProperty('contributor', jp)) {
-        var c = schemaItem('contributor', jp);
-        if (Array.isArray(c)) {
-          mapping.s_contributor = c.map(function (obj) {
-                if (hasSchemaProperty('name', obj)) {
-                  return schemaItem('name', obj) + ", "
-                }
-              }
-          )
-          console.log('contributor ' + mapping.s_contributor)
 
-        } else {
-          mapping.s_contributor = schemaItem('name', c);
-        }
-      }
-      if (hasSchemaProperty('creator', jp)) {
-        var cr = schemaItem('creator', jp);
-        if (Array.isArray(cr)) {
-          mapping.s_contributor = cr.map(function (obj) {
-                if (hasSchemaProperty('name', obj)) {
-                  return schemaItem('name', obj) + ", "
-                }
-              }
-          )
-          console.log('contributor' + mapping.s_contributor)
-
-        } else {
-          mapping.s_contributor = schemaItem('name', cr);
-        }
-
-      }
-
-
-      if (hasSchemaProperty('citation', jp)) {
-        mapping.s_citation = schemaItem('citation', jp);
-        mapping.hide_citation_tab = false;
-      }
-      mapping.s_keywords = schemaItem('keywords', jp);
-      mapping.s_landingpage = schemaItem('description', jp);
 
       mapping.s_downloads = getDistributions(mapping.s_distribution, this.s_url)
 

@@ -164,10 +164,12 @@ const matchDistributions = function(s_distribution, s_encodingFormatArray) {
         let encodingFormats = schemaItem('encodingFormat', s_distribution)
         if (encodingFormats == undefined) return downloads;
         if (Array.isArray(encodingFormats)){
-            let matchesAFormat = encodingFormats.find(ef =>  s_encodingFormatArray.includes(ef))
+            let matchesAFormat = encodingFormats.find(
+                aFormat =>  s_encodingFormatArray.includes(aFormat)
+            )
             if (matchesAFormat) downloads= downloads.concat (makeLinkObj(s_distribution))
         }  else {
-            if (s_encodingFormatArray.includes(encodingFormats) )  downloads.push  ( s_distribution)
+            if (s_encodingFormatArray.includes(encodingFormats) ) downloads= downloads.concat (makeLinkObj(s_distribution))
         }
 
     }

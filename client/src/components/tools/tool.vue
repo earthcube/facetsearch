@@ -69,7 +69,7 @@
     </b-row>
     <b-row>
       <b-col md="12">
-        <ToolDatasetLink v-if='d' :d="d" :ef="mapping.s_sd_encodingFormat"></ToolDatasetLink>
+        <ToolDatasetLink v-if='d && mapping.s_sd_encodingFormat.length > 0' :d="d" :ef="mapping.s_sd_encodingFormat"></ToolDatasetLink>
       </b-col>
     </b-row>
     <!-- TODO move this into a component if keeping for final public view -->
