@@ -75,9 +75,9 @@
     <!-- TODO move this into a component if keeping for final public view -->
     <b-row>
       <b-col md="12">
-        <h5>JSON tree</h5>
+        <h5>JSON-LD Metadata</h5>
 
-        <b-button v-b-toggle.collapse_json variant="outline-secondary">Toggle JSON</b-button>
+        <b-button v-b-toggle.collapse_json variant="outline-secondary">Toggle JSON-LD Metadata</b-button>
 
         <b-collapse id="collapse_json" class="mt-2">
           <b-card>
@@ -189,6 +189,7 @@ export default {
       mapping.s_codeRepository = schemaItem('codeRepository', jp)
       mapping.s_version = schemaItem('version', jp)
       mapping.s_programmingLanguages = schemaItem('programmingLanguage', jp)
+      if (!Array.isArray(mapping.s_programmingLanguages)) mapping.s_programmingLanguages = [mapping.s_programmingLanguages]
 // needs to be done with framing
       let installUrl = schemaItem('installURL', jp);
       if (Array.isArray(installUrl)){

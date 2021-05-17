@@ -48,6 +48,15 @@
                     <div class="label">Citation</div>
                     <div class="value">{{mapping.s_citation}}</div>
                 </div>
+              <div class="metadata" v-if="mapping.s_variableMeasuredNames.length >0">
+                <div class="label">Variables Measured</div>
+                <div class="value">
+                  <div v-for="vm in mapping.s_variableMeasuredNames" v-bind:key="vm">
+                    <b-badge> {{ vm }}</b-badge>
+
+                    </div>
+                </div>
+              </div>
 
                 <div class="metadata" v-if="mapping.s_downloads">
                     <div class="label">Links</div>
@@ -111,14 +120,14 @@
 <!-- TODO move this into a component if keeping for final public view -->
         <b-row>
             <b-col md="12">
-                <h5>JSON tree</h5>
+                <h5>JSON-LD Metadata</h5>
 
-                <b-button v-b-toggle.collapse_json variant="outline-secondary">Toggle JSON</b-button>
+                <b-button v-b-toggle.collapse_json variant="outline-secondary">Toggle JSON-LD Metadata</b-button>
 
                 <b-collapse id="collapse_json" class="mt-2">
                     <b-card>
 <!-- TODO remove inline style attributes -->
-                      <json-view class="text-left " :data="mapping.raw_json"/>
+                      <vue-json-pretty class="text-left " :deep="2" :data="mapping.raw_json"/>
                     </b-card>
                 </b-collapse>
             </b-col>
@@ -137,6 +146,7 @@ import annotation from "./annotation.vue";
 //import {getJsonLD} from '../../api/jsonldObject.js'
 //import axios from "axios";
 import { mapState,mapActions} from 'vuex'
+import _ from 'lodash'
 import {
   geoplacename,
   getDistributions,
@@ -145,15 +155,17 @@ import {
   hasSchemaProperty,
   schemaItem
 } from "../../api/jsonldObject";
-import {JSONView} from "vue-json-component";
-
+//import {JSONView} from "vue-json-component";
+import VueJsonPretty from 'vue-json-pretty';
+import 'vue-json-pretty/lib/styles.css';
 
 export default {
 name: "dataset",
   components: {ConnectedTools, DatasetLocation,
   //  Metadata,
     Downloadfiles,
-    "json-view": JSONView,
+   // "json-view": JSONView,
+    VueJsonPretty,
     relatedData,
     annotation
     },
@@ -184,6 +196,7 @@ name: "dataset",
       has_s_url: false,
       downloads: [],
       s_distribution: '',
+      s_variableMeasuredNames:[]
     }
     //jsonLdobj: {},
     //jsonLoaded: true,
@@ -213,10 +226,10 @@ name: "dataset",
       // const compacted = jsonld.compact(content, context).then((providers) => {
       //  jsonld.compact(self.jsonLdObj, context).then((providers) => {
       //    var j = JSON.stringify(providers, null, 2);
-     // var j = JSON.stringify(self.jsonLdCompact, null, 2);
+      // var j = JSON.stringify(self.jsonLdCompact, null, 2);
       //var jp = JSON.parse(j);
       var jp = self.jsonLdCompact;
-     // console.log(j.toString());
+      // console.log(j.toString());
       mapping.raw_json = jp;
       //const detailsTemplate = [];
       // detailsTemplate.push(html`<h3>Digital Document metadata</h3>`);
@@ -305,18 +318,13 @@ name: "dataset",
       let poly = getFirstGeoShape(s_spatialCoverage, 'polygon')
       let points = getGeoCoordinates(s_spatialCoverage)
       console.info(`placename:${placename} box:${box} poly:${poly} points:${points}`)
+
+      let variableMeasured = schemaItem('variableMeasured', jp)
+      mapping.s_variableMeasuredNames = variableMeasured.map(item => _.truncate(schemaItem('name', item), {
+        'length': 80,
+        'omission': '***'
+      }))
     }
-    // getJsonLD(this.o).then(
-    //     function(response) {
-    //       self.jsonLdobj= response
-    //     // self.$set( self.jsonLdobj , response)
-    //       self.jsonLoaded = true
-    //     }).catch(
-    //         function(err){
-    //           console.log("cannot fetch resource"+ err.toString())
-    //           self.jsonLoaded = false
-    //         }
-    // )
 
   }
 

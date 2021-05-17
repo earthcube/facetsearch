@@ -6,19 +6,20 @@
       <div class=" my-2">(FUTURE) Actions for dataset (Just links for now): </div>
     </div>
 
+<div class="row" >
 
-
-    <div class="tool border rounded"
+    <div class="border rounded col-5"
          v-for="i in matchedDatasetDistributions" v-bind:key="i.name"
     >
       <div class="tool_info pr-3">
         <h6 class="tool_title text-primary">
-          <div class="small " >
-            <b-icon class="mr-1" icon="tools" variant="tool"></b-icon>
-            Dataset <span class="font-heavy ml-4" v-html="mapping.s_name">   </span>
+          <div class="row small " >
+            <b-icon class="mr-1 col-1" icon="tools" variant="tool"></b-icon>
+           <span class="col-3">Dataset </span> <span class="font-heavy ml-4" v-html="mapping.s_name">   </span>
           </div>
 
-          <div class="tool_subtitle small text-secondary"><span class="font-heavy mr-2">Distribution Name:</span>{{ i.linkName }}</div>
+          <div class="row tool_subtitle small text-secondary">
+            <span class="col-4 font-heavy mr-2">Distribution Name:</span><span class="col-4">{{ i.linkName }}</span></div>
         </h6>
         <div >{{matchEncoding(i.encodingFormat)}}</div>
       </div>
@@ -29,7 +30,7 @@
     </div>
   </div>
 
-
+  </div>
 </template>
 
 <script>
