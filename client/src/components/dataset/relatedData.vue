@@ -55,7 +55,7 @@ export default {
     }
   },
   mounted() {
-    this.showRelatedData()
+   // this.showRelatedData()
   },
   watch: {
     jsonLdCompact: 'showRelatedData'
@@ -135,8 +135,9 @@ export default {
           d: d
         }
       }).catch(failure => {
-          console.error(failure)
+          console.log(failure)
       });
+     // this.$forceUpdate()
     }
     // toRelatedData: function (index) {
     //   // console.log(index)
