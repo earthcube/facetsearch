@@ -1,0 +1,101 @@
+version: '3'
+services:
+  # this needs to be run with the geocodes/geodex compose file
+  # docker-compose --env-file env.beta -f docker-compose.yaml -f docker-compose_base.yaml up -d
+  # env needs to contain
+  ## SERVER
+  ## S3KEY
+  ## S3SECRET
+
+  vue-services:
+    image: nsfearthcube/ec_facets_api_nodejs:latest
+    #build: ./server
+    environment:
+      - NODE_ENV=production
+      - S3ADDRESS=s3system:9000
+      - S3BUCKET=sites
+      - S3PREFIX=alpha
+      - DOMAIN=https://${SERVER}.${HOST:?HOST environment varaible is required}/
+      - S3KEY=${S3KEY}
+      - S3SECRET=${S3SECRET}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.beta-server.entrypoints=http"
+      - "traefik.http.routers.beta-server.priority=90"
+      - "traefik.http.routers.beta-server.rule=Host(`${SERVER}.${HOST:?HOST environment variable is required}`) && PathPrefix(`/ec/api`)"
+      - "traefik.http.middlewares.beta-server-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.beta-server.middlewares=beta-server-https-redirect"
+      - "traefik.http.routers.beta-server-secure.priority=91"
+      - "traefik.http.routers.beta-server-secure.entrypoints=https"
+      - "traefik.http.routers.beta-server-secure.rule=Host(`${SERVER}.${HOST:?HOST environment is required}`) && PathPrefix(`/ec/api`)"
+      - "traefik.http.routers.beta-server-secure.tls=true"
+      - "traefik.http.routers.beta-server-secure.tls.certresolver=http"
+      - "traefik.http.routers.beta-server-secure.service=beta-server"
+      - "traefik.http.services.beta-server.loadbalancer.server.port=3000"
+      - "traefik.docker.network=traefik_default"
+      - "traefik.http.middlewares.beta-server.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
+      - "traefik.http.middlewares.beta-server.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.beta-server.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.beta-server.headers.addvaryheader=true"
+      - "traefik.http.middlewares.ecapi_prefix_b.StripPrefix.prefixes=/ec/api"
+      - "traefik.http.routers.beta-server.middlewares=ecapi_prefix_b"
+    networks:
+      - traefik_default
+  yasgui:
+    image: erikap/yasgui
+    environment:
+      DEFAULT_SPARQL_ENDPOINT: "https://graph.geodex.org/blazegraph/namespace/nabu/sparql"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sparqlgui.entrypoints=http"
+      - "traefik.http.routers.sparqlgui.priority=92"
+      - "traefik.http.routers.sparqlgui.rule=Host(`${SERVER}.${HOST:?HOST environment varaible is required}`) && PathPrefix(`/sparqlgui`) "
+      #      - "traefik.http.routers.alpha.rule=Host(`${HOST:?HOST environment varaible is required}`) "
+      - "traefik.http.routers.sparqlgui.service=sparqlgui"
+      - "traefik.http.middlewares.sparqlgui-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.sparqlgui.middlewares=sparqlgui-https-redirect"
+      - "traefik.http.routers.sparqlgui-secure.priority=93"
+      - "traefik.http.routers.sparqlgui-secure.entrypoints=https"
+      - "traefik.http.routers.sparqlgui-secure.rule=Host(`${SERVER}.${HOST:?HOST environment is required}`) && PATH(`/api`)"
+      - "traefik.http.routers.sparqlgui-secure.tls=true"
+      - "traefik.http.routers.sparqlgui-secure.tls.certresolver=http"
+      - "traefik.http.services.sparqlgui.loadbalancer.server.port=80"
+      - "traefik.docker.network=traefik_default"
+      - "traefik.http.middlewares.sparqlgui.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
+      - "traefik.http.middlewares.sparqlgui.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.sparqlgui.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.sparqlgui.headers.addvaryheader=true"
+      #      - "traefik.http.middlewares.client_prefix.stripprefixregex.regex=/client/[a-z0-9]+/[0-9]+/"
+      - "traefik.http.middlewares.sparqlgui_prefix.StripPrefix.prefixes=/sparqlgui"
+      - "traefik.http.routers.sparqlgui.middlewares=sparqlgui_prefix"
+    networks:
+      - traefik_default
+  vue-client:
+    image: nsfearthcube/ec_facets_client:latest
+    #build: ./client
+    environment:
+      - NODE_ENV=production
+      - DOMAIN=https://${SERVER}.${HOST:?HOST environment varaible is required}/
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.beta.entrypoints=http"
+      - "traefik.http.routers.beta.priority=10"
+      - "traefik.http.routers.beta.rule=Host(`${SERVER}.${HOST:?HOST environment varaible is required}`)"
+      - "traefik.http.middlewares.beta-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.beta.middlewares=beta-https-redirect"
+      - "traefik.http.routers.beta-secure.entrypoints=https"
+      - "traefik.http.routers.beta-secure.priority=11"
+      - "traefik.http.routers.beta-secure.rule=Host(`${SERVER}.${HOST:?HOST environment is required}`)"
+      - "traefik.http.routers.beta-secure.tls=true"
+      - "traefik.http.routers.beta-secure.tls.certresolver=http"
+      - "traefik.http.routers.beta-secure.service=beta"
+      - "traefik.http.services.beta.loadbalancer.server.port=8080"
+      - "traefik.docker.network=traefik_default"
+      - "traefik.http.middlewares.beta.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
+      - "traefik.http.middlewares.beta.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.beta.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.beta.headers.addvaryheader=true"
+    networks:
+      - traefik_default
+networks:
+  traefik_default:
