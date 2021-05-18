@@ -108,14 +108,10 @@
 
         <connected-tools :d="d"></connected-tools>
 
-        <b-row >
+        <relatedData :d="mapping"></relatedData>
 
-                <relatedData :d="mapping"></relatedData>
+        <annotation></annotation>
 
-              <annotation></annotation>
-
-
-        </b-row>
 
 <!-- TODO move this into a component if keeping for final public view -->
         <b-row>

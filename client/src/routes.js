@@ -30,7 +30,7 @@ export default  new Router({
                 })
             ,
         },
-        {path:'/dataset/:o',name:'dataset',component:dataset,props:true},
+        // {path:'/dataset/:o',name:'dataset',component:dataset,props:true},
         {path:'/tool/:o',name:'tool',component:tool,props:true},
         {path:'/about',name:'about',component:about,},
 // catch all case

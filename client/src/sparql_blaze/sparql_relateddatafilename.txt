@@ -3,7 +3,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 prefix schema: <http://schema.org/>
 prefix sschema: <https://schema.org/>
-select ?subj ?name ?g
+select ?subj ?name ?g ?description
        WHERE {
             ?lit bds:search "${relatedData}" .
             ?lit bds:matchAllTerms false .
@@ -17,6 +17,6 @@ select ?subj ?name ?g
              }
             optional {?subj schema:distribution/schema:url|schema:subjectOf/schema:url ?url .}
 }
-group by ?subj ?name ?g
+group by ?subj ?name ?g ?description
 order by DESC(?score1 )
 LIMIT ${n}

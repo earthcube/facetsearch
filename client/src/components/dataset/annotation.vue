@@ -1,5 +1,5 @@
 <template>
-  <b-col md="6" v-if="list.length >0">
+  <b-row v-if="list.length >0">
     <h5>Annotation Data</h5>
 
   <div role="tablist">
@@ -24,7 +24,7 @@
     </div>
   </div>
 
-  </b-col>
+  </b-row>
 </template>
 
 <script>
