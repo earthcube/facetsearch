@@ -4,23 +4,37 @@
 
     <div role="tablist">
       <div class="related_data_item mt-3"
-           v-for="(item, index) in related"
+           v-for="(item, index) in related "
            v-bind:key="index"
       >
-        <div class="toggle text-primary text-link d-flex" role="tab"
-             v-b-toggle="'collapse_related_data_' + index"
-        >
-          <b-icon icon="caret-right-fill" scale=".5" class="when_open"></b-icon>
-          <b-icon icon="caret-down-fill" scale=".5" class="when_closed"></b-icon>
-
-          <span v-html="item.name"></span>
+<!--        v-on:click="showDetails(index)"-->
+<!--        v-on:click="showDetails"-->
+        <div class="tool_info pr-3">
+          <b-link class="small metadata_link" v-on:click.stop="$router.push({ name: 'dataset', params: { d: item.g.value } })">
+            {{item.name.value}}
+          </b-link>
         </div>
 
-        <b-collapse accordion="collapse_group" role="tabpanel"
-                    :id="'collapse_related_data_' + index"
-        >
-          <div class="description small mt-3" v-html="item.description" v-on:click="showDetails"></div>
-        </b-collapse>
+
+<!--        <div class="toggle text-primary text-link d-flex" role="tab"-->
+<!--             v-b-toggle="'collapse_related_data_' + index"-->
+<!--        >-->
+<!--          <b-icon icon="caret-right-fill" scale=".5" class="when_open"></b-icon>-->
+<!--          <b-icon icon="caret-down-fill" scale=".5" class="when_closed"></b-icon>-->
+
+<!--          <span v-html="item.name.value"></span>-->
+<!--        </div>-->
+
+<!--        <div class="description small mt-3" v-html="item.description" v-on:click="showDetails"></div>-->
+<!--        <b-card tag="article" class="rounded-0"-->
+<!--                v-on:click="showDetails"-->
+<!--        >-->
+<!--        </b-card>-->
+<!--        <b-collapse accordion="collapse_group" role="tabpanel"-->
+<!--                    :id="'collapse_related_data_' + index"-->
+<!--        >-->
+<!--          <div class="description small mt-3" v-html="item.description" v-on:click="showDetails"></div>-->
+<!--        </b-collapse>-->
       </div>
     </div>
 
@@ -30,6 +44,13 @@
 <script>
 
 import {mapState} from "vuex";
+import axios from "axios";
+import FacetsConfig from "../../config";
+import SpaqlToolsWebserviceQuery from 'raw-loader!../../sparql_blaze/sparql_relateddatafilename.txt'
+
+let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
+import _ from "lodash";
+import {schemaItem} from "../../api/jsonldObject";
 
 export default {
   name: "relatedData",
@@ -41,50 +62,87 @@ export default {
   mounted() {
     this.showRelatedData()
   },
-  // watch: {
-  //   results: 'showRelatedData'
-  // },
+  watch: {
+    jsonLdCompact: 'showRelatedData'
+  },
   props: {
-    d: {type: String, default: ''},
+    d: {type: Object},
     // list: {
     //     type: Array,
     //     default: null
     // }
   },
   computed: {
-    ...mapState(['results'])
+    ...mapState(['jsonLdObj', 'jsonLdCompact'])
 
   },
   methods: {
     showRelatedData() {
-      // var self = this
-      if (this.results && this.results.length > 0) {
+      var self = this
+      console.log('related: ' + self.related)
+      let jp = self.jsonLdCompact // just short name
+      let graphUri = schemaItem('description', jp) + schemaItem('name', jp);
+      graphUri = graphUri.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi,'').replace(/<[^>]+?>/g,'').replace(/\s+/g,' ').replace(/ /g,' ').replace(/>/g,' ');
 
-        // you mgiht want to use sort
-        this.related = this.results.sort(function(ojbOne, ObjTwo) {
-          if (ojbOne.name.length > ObjTwo.name.length) return true
-        })
-        // returns every 3rd
-        this.related = this.results.filter(function (i, index) {
-          if (index % 3 === 0) {
-            return true;
-          }
-        })
+      console.log(graphUri)
+
+      const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, esTemplateOptions)
+      let hasToolsQuery = resultsTemplate({relatedData: graphUri, n: 3});
+      var url = FacetsConfig.TRIPLESTORE_URL;
+      var params = {
+        query: hasToolsQuery
       }
-      return
+      const config = {
+        url: url,
+        method: 'get',
+        headers: {
+          'Accept': 'application/sparql-results+json',
+          'Content-Type': 'application/json'
+        },
+        params: params
+      }
+      console.log('webtools:query:')
+      console.log(params["query"]);
+      axios.request(config).then(function (response) {
+        //self.webserviceTools =  response.data.results.bindings
+        var bindings = response.data.results.bindings
+        let index = 0;
+        bindings.forEach((i) => (i.index = 'wtool-'+index++));
+        self.related = bindings
+      })
+
+
+      // if (this.results && this.results.length > 0) {
+      //
+      //   // you mgiht want to use sort
+      //   this.related = this.results.sort(function(ojbOne, ObjTwo) {
+      //     if (ojbOne.name.length > ObjTwo.name.length) return true
+      //   })
+      //   // returns every 3rd
+      //   this.related = this.results.filter(function (i, index) {
+      //     if (index % 3 === 0) {
+      //       return true;
+      //     }
+      //   })
+      // }
+      // return
 
 
     },
-    showDetails() {
-      this.$router.push({
-        name: 'dataset',
-        params: {
-          d: this.d
-        }
-      });
-    }
+    // showDetails: function (index) {
+    //   // console.log(index)
+    //   // console.log(item)
+    //   console.log('show details of related data')
+    //   this.$router.push({
+    //     name: 'dataset',
+    //     params: {
+    //       d: this.related[index].g.value
+    //     }
+    //   });
+    // }
   },
   created() {
+
     //TODO replace fake data with real data
     // this.list = [
     //         {
