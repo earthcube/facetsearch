@@ -54,12 +54,26 @@ export default {
     ...mapActions([
        'hasConnectedTools']),
     showDetails() {
+
+      if (this.item.resourceType==='tool'){
         this.$router.push({
-            name: 'dataset',
-            params: {
-                d: this.item.g
-            }
+          name: 'tool',
+          params: {
+            t: this.item.subj
+          }
         });
+      } else  if (this.item.resourceType==='data'){
+        this.$router.push({
+          name: 'dataset',
+          params: {
+            d: this.item.g
+          }
+        });
+      } else {
+        // needs to be a dialog saying, borked.. no url to go to.
+        return
+      }
+
     }
     ,highlightKw(filters, keywords) {
       if (keywords) {
