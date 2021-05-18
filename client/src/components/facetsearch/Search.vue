@@ -30,7 +30,7 @@
                         :state="state"
                     ></Results>
 
-                    <b-button variant="outline-primary" class="mt-5">Load More</b-button>
+<!--                    <b-button variant="outline-primary" class="mt-5">Load More</b-button>-->
                 </b-col>
             </b-row>
         </b-overlay>
