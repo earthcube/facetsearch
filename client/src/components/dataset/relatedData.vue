@@ -1,35 +1,51 @@
 <template>
-  <b-col md="6" v-if="related.length >0">
-    <h5>Related Data</h5>
+  <b-container class="tools" v-if="related.length >0">
+    <h6 class="mt-4">Related Data</h6>
 
-    <div role="tablist">
-      <div class="related_data_item mt-3"
-           v-for="(item, index) in related"
-           v-bind:key="index"
-      >
-        <div class="toggle text-primary text-link d-flex" role="tab"
-             v-b-toggle="'collapse_related_data_' + index"
-        >
-          <b-icon icon="caret-right-fill" scale=".5" class="when_open"></b-icon>
-          <b-icon icon="caret-down-fill" scale=".5" class="when_closed"></b-icon>
+    <div class="tool border rounded"
+         v-for="i in related"
+         v-bind:key="i.index"
 
-          <span v-html="item.name"></span>
+         v-b-toggle="'collapse_' + i.index"
+    >
+      <div class="tool_info pr-3">
+        <b-link class="small metadata_link" v-on:click.stop="$router.push({ name: 'dataset', params: { d: i.g.value } })">
+          <b-icon class="mr-1" icon="server" variant="data"></b-icon>
+          Dataset
+        </b-link>
+
+        <h6 class="tool_title text-primary">
+          {{ i.name.value }}
+        </h6>
+        <div class="small">
+          <b-collapse :id="'collapse_' + i.index">
+            <!-- i.altName would be better if it exists -->
+            <p>{{ i.description.value }}</p>
+          </b-collapse>
+
+          <b-icon icon="caret-down-fill" scale="1" class="when_open"></b-icon>
+          <b-icon icon="caret-up-fill" scale="1" class="when_closed"></b-icon>
         </div>
+      </div>
 
-        <b-collapse accordion="collapse_group" role="tabpanel"
-                    :id="'collapse_related_data_' + index"
-        >
-          <div class="description small mt-3" v-html="item.description" v-on:click="showDetails"></div>
-        </b-collapse>
+      <div class="buttons mt-3" v-if="false">
+        <b-button variant="outline-primary" v-on:click.stop="toRelatedData(i.g.value)">Open</b-button>
       </div>
     </div>
-
-  </b-col>
+  </b-container>
 </template>
 
 <script>
 
 import {mapState} from "vuex";
+import axios from "axios";
+import FacetsConfig from "../../config";
+import SpaqlToolsWebserviceQuery from 'raw-loader!../../sparql_blaze/sparql_relateddatafilename.txt'
+
+let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
+import _ from "lodash";
+import {schemaItem} from "../../api/jsonldObject";
+
 
 export default {
   name: "relatedData",
@@ -39,52 +55,104 @@ export default {
     }
   },
   mounted() {
-    this.showRelatedData()
+   // this.showRelatedData()
   },
-  // watch: {
-  //   results: 'showRelatedData'
-  // },
+  watch: {
+    jsonLdCompact: 'showRelatedData'
+  },
   props: {
-    d: {type: String, default: ''},
+    d: {type: Object},
     // list: {
     //     type: Array,
     //     default: null
     // }
   },
   computed: {
-    ...mapState(['results'])
+    ...mapState(['jsonLdObj', 'jsonLdCompact'])
 
   },
   methods: {
     showRelatedData() {
-      // var self = this
-      if (this.results && this.results.length > 0) {
+      var self = this
+      console.log('related: ' + self.related)
+      let jp = self.jsonLdCompact // just short name
+      let realtedTextFields = schemaItem('description', jp) + schemaItem('name', jp);
+      realtedTextFields = realtedTextFields.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi,'').replace(/<[^>]+?>/g,'').replace(/\s+/g,' ').replace(/ /g,' ').replace(/>/g,' ');
 
-        // you mgiht want to use sort
-        this.related = this.results.sort(function(ojbOne, ObjTwo) {
-          if (ojbOne.name.length > ObjTwo.name.length) return true
-        })
-        // returns every 3rd
-        this.related = this.results.filter(function (i, index) {
-          if (index % 3 === 0) {
-            return true;
-          }
-        })
+      console.log(realtedTextFields)
+
+      const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, esTemplateOptions)
+      let hasToolsQuery = resultsTemplate({relatedData: realtedTextFields, n: 5});
+      var url = FacetsConfig.TRIPLESTORE_URL;
+      var params = {
+        query: hasToolsQuery
       }
-      return
+      const config = {
+        url: url,
+        method: 'get',
+        headers: {
+          'Accept': 'application/sparql-results+json',
+          'Content-Type': 'application/json'
+        },
+        params: params
+      }
+      console.log('relateddata:query:')
+      console.log(params["query"]);
+      axios.request(config).then(function (response) {
+        //self.webserviceTools =  response.data.results.bindings
+        var bindings = response.data.results.bindings
+        let index = 0;
+        bindings.forEach((i) => (i.index = 'relatedData-'+index++));
+        _.remove(bindings, (i) => i.subj == self.d)
+        self.related = bindings
+      })
+
+
+      // if (this.results && this.results.length > 0) {
+      //
+      //   // you mgiht want to use sort
+      //   this.related = this.results.sort(function(ojbOne, ObjTwo) {
+      //     if (ojbOne.name.length > ObjTwo.name.length) return true
+      //   })
+      //   // returns every 3rd
+      //   this.related = this.results.filter(function (i, index) {
+      //     if (index % 3 === 0) {
+      //       return true;
+      //     }
+      //   })
+      // }
+      // return
 
 
     },
-    showDetails() {
+    toRelatedData: function (d) {
+      // console.log(index)
+      // console.log(item)
+      console.log('show details of related data')
       this.$router.push({
         name: 'dataset',
         params: {
-          d: this.d
+          d: d
         }
+      }).catch(failure => {
+          console.log(failure)
       });
+     // this.$forceUpdate()
     }
+    // toRelatedData: function (index) {
+    //   // console.log(index)
+    //   // console.log(item)
+    //   console.log('show details of related data')
+    //   this.$router.push({
+    //     name: 'dataset',
+    //     params: {
+    //       d: this.related[index].g.value
+    //     }
+    //   });
+    // }
   },
   created() {
+
     //TODO replace fake data with real data
     // this.list = [
     //         {
@@ -107,35 +175,104 @@ export default {
 <style scoped lang="scss">
 @import '~/src/assets/bootstrapcss/custom';
 
-.toggle {
-  cursor: pointer;
-
-  font: {
-    weight: 600; //semi-bold
-  }
-  line: {
-    height: 140%;
-  }
-
-  &:hover {
-    color: $info !important;
+.connected_tools {
+  @include media-breakpoint-down(md) {
+    margin: {
+      top: $spacer;
+    }
+    padding: {
+      top: $spacer;
+    }
   }
 }
 
-.b-icon {
-  width: $spacer * 1.5;
-  height: $spacer * 1.5;
-}
+.tools {
+  padding: 0px !important;
 
-.description {
-  margin: {
-    left: $spacer * 1.5;
+  .tool {
+    position: relative;
+    cursor: pointer;
+
+    display: inline-flex;
+    justify-content: space-between;
+
+    width: calc(50% - 24px);
+
+    margin: $spacer / 2;
+    padding: $spacer;
+
+    border: {
+      top: 10px solid $gray-300 !important;
+    }
+
+    &.collapsed .when_closed,
+    &.not-collapsed .when_open {
+      display: none;
+    }
+
+    &:hover {
+      border: {
+        color: $primary !important;
+      }
+    }
   }
-}
 
-.collapsed .when_closed,
-.not-collapsed .when_open {
-  display: none;
+  .tool_info {
+  }
+
+  .buttons {
+  }
+
+  .tool_title {
+    font: {
+      weight: 600; //semi-bold
+    }
+  }
+
+  .metadata_link {
+    display: inline-block;
+    cursor: pointer;
+
+    margin: {
+      left: -($spacer / 2);
+    }
+    padding: ($spacer / 5) ($spacer / 2);
+
+    text: {
+      decoration: underline;
+    }
+  }
+
+  @include media-breakpoint-down(md) {
+    padding: 0px;
+
+    .tool {
+      display: block;
+      width: auto;
+
+      background: {
+        color: $gray-100;
+      }
+
+      margin: ($spacer * 2) 0px $spacer 0px;
+      padding: {
+        bottom: $spacer * 1.5;
+      }
+    }
+
+    .buttons {
+      margin: {
+        top: $spacer / 2;
+      }
+
+      .btn {
+        display: block;
+        width: 100%;
+
+        padding: ($spacer * .75) $spacer;
+      }
+    }
+  }
 }
 
 </style>

@@ -108,14 +108,10 @@
 
         <connected-tools :d="d"></connected-tools>
 
-        <b-row >
+        <relatedData :d="mapping"></relatedData>
 
-                <relatedData :d="d"></relatedData>
+        <annotation></annotation>
 
-              <annotation></annotation>
-
-
-        </b-row>
 
 <!-- TODO move this into a component if keeping for final public view -->
         <b-row>
@@ -205,9 +201,20 @@ name: "dataset",
     jsonLdCompact: "toMetadata"
   },
   async mounted() {
+  // async created() {
+    this.$store.commit('setJsonLd', {})
+    this.$store.commit('setJsonLdCompact', {})
 
     this.$store.dispatch('fetchJsonLd', this.d)
+   // this.$nextTick(() => this.$store.dispatch('fetchJsonLd', this.d) )
   },
+  // async beforeUpdate(){
+  //   this.$store.commit('setJsonLd', {})
+  //   this.$store.commit('setJsonLdCompact', {})
+  // },
+  // async updated(){
+  //   this.$store.dispatch('fetchJsonLd', this.d)
+  // },
   // watch: {
   //   // call again the method if the route changes
   //   '$route': 'fetchJsonLD'

@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <div ref="myMap" id="myMap" style="width: 100%; height: 320px;"></div>
+    <div style="width: 100%; height: 320px;">
+        <div ref="myMap" id="myMap" style="width: 100%; height: 320px;" v-show="hasSpatial"></div>
 
 <!--      <l-map ref="myMap" id="myMap" :zoom="zoom"-->
 <!--             :center="center"-->
@@ -59,6 +59,7 @@ export default {
   props: {},
   data() {
     return {
+      hasSpatial: false,
       mapboxurl: "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
       attribution: `Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>`,
       center: [46.8832566, -114.0870563],
@@ -68,6 +69,7 @@ export default {
     }
   },
   mounted() {
+    this.hasSpatial = false;
     this.$nextTick(() => {
       //this.$refs.myMap.mapObject.setView(this.center, 13);
       this.mymap = L.map(this.$refs.myMap.id).setView(this.center, 13);
@@ -101,6 +103,9 @@ export default {
       this.$nextTick(() => {
             let name = schemaItem('name', obj);
             let s_spatialCoverage = schemaItem('spatialCoverage', obj)
+        if (s_spatialCoverage) {
+           this.hasSpatial = true
+
             let placename = geoplacename(s_spatialCoverage)
             let box = getFirstGeoShape(s_spatialCoverage, 'box')
             let poly = getFirstGeoShape(s_spatialCoverage, 'polygon')
@@ -163,6 +168,7 @@ export default {
               L.marker(self.center).addTo(this.mymap);
             }
 
+          }
           }
       )
     }
