@@ -110,7 +110,7 @@
 
         <b-row >
 
-                <relatedData :d="d"></relatedData>
+                <relatedData :d="mapping"></relatedData>
 
               <annotation></annotation>
 
