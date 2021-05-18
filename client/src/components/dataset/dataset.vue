@@ -198,7 +198,10 @@ name: "dataset",
     //jsonLoaded: true,
   }},
   watch:{
-    jsonLdCompact: "toMetadata"
+    jsonLdCompact: "toMetadata",
+    '$route.params.d': function(d) {
+      // should get fanche and overlay a loading... then remove loading in toMetadata
+      this.$store.dispatch('fetchJsonLd', d)},
   },
   async mounted() {
   // async created() {
