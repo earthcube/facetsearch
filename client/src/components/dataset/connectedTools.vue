@@ -55,10 +55,23 @@
 
                         <h6 class="tool_title text-primary">
                             {{ i.name.value }}
+                          <div class="tool_subtitle small text-secondary" v-if="i.altName">
+                          {{ i.altName.value }}
+                           </div>
+                          <div class="tool_subtitle small text-secondary"  v-if="i.swversion">
+                            version: {{ i.swversion.value }}
+                          </div>
                         </h6>
+
                         <div class="small">
                             <b-collapse :id="'collapse_' + i.index">
                               <!-- i.altName would be better if it exists -->
+                              <h6 class="tool_title text-secondary" v-if="i.swversion">
+                                version:{{ i.swversion.value }}
+                              </h6>
+                              <h6 class="tool_title text-secondary" v-if="i.landingName">
+                                Types:{{ i.landingName.value }}
+                              </h6>
                                 <p>{{ i.description.value }}</p>
                             </b-collapse>
 

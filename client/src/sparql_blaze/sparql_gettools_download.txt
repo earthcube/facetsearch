@@ -1,7 +1,7 @@
 PREFIX schema:  <https://schema.org/>
 PREFIX schemaold:  <http://schema.org/>
 select DISTINCT ?rrs ?name (GROUP_CONCAT(DISTINCT ?curl1; SEPARATOR=", ") AS ?curl)  (GROUP_CONCAT(DISTINCT ?landingPage1; SEPARATOR=", ") AS ?landingPage)
-(GROUP_CONCAT(DISTINCT ?altName1; SEPARATOR=", ") AS ?altName) ?version ?identifier ?description
+(GROUP_CONCAT(DISTINCT ?altName1; SEPARATOR=", ") AS ?altName) (GROUP_CONCAT(DISTINCT ?landingName1; SEPARATOR=", ") AS ?landingName) ?swversion ?identifier ?description
 WHERE                    {
     graph <${g}>
       {
@@ -20,7 +20,8 @@ WHERE                    {
      SERVICE <http://132.249.238.169:8080/fuseki/ecrr/query> {
       GRAPH <http://earthcube.org/gleaner-summoned>
        {
-         { ?rrs schema:supportingData ?df.
+         { ?rrs a schema:SoftwareApplication .
+         ?rrs schema:supportingData ?df.
               ?df schema:encodingFormat  ?label ;
                   schema:position "input".
               ?rrs schema:name ?name;
@@ -28,11 +29,13 @@ WHERE                    {
 
                ?rrs schema:subjectOf/schema:url ?landingPage1
                OPTIONAL{ ?rrs schema:alternateName ?altName1 }
-               OPTIONAL{ ?rrs schema:version ?version }
+               # vue does not like version... observables property, so swversion
+               OPTIONAL{ ?rrs schema:version ?swversion }
                 OPTIONAL{ ?rrs schema:identifier ?identifier }
+                optional{?rrs schema:subjectOf/schema:name ?landingName1 }
       }
 
    }
   }
 }
- GROUP BY ?rrs ?name   ?description ?version  ?identifier
+ GROUP BY ?rrs ?name   ?description ?swversion  ?identifier
