@@ -35,5 +35,8 @@ export default  new Router({
         {path:'/about',name:'about',component:about,},
 // catch all case
         { path: '*'},
-    ]
+    ],
+    scrollBehavior () {
+        return { x: 0, y: 0 }
+    }
 })

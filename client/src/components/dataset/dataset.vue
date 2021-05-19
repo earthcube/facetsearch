@@ -1,5 +1,7 @@
 <template>
+
     <b-container fluid="md">
+      <b-overlay :show="obscurePage" rounded="sm">
         <b-row class="title_row">
             <b-col md="12">
                 <b-btn variant="outline-primary" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
@@ -128,7 +130,9 @@
                 </b-collapse>
             </b-col>
         </b-row>
+      </b-overlay>
     </b-container>
+
 </template>
 
 <script>
@@ -169,6 +173,7 @@ name: "dataset",
    d: String,
   },
   data(){ return {
+    obscurePage: false,
     mapping: {
       s_name: '',
       s_description: '',
@@ -200,8 +205,10 @@ name: "dataset",
   watch:{
     jsonLdCompact: "toMetadata",
     '$route.params.d': function(d) {
+      this.obscurePage = false
       // should get fanche and overlay a loading... then remove loading in toMetadata
-      this.$store.dispatch('fetchJsonLd', d)},
+      this.$store.dispatch('fetchJsonLd', d)
+    },
   },
   async mounted() {
   // async created() {
@@ -330,10 +337,15 @@ name: "dataset",
       console.info(`placename:${placename} box:${box} poly:${poly} points:${points}`)
 
       let variableMeasured = schemaItem('variableMeasured', jp)
-      mapping.s_variableMeasuredNames = variableMeasured.map(item => _.truncate(schemaItem('name', item), {
-        'length': 80,
-        'omission': '***'
-      }))
+      if (variableMeasured) {
+        mapping.s_variableMeasuredNames = variableMeasured.map(item => _.truncate(schemaItem('name', item), {
+          'length': 80,
+          'omission': '***'
+        }))
+      }
+
+      // show
+      this.obscurePage = false;
     }
 
   }
