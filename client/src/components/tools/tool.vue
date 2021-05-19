@@ -30,8 +30,11 @@
           <div class="label">Abstract</div>
           <div class="value" v-html="mapping.s_description"></div>
         </div>
-
-        <div class="metadata" v-if="true">
+        <div class="metadata" v-if="mapping.s_subjectOf">
+          <div class="label">Subject of URL</div>
+          <div class="value">{{ mapping.s_subjectOf }}</div>
+        </div>
+        <div class="metadata" v-if="mapping.s_codeRepository">
           <div class="label">Code Repository</div>
           <div class="value">{{ mapping.s_codeRepository }}</div>
         </div>
@@ -63,6 +66,18 @@
 
           </div>
         </div>
+        <div class="metadata" v-if="mapping.s_sd_encodingFormat">
+          <div class="label">Supported Data Formats</div>
+          <div class="value">
+
+            <div v-for="(i, index) in mapping.s_sd_encodingFormat" v-bind:key="index">
+
+              <span > {{ i }}</span>
+            </div>
+
+          </div>
+        </div>
+
       </b-col>
       <b-col md="4">
       </b-col>
@@ -82,7 +97,7 @@
         <b-collapse id="collapse_json" class="mt-2">
           <b-card>
             <!-- TODO remove inline style attributes -->
-            <b-card-text style="min-height: 300px;"> <json-view class="text-left " :data="mapping.raw_json"/></b-card-text>
+            <b-card-text style="min-height: 300px;"> <vue-json-pretty class="text-left " :deep="2" :data="mapping.raw_json"/></b-card-text>
           </b-card>
         </b-collapse>
       </b-col>
@@ -103,13 +118,17 @@ import {
   schemaItem,
 //  hasSchemaProperty,
 } from '../../api/jsonldObject.js'
-import {JSONView} from "vue-json-component";
-
+//import {JSONView} from "vue-json-component";
+import VueJsonPretty from 'vue-json-pretty';
+import 'vue-json-pretty/lib/styles.css';
 export default {
   name: "dataset",
   components: {
  //   ToolMetadata,
-    ToolDatasetLink,  "json-view": JSONView},
+    ToolDatasetLink,
+  //  "json-view": JSONView
+    VueJsonPretty,
+  },
   props: {
     t: String,
     d: String,
@@ -131,6 +150,7 @@ export default {
         s_programmingLanguages: [],
         s_supportingdata: {},
         s_sd_encodingFormat: [],
+        s_subjectOf: {},
         // additional properties
         ap_citation: {},
         ap_maturity: {},
@@ -198,7 +218,9 @@ export default {
       } else {
         mapping.s_installURL = [{ url: installUrl["https://schema.org/url"], name:installUrl["https://schema.org/name"] }]
       }
-
+      //
+     let subjectOf = schemaItem('subjectOf', jp)
+      mapping.s_subjectOf = schemaItem('url', subjectOf)
     //  mapping.s_ontologyTerms = self.getAboutValues(jp)
       mapping.s_supportingdata = schemaItem('supportingData', jp)
 
