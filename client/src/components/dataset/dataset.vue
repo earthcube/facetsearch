@@ -110,7 +110,7 @@
 
         <connected-tools :d="d"></connected-tools>
 
-        <relatedData :d="mapping"></relatedData>
+        <relatedData :d="d" ></relatedData>
 
         <annotation></annotation>
 

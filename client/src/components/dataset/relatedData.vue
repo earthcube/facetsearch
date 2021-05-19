@@ -61,7 +61,8 @@ export default {
     jsonLdCompact: 'showRelatedData'
   },
   props: {
-    d: {type: Object},
+
+    d: {type:String}
     // list: {
     //     type: Array,
     //     default: null
@@ -103,53 +104,25 @@ export default {
         var bindings = response.data.results.bindings
         let index = 0;
         bindings.forEach((i) => (i.index = 'relatedData-'+index++));
-        _.remove(bindings, (i) => i.subj == self.d)
+        _.remove(bindings, (i) => i.g.value === self.d)
         self.related = bindings
       })
-
-
-      // if (this.results && this.results.length > 0) {
-      //
-      //   // you mgiht want to use sort
-      //   this.related = this.results.sort(function(ojbOne, ObjTwo) {
-      //     if (ojbOne.name.length > ObjTwo.name.length) return true
-      //   })
-      //   // returns every 3rd
-      //   this.related = this.results.filter(function (i, index) {
-      //     if (index % 3 === 0) {
-      //       return true;
-      //     }
-      //   })
-      // }
-      // return
-
-
     },
-    toRelatedData: function (d) {
-      // console.log(index)
-      // console.log(item)
-      console.log('show details of related data')
-      this.$router.push({
-        name: 'dataset',
-        params: {
-          d: d
-        }
-      }).catch(failure => {
-          console.log(failure)
-      });
-     // this.$forceUpdate()
-    }
-    // toRelatedData: function (index) {
+    // toRelatedData: function (d) {
     //   // console.log(index)
     //   // console.log(item)
     //   console.log('show details of related data')
     //   this.$router.push({
     //     name: 'dataset',
     //     params: {
-    //       d: this.related[index].g.value
+    //       d: d
     //     }
+    //   }).catch(failure => {
+    //       console.log(failure)
     //   });
+    //  // this.$forceUpdate()
     // }
+
   },
   created() {
 
