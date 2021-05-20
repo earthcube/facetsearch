@@ -86,7 +86,7 @@ in case more intro paragraph text is needed
         <b-container fluid="md" class="mt-5">
             <h2>Feedback</h2>
 
-            <p><a href="https://github.com/earthcube/geodexui/issues" target="_blank">Create an issue</a> and a feedback email coming soon.</p>
+            <p><a href="https://github.com/earthcube/geodexui/issues" target="_blank">Create an issue</a> and a <a href="mailto:emailfeedback@geocodes.earthcube.org" >email feedback.</a></p>
         </b-container>
 
         <b-container fluid="md" class="mt-5">
