@@ -20,7 +20,8 @@
         <div class="small">
           <b-collapse :id="'collapse_' + i.index">
             <!-- i.altName would be better if it exists -->
-            <p>{{ i.description.value }}</p>
+<!--            <p>{{ i.description.value }}</p>-->
+            <p class="name" v-html="i.description.value"></p>
           </b-collapse>
 
           <b-icon icon="caret-down-fill" scale="1" class="when_open"></b-icon>
