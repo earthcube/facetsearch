@@ -14,8 +14,8 @@
           Dataset
         </b-link>
 
-        <h6 class="tool_title text-primary">
-          {{ i.name.value }}
+        <h6 class="tool_title text-primary" v-html=" i.name.value">
+
         </h6>
         <div class="small">
           <b-collapse :id="'collapse_' + i.index">
