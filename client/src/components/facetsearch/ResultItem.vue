@@ -71,6 +71,7 @@ export default {
         });
       } else {
         // needs to be a dialog saying, borked.. no url to go to.
+        this.makeToast(this.item.subj)
         return
       }
 
@@ -116,6 +117,14 @@ export default {
       }
 
     }
+  },
+  makeToast(mesg="Error") {
+   let message = `Unknown type. Send us this identifier ${mesg}`
+    this.$bvToast.toast(message, {
+      title: 'Cannot locate item',
+      autoHideDelay: 5000,
+      appendToast: false
+    })
   }
 }
 

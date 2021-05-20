@@ -63,7 +63,8 @@ export default {
       mapboxurl: "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
       attribution: `Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>`,
       center: [46.8832566, -114.0870563],
-      zoom: 12,
+      zoom: 8,
+      maxZoom: 6,
       myMap:{}
 
     }
@@ -74,7 +75,7 @@ export default {
       //this.$refs.myMap.mapObject.setView(this.center, 13);
       this.mymap = L.map(this.$refs.myMap.id).setView(this.center, 13);
       L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-        maxZoom: 18,
+        maxZoom: 8,
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
             'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
         id: 'mapbox/streets-v11',
@@ -142,7 +143,7 @@ export default {
               // do polygon here
             }
 
-        this.mymap.setView(self.center, 13);
+        this.mymap.setView(self.center, 10);
 
             if (points && points.length > 1) {
 

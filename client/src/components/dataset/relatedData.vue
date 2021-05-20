@@ -83,7 +83,7 @@ export default {
       console.log(realtedTextFields)
 
       const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, esTemplateOptions)
-      let hasToolsQuery = resultsTemplate({relatedData: realtedTextFields, n: 5});
+      let hasToolsQuery = resultsTemplate({relatedData: realtedTextFields, n: FacetsConfig.RELATEDDATA_COUNT});
       var url = FacetsConfig.TRIPLESTORE_URL;
       var params = {
         query: hasToolsQuery

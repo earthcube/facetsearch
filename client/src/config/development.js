@@ -56,4 +56,5 @@ export default {
         ],
     LIMIT_DEFAULT: 10,
     LIMIT_OPTIONS: [10,50,100,1000,5000],
+    RELATEDDATA_COUNT: 10
 }
