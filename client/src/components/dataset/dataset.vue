@@ -54,7 +54,7 @@
                 <div class="label">Variables Measured</div>
                 <div class="value">
                   <span v-for="vm in mapping.s_variableMeasuredNames" v-bind:key="vm">
-                    <b-badge> {{ vm }}</b-badge>
+                    <b-badge class="mr-1" variant="light"> {{ vm }}</b-badge>
 
                     </span>
                 </div>
