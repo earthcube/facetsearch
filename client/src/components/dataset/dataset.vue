@@ -50,13 +50,13 @@
                     <div class="label">Citation</div>
                     <div class="value">{{mapping.s_citation}}</div>
                 </div>
-              <div class="metadata" v-if="mapping.s_variableMeasuredNames.length >0">
+              <div class="varaibles" v-if="mapping.s_variableMeasuredNames.length >0">
                 <div class="label">Variables Measured</div>
                 <div class="value">
-                  <div v-for="vm in mapping.s_variableMeasuredNames" v-bind:key="vm">
+                  <span v-for="vm in mapping.s_variableMeasuredNames" v-bind:key="vm">
                     <b-badge> {{ vm }}</b-badge>
 
-                    </div>
+                    </span>
                 </div>
               </div>
 
@@ -357,6 +357,8 @@ name: "dataset",
 <style scoped lang="scss">
     @import '~/src/assets/bootstrapcss/custom';
 
+
+
 .card {
     background: {
         color: $gray-100;
@@ -572,6 +574,49 @@ name: "dataset",
         }
     }
 }
+    .varaibles {
+      display: flex;
+      align-items: baseline;
+      font: {
+        size: 90%;
+      }
+      & + .varaibles {
+        margin: {
+          top: $spacer * .4;
+        }
+      }
+      .label {
+        flex-shrink: 0;
+
+        width: 140px;
+
+        margin: {
+          right: $spacer;
+        }
+
+        font: {
+          weight: bold;
+          size: 80%;
+        }
+        text: {
+          align: right;
+          transform: uppercase;
+        }
+      }
+
+      .values {
+        display: flex;
+        white-space:nowrap;
+        flex-wrap: wrap;
+
+        .keyword {
+
+          padding: {
+            left: $spacer / 2;
+          }
+        }
+      }
+    }
 
 i {
     color: $gray-600;

@@ -20,7 +20,7 @@
             <b-badge variant="data" class="mr-1"><b-icon class="mr-1" icon="server"></b-icon>{{item.resourceType}}</b-badge>
             <b-badge variant="tool" class="mr-1" v-if="connectedTools"><b-icon class="mr-1" icon="tools"></b-icon>Connected Tools</b-badge>
           <span v-if="item.disurl"> <!-- array created in state.js/flatten... -->
-            <b-badge variant="secondary" class="mr-1" :href="i"  v-for="i in item.disurl" v-bind:key="i">
+            <b-badge variant="light" class="mr-1" :href="i"  v-for="i in item.disurl" v-bind:key="i">
 
                 <a class="card-link" target="_blank" v-if="i.length >0" >{{ i}}</a>
             </b-badge>
