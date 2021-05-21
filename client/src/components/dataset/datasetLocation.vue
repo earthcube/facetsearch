@@ -191,7 +191,7 @@ export default {
                 //      L.rectangle(e.detail.box).addTo(mymap)
 
               }
-
+// v-show... causing issues, solution https://stackoverflow.com/questions/36246815/data-toggle-tab-does-not-download-leaflet-map/36257493#36257493
               setTimeout(() => {
                 this.mymap.setCenter(self.center);
                 this.mymap.mapObject.invalidateSize()
