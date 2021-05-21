@@ -186,7 +186,8 @@ export default {
                let bounds = L.latLngBounds(box[0], box[1]);
                console.log('bounds valid ' + bounds.isValid())
                // not always correct order.
-               // this.mymap.fitBounds(bounds, {padding: [1.0,1.0], maxZoom: 12});
+                let padding = Math.abs(box[0][0] - box[0][1])/2
+                this.mymap.fitBounds(bounds, {padding: [padding,padding], maxZoom: 12});
                 L.rectangle(bounds, {color: "#ff7800", weight: 1}).addTo(this.mymap);
                 //      L.rectangle(e.detail.box).addTo(mymap)
 
