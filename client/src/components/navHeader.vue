@@ -93,11 +93,13 @@ name: "navHeader",
         query:query,
         endpoint:this.TRIPLESTORE_URL,
         requestMethod:"POST",
-        tabTitle:"Query" ,
+        tabTitle:this.q? this.q: 'Ridgecrest 2019' ,
+
 //        headers:"%7B%7D" ,
  //       contentTypeConstruct:"application/n-triples%2C*%2F*%3Bq%3D0.9",
  //     contentTypeSelect:"application/sparql-results%2Bjson%2C*%2F*%3Bq%3D0.9",
-      outputFormat:"table"
+      //outputFormat:"table"
+        outputFormat:"rawResponse"
 
       }
       let route = stringify(paramData)
