@@ -11,8 +11,25 @@ SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname (GROUP_CONCA
             ?lit bds:matchAllTerms ${exact} .
             ?lit bds:relevance ?score1 .
             ?subj ?p ?lit .
-BIND (IF (exists {?subj a schema:Dataset .} ||exists{?subj a sschema:Dataset .} , "data", "tool") AS ?resourceType).
-            filter( ?score1 > 0.04).
+            #
+            Minus {?subj a sschema:ResearchProject } .
+            Minus {?subj a schema:ResearchProject } .
+            Minus {?subj a schema:Person } .
+            Minus {?subj a sschema:Person } .
+            #
+          #BIND (IF (exists {?subj a schema:Dataset .} ||exists{?subj a sschema:Dataset .} , "data", "tool" ) AS ?resourceType).
+          values (?type ?resourceType) {
+            (schema:Dataset "data")
+            (sschema:Dataset "data")
+            (schema:ResearchProject "researchProject")
+            (sschema:ResearchProject  "researchProject")
+             (schema:SoftwareApplication  "tool")
+             (sschema:SoftwareApplication  "tool")
+             (schema:Person  "person")
+             (sschema:Person  "person")
+            (UNDEF "data") # make it work.
+          } ?subj a ?type .
+          filter( ?score1 > 0.04).
           graph ?g {
             FILTER ( ! isBlank(?subj) )
             ?subj schema:name|sschema:name ?name .
