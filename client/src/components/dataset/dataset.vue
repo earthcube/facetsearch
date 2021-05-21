@@ -96,10 +96,9 @@
             </b-col>
 
             <b-col md="4">
-                <b-card variant="secondary">
-                    <b-card-title>Location</b-card-title>
+
                     <DatasetLocation></DatasetLocation>
-                </b-card>
+
 
                 <b-card>
                     <b-card-title>Downloads</b-card-title>

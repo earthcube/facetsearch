@@ -1,6 +1,9 @@
 <template>
-    <div style="width: 100%; height: 320px;">
-        <div ref="myMap" id="myMap" style="width: 100%; height: 320px;" v-show="hasSpatial"></div>
+  <b-card variant="secondary" v-show="hasSpatial">
+    <b-card-title>Location</b-card-title>
+
+
+        <div ref="myMap" id="myMap" style="width: 100%; height: 320px;" ></div>
 
 <!--      <l-map ref="myMap" id="myMap" :zoom="zoom"-->
 <!--             :center="center"-->
@@ -25,7 +28,9 @@
 <!--        &lt;!&ndash;          </l-marker>&ndash;&gt;-->
 
 <!--      </l-map>-->
-    </div>
+
+
+  </b-card>
 </template>
 
 <script>
@@ -64,25 +69,26 @@ export default {
       attribution: `Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>`,
       center: [46.8832566, -114.0870563],
       zoom: 8,
-      maxZoom: 6,
+      maxZoom: 12,
       myMap:{}
 
     }
   },
   mounted() {
     this.hasSpatial = false;
-    this.$nextTick(() => {
-      //this.$refs.myMap.mapObject.setView(this.center, 13);
-      this.mymap = L.map(this.$refs.myMap.id).setView(this.center, 13);
-      L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-        maxZoom: 8,
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
-            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        id: 'mapbox/streets-v11',
-        tileSize: 512,
-        zoomOffset: -1
-      }).addTo(this.mymap);
-    });
+    // this.$nextTick(() => {
+    //   //this.$refs.myMap.mapObject.setView(this.center, 13);
+    //   this.mymap = L.map(this.$refs.myMap.id).setView(this.center, 13);
+    //   L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+    //     maxZoom: 12,
+    //     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+    //         'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    //     id: 'mapbox/streets-v11',
+    //     tileSize: 512,
+    //     zoomOffset: -1
+    //   }).addTo(this.mymap);
+    //
+    // });
   },
   computed: {
     ...mapState(['jsonLdObj', 'jsonLdCompact'])
@@ -101,77 +107,99 @@ export default {
     toMap: function () {
       var obj = this.jsonLdCompact
       var self = this;
-      this.$nextTick(() => {
-            let name = schemaItem('name', obj);
-            let s_spatialCoverage = schemaItem('spatialCoverage', obj)
-        if (s_spatialCoverage) {
-           this.hasSpatial = true
+      // move all the caluations out of nextTick
+      let name = schemaItem('name', obj);
+      let s_spatialCoverage = schemaItem('spatialCoverage', obj)
+      if (s_spatialCoverage) {
+        this.hasSpatial = true
 
-            let placename = geoplacename(s_spatialCoverage)
-            let box = getFirstGeoShape(s_spatialCoverage, 'box')
-            let poly = getFirstGeoShape(s_spatialCoverage, 'polygon')
-            let points = getGeoCoordinates(s_spatialCoverage)
-            console.info(`placename:${placename} box:${box} poly:${poly} points:${points}`)
-            //this.s_identifier_doi= ""
+        let placename = geoplacename(s_spatialCoverage)
+        let box = getFirstGeoShape(s_spatialCoverage, 'box')
+        let poly = getFirstGeoShape(s_spatialCoverage, 'polygon')
+        let points = getGeoCoordinates(s_spatialCoverage)
+        console.info(`placename:${placename} box:${box} poly:${poly} points:${points}`)
+        //this.s_identifier_doi= ""
 
-            // let detail = {
-            //   name: this.s_name,
-            //   points: points,
-            //   poly: poly,
-            //   box: box,
-            //   placename: placename
-            // }
+        // let detail = {
+        //   name: this.s_name,
+        //   points: points,
+        //   poly: poly,
+        //   box: box,
+        //   placename: placename
+        // }
 
-            // this.$refs.myMap.mapObject.ANY_LEAFLET_MAP_METHOD();
-            self.center = [46.8832566, -114.0870563]; // original centerpoint hell, montanta
-            if (!(box || points || poly)) {
-              return;
-            }
-            if (points && points.length > 0) {
+        // this.$refs.myMap.mapObject.ANY_LEAFLET_MAP_METHOD();
+        self.center = [46.8832566, -114.0870563]; // original centerpoint hell, montanta
+        if (!(box || points || poly)) {
+          return;
+        }
+        if (points && points.length > 0) {
 
-              self.center = points[0] // first one
-              console.log(`firstpoint ${self.center}`)
-            } else if (box) {
-              // calc centerpoint of box
-              //var points = e.detail.box.split(" ")
+          self.center = points[0] // first one
+          console.log(`firstpoint will be center ${self.center}`)
+        } else if (box) {
+          // calc centerpoint of box
+          //var points = e.detail.box.split(" ")
 
-              var northing = (box[0][0] + box[1][0]) / 2
-              var easting = (box[0][1] + box[1][1]) / 2
-              console.log(`box ${northing} ${easting}`)
-              self.center = [northing, easting]
-            } else {
-              // do polygon here
-            }
+          var northing = (box[0][0] + box[1][0]) / 2
+          var easting = (box[0][1] + box[1][1]) / 2
+          console.log(`box center: ${northing} ${easting}`)
+          self.center = [northing, easting]
+        } else {
+          // do polygon here
+        }
 
-        this.mymap.setView(self.center, 10);
+        // move all the caluations out of nextTick
+        this.$nextTick(() => {
 
-            if (points && points.length > 1) {
+          //this.$refs.myMap.mapObject.setView(this.center, 13);
+          this.mymap = L.map(this.$refs.myMap.id).setView(this.center, 8);
+          L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+            maxZoom: 13,
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            id: 'mapbox/streets-v11',
+            tileSize: 512,
+            zoomOffset: -1
+          }).addTo(this.mymap);
+          // reactive... set
+          // var mymap = L.map('mapid').setView(centerpoint, 13);
+          if (name) {
+            L.marker(self.center).addTo(this.mymap)
+                .bindPopup(name).openPopup();
+          } else {
+            L.marker(self.center).addTo(this.mymap);
+          }
 
-              for (var p = 1; p < points.length; p++) {
-                L.marker(points[p]).addTo(this.mymap);
+              if (points && points.length > 1) {
+
+                for (var p = 1; p < points.length; p++) {
+                  L.marker(points[p]).addTo(this.mymap);
+                }
               }
-            }
-            if (poly) {
-              L.polygon(poly).addTo(this.mymap);
-              //     L.polygon(e.detail.poly).addTo(mymap)
-            }
+              if (poly) {
+                L.polygon(poly).addTo(this.mymap);
+                //     L.polygon(e.detail.poly).addTo(mymap)
+              }
 
-            if (box) {
-              L.rectangle(box).addTo(this.mymap);
-              //      L.rectangle(e.detail.box).addTo(mymap)
-            }
-            // reactive... set
-            // var mymap = L.map('mapid').setView(centerpoint, 13);
-            if (name) {
-              L.marker(self.center).addTo(this.mymap)
-                  .bindPopup(name).openPopup();
-            } else {
-              L.marker(self.center).addTo(this.mymap);
-            }
+              if (box) {
+               let bounds = L.latLngBounds(box[0], box[1]);
+               console.log('bounds valid ' + bounds.isValid())
+               // not always correct order.
+               // this.mymap.fitBounds(bounds, {padding: [1.0,1.0], maxZoom: 12});
+                L.rectangle(bounds, {color: "#ff7800", weight: 1}).addTo(this.mymap);
+                //      L.rectangle(e.detail.box).addTo(mymap)
 
-          }
-          }
-      )
+              }
+
+              setTimeout(() => {
+                this.mymap.setCenter(self.center);
+                this.mymap.mapObject.invalidateSize()
+                }, 100)
+            })
+
+
+      }
     }
   }
 
