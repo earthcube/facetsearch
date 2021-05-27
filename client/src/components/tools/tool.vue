@@ -97,7 +97,7 @@
         <b-collapse id="collapse_json" class="mt-2">
           <b-card>
             <!-- TODO remove inline style attributes -->
-            <b-card-text style="min-height: 300px;"> <vue-json-pretty class="text-left " :deep="2" :data="mapping.raw_json"/></b-card-text>
+            <b-card-text style="min-height: 300px;"> <vue-json-pretty class="text-left " :show-line="true" :deep="2" :data="mapping.raw_json"/></b-card-text>
           </b-card>
         </b-collapse>
       </b-col>
