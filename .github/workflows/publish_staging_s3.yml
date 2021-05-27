@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - master
+    paths:	
+      - 'client/dist/**'
 defaults:
   run:
     working-directory: ./client
@@ -29,6 +31,7 @@ jobs:
           BRANCH: gh-pages
           FOLDER: client/dist
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SQUASH_HISTORY: true
       - name: Deploy to s3
         uses: jakejarvis/s3-sync-action@master
         with:
