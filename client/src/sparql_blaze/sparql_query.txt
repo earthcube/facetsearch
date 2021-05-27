@@ -38,7 +38,7 @@ SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname (GROUP_CONCA
                (sschema:Award  "award")
               (schema:DataCatalog  "DataCatalog")
               (sschema:DataCatalog  "DataCatalog")
-            (UNDEF "other")  # assume it's data. At least we should get  name.
+            #(UNDEF "other")  # assume it's data. At least we should get  name.
           } ?subj a ?type .
           filter( ?score1 > 0.04).
           graph ?g {
