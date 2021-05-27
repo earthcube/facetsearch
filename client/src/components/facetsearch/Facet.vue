@@ -31,6 +31,7 @@
 import _ from "underscore";
 import FacetItem from "./FacetItem";
 import {bus} from "../../main.js"
+import Vue from "vue";
 export default {
   name: "Facet",
   components: {FacetItem},
@@ -121,6 +122,12 @@ export default {
           self.toggleFilter(filter.field, filter.title);
          // $(this.facetSelector).trigger("facetedsearchfacetclick", filter);
           bus.$emit("facetedsearchfacetclick", filter)
+
+          Vue.$gtag.event('select_content', {
+            content_type:filter.field,
+            item_id: filter.title
+              }
+          )
           //order();
          // updateFacetUI();
          // updateResults();

@@ -26,7 +26,10 @@ import {store} from './state.js'
 
 
 Vue.use(VueGtag, {
-  config: { id: "G-15XD8YBF5L" }
+  config: { id: "G-15XD8YBF5L" ,
+    'custom_map': {'dimension2': 'fulltext', 'metric2': 'querytime'}
+         }
+
 }, router);
 //router.replace(router.currentRoute.fullPath);
 //router.go(document.URL)

@@ -3,7 +3,7 @@
         <b-overlay rounded="sm"
             :show="queryRunning"
 
-            :variant="white"
+            variant="white"
             :opacity=".85"
         >
             <b-row>

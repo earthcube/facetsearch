@@ -107,7 +107,13 @@ export const store = new Vuex.Store({
     },
     actions: {
         async fetchJsonLd(context, o) {
-
+            Vue.$gtag.event('view_item', {
+                    items: [{
+                        item_id: o,
+                        item_category : 'dataset'
+                    }]
+                }
+            )
             // var self = this;
 
             //const fetchURL = `https://dx.geodex.org/id/summoned${o}`
@@ -144,6 +150,13 @@ export const store = new Vuex.Store({
 
         },
         async fetchToolJsonLd(context, toolArk) {
+            Vue.$gtag.event('view_item', {
+                    items: [{
+                        item_id: toolArk,
+                        item_category : 'tool'
+                    }]
+                }
+            )
             // var self = this;
             //var url = new URL(toolArk); // adding ?  or ?? to ark returns some info  eg http://n2t.net/ark:/23942/g2600027??
             var url = FacetsConfig.API_URL +`/tools/${toolArk}`
@@ -214,10 +227,17 @@ export const store = new Vuex.Store({
         // ,
         async getResults(context, queryObject) {
             //var self = this;
+
             var q = queryObject.textQuery;
             let o = queryObject.offset;
             let n = queryObject.limit;
             let exact = queryObject.searchExactMatch
+            Vue.$gtag.event('search', {
+                //'event_category': 'query',
+                search_term: q
+                //'event_value': number...
+                  }
+                )
             // const template_name='fulltext'
             // const hasToolsTemplate = self.getQueryTemplate(context, {
             //     object: SpaqlQuery,
