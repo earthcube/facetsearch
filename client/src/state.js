@@ -16,6 +16,8 @@ let TRIPLESTORE_URL = FacetsConfig.TRIPLESTORE_URL
 
 export const store = new Vuex.Store({
     state: {
+        packageVersion: process.env.PACKAGE_VERSION || '0',
+        date: process.env.DATE || '2021-Unknown',
         jsonLdObj: {},
         jsonLdCompact: {},
         toolLdObj:{},
@@ -38,6 +40,12 @@ export const store = new Vuex.Store({
 
     },
     getters: {
+        appVersion: (state) => {
+            return state.packageVersion
+        },
+        appDate: (state) => {
+            return state.date
+        },
         // prep for when we expand queries beyond text
         getLastQuery: (state) => {
             return state.lastTextQueries[0]
