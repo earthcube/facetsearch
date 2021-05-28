@@ -38,8 +38,7 @@
                 </b-nav-form>
 
                 <b-nav-item v-on:click.stop="showSparqlGui"  class="text-nowrap" target="_blank">SPARQL</b-nav-item>
-                <b-nav-item :to="{name: 'about'}" class="mr-0" v-b-tooltip.hover
-                            :title="'Version:'+$store.getters.appVersion +' Date:' + $store.getters.appDate ">About</b-nav-item>
+                <b-nav-item :to="{name: 'about'}" class="mr-0" >About</b-nav-item>
 
               </b-navbar-nav>
             </b-collapse>

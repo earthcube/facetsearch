@@ -3,6 +3,7 @@
     <navHeader></navHeader>
 
     <router-view></router-view>
+    <div  class="fixed-bottom float-right font-weight-lighter" > Version: {{$store.getters.appVersion}} Date: {{$store.getters.appDate}} </div>
   </div>
 </template>
 
