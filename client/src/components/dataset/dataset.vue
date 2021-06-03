@@ -88,8 +88,54 @@
 <!--                    <b-button variant="outline-secondary">Website</b-button>-->
                         <b-button variant="outline-secondary"><b-icon icon="chat-square-quote" class="mr-1"></b-icon>Cite</b-button>
                         <b-button variant="outline-secondary"><b-icon icon="code-slash" class="mr-1"></b-icon>Metadata</b-button>
+
+<!--                        <b-button v-b-toggle.collapse_json variant="outline-secondary">Feedback</b-button>-->
+<!--                        <div id="app">-->
+
+                        <b-button v-b-modal.feedback-modal variant="outline-secondary" >Feedback</b-button>
+
+                        <b-modal
+                            id="feedback-modal"
+                            ref="modal"
+                            title="Feedback"
+                            @show="resetModal"
+                            @hidden="resetModal"
+                            @ok="handleOk"
+                        >
+                          <form ref="form" @submit.stop.prevent="handleSubmit">
+
+<!--                            <b-form-textarea id="textarea-plaintext" plaintext :value="s_name"></b-form-textarea>-->
+<!--                            <pre class="mt-3 mb-0">{{ feedback_username }}</pre>-->
+                            <div class="mt-2">readonly text: {{ mapping.s_url }}</div>
+
+                            <b-form-group
+                                label="your message"
+                                label-for="name-input"
+                                invalid-feedback="Name is required"
+                                :state="nameState"
+                            >
+                              <b-form-input
+                                  id="name-input"
+                                  v-model="feedback_message"
+                                  :state="nameState"
+                                  required
+                              ></b-form-input>
+                            </b-form-group>
+                          </form>
+                        </b-modal>
+<!--                          <b-modal id="modal" title=" Feedback" busy>-->
+<!--                            <p>hello</p>-->
+
+<!--                            <template v-slot:modal-header="{ close }">-->
+<!--                              <b-button @click="close()">Close Modal</b-button>-->
+<!--                            </template>-->
+<!--                          </b-modal>-->
+<!--                        </div>-->
+<!--                      <b-button variant="outline-secondary" @click="openMsgBox">Feedback</b-button>-->
                     </div>
+
                 </div>
+
 
 <!-- TODO remove this or change to new structure -->
              <!--   <Metadata style="display: none;"></Metadata> -->
@@ -172,6 +218,11 @@ name: "dataset",
    d: String,
   },
   data(){ return {
+    feedback_username: 'feedback username',
+    feedback_message: '',
+    nameState: null,
+    submittedMessages: [],
+
     obscurePage: false,
     mapping: {
       s_name: '',
@@ -345,8 +396,35 @@ name: "dataset",
 
       // show
       this.obscurePage = false;
+    },
+    checkFormValidity() {
+      const valid = this.$refs.form.checkValidity()
+      this.nameState = valid
+      return valid
+    },
+    resetModal() {
+      this.feedback_message = ''
+      this.nameState = null
+    },
+    handleOk(bvModalEvt) {
+      // Prevent modal from closing
+      bvModalEvt.preventDefault()
+      // Trigger submit handler
+      this.handleSubmit()
+    },
+    handleSubmit() {
+      // Exit when the form isn't valid
+      console.log(this.feedback_message)
+      if (!this.checkFormValidity()) {
+        return
+      }
+      // Push the name to submitted names
+      this.submittedMessages.push(this.feedback_message)
+      // Hide the modal manually
+      this.$nextTick(() => {
+        this.$bvModal.hide('feedback-modal')
+      })
     }
-
   }
 
 
