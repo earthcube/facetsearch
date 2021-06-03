@@ -117,9 +117,14 @@ export const store = new Vuex.Store({
         async fetchJsonLd(context, o) {
             Vue.$gtag.event('view_item', {
                     items: [{
-                        item_id: o,
-                        item_category : 'dataset'
+                        id: o,
+                        category : 'dataset'
                     }]
+                }
+            )
+            Vue.$gtag.event('view_dataset', {
+                        id: o,
+                        category : 'dataset'
                 }
             )
             // var self = this;
@@ -154,15 +159,24 @@ export const store = new Vuex.Store({
                         context.commit('setJsonLdCompact', jp)
                     })
                 }
+            ).catch( (exception) => {
+                Vue.$gtag.event('exception', {
+                    description: exception,
+                    fatal: false,
+                    items: [{
+                            id: o,
+                            category : 'dataset'
+                        }]
+                    }
+                )
+               }
             )
 
         },
         async fetchToolJsonLd(context, toolArk) {
-            Vue.$gtag.event('view_item', {
-                    items: [{
-                        item_id: toolArk,
-                        item_category : 'tool'
-                    }]
+            Vue.$gtag.event('view_tool', {
+                    toolid: toolArk,
+                     category : 'tool'
                 }
             )
             // var self = this;
@@ -203,6 +217,17 @@ export const store = new Vuex.Store({
                             })
                         }
 
+            ).catch( (exception) => {
+                    Vue.$gtag.event('exception', {
+                            description: exception,
+                            fatal: false,
+                            items: [{
+                                id: toolArk,
+                                category : 'tool'
+                            }]
+                        }
+                    )
+                }
             )
 
         },
@@ -241,11 +266,12 @@ export const store = new Vuex.Store({
             let n = queryObject.limit;
             let exact = queryObject.searchExactMatch
             Vue.$gtag.event('search', {
-                //'event_category': 'query',
-                search_term: q
-                //'event_value': number...
-                  }
-                )
+                    //'event_category': 'query',
+                    search_term: q
+                    //'event_value': number...
+
+                }
+            )
             // const template_name='fulltext'
             // const hasToolsTemplate = self.getQueryTemplate(context, {
             //     object: SpaqlQuery,
@@ -275,7 +301,16 @@ export const store = new Vuex.Store({
             console.log(params["query"]);
             axios.request(config).then(function (response) {
                 var items = [];
+// add querytime, sometime.
                 if (response.data.results.bindings) {
+                    Vue.$gtag.event('search_count', {
+                            //'event_category': 'query',
+                            search_term: q,
+                            //'event_value': number...
+                            search_count: response.data.results.bindings.length
+                      //  querytime: querytime
+                        }
+                    )
                     items = flattenSparqlResults(response.data.results.bindings)
 
                 }
@@ -289,7 +324,16 @@ export const store = new Vuex.Store({
                 // self.filter();
                 //  bus.$emit('facetupdate'); // using emit meant two events trying: https://stackoverflow.com/questions/41879836/vue-js-method-called-multiple-times-using-emit-and-on-when-it-should-only-be-c
                 //Promise.resolve();
-            })
+            }).catch( (exception) => {
+                    Vue.$gtag.event('exception', {
+                            description: exception,
+                            fatal: false,
+                            search_term: q,
+
+                        }
+                    )
+                }
+            )
         },
 
         hasConnectedTools: async function (context, payload) {

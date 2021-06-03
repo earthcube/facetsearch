@@ -128,6 +128,14 @@ export default {
             item_id: filter.title
               }
           )
+          Vue.$gtag.event('select_facet', {
+                // content_type:filter.field,
+                // item_id: filter.title,
+           'event_category': 'engagement',
+            'event_label': 'facet_clicked',
+              'value': `${filter.field}:${filter.title}`
+              }
+          )
           //order();
          // updateFacetUI();
          // updateResults();
