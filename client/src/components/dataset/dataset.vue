@@ -104,9 +104,9 @@
                         >
                           <form ref="form" @submit.stop.prevent="handleSubmit">
 
-<!--                            <b-form-textarea id="textarea-plaintext" plaintext :value="s_name"></b-form-textarea>-->
-<!--                            <pre class="mt-3 mb-0">{{ feedback_username }}</pre>-->
-                            <div class="mt-2">readonly text: {{ mapping.s_url }}</div>
+                            <div class="mt-2">page title: {{ mapping.s_name }}</div>
+                            <div class="mt-2">url: {{ mapping.s_url }}</div>
+                            <div class="mt-2">publisher: {{ mapping.publisher }}</div>
 
                             <b-form-group
                                 label="your message"
@@ -218,7 +218,6 @@ name: "dataset",
    d: String,
   },
   data(){ return {
-    feedback_username: 'feedback username',
     feedback_message: '',
     nameState: null,
     submittedMessages: [],
