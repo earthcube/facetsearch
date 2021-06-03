@@ -123,15 +123,6 @@
                             </b-form-group>
                           </form>
                         </b-modal>
-<!--                          <b-modal id="modal" title=" Feedback" busy>-->
-<!--                            <p>hello</p>-->
-
-<!--                            <template v-slot:modal-header="{ close }">-->
-<!--                              <b-button @click="close()">Close Modal</b-button>-->
-<!--                            </template>-->
-<!--                          </b-modal>-->
-<!--                        </div>-->
-<!--                      <b-button variant="outline-secondary" @click="openMsgBox">Feedback</b-button>-->
                     </div>
 
                 </div>
@@ -417,7 +408,6 @@ name: "dataset",
       if (!this.checkFormValidity()) {
         return
       }
-      // Push the name to submitted names
       this.submittedMessages.push(this.feedback_message)
       // Hide the modal manually
       this.$nextTick(() => {
