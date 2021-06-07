@@ -88,41 +88,12 @@
 <!--                    <b-button variant="outline-secondary">Website</b-button>-->
                         <b-button variant="outline-secondary"><b-icon icon="chat-square-quote" class="mr-1"></b-icon>Cite</b-button>
                         <b-button variant="outline-secondary"><b-icon icon="code-slash" class="mr-1"></b-icon>Metadata</b-button>
+                        <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>
+                        <feedback v-show="isModalVisible" @close="closeModal" subject = 'dataset' :s_name="mapping.s_name" :urn="d"> </feedback>
+
 
 <!--                        <b-button v-b-toggle.collapse_json variant="outline-secondary">Feedback</b-button>-->
 <!--                        <div id="app">-->
-
-                        <b-button v-b-modal.feedback-modal variant="outline-secondary" >Feedback</b-button>
-
-                        <b-modal
-                            id="feedback-modal"
-                            ref="modal"
-                            title="Feedback"
-                            @show="resetModal"
-                            @hidden="resetModal"
-                            @ok="handleOk"
-                        >
-                          <form ref="form" @submit.stop.prevent="handleSubmit">
-
-                            <div class="mt-2">page title: {{ mapping.s_name }}</div>
-                            <div class="mt-2">url: {{ mapping.s_url }}</div>
-                            <div class="mt-2">publisher: {{ mapping.publisher }}</div>
-
-                            <b-form-group
-                                label="your message"
-                                label-for="name-input"
-                                invalid-feedback="Name is required"
-                                :state="nameState"
-                            >
-                              <b-form-input
-                                  id="name-input"
-                                  v-model="feedback_message"
-                                  :state="nameState"
-                                  required
-                              ></b-form-input>
-                            </b-form-group>
-                          </form>
-                        </b-modal>
                     </div>
 
                 </div>
@@ -178,6 +149,7 @@ import ConnectedTools from "./connectedTools.vue";
 import Downloadfiles from "./downloadfiles.vue"
 import relatedData from "./relatedData.vue";
 import annotation from "./annotation.vue";
+import feedback from "./feedback/feedback";
 
 //import {getJsonLD} from '../../api/jsonldObject.js'
 //import axios from "axios";
@@ -203,15 +175,14 @@ name: "dataset",
    // "json-view": JSONView,
     VueJsonPretty,
     relatedData,
-    annotation
+    annotation,
+    feedback,
     },
   props:{
    d: String,
   },
   data(){ return {
-    feedback_message: '',
-    nameState: null,
-    submittedMessages: [],
+    isModalVisible: false,
 
     obscurePage: false,
     mapping: {
@@ -387,32 +358,11 @@ name: "dataset",
       // show
       this.obscurePage = false;
     },
-    checkFormValidity() {
-      const valid = this.$refs.form.checkValidity()
-      this.nameState = valid
-      return valid
+    showModal() {
+      this.isModalVisible = true;
     },
-    resetModal() {
-      this.feedback_message = ''
-      this.nameState = null
-    },
-    handleOk(bvModalEvt) {
-      // Prevent modal from closing
-      bvModalEvt.preventDefault()
-      // Trigger submit handler
-      this.handleSubmit()
-    },
-    handleSubmit() {
-      // Exit when the form isn't valid
-      console.log(this.feedback_message)
-      if (!this.checkFormValidity()) {
-        return
-      }
-      this.submittedMessages.push(this.feedback_message)
-      // Hide the modal manually
-      this.$nextTick(() => {
-        this.$bvModal.hide('feedback-modal')
-      })
+    closeModal() {
+      this.isModalVisible = false;
     }
   }
 
