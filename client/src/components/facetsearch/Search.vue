@@ -121,13 +121,22 @@ export default {
     const o = 0;
     this.queryRunning = true;
     this.$store.state.q = this.textQuery
-    this.$store.dispatch('getResults', {
-          textQuery: this.textQuery,
-          limit: this.n,
-          offset: o,
-          searchExactMatch: this.searchExactMatch
-        }
-    )
+    let lastItems = this.$store.getters.getLastQueryResults(this.textQuery)
+    if (lastItems){
+      this.$store.commit('setResults',lastItems)
+      //this.queryRunning = false;
+      this.search()
+    } else {
+      this.$store.dispatch('getResults', {
+            textQuery: this.textQuery,
+            limit: this.n,
+            offset: o,
+            searchExactMatch: this.searchExactMatch
+          }
+      )
+    }
+
+
 
 
   }

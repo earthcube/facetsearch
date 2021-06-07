@@ -24,7 +24,7 @@ export const store = new Vuex.Store({
         toolLdCompact: {},
         results: [],
         queryTemplates: new Map(),
-        lastTextQueries: [], // query, num results
+        lastQueryResults: new Map(), // query, num results
         lastDatasetIds: [],
         connectedTools: new Map(), // object id, hasConnectedTools
         toolsMap: new Map(), // object id, hasConnectedTools
@@ -65,6 +65,9 @@ export const store = new Vuex.Store({
         // getSearchExactMatch:(state) => {
         //     return state.searchExactMatch
         // }
+        getLastQueryResults: (state) => (key) => {
+            return state.lastQueryResults.get(key)
+        },
 
     },
     mutations: {
@@ -108,6 +111,9 @@ export const store = new Vuex.Store({
         },
         setSearchExactMatch(state, obj){
             state.searchExactMatch = obj
+        },
+        setLastQueryResults(state, payload){
+            state.lastQueryResults.set(payload.key, payload.items)
         },
         // setResultLimit(state, obj){
         //     state.resultLimit = obj
@@ -300,6 +306,24 @@ export const store = new Vuex.Store({
             var url = FacetsConfig.TRIPLESTORE_URL;
             //sparql = "PREFIX%20con%3A%20%3Chttp%3A%2F%2Fwww.ontotext.com%2Fconnectors%2Flucene%23%3E%0APREFIX%20luc%3A%20%3Chttp%3A%2F%2Fwww.ontotext.com%2Fowlim%2Flucene%23%3E%0APREFIX%20con-inst%3A%20%3Chttp%3A%2F%2Fwww.ontotext.com%2Fconnectors%2Flucene%2Finstance%23%3E%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0Aprefix%20schema%3A%20%3Chttp%3A%2F%2Fschema.org%2F%3E%0Aprefix%20sschema%3A%20%3Chttps%3A%2F%2Fschema.org%2F%3E%0ASELECT%20distinct%20%3Fsubj%20%3Fpubname%20(GROUP_CONCAT(DISTINCT%20%3Fplacename%3B%20SEPARATOR%3D%22%2C%20%22)%20AS%20%3Fplacenames)%0A%20%20%20%20%20%20%20%20(GROUP_CONCAT(DISTINCT%20%3Fkwu%3B%20SEPARATOR%3D%22%2C%20%22)%20AS%20%3Fkw)%0A%20%20%20%20%20%20%20%20%3Fdatep%20%20(GROUP_CONCAT(DISTINCT%20%3Furl%3B%20SEPARATOR%3D%22%2C%20%22)%20AS%20%3Fdisurl)%20(MAX(%3Fscore1)%20as%20%3Fscore)%0A%20%20%20%20%20%20%20%20%3Fname%20%3Fdescription%20%3FresourceType%20%3Fg%0A%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%5B%5D%20a%20con-inst%3Ageocodes_fts%20%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20con%3Aquery%20%22water%22%20%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20con%3Aentities%20%3Fsubj%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20VALUES%20(%3Fdataset)%20%7B%20(%20schema%3ADataset%20)%20(%20sschema%3ADataset%20)%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fsubj%20a%20%3Fdataset%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20con%3Ascore%20%3Fscore1%7D%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20BIND%20(IF%20(exists%20%7B%3Fsubj%20a%20schema%3ADataset%20.%7D%20%7C%7Cexists%7B%3Fsubj%20a%20sschema%3ADataset%20.%7D%20%2C%20%22data%22%2C%20%22tool%22)%20AS%20%3FresourceType).%0A%0A%20%20%20%20%20%20%20%20%20%20graph%20%3Fg%20%7B%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fsubj%20schema%3Aname%7Csschema%3Aname%20%3Fname%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fsubj%20schema%3Adescription%7Csschema%3Adescription%20%3Fdescription%20.%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20optional%20%7B%3Fsubj%20schema%3Adistribution%2Fschema%3Aurl%7Cschema%3AsubjectOf%2Fschema%3Aurl%20%3Furl%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20schema%3AdatePublished%7Csschema%3AdatePublished%20%3Fdate_p%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20schema%3Apublisher%2Fschema%3Aname%7Csschema%3Apublisher%2Fsschema%3Aname%7Cschema%3Apublisher%2Fschema%3AlegalName%7Csschema%3Apublisher%2Fsschema%3AlegalName%20%20%3Fpub_name%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20schema%3AspatialCoverage%2Fschema%3Aname%7Csschema%3AspatialCoverage%2Fsschema%3Aname%7Csschema%3AsdPublisher%20%3Fplace_name%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20schema%3Akeywords%7Csschema%3Akeywords%20%3Fkwu%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20BIND%20(%20IF%20(%20BOUND(%3Fdate_p)%2C%20%3Fdate_p%2C%20%22No%20datePublished%22)%20as%20%3Fdatep%20)%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20BIND%20(%20IF%20(%20BOUND(%3Fpub_name)%2C%20%3Fpub_name%2C%20%22No%20Publisher%22)%20as%20%3Fpubname%20)%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20BIND%20(%20IF%20(%20BOUND(%3Fplace_name)%2C%20%3Fplace_name%2C%20%22No%20spatialCoverage%22)%20as%20%3Fplacename%20)%20.%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20GROUP%20BY%20%3Fsubj%20%3Fpubname%20%3Fplacename%20%3Fkwu%20%3Fdatep%20%3Furl%20%20%3Fname%20%3Fdescription%20%20%3FresourceType%20%3Fg%0A%20%20%20%20%20%20%20%20ORDER%20BY%20DESC(%3Fscore)%0ALIMIT%2010%0AOFFSET%200"
 
+            // get from cache
+            // issue if its the same object, then it will not render, because state does not change.
+            // let lastItems = context.getters.getLastQueryResults(sparql)
+            // if (lastItems){
+            //
+            //     //let lastItems = this.lastQueryResults.get(sparql)
+            //
+            //     Vue.$gtag.event('search_count', {
+            //             //'event_category': 'query',
+            //             search_term: q,
+            //             //'event_value': number...
+            //             search_count: lastItems.length
+            //             //  querytime: querytime
+            //         }
+            //     )
+            //     context.commit('setResults', lastItems)
+            //     return ;
+            // }
             var params = new URLSearchParams();
                 //  query: encodeURIComponent(sparql),
              params.append( "query", sparql)
@@ -328,6 +352,10 @@ export const store = new Vuex.Store({
                         }
                     )
                     items = flattenSparqlResults(response.data.results.bindings)
+                    // add to cache
+                    context.commit('setLastQueryResults',{key: q, items:items})
+                   // context.commit('setLastQueryResults',{key:sparql, items:items})
+                    //this.lastQueryResults.get(sparql, items)
 
                 }
                 //self.items = items;
