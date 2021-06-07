@@ -188,7 +188,6 @@ export default {
   methods: {
     showModal() {
       this.isModalVisible = true;
-      // this.feedBackItemId = "search?q="+this.textQuery;
     },
     closeModal() {
       this.isModalVisible = false;
