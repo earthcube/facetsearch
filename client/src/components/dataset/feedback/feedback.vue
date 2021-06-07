@@ -12,10 +12,10 @@
     >
       <form ref="form" @submit.stop.prevent="handleSubmit">
 
-        <div class="mt-2">page title: {{ this.s_name }}}</div>
+        <div class="mt-2">Item Title: {{ this.s_name }}</div>
 <!--        <div class="mt-2">urn: {{ this.urn }}}</div>-->
         <b-form-group
-            label="your message"
+            label="Your Message"
             label-for="message-input"
             invalid-feedback="You message is required"
             :state="nameState"

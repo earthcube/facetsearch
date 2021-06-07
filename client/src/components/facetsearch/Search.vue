@@ -14,6 +14,8 @@
                         v-bind:facetStore="facetStore"
                         v-bind:state="state"
                     ></Facets>
+                  <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>
+                  <feedback v-show="isModalVisible" @close="closeModal" subject = 'search' :s_name="textQuery" :urn="feedBackItemId"> </feedback>
                 </b-col>
 
                 <!-- filter and results -->
@@ -52,6 +54,7 @@ import {mapActions,
   mapState,
  // mapGetters
 } from "vuex";
+import feedback from "../dataset/feedback/feedback";
 
 export default {
   name: "Search",
@@ -87,11 +90,13 @@ export default {
   components: {
     ResultHeader,
     Results,
-    Facets
+    Facets,
+    feedback
   },
   data() {
     return {
-
+      isModalVisible: false,
+      feedBackItemId: String,
       o: 0,
       n: FacetsConfig.LIMIT_DEFAULT,
 
@@ -133,6 +138,13 @@ export default {
   }
   ,
   methods: {
+    showModal() {
+      this.isModalVisible = true;
+      this.feedBackItemId = "search?q="+this.textQuery;
+    },
+    closeModal() {
+      this.isModalVisible = false;
+    },
     ...mapActions([
       'getResults', 'getQueryTemplate']),
     //content.results.bindings

@@ -74,9 +74,11 @@
 
               <span > {{ i }}</span>
             </div>
-
           </div>
         </div>
+
+          <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>
+          <feedback v-show="isModalVisible" @close="closeModal" subject = 'tool' :s_name="mapping.s_name" :urn="t"> </feedback>
 
       </b-col>
       <b-col md="4">
@@ -121,6 +123,8 @@ import {
 //import {JSONView} from "vue-json-component";
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
+import feedback from "../dataset/feedback/feedback";
+
 export default {
   name: "dataset",
   components: {
@@ -128,6 +132,7 @@ export default {
     ToolDatasetLink,
   //  "json-view": JSONView
     VueJsonPretty,
+    feedback,
   },
   props: {
     t: String,
@@ -137,6 +142,7 @@ export default {
   },
   data() {
     return {
+      isModalVisible: false,
       mapping: {
         raw_json: '',
         types: [],
@@ -180,6 +186,13 @@ export default {
 
   },
   methods: {
+    showModal() {
+      this.isModalVisible = true;
+      // this.feedBackItemId = "search?q="+this.textQuery;
+    },
+    closeModal() {
+      this.isModalVisible = false;
+    },
     ...mapActions([
       'fetchToolJsonLd',]),
 
