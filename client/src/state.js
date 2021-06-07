@@ -118,9 +118,12 @@ export const store = new Vuex.Store({
             Vue.$gtag.event('view_item', {
                     items: [{
                         id: o,
-                        category : 'dataset'
-                    }]
+                        category : 'dataset',
+                        quantity: 1
+                    }],
+                value: 1
                 }
+
             )
             Vue.$gtag.event('view_dataset', {
                         id: o,
@@ -161,12 +164,19 @@ export const store = new Vuex.Store({
                 }
             ).catch( (exception) => {
                 Vue.$gtag.event('exception', {
-                    description: exception,
+                    description: `${o} ${exception}`,
                     fatal: false,
                     items: [{
                             id: o,
                             category : 'dataset'
                         }]
+                    }
+                )
+                Vue.$gtag.event('exception_datasetld', {
+                        description: exception,
+                        error_datasetid: o,
+                            category : 'dataset'
+
                     }
                 )
                }
@@ -218,15 +228,21 @@ export const store = new Vuex.Store({
                         }
 
             ).catch( (exception) => {
-                    Vue.$gtag.event('exception', {
+                    Vue.$gtag.event('exception_toolld', {
                             description: exception,
-                            fatal: false,
-                            items: [{
-                                id: toolArk,
+                            error_toolid: toolArk,
                                 category : 'tool'
-                            }]
                         }
                     )
+                Vue.$gtag.event('exception', {
+                        description: `${toolArk} ${exception}`,
+                        fatal: false,
+                        items: [{
+                            id: toolArk,
+                            category : 'tool'
+                        }]
+                    }
+                )
                 }
             )
 
