@@ -77,8 +77,8 @@
           </div>
         </div>
 
-          <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>
-          <feedback v-show="isModalVisible" @close="closeModal" subject = 'tool' :s_name="mapping.s_name" :urn="t"> </feedback>
+<!--          <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>-->
+          <feedback subject = 'tool' :s_name="mapping.s_name" :urn="t"> </feedback>
 
       </b-col>
       <b-col md="4">
@@ -186,12 +186,6 @@ export default {
 
   },
   methods: {
-    showModal() {
-      this.isModalVisible = true;
-    },
-    closeModal() {
-      this.isModalVisible = false;
-    },
     ...mapActions([
       'fetchToolJsonLd',]),
 

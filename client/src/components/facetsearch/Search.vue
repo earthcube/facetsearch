@@ -14,8 +14,7 @@
                         v-bind:facetStore="facetStore"
                         v-bind:state="state"
                     ></Facets>
-                  <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>
-                  <feedback v-show="isModalVisible" @close="closeModal" subject = 'search' :s_name="textQuery" :urn="feedBackItemId"> </feedback>
+                  <feedback subject = 'search' :s_name="textQuery" :urn="feedBackItemId"> </feedback>
                 </b-col>
 
                 <!-- filter and results -->
@@ -138,13 +137,6 @@ export default {
   }
   ,
   methods: {
-    showModal() {
-      this.isModalVisible = true;
-      this.feedBackItemId = "search?q="+this.textQuery;
-    },
-    closeModal() {
-      this.isModalVisible = false;
-    },
     ...mapActions([
       'getResults', 'getQueryTemplate']),
     //content.results.bindings
@@ -159,6 +151,7 @@ export default {
       })
     },
     search: function () {
+      this.feedBackItemId = "search?q="+this.textQuery;
       this.queryRunning = false;
       this.items = this.results;
       this.initFacetCounts();//items,facets, facetStore,  facetSortOption

@@ -1,6 +1,6 @@
 <template>
-  <div class="feedback">
-
+  <div class="feedback" v-show="isModalVisible">
+    <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>
     <b-modal
         size="lg"
         id="feedback-modal"
@@ -52,10 +52,17 @@ export default {
     }
   },
   data(){ return {
+    isModalVisible: true,
     feedback_message: '',
     nameState: null,
   }},
   methods: {
+    showModal() {
+      this.isModalVisible = true;
+    },
+    closeModal() {
+      this.isModalVisible = false;
+    },
     checkFormValidity() {
       const valid = this.$refs.form.checkValidity()
       this.nameState = valid
@@ -84,7 +91,7 @@ export default {
       let emailBody = 'Item Title:' + this.s_name + ' \n'
       emailBody = emailBody.concat('Item Id:' + this.urn + '\n')
       emailBody = emailBody.concat('My Message:' + this.feedback_message + '\n')
-      var mailto_link = 'mailto:' + 'bing@illinois.edu' + '?subject=' + email_subject + '&body=' + encodeURIComponent(emailBody);
+      var mailto_link = 'mailto:' + 'emailfeedback@geocodes.earthcube.org' + '?subject=' + email_subject + '&body=' + encodeURIComponent(emailBody);
       window.open(mailto_link);
       // Hide the modal manually
       this.$nextTick(() => {

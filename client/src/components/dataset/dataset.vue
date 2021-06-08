@@ -88,8 +88,9 @@
 <!--                    <b-button variant="outline-secondary">Website</b-button>-->
                         <b-button variant="outline-secondary"><b-icon icon="chat-square-quote" class="mr-1"></b-icon>Cite</b-button>
                         <b-button variant="outline-secondary"><b-icon icon="code-slash" class="mr-1"></b-icon>Metadata</b-button>
-                        <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>
-                        <feedback v-show="isModalVisible" @close="closeModal" subject = 'dataset' :s_name="mapping.s_name" :urn="d"> </feedback>
+<!--                        <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>-->
+<!--                        <feedback v-show="isModalVisible" @close="closeModal" subject = 'dataset' :s_name="mapping.s_name" :urn="d"> </feedback>-->
+                      <feedback subject = 'dataset' :s_name="mapping.s_name" :urn="d"> </feedback>
 
 
 <!--                        <b-button v-b-toggle.collapse_json variant="outline-secondary">Feedback</b-button>-->
@@ -182,8 +183,6 @@ name: "dataset",
    d: String,
   },
   data(){ return {
-    isModalVisible: false,
-
     obscurePage: false,
     mapping: {
       s_name: '',
@@ -358,12 +357,6 @@ name: "dataset",
       // show
       this.obscurePage = false;
     },
-    showModal() {
-      this.isModalVisible = true;
-    },
-    closeModal() {
-      this.isModalVisible = false;
-    }
   }
 
 
