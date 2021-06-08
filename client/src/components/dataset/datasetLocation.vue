@@ -121,7 +121,7 @@ export default {
         //this.s_identifier_doi= ""
 
         // let detail = {
-        //   name: this.s_name,
+        //   name: this.name,
         //   points: points,
         //   poly: poly,
         //   box: box,

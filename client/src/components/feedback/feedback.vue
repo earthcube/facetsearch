@@ -1,18 +1,24 @@
 <template>
-  <div class="feedback" v-show="isModalVisible">
+  <div class="feedback" >
     <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>
     <b-modal
         size="lg"
         id="feedback-modal"
         ref="modal"
-        title="Feedback"
+
         @show="resetModal"
         @hidden="resetModal"
         @ok="handleOk"
     >
-      <form ref="form" @submit.stop.prevent="handleSubmit">
+      <template #modal-title>
+        Feedback for {{subject}}:
+      </template>
+      <template #modal-ok>
+        Submit
+      </template>
+      <form ref="feedbackForm" @submit.stop.prevent="handleSubmit">
 
-        <div class="mt-2">Item Title: {{ this.s_name }}</div>
+        <div class="mt-2">{{ subject }}: {{name }}</div>
 <!--        <div class="mt-2">urn: {{ this.urn }}}</div>-->
         <b-form-group
             label="Your Message"
@@ -43,7 +49,7 @@ export default {
       type: String,
       required: true
     },
-    s_name:{
+    name:{
       type: String,
       required: true
     },
@@ -52,19 +58,19 @@ export default {
     }
   },
   data(){ return {
-    isModalVisible: true,
+    isFeedbackVisible: true,
     feedback_message: '',
     nameState: null,
   }},
   methods: {
     showModal() {
-      this.isModalVisible = true;
+      this.isFeedbackVisible = true;
     },
     closeModal() {
-      this.isModalVisible = false;
+      this.isFeedbackVisible = false;
     },
     checkFormValidity() {
-      const valid = this.$refs.form.checkValidity()
+      const valid = this.$refs.feedbackForm.checkValidity()
       this.nameState = valid
       return valid
     },
@@ -81,16 +87,16 @@ export default {
     handleSubmit() {
       // Exit when the form isn't valid
       console.log(this.subject)
-      console.log(this.s_name)
+      console.log(this.name)
       console.log(this.urn)
       console.log(this.feedback_message)
       if (!this.checkFormValidity()) {
         return
       }
-      let email_subject = this.subject + ' feedback'
-      let emailBody = 'Item Title:' + this.s_name + ' \n'
-      emailBody = emailBody.concat('Item Id:' + this.urn + '\n')
-      emailBody = emailBody.concat('My Message:' + this.feedback_message + '\n')
+      let email_subject = 'GeoCODES' + this.subject + ' feedback'
+      let emailBody =  this.subject + ' title: ' + this.name + ' \n'
+      emailBody = emailBody.concat(this.subject + 'Id:' + this.urn + '\n')
+      emailBody = emailBody.concat('My Message: \n' + this.feedback_message + '\n')
       var mailto_link = 'mailto:' + 'emailfeedback@geocodes.earthcube.org' + '?subject=' + email_subject + '&body=' + encodeURIComponent(emailBody);
       window.open(mailto_link);
       // Hide the modal manually

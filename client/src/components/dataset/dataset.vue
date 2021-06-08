@@ -5,11 +5,12 @@
         <b-row class="title_row">
             <b-col md="12">
                 <b-btn variant="outline-primary" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
+              <feedback class='float-right' subject = 'Dataset' :name="mapping.s_name" :urn="d"> </feedback>
 
-                <h4 class="page_title" v-html="mapping.s_name"></h4>
             </b-col>
-        </b-row>
 
+        </b-row>
+        <h4 class="page_title" v-html="mapping.s_name"></h4>
         <b-row>
             <b-col md="8">
                 <div class="metadata">
@@ -89,13 +90,14 @@
                         <b-button variant="outline-secondary"><b-icon icon="chat-square-quote" class="mr-1"></b-icon>Cite</b-button>
                         <b-button variant="outline-secondary"><b-icon icon="code-slash" class="mr-1"></b-icon>Metadata</b-button>
 <!--                        <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>-->
-<!--                        <feedback v-show="isModalVisible" @close="closeModal" subject = 'dataset' :s_name="mapping.s_name" :urn="d"> </feedback>-->
-                      <feedback subject = 'dataset' :s_name="mapping.s_name" :urn="d"> </feedback>
+<!--                        <feedback v-show="isFeedbackVisible" @close="closeModal" subject = 'dataset' :name="mapping.name" :urn="d"> </feedback>-->
+
 
 
 <!--                        <b-button v-b-toggle.collapse_json variant="outline-secondary">Feedback</b-button>-->
 <!--                        <div id="app">-->
                     </div>
+
 
                 </div>
 
@@ -150,7 +152,7 @@ import ConnectedTools from "./connectedTools.vue";
 import Downloadfiles from "./downloadfiles.vue"
 import relatedData from "./relatedData.vue";
 import annotation from "./annotation.vue";
-import feedback from "./feedback/feedback";
+import feedback from "../feedback/feedback";
 
 //import {getJsonLD} from '../../api/jsonldObject.js'
 //import axios from "axios";

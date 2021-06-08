@@ -14,7 +14,7 @@
                         v-bind:facetStore="facetStore"
                         v-bind:state="state"
                     ></Facets>
-                  <feedback subject = 'search' :s_name="textQuery" :urn="feedBackItemId"> </feedback>
+                  <feedback subject = 'Search' :name="textQuery" :urn="feedBackItemId"> </feedback>
                 </b-col>
 
                 <!-- filter and results -->
@@ -53,7 +53,7 @@ import {mapActions,
   mapState,
  // mapGetters
 } from "vuex";
-import feedback from "../dataset/feedback/feedback";
+import feedback from "../feedback/feedback";
 
 export default {
   name: "Search",
