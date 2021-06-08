@@ -83,7 +83,7 @@ export default {
       var params = {
         // fixed for now
         dbid: dbid,
-        additionalType: 'http://linked.earth/ontology%23Dataset',
+        additionalType: 'http://linked.earth/ontology#Dataset',
         id: this.throughputIdentifier
       }
       const config = {
