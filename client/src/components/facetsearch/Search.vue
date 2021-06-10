@@ -109,7 +109,7 @@ export default {
 
       // -- end edit  facets
       queryRunning: false,
-
+    // resourceType queries are in state.js
 
     }
   },
@@ -131,7 +131,8 @@ export default {
             textQuery: this.textQuery,
             limit: this.n,
             offset: o,
-            searchExactMatch: this.searchExactMatch
+            searchExactMatch: this.searchExactMatch,
+            resourceType: this.resourceType
           }
       )
     }
@@ -152,7 +153,8 @@ export default {
         textQuery: this.textQuery,
         limit: this.n,
         offset: this.o,
-        searchExactMatch: this.searchExactMatch
+        searchExactMatch: this.searchExactMatch,
+        resourceType: this.resourceType
       })
     },
     search: function () {

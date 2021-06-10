@@ -2,7 +2,8 @@ name: Deploy to Github pages and alpha s3
 on:
   push:
     branches:
-      - master
+      #- master
+      - issue/14/tool_ds_search
 defaults:
   run:
     working-directory: ./client

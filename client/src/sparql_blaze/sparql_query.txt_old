@@ -11,8 +11,18 @@ SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname (GROUP_CONCA
             ?lit bds:matchAllTerms ${exact} .
             ?lit bds:relevance ?score1 .
             ?subj ?p ?lit .
-            # positive types
-            ${rt}
+            # positive
+            { ?subj rdf:type schema:Dataset . }
+            UNION
+            { ?subj rdf:type sschema:Dataset . }
+             UNION
+             { ?subj rdf:type schema:SoftwareApplication . }
+            UNION
+            { ?subj rdf:type sschema:SoftwareApplication . }
+            UNION
+             { ?subj rdf:type schema:ResearchProject . }
+            UNION
+            { ?subj rdf:type sschema:ResearchProject . }
             #
           #BIND (IF (exists {?subj a schema:Dataset .} ||exists{?subj a sschema:Dataset .} , "data", "tool" ) AS ?resourceType).
           values (?type ?resourceType) {
