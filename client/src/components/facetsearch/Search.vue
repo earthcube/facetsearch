@@ -14,6 +14,7 @@
                         v-bind:facetStore="facetStore"
                         v-bind:state="state"
                     ></Facets>
+                  <feedback subject = 'Search' :name="textQuery" :urn="feedBackItemId"> </feedback>
                 </b-col>
 
                 <!-- filter and results -->
@@ -52,6 +53,7 @@ import {mapActions,
   mapState,
  // mapGetters
 } from "vuex";
+import feedback from "../feedback/feedback";
 
 export default {
   name: "Search",
@@ -87,11 +89,13 @@ export default {
   components: {
     ResultHeader,
     Results,
-    Facets
+    Facets,
+    feedback
   },
   data() {
     return {
-
+      isModalVisible: false,
+      feedBackItemId: String,
       o: 0,
       n: FacetsConfig.LIMIT_DEFAULT,
 
@@ -156,6 +160,7 @@ export default {
       })
     },
     search: function () {
+      this.feedBackItemId = "search?q="+this.textQuery;
       this.queryRunning = false;
       this.items = this.results;
       this.initFacetCounts();//items,facets, facetStore,  facetSortOption

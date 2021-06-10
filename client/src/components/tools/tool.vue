@@ -5,10 +5,11 @@
         <b-btn variant="outline-primary" v-on:click="$router.back()">
           <b-icon icon="arrow-left"/>
         </b-btn>
-        <h4 class="page_title" v-html="mapping.s_name"></h4>
+        <feedback class='float-right' subject = 'Tool' :name="mapping.s_name" :urn="t"> </feedback>
+
       </b-col>
     </b-row>
-
+    <h4 class="page_title" v-html="mapping.s_name"></h4>
     <b-row>
       <b-col md="8">
         <div class="metadata">
@@ -74,9 +75,14 @@
 
               <span > {{ i }}</span>
             </div>
-
           </div>
         </div>
+
+<!--          <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>-->
+         <div class="metadata" >
+           <div class="label"> </div>
+
+         </div>
 
       </b-col>
       <b-col md="4">
@@ -121,6 +127,8 @@ import {
 //import {JSONView} from "vue-json-component";
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
+import feedback from "../feedback/feedback";
+
 export default {
   name: "dataset",
   components: {
@@ -128,6 +136,7 @@ export default {
     ToolDatasetLink,
   //  "json-view": JSONView
     VueJsonPretty,
+    feedback,
   },
   props: {
     t: String,
@@ -137,6 +146,7 @@ export default {
   },
   data() {
     return {
+      isModalVisible: false,
       mapping: {
         raw_json: '',
         types: [],
