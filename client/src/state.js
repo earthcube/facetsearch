@@ -29,6 +29,7 @@ export const store = new Vuex.Store({
         connectedTools: new Map(), // object id, hasConnectedTools
         toolsMap: new Map(), // object id, hasConnectedTools
         q: '',
+        rt:'all', // resourceType all
         searchExactMatch: false,
         // add them to simplify changes
         // should I just dump the facet config object in here/?
@@ -294,7 +295,7 @@ export const store = new Vuex.Store({
 
             let resourceType = queryObject.resourceType
             let rt = Array.from(this.state.resourceTypeList.values()).join(" UNION ")
-            if (resourceType !== "all") {
+            if (resourceType !== undefined &&  resourceType !== "all") {
                 rt = this.state.resourceTypeList.get(resourceType)
             }
 

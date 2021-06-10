@@ -57,15 +57,17 @@ export default {
 name: "navHeader",
   components: {logoEarthcube, logoGeoCodes},
   computed: {
-    ...mapState(['results','searchExactMatch', 'q', 'SpaqlQuery','esTemplateOptions','TRIPLESTORE_URL']),
+    ...mapState(['results','searchExactMatch', 'q','rt', 'SpaqlQuery','esTemplateOptions','TRIPLESTORE_URL']),
 
   },
   watch:{
-  q: 'qUpdated'
+  q: 'qUpdated',
+    rt: 'rtUpdated'
   },
   data() {
   return {
     textQuery:'',
+    resourceType:'All'
   }
   },
   methods:{
@@ -76,9 +78,13 @@ name: "navHeader",
     qUpdated() {
         this.textQuery = this.q
     },
+    rtUpdated() {
+      this.resourceType = this.rt
+    },
     onSubmitNavbar(){
       this.$store.state.q = this.textQuery;
-      this.$router.push({name: 'Search', query:{q:this.q} }).catch(err => {console.log('ignore'+err)})
+      this.$store.state.rt = 'all' // for now
+      this.$router.push({name: 'Search', query:{q:this.q, resourceType: 'all'} }).catch(err => {console.log('ignore'+err)})
     },
     showSparqlGui(){
       // need to add all the parameters as query parameters

@@ -75,6 +75,11 @@ export default {
     textQuery: 'newTextSearch',
     n: 'newTextSearch',
     searchExactMatch: 'newTextSearch',
+    resourceType: 'newTextSearch',
+    '$route.params.resourceType': function() {
+      this.newTextSearch()
+      // should get fanche and overlay a loading... then remove loading in toMetadata
+    },
   },
 
   props: {
