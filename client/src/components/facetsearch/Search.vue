@@ -77,6 +77,11 @@ export default {
     textQuery: 'newTextSearch',
     n: 'newTextSearch',
     searchExactMatch: 'newTextSearch',
+    resourceType: 'newTextSearch',
+    '$route.params.resourceType': function() {
+      this.newTextSearch()
+      // should get fanche and overlay a loading... then remove loading in toMetadata
+    },
   },
 
   props: {
@@ -113,7 +118,7 @@ export default {
 
       // -- end edit  facets
       queryRunning: false,
-
+    // resourceType queries are in state.js
 
     }
   },
@@ -135,7 +140,8 @@ export default {
             textQuery: this.textQuery,
             limit: this.n,
             offset: o,
-            searchExactMatch: this.searchExactMatch
+            searchExactMatch: this.searchExactMatch,
+            resourceType: this.resourceType
           }
       )
     }
@@ -156,7 +162,8 @@ export default {
         textQuery: this.textQuery,
         limit: this.n,
         offset: this.o,
-        searchExactMatch: this.searchExactMatch
+        searchExactMatch: this.searchExactMatch,
+        resourceType: this.resourceType
       })
     },
     search: function () {
