@@ -18,16 +18,16 @@ SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname (GROUP_CONCA
           values (?type ?resourceType) {
             (schema:Dataset "data")
             (sschema:Dataset "data")
-            (schema:ResearchProject "researchProject") #BCODMO- project
-            (sschema:ResearchProject  "researchProject")
+            (schema:ResearchProject "Research Project") #BCODMO- project
+            (sschema:ResearchProject  "Research Project")
              (schema:SoftwareApplication  "tool")
              (sschema:SoftwareApplication  "tool")
-             (schema:Person  "person") #BCODMO- Person
-             (sschema:Person  "person")
-              (schema:Event  "event") #BCODMO- deployment
-              (sschema:Event  "event")
-               (schema:Award  "award") #BCODMO- Award
-               (sschema:Award  "award")
+             (schema:Person  "Person") #BCODMO- Person
+             (sschema:Person  "Person")
+              (schema:Event  "Event") #BCODMO- deployment
+              (sschema:Event  "Event")
+               (schema:Award  "Award") #BCODMO- Award
+               (sschema:Award  "Award")
               (schema:DataCatalog  "DataCatalog")
               (sschema:DataCatalog  "DataCatalog")
             #(UNDEF "other")  # assume it's data. At least we should get  name.

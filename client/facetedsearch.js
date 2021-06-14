@@ -283,7 +283,7 @@ function createFacetUI() {
     order();
     updateResults();
   });
-  // Append deselect filters button
+  // Append clearAllFilters filters button
   var deselect = $(settings.deselectTemplate).click(function(event){
     settings.state.filters = {};
     jQuery.facetUpdate();
