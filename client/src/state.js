@@ -41,7 +41,7 @@ export const store = new Vuex.Store({
         resourceTypeList : new Map( [
             ['data', "{ ?subj rdf:type schema:Dataset . } UNION { ?subj rdf:type sschema:Dataset . } "],
             ['tool', "{ ?subj rdf:type schema:SoftwareApplication . } UNION { ?subj rdf:type sschema:SoftwareApplication . } "],
-            ['project', "{ ?subj rdf:type schema:ResearchProject . } UNION { ?subj rdf:type sschema:ResearchProject . } "],
+       //     ['project', "{ ?subj rdf:type schema:ResearchProject . } UNION { ?subj rdf:type sschema:ResearchProject . } "],
         ]),
     },
     getters: {
@@ -366,8 +366,8 @@ export const store = new Vuex.Store({
                     )
                     items = flattenSparqlResults(response.data.results.bindings)
                     // add to cache
-                    context.commit('setLastQueryResults',{key: q, items:items})
-                   // context.commit('setLastQueryResults',{key:sparql, items:items})
+                   // context.commit('setLastQueryResults',{key: q, items:items})
+                    context.commit('setLastQueryResults',{key:sparql, items:items})
                     //this.lastQueryResults.get(sparql, items)
 
                 }
@@ -376,6 +376,7 @@ export const store = new Vuex.Store({
                 // items = _.uniq(items, false, function(item, key, subj){
                 //     return item.subj
                 // })
+
                 context.commit('setResults', items)
                 // self.initFacetCounts();//items,facets, facetStore,  facetSortOption
                 // self.filter();
@@ -389,6 +390,7 @@ export const store = new Vuex.Store({
 
                         }
                     )
+                context.commit('setResults', [])
                 }
             )
         },
