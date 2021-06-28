@@ -16,6 +16,8 @@ let TRIPLESTORE_URL = FacetsConfig.TRIPLESTORE_URL
 
 export const store = new Vuex.Store({
     state: {
+        orderBy: 'score',
+        filters: {},
         packageVersion: process.env.PACKAGE_VERSION || '0',
         date: process.env.DATE || '2021-Unknown',
         jsonLdObj: {},
@@ -45,6 +47,12 @@ export const store = new Vuex.Store({
         ]),
     },
     getters: {
+        getOrderBy: (state) => {
+            return state.orderBy
+        },
+        getFilters: (state) => {
+            return state.filters
+        },
         appVersion: (state) => {
             return state.packageVersion
         },
@@ -76,6 +84,15 @@ export const store = new Vuex.Store({
 
     },
     mutations: {
+        setOrderBy(state, obj) {
+            state.orderBy = obj
+        },
+        setFilters(state, obj) {
+            state.filters = obj
+        },
+        addFilter(state, payload) {
+            state.filters.push(payload)
+        },
         setJsonLd(state, obj) {
 
             state.jsonLdObj = obj

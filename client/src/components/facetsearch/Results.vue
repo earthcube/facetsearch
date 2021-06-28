@@ -5,8 +5,9 @@
         v-for="item in currentResults"
         v-bind:key="item.row"
         :item="item"
-        :state="state"
+
     ></ResultItem>
+<!--    :state="state"-->
   </div>
 </template>
 

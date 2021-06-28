@@ -11,7 +11,7 @@
         <div class="keywords" v-if="item.kw">
             <div class="label">Keywords</div>
             <div class="values "  >
-              <span class="keyword mx-2 text-secondary" v-for="kw in highlightKw(filters, item.kw)" v-bind:key="kw" v-html="kw"></span>
+              <span class="keyword mx-2 text-secondary" v-for="kw in highlightKw(item.kw)" v-bind:key="kw" v-html="kw"></span>
 
             </div>
         </div>
@@ -31,20 +31,23 @@
 
 <script>
 import _ from 'lodash'
-import {mapActions,mapGetters} from "vuex";
+import {mapActions, mapGetters, mapState} from "vuex";
 
 export default {
   name: "ResultItem",
-  props: ["item", "state"],
+  // props: ["item", "state"],
+  props: ["item"],
   data () {
     return {
-      filters : this.state.filters,
+      // filters : this.state.filters,
+      // filters: this.getFilters(),
       connectedTools: false
 
     }
   }, computed: {
+    ...mapState(['filters']),
     ...mapGetters ([
-                  'getConnectedTool'])
+                  'getConnectedTool', 'getFilters'])
 }
   ,mounted() {
    this.hasTool();
@@ -76,19 +79,20 @@ export default {
       }
 
     }
-    ,highlightKw(filters, keywords) {
+    ,highlightKw(keywords) {
+      let self = this
       if (keywords) {
         let kwList = [];
         if (_.isArray(keywords)) {
           kwList = keywords.map(function (kw) {
-            if (_.includes(filters['kw'], kw)) {
+            if (_.includes(self.filters['kw'], kw)) {
               return `<b>${kw}</b>`;
             } else {
               return kw
             }
           })
         } else {
-          if (_.includes(filters, keywords)) {
+          if (_.includes(self.filters, keywords)) {
             return [`<b>${keywords}<b/>`];
           } else {
             kwList = [keywords]

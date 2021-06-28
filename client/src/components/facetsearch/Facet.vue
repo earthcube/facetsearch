@@ -39,7 +39,7 @@ export default {
   props: {
     "facetSetting":Object,
     "facetStore":Object,
-    "state":Object,
+    // "state":Object,
  //   "currentResults": Array
   },
   data () {
@@ -119,6 +119,7 @@ export default {
           // use $nextTick to delay an processing until after the entire dom has been updated.
           // otherwise we get a an error about a null key
           //self.$nextTick(() =>  self.toggleFilter(filter.facetname, filter.filtername) )
+          console.log('kw click event, filter title: ' + filter.title);
           self.toggleFilter(filter.field, filter.title);
          // $(this.facetSelector).trigger("facetedsearchfacetclick", filter);
           bus.$emit("facetedsearchfacetclick", filter)

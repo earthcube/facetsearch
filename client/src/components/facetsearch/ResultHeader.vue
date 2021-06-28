@@ -64,19 +64,20 @@ export default {
  //   , "setSearchExactmatch"
   ],
   computed: {
-    ...mapState(['searchExactMatch']),
+    ...mapState(['searchExactMatch', 'filters']),
   },
   props: {
     "totalCount": Number,
     "currentCount": Number,
     "sortOptions": Object,
-    "filters": Object,
+    // "filters": Object,
 
   },
   watch: {
     orderBy: 'orderByChanged',
     limit: 'limitChanged',
-    searchExact: 'searchExactChanged'
+    searchExact: 'searchExactChanged',
+    filters: 'updateFilters'
   },
   data() {
     return {
@@ -104,7 +105,11 @@ export default {
     searchExactChanged() {
      // this.setSearchExactmatch(this.searchExact)
       this.$store.state.searchExactMatch = this.searchExact
+    },
+    updateFilters() {
+      return true
     }
+
 //   $('.orderbyitem').each(function(){
 //   var id = this.id.substr(8);
 //   if (settings.state.orderBy == id) {

@@ -12,8 +12,9 @@
                     <Facets
                         v-bind:facets="facets"
                         v-bind:facetStore="facetStore"
-                        v-bind:state="state"
+
                     ></Facets>
+<!--                  v-bind:state="state"-->
                   <feedback subject = 'Search' :name="textQuery" :urn="feedBackItemId"> </feedback>
                 </b-col>
 
@@ -23,13 +24,14 @@
                     <ResultHeader
                         :current-count="currentResults.length"
                         :total-count="items.length"
-                        :filters="state.filters"
+                        :filters="filters"
                     ></ResultHeader>
 
                     <Results
                         v-bind:currentResults="currentResults"
-                        :state="state"
+
                     ></Results>
+<!--                  :state="state"-->
 
 <!--                    <b-button variant="outline-primary" class="mt-5">Load More</b-button>-->
                 </b-col>
@@ -69,7 +71,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['results','searchExactMatch']),
+    ...mapState(['results','searchExactMatch', 'filters', 'orderBy']),
     //...mapGetters(['q',])
   },
   watch: {
@@ -106,10 +108,10 @@ export default {
 
       esTemplateOptions: {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
       queryTemplates: {},
-      state: {
-        orderBy: 'score',
-        filters: {}
-      },
+      // state: {
+      //   orderBy: 'score',
+      //   filters: {}
+      // },
       items: [],
       currentResults: [],
       facetStore: {},
@@ -245,7 +247,7 @@ export default {
       _.each(self.facetStore, function (items, facetname) {
         _.each(items, function (value, itemname) {
           self.facetStore[facetname][itemname].count = 0;
-          if (_.indexOf(self.state.filters[facetname], itemname) == -1) {
+          if (_.indexOf(self.filters[facetname], itemname) == -1) {
             self.facetStore[facetname][itemname].isActive = false;
           } else {
             self.facetStore[facetname][itemname].isActive = true;
@@ -267,7 +269,7 @@ export default {
       // self.currentResults = _.select(this.items, function (item) {
       let newResults = _.select(this.items, function (item) {
         let filtersApply = true;
-        _.each(self.state.filters, function (filter, facet) {
+        _.each(self.filters, function (filter, facet) {
           if (_.isArray(item[facet])) {
             var inters = _.intersection(item[facet], filter);
             if (inters.length == 0) {
@@ -316,44 +318,48 @@ export default {
         });
       });
       // remove confusing 0 from facets where a filter has been set
-      _.each(self.state.filters, function (filters, facettitle) {
+      _.each(self.filters, function (filters, facettitle) {
         _.each(self.facetStore[facettitle], function (facet) {
-          if (facet.count == 0 && self.state.filters[facettitle].length) facet.count = "+";
+          if (facet.count == 0 && self.filters[facettitle].length) facet.count = "+";
         });
       });
-      self.state.shownResults = 0;
+      self.shownResults = 0;
     },
     toggleFilter: function (key, value) {
-      console.log('toggleFilter')
-      var state = this.state;
-      state.filters[key] = state.filters[key] || [];
-      if (_.indexOf(state.filters[key], value) == -1) {
-        state.filters[key].push(value);
+
+      // var state = this.state;
+      this.filters[key] = this.filters[key] || [];
+      if (_.indexOf(this.filters[key], value) == -1) {
+        this.filters[key].push(value);
         // don't do isActive here. resetFacetCount is called later
       } else {
-        state.filters[key] = _.without(state.filters[key], value);
-        if (state.filters[key].length == 0) {
-          delete state.filters[key];
+        this.filters[key] = _.without(this.filters[key], value);
+        if (this.filters[key].length == 0) {
+          delete this.filters[key];
           // don't do isActive here. resetFacetCount is called later
         }
+      }
+      console.log('toggleFilter, # of keys: ' + this.filters[key].length)
+      for (let i = 0; i < this.filters[key].length; i++) {
+        console.log(this.filters[key][i]);
       }
       this.filter();
     },
     clearFilters: function () {
-      this.state.filters = {}
+      this.filters = {}
       this.filter()
     },
     order: function (orderBy) {
       let self = this;
-      self.state.orderBy = orderBy.field
-      if (this.state.orderBy) {
+      self.orderBy = orderBy.field
+      if (this.orderBy) {
         //$(".activeorderby").removeClass("activeorderby");
-        //$('#orderby_'+self.state.orderBy).addClass("activeorderby");
+        //$('#orderby_'+self.orderBy).addClass("activeorderby");
         self.currentResults = _.sortBy(self.currentResults, function (item) {
-          if (self.state.orderBy == 'RANDOM') {
+          if (self.orderBy == 'RANDOM') {
             return Math.random() * 10000;
           } else {
-            return item[self.state.orderBy];
+            return item[self.orderBy];
           }
         });
         //if (this.orderByOptionsSort[self.state.orderBy] === 'desc')
