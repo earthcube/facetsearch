@@ -121,7 +121,7 @@
         <connected-tools :d="d"></connected-tools>
 
         <relatedData :d="d" ></relatedData>
-
+        <sampleInfo></sampleInfo>
         <annotation></annotation>
 
 
@@ -151,6 +151,7 @@ import DatasetLocation from "./datasetLocation.vue";
 import ConnectedTools from "./connectedTools.vue";
 import Downloadfiles from "./downloadfiles.vue"
 import relatedData from "./relatedData.vue";
+import sampleInfo from "@/components/dataset/sampleInfo";
 import annotation from "./annotation.vue";
 import feedback from "../feedback/feedback";
 
@@ -170,9 +171,11 @@ import {
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
 
+
 export default {
 name: "dataset",
-  components: {ConnectedTools, DatasetLocation,
+  components: {
+    sampleInfo, ConnectedTools, DatasetLocation,
   //  Metadata,
     Downloadfiles,
    // "json-view": JSONView,
