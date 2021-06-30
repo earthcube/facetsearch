@@ -338,6 +338,9 @@ export default {
         if (state.filters[key].length == 0) {
           console.log('empty filter kw: ' + key)
           delete state.filters[key];
+          // this.$set(state.filters, key,  undefined)
+          // just setting to undefined does not work, and just delete does not work, so
+          state.filters = Object.assign({}, state.filters)
           // don't do isActive here. resetFacetCount is called later
         }
       }
