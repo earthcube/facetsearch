@@ -327,13 +327,16 @@ export default {
       console.log('toggleFilter')
       var state = this.state;
       state.filters[key] = state.filters[key] || [];
-      this.$set(state.filters, key, state.filters[key] || []);
+      this.$set(state.filters, key, state.filters[key] || [])
       if (_.indexOf(state.filters[key], value) == -1) {
         state.filters[key].push(value);
-        this.$set(state.filters, key, state.filters[key]);
+        this.$set(state.filters, key, state.filters[key])
         // don't do isActive here. resetFacetCount is called later
       } else {
-        state.filters[key] = _.without(state.filters[key], value);
+        var indx = _.indexOf(state.filters[key], value)
+        console.log('delete filter: ' + state.filters[key][indx])
+        // state.filters[key] = _.without(state.filters[key], value);
+        state.filters.splice(indx, 1)
         if (state.filters[key].length == 0) {
           delete state.filters[key];
           // don't do isActive here. resetFacetCount is called later
