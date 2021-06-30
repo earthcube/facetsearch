@@ -151,7 +151,7 @@ import DatasetLocation from "./datasetLocation.vue";
 import ConnectedTools from "./connectedTools.vue";
 import Downloadfiles from "./downloadfiles.vue"
 import relatedData from "./relatedData.vue";
-import sampleInfo from "@/components/dataset/sampleInfo";
+import sampleInfo from "@/components/dataset/igsnSampleList";
 import annotation from "./annotation.vue";
 import feedback from "../feedback/feedback";
 

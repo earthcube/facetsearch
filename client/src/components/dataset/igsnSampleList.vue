@@ -1,6 +1,6 @@
 <template>
   <b-container class="tools" v-if="partOf.length >0">
-    <h6 class="mt-4">Samples</h6>
+    <h6 class="mt-4">IGSN Samples</h6>
 
     <div class="tool border rounded"
          v-for="i in partOf"
@@ -9,7 +9,7 @@
          v-b-toggle="'collapse_' + i.value"
     >
       <div class="tool_info pr-3">
-        <b-link class="small metadata_link" :href="i.url">
+        <b-link class="small metadata_link" :href="i.url"  target="_top">
           <b-icon class="mr-1" icon="server" variant="data"></b-icon>
           Sample
         </b-link>
@@ -17,21 +17,8 @@
         <h6 class="tool_title text-primary" v-html=" i.value">
 
         </h6>
-        <div class="small">
-          <b-collapse :id="'collapse_' + i.value">
-            <!-- i.altName would be better if it exists -->
-<!--            <p>{{ i.description.value }}</p>-->
-            <p class="name" v-html="i.value"></p>
-          </b-collapse>
 
-          <b-icon icon="caret-down-fill" scale="1" class="when_open"></b-icon>
-          <b-icon icon="caret-up-fill" scale="1" class="when_closed"></b-icon>
-        </div>
-      </div>
-
-      <div class="buttons mt-3" v-if="false">
-        <b-button variant="outline-primary" v-on:click.stop="toRelatedData(i.g.value)">Open</b-button>
-      </div>
+    </div>
     </div>
   </b-container>
 </template>
@@ -43,6 +30,7 @@ import {mapState} from "vuex";
 //import {schemaItem} from "../../api/jsonldObject";
 //const {JSONPath} = require('jsonpath-plus');
 const jp = require('jsonpath')
+import _ from 'lodash'
 
 export default {
   name: "sampleInfo",
@@ -87,6 +75,7 @@ export default {
           //"$..hasPart[?(@.additionalType=='http://schema.geolink.org/1.0/base/main#PhysicalSample')].identifier")
           "$..hasPart[?(@.additionalType=='http://schema.geolink.org/1.0/base/main#PhysicalSample')].identifier")
       partOfFields = jp.query(partOfFields, '$[?(@.propertyID == "IGSN")]')
+      partOfFields = _.uniqWith(partOfFields, (a,b)=> a.value === b.value )
       console.log('partOf: ' + partOfFields.length)
       console.log(partOfFields)
      this.partOf = partOfFields
