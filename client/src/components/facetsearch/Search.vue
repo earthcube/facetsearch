@@ -326,7 +326,6 @@ export default {
     toggleFilter: function (key, value) {
       console.log('toggleFilter')
       var state = this.state;
-      state.filters[key] = state.filters[key] || [];
       this.$set(state.filters, key, state.filters[key] || [])
       if (_.indexOf(state.filters[key], value) == -1) {
         state.filters[key].push(value);
@@ -334,10 +333,10 @@ export default {
         // don't do isActive here. resetFacetCount is called later
       } else {
         var indx = _.indexOf(state.filters[key], value)
-        console.log('delete filter: ' + state.filters[key][indx])
-        // state.filters[key] = _.without(state.filters[key], value);
-        state.filters.splice(indx, 1)
+        console.log('delete filter: ' + state.filters[key][indx] + " from the key: " + key)
+        this.$set(state.filters, key, _.without(state.filters[key], value))
         if (state.filters[key].length == 0) {
+          console.log('empty filter kw: ' + key)
           delete state.filters[key];
           // don't do isActive here. resetFacetCount is called later
         }
