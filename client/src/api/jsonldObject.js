@@ -31,6 +31,7 @@ const getJsonLD =  async function (object){
     )
 
 }
+
 const schemaItem = function (name, json_compacted, noSchemaMessage="") {
     let s_name = json_compacted["https://schema.org/" + name] ? json_compacted["https://schema.org/" + name] :
         json_compacted["http://schema.org/" + name] ? json_compacted["http://schema.org/" + name] : noSchemaMessage

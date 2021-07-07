@@ -87,8 +87,20 @@
                     <div class="label"></div>
                     <div class="value buttons">
 <!--                    <b-button variant="outline-secondary">Website</b-button>-->
-                        <b-button variant="outline-secondary"><b-icon icon="chat-square-quote" class="mr-1"></b-icon>Cite</b-button>
-                        <b-button variant="outline-secondary"><b-icon icon="code-slash" class="mr-1"></b-icon>Metadata</b-button>
+                        <b-button v-b-toggle.collapse-cite variant="outline-secondary"><b-icon icon="chat-square-quote" class="mr-1"></b-icon>Cite</b-button>
+                        <b-collapse id="collapse-cite" class="mt-2">
+                          <b-card>
+                            <!-- TODO remove inline style attributes -->
+                            <vue-json-pretty class="text-left " :show-line="true" :deep="2" v-html="mapping.s_doi_citation"/>
+                          </b-card>
+                        </b-collapse>
+                        <b-button v-b-toggle.collapse-metadata variant="outline-secondary"><b-icon icon="code-slash" class="mr-1"></b-icon>Metadata</b-button>
+                        <b-collapse id="collapse-metadata" class="mt-2">
+                          <b-card>
+                            <!-- TODO remove inline style attributes -->
+                            <vue-json-pretty class="text-left " :show-line="true" :deep="2" :data="mapping.raw_json"/>
+                          </b-card>
+                        </b-collapse>
 <!--                        <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>-->
 <!--                        <feedback v-show="isFeedbackVisible" @close="closeModal" subject = 'dataset' :name="mapping.name" :urn="d"> </feedback>-->
 
@@ -170,6 +182,7 @@ import {
 //import {JSONView} from "vue-json-component";
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
+import axios from "axios";
 
 
 export default {
@@ -189,6 +202,7 @@ name: "dataset",
   },
   data(){ return {
     obscurePage: false,
+    doiUrl: '',
     mapping: {
       s_name: '',
       s_description: '',
@@ -212,7 +226,10 @@ name: "dataset",
       has_s_url: false,
       downloads: [],
       s_distribution: '',
-      s_variableMeasuredNames:[]
+      s_variableMeasuredNames:[],
+      s_doiurl: '',
+      s_doi_citation: '',
+      s_doi_metadata: '',
     }
     //jsonLdobj: {},
     //jsonLoaded: true,
@@ -263,7 +280,28 @@ name: "dataset",
       var jp = self.jsonLdCompact;
       // console.log(j.toString());
       mapping.raw_json = jp;
-      //const detailsTemplate = [];
+      mapping.s_identifier_doi = schemaItem('identifier', jp);//self.getDOIUrl()
+      if (mapping.s_identifier_doi) {
+        mapping.s_identifier_doi.forEach(function(item) {
+          if (item["@id"]) {
+            mapping.s_doiurl = item["@id"]
+          }
+        })
+        if (mapping.s_doiurl) {
+          const config = {
+            url: mapping.s_doiurl,
+            method: 'get',
+            headers: {
+              'Accept': 'text/x-bibliography'
+            },
+          }
+          axios.request(config).then(function (response) {
+            mapping.s_doi_citation = response.data
+          })
+        }
+      }
+
+          //const detailsTemplate = [];
       // detailsTemplate.push(html`<h3>Digital Document metadata</h3>`);
       mapping.s_name = schemaItem('name', jp);
       mapping.s_url = schemaItem('url', jp);
