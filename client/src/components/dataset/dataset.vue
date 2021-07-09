@@ -85,18 +85,8 @@
 
                 <div class="metadata mt-4">
                     <div class="label"></div>
-                    <div class="value buttons">
+                    <citationButton class="value buttons"> </citationButton>
 <!--                    <b-button variant="outline-secondary">Website</b-button>-->
-                        <b-button variant="outline-secondary"><b-icon icon="chat-square-quote" class="mr-1"></b-icon>Cite</b-button>
-                        <b-button variant="outline-secondary"><b-icon icon="code-slash" class="mr-1"></b-icon>Metadata</b-button>
-<!--                        <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>-->
-<!--                        <feedback v-show="isFeedbackVisible" @close="closeModal" subject = 'dataset' :name="mapping.name" :urn="d"> </feedback>-->
-
-
-
-<!--                        <b-button v-b-toggle.collapse_json variant="outline-secondary">Feedback</b-button>-->
-<!--                        <div id="app">-->
-                    </div>
 
 
                 </div>
@@ -128,11 +118,13 @@
 <!-- TODO move this into a component if keeping for final public view -->
         <b-row>
             <b-col md="12">
-                <h5>JSON-LD Metadata</h5>
 
-                <b-button v-b-toggle.collapse_json variant="outline-secondary">Toggle JSON-LD Metadata</b-button>
+              <b-button v-b-toggle.collapse_json
 
-                <b-collapse id="collapse_json" class="mt-2">
+                  variant="outline-secondary"><b-icon icon="code-slash" class="mr-1"
+                                                    ></b-icon>Metadata</b-button>
+
+                <b-collapse   id="collapse_json" class="mt-2" ref="metadataview">
                     <b-card>
 <!-- TODO remove inline style attributes -->
                       <vue-json-pretty class="text-left " :show-line="true" :deep="2" :data="mapping.raw_json"/>
@@ -154,6 +146,7 @@ import relatedData from "./relatedData.vue";
 import sampleInfo from "@/components/dataset/igsnSampleList";
 import annotation from "./annotation.vue";
 import feedback from "../feedback/feedback";
+import citationButton from "@/components/dataset/citationButton";
 
 //import {getJsonLD} from '../../api/jsonldObject.js'
 //import axios from "axios";
@@ -170,6 +163,7 @@ import {
 //import {JSONView} from "vue-json-component";
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
+//import axios from "axios";
 
 
 export default {
@@ -183,12 +177,14 @@ name: "dataset",
     relatedData,
     annotation,
     feedback,
+    citationButton
     },
   props:{
    d: String,
   },
   data(){ return {
     obscurePage: false,
+    doiUrl: '',
     mapping: {
       s_name: '',
       s_description: '',
@@ -201,7 +197,7 @@ name: "dataset",
       s_keywords: [],
       s_landingpage: '',
       s_downloads: [],
-      s_identifier_doi: '',
+      s_identifier: '',
       details: {},
       raw_json: '',
       html_name: '',
@@ -212,7 +208,10 @@ name: "dataset",
       has_s_url: false,
       downloads: [],
       s_distribution: '',
-      s_variableMeasuredNames:[]
+      s_variableMeasuredNames:[],
+      s_doiurl: '',
+      doi_citation: '', // s_ is schema... doi_citation not a schema element
+      doi_metadata: '',
     }
     //jsonLdobj: {},
     //jsonLoaded: true,
@@ -249,6 +248,17 @@ name: "dataset",
   },
   methods: {...mapActions([
       'fetchJsonLd',]),
+    scrollToMetadata() {
+      const element = this.$refs.metadataview;
+
+      if (element) {
+        // Use el.scrollIntoView() to instantly scroll to the element
+       // el.scrollIntoView({behavior: 'smooth'});
+        var top = element.$el.offsetHeight;
+
+        window.scrollTo(0, top);
+      }
+    },
     toMetadata() {
       var self = this;
       var mapping = this.mapping;
@@ -263,8 +273,10 @@ name: "dataset",
       var jp = self.jsonLdCompact;
       // console.log(j.toString());
       mapping.raw_json = jp;
-      //const detailsTemplate = [];
-      // detailsTemplate.push(html`<h3>Digital Document metadata</h3>`);
+      //mapping.s_identifier_doi = schemaItem('identifier', jp);//self.getDOIUrl()
+      mapping.s_identifier = schemaItem('identifier', jp);// just the identifier... do not know if it is a DOI
+
+
       mapping.s_name = schemaItem('name', jp);
       mapping.s_url = schemaItem('url', jp);
       mapping.s_description = schemaItem('description', jp);
@@ -328,7 +340,7 @@ name: "dataset",
 
       if (hasSchemaProperty('citation', jp)) {
         mapping.s_citation = schemaItem('citation', jp);
-        mapping.hide_citation_tab = false;
+        mapping.has_citation = false;
       }
       mapping.s_keywords = schemaItem('keywords', jp);
       mapping.s_landingpage = schemaItem('description', jp);
@@ -362,9 +374,9 @@ name: "dataset",
       // show
       this.obscurePage = false;
     },
-  }
 
 
+  },
 
 }
 </script>
