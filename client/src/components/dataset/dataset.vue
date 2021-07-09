@@ -88,19 +88,20 @@
                     <div class="value buttons">
 <!--                    <b-button variant="outline-secondary">Website</b-button>-->
                         <b-button v-b-toggle.collapse-cite variant="outline-secondary"><b-icon icon="chat-square-quote" class="mr-1"></b-icon>Cite</b-button>
+
+                        <b-button v-b-toggle.collapse-metadata variant="outline-secondary"><b-icon icon="code-slash" class="mr-1"></b-icon>Metadata</b-button>
                         <b-collapse id="collapse-cite" class="mt-2">
                           <b-card>
                             <!-- TODO remove inline style attributes -->
                             <vue-json-pretty class="text-left " :show-line="true" :deep="2" v-html="mapping.s_doi_citation"/>
                           </b-card>
                         </b-collapse>
-                        <b-button v-b-toggle.collapse-metadata variant="outline-secondary"><b-icon icon="code-slash" class="mr-1"></b-icon>Metadata</b-button>
                         <b-collapse id="collapse-metadata" class="mt-2">
-                          <b-card>
-                            <!-- TODO remove inline style attributes -->
-                            <vue-json-pretty class="text-left " :show-line="true" :deep="2" :data="mapping.raw_json"/>
-                          </b-card>
-                        </b-collapse>
+                            <b-card>
+                              <!-- TODO remove inline style attributes -->
+                              <vue-json-pretty class="text-left " :show-line="true" :deep="2" :data="mapping.raw_json"/>
+                            </b-card>
+                          </b-collapse>
 <!--                        <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>-->
 <!--                        <feedback v-show="isFeedbackVisible" @close="closeModal" subject = 'dataset' :name="mapping.name" :urn="d"> </feedback>-->
 
