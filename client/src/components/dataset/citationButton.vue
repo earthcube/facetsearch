@@ -106,7 +106,8 @@ export default {
         // being real method
 
         var s_citation = schemaItem('citation', jp);
-        if (s_citation.indexOf('doi')<0 && s_citation !== "") {
+        // check if there is citation string.
+        if (!s_citation.startsWith('http') && s_citation.indexOf('doi.org')<0 && s_citation !== "") {
           this.citation=  s_citation
         } else if (s_citation) {
           self.getDoiService(s_citation).then((data) => this.citation=data)
