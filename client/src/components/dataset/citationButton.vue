@@ -75,6 +75,10 @@ export default {
     async toCitation(){
       var self = this;
       var jp = this.jsonLdCompact;
+      let properties = ["https://registry.identifiers.org/registry/doi",
+        "https://registry.identifiers.org/registry/doi",
+        "DOI",
+        'http://purl.org/spar/datacite/doi']
       //var jo = this.jsonLdObj; // good case for jsonpath
 
 
@@ -114,10 +118,15 @@ export default {
         }
         // ok, is there an identifier that is a DOI.
         var ident = schemaItem('identifier', jp);//self.getDOIUrl()
-        if (_.isString(ident) ){
+        // console.log('ident: ' + ident)
+        if (_.isString(ident)){
           if (ident.indexOf('doi') >=0){
             self.getDoiService(ident).then((data) => this.citation=data)
           }
+        } else if(Array.isArray(ident)) {
+          var doi = _.find(ident, (i) => _.includes(properties, i["https://schema.org/propertyID"]))
+          var doi_url = doi["https://schema.org/url"]
+          self.getDoiService(doi_url).then((data) => this.citation=data)
         }
         var propertyType = schemaItem('propertyID', ident)
         if (propertyType !== undefined && propertyType === 'DOI') {
