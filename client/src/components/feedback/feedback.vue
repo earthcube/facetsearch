@@ -97,7 +97,7 @@ export default {
       let emailBody =  this.subject + ' title: ' + this.name + ' \n'
       emailBody = emailBody.concat(this.subject + 'Id:' + this.urn + '\n')
       emailBody = emailBody.concat('My Message: \n' + this.feedback_message + '\n')
-      var mailto_link = 'mailto:' + 'emailfeedback@geocodes.earthcube.org' + '?subject=' + email_subject + '&body=' + encodeURIComponent(emailBody);
+      var mailto_link = 'mailto:' + 'feedback@geocodes.earthcube.org' + '?subject=' + email_subject + '&body=' + encodeURIComponent(emailBody);
       window.open(mailto_link);
       // Hide the modal manually
       this.$nextTick(() => {
