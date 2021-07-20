@@ -86,7 +86,7 @@ in case more intro paragraph text is needed
         <b-container fluid="md" class="mt-5">
             <h2>Feedback</h2>
 
-            <p><a href="https://github.com/earthcube/facetsearch/issues" target="_blank">Create an issue</a> and a <a href="mailto:emailfeedback@geocodes.earthcube.org" >email feedback.</a></p>
+            <p><a href="https://github.com/earthcube/facetsearch/issues" target="_blank">Create an issue</a> and a <a href="mailto:feedback@geocodes.earthcube.org" >email feedback.</a></p>
           <p><a href="https://github.com/earthcube/facetsearch/" target="_blank">Source Code </a> </p>
           <p> Version: {{$store.getters.appVersion}} Date: {{$store.getters.appDate}} </p>
         </b-container>
