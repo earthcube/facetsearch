@@ -70,6 +70,9 @@ export default {
     }
     ,
     calculateYearHistorgram(){
+      // not fully sure this will work... but just the idea of a map fuction to get values.
+      // need to trim to first 4 charaters... and trap missing value.
+
       // eslint-disable-next-line no-unused-vars
       var years = this.facetItems.reduce(function (freqs, val, i) {
         var bin = (this.binSize * val);
