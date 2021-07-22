@@ -68,20 +68,12 @@ export default {
   methods: {
     callbackRange() {
       console.log(this.value)
-    }
-    ,
-    calculateYearHistorgram(){
-      // not fully sure this will work... but just the idea of a map fuction to get values.
-      // need to trim to first 4 charaters... and trap missing value.
+    },
+    // use search initFacetCounts or something facetCounts to get counts for facet
+    // or items = currentResults.map((o) => i["someField"] pass to historgram data
 
-      // eslint-disable-next-line no-unused-vars
-      var years = this.facetItems.reduce(function (freqs, val, i) {
-        var bin = (this.binSize * val);
-        freqs[bin] ? freqs[bin]++ : freqs[bin] = 1;
-        return freqs;
-      }, {})
-      return years
-    }
+    // modify toggle filter, or feed togglefitler the correct list of object to select
+
   },
 }
 </script>
