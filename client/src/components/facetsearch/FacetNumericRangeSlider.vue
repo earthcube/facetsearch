@@ -1,13 +1,13 @@
 <template>
   <div class="filter_card">
-    <b-button block squared v-b-toggle="'accordion_'+ facetSetting.field">
+    <b-button block squared v-b-toggle="'accordion_range_'+ facetSetting.field">
       {{ facetSetting.title }}
       <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
       <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>
     </b-button>
 
     <b-collapse
-        :id="'accordion_'+ facetSetting.field"
+        :id="'accordion_range_'+ facetSetting.field"
         :visible="facetSetting.open"
     >
       <div>
@@ -70,7 +70,7 @@ export default {
       console.log(this.value)
     },
     // use search initFacetCounts or something facetCounts to get counts for facet
-    // or items = currentResults.map((o) => i["someField"] pass to historgram data
+    // or items = (from search.vue)... items.map((o) => i["someField"] pass to historgram data
 
     // modify toggle filter, or feed togglefitler the correct list of object to select
 

@@ -1,13 +1,13 @@
 <template  >
     <div class="filter_card">
-        <b-button block squared v-b-toggle="'accordion_'+ facetSetting.field">
+        <b-button block squared v-b-toggle="'accordion_text_'+ facetSetting.field">
             {{facetSetting.title}}
             <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
             <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>
         </b-button>
 
         <b-collapse
-            :id="'accordion_'+ facetSetting.field"
+            :id="'accordion_text_'+ facetSetting.field"
             :visible="facetSetting.open"
         >
             <b-list-group flush>
