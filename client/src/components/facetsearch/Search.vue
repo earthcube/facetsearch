@@ -15,6 +15,8 @@
                         v-bind:state="state"
                     ></Facets>
                   <feedback subject = 'Search' :name="textQuery" :urn="feedBackItemId"> </feedback>
+                  <RangeSlider v-model="value" yearMin=1980 yearMax=2030></RangeSlider>
+<!--                  <HistRangeSlider></HistRangeSlider>-->
                 </b-col>
 
                 <!-- filter and results -->
@@ -54,6 +56,9 @@ import {mapActions,
  // mapGetters
 } from "vuex";
 import feedback from "../feedback/feedback";
+import RangeSlider from "./RangeSlider.vue";
+// import HistRangeSlider from "./HistRangeSlider.vue"
+
 
 export default {
   name: "Search",
@@ -95,10 +100,13 @@ export default {
     ResultHeader,
     Results,
     Facets,
-    feedback
+    feedback,
+    RangeSlider,
+    // HistRangeSlider
   },
   data() {
     return {
+      value: 1,
       isModalVisible: false,
       feedBackItemId: String,
       o: 0,
