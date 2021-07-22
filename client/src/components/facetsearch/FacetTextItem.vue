@@ -9,7 +9,7 @@
 
 
 export default {
-  name: "FacetItem",
+  name: "FacetTextItem",
   props: ['facetSetting',"term", "count", "isActive"],
 
 computed:{

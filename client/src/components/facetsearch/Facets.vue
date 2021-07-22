@@ -1,42 +1,56 @@
 <template>
-<div id="facets"  >
- <Facet v-for="facetSetting in facets" v-bind:key="facetSetting.title"
-       :facetSetting="facetSetting"
-        :facetStore="facetStore"
-        :state="state"
+  <div id="facets">
+    <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
+          <FacetText v-if="facetSetting.type=='text'"
+                     :facetSetting="facetSetting"
+                     :facetStore="facetStore"
+                     :state="state"
 
- >
-        </Facet>
-<!--  <Facet v-for="facetkey in Object.keys(facetStore2)" v-bind:key="facetkey"-->
-<!--         v-bind:facetSetting="facets.find( (obj) => obj.field === facetkey)"-->
-<!--         v-bind:facetStore="facetStore2" >-->
-<!--  </Facet>-->
-</div>
+          >
+          </FacetText>
+          <!--  <Facet v-for="facetkey in Object.keys(facetStore2)" v-bind:key="facetkey"-->
+          <!--         v-bind:facetSetting="facets.find( (obj) => obj.field === facetkey)"-->
+          <!--         v-bind:facetStore="facetStore2" >-->
+          <!--  </Facet>-->
+
+          <FacetNumericRangeSlider v-if="facetSetting.type=='range'"
+                     :facetSetting="facetSetting"
+                     :facetStore="facetStore"
+                     :state="state"
+
+          >
+          </FacetNumericRangeSlider>
+    </div>
+  </div>
 </template>
 
 <script>
-import Facet from "./Facet";
+import FacetText from "./FacetText";
+import FacetNumericRangeSlider from "./FacetNumericRangeSlider";
+
 export default {
-name: "Facets",
+  name: "Facets",
   components: {
-  Facet
+    FacetText,
+    FacetNumericRangeSlider
   },
-  props: {"facetStore":Object,
-  "facets":Array,
-  "state":Object,
+  props: {
+    "facetStore": Object,
+    "facets": Array,
+    "state": Object,
 //   "currentResults": Array
   },
-  data: function() {
-  return {
-    facetStore2: this.facetStore,
+  data: function () {
+    return {
+      facetStore2: this.facetStore,
 
-  }
+    }
   },
   methods: {
-  //  updateFacets(){
-  //   this.$forceUpdate();
-  // }
-}
+    //  updateFacets(){
+    //   this.$forceUpdate();
+    // }
+  }
 }
 </script>
 

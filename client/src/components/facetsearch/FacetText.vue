@@ -11,7 +11,7 @@
             :visible="facetSetting.open"
         >
             <b-list-group flush>
-                <FacetItem
+                <FacetTextItem
                     v-for='(info, term) in facetItems'
                     v-bind:key="info.id"
                     v-on:click.native="_handleClick"
@@ -20,7 +20,7 @@
                     :count="info.count"
                     :facetSetting="facetSetting"
                     :isActive="info.isActive"
-                ></FacetItem>
+                ></FacetTextItem>
             </b-list-group>
         </b-collapse>
     </div>
@@ -29,12 +29,12 @@
 <script>
 //import Vue from 'vue'
 import _ from "underscore";
-import FacetItem from "./FacetItem";
+import FacetTextItem from "./FacetTextItem";
 import {bus} from "../../main.js"
 import Vue from "vue";
 export default {
-  name: "Facet",
-  components: {FacetItem},
+  name: "FacetText",
+  components: {FacetTextItem},
   inject: ["toggleFilter"],
   props: {
     "facetSetting":Object,
