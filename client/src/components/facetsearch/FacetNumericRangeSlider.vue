@@ -57,7 +57,8 @@ export default {
   },
   data() {
     return {
-      value: [this.yearMin, this.yearMax],
+      value: [1950, 2021],
+     // value: [this.yearMin, this.yearMax],
       facetItems: this.facetStore[this.facetSetting.field],
     }
   },
