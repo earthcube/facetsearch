@@ -1,30 +1,53 @@
 <template>
   <div class="filter_card">
-    <b-button block squared v-b-toggle="'accordion_'+ facetSetting.field">
+    <b-button block squared v-b-toggle="'accordion_slider'+ facetSetting.field">
       {{ facetSetting.title }}
       <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
       <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>
     </b-button>
 
+<!--    <span>startDate: {{startYear}}</span>-->
+<!--    <span>startDate: {{startMonth}}</span>-->
+<!--    <span>startDate: {{startDay}}</span>-->
+<!--    <span>endDate: {{endYear}}</span>-->
+    <span>range: {{sliderrange}}</span>
+
     <b-collapse
-        :id="'accordion_'+ facetSetting.field"
+        :id="'accordion_slider'+ facetSetting.field"
         :visible="facetSetting.open"
     >
-      <div>
-        <vue-range-slider ref="slider" v-model="value" :min="yearMin" :max="yearMax"
-                          @drag-end="callbackRange"></vue-range-slider>
-      </div>
+<!--      <div>-->
+<!--        <HistRangeSlider :startDate="startDate" :end-date="endDate"> </HistRangeSlider>-->
+<!--      </div>-->
 
-      <span
-          class="text-h2 font-weight-light"
-          v-text="yearMin"
-      ></span>
-      <span class="subheading font-weight-light mr-1"> year to </span>
-      <span
-          class="text-h2 font-weight-light"
-          v-text="yearMax"
-      ></span>
-      <span class="subheading font-weight-light mr-1"> year</span>
+      <HistogramSlider
+          style="margin: 200px auto"
+          :data="data"
+          :width="200"
+          :bar-height="50"
+          :prettify="prettify"
+          :drag-interval="true"
+          :force-edges="false"
+          :colors="['#4facfe', '#00f2fe']"
+          :min="new Date(startYear, startMonth, startDay).valueOf()"
+          :max="new Date(endYear, endMonth, endDay).valueOf()"
+          @finish="sliderChanged"
+      >
+      </HistogramSlider>
+
+      <span v-if="rangeShow=='yes'" >Range startDate: {{rangeStartDate}}  to  </span>
+      <span v-if="rangeShow=='yes'" >Range endDate: {{rangeEndDate}}</span>
+
+<!--      <span-->
+<!--          class="text-h2 font-weight-light"-->
+<!--          v-text="daterange.startDate"-->
+<!--      ></span>-->
+<!--      <span class="subheading font-weight-light mr-1">  to  </span>-->
+<!--      <span-->
+<!--          class="text-h2 font-weight-light"-->
+<!--          v-text="daterange.endDate"-->
+<!--      ></span>-->
+<!--      <span class="subheading font-weight-light mr-1"> year</span>-->
     </b-collapse>
 
   </div>
@@ -33,20 +56,49 @@
 </template>
 <script>
 
-import 'vue-range-component/dist/vue-range-slider.css'
-import VueRangeSlider from 'vue-range-component'
+// import 'vue-range-component/dist/vue-range-slider.css'
+// import VueRangeSlider from 'vue-range-component'
+// import HistRangeSlider from './HistRangeSlider.vue'
+
+// import data from "./data.json";
+import HistogramSlider from 'vue-histogram-slider';
+import 'vue-histogram-slider/dist/histogram-slider.css';
+
 
 export default {
   name: "FacetRange",
   props: {
-    yearMin: {
-      default: 1900,
+    startYear: {
       type: Number
     },
-    yearMax: {
-      default: 2050,
+    startMonth: {
       type: Number
     },
+    startDay: {
+      type: Number
+    },
+    endYear: {
+      type: Number
+    },
+    endMonth: {
+      type: Number
+    },
+    endDay: {
+      type: Number
+    },
+    // startDate: {
+    //   year: "numeric",
+    //   month: "short",
+    //   day: "numeric",
+    //   required: true
+    // },
+    // endDate: {
+    //   year: "numeric",
+    //   month: "short",
+    //   day: "numeric",
+    //   required: true
+    // },
+    sliderrange: Array,
     binSize: {
       default: 1,
       type: Number
@@ -57,17 +109,30 @@ export default {
   },
   data() {
     return {
-      value: [1950, 2021],
-     // value: [this.yearMin, this.yearMax],
+      rangeShow: "no",
+      rangeStartDate: "",
+      rangeEndDate: "",
       facetItems: this.facetStore[this.facetSetting.field],
+      data: this.sliderrange.map(d => new Date(d)),
+      prettify: function(ts) {
+        return new Date(ts).toLocaleDateString("en", {
+          year: "numeric",
+          month: "short",
+          day: "numeric"
+        });
+      }
     }
   },
   components: {
-    VueRangeSlider
+    // VueRangeSlider,
+    HistogramSlider
   },
   methods: {
-    callbackRange() {
-      console.log(this.value)
+    sliderChanged(values) {
+      this.rangeShow = "yes"
+      this.rangeStartDate = new Date(values.from).toISOString().slice(0,10).replace(/-/g,"-")
+      this.rangeEndDate = new Date(values.to).toISOString().slice(0,10).replace(/-/g,"-")
+      console.log("drag: " + this.rangeStartDate + ", to " + this.rangeEndDate)
     }
     ,
     calculateYearHistorgram(){

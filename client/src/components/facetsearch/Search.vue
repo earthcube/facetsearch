@@ -13,6 +13,7 @@
                         v-bind:facets="facets"
                         v-bind:facetStore="facetStore"
                         v-bind:state="state"
+                        v-bind:daterange="daterange"
                     ></Facets>
                   <feedback subject = 'Search' :name="textQuery" :urn="feedBackItemId"> </feedback>
 
@@ -119,6 +120,19 @@ export default {
       },
       items: [],
       currentResults: [],
+      daterange: {
+        startDate: {
+          year: "numeric",
+          month: "short",
+          day: "numeric"
+        },
+        endDate: {
+          year: "numeric",
+          month: "short",
+          day: "numeric"
+        },
+        range: []
+      },
       facetStore: {},
       //---- ok to edit facets
       facets: FacetsConfig.FACETS,
@@ -329,6 +343,34 @@ export default {
         });
       });
       self.state.shownResults = 0;
+      // this.$set(this.facetStore, "datep", [])
+      if ('datep' in this.facetStore) {
+        var range = []
+        for (var key in this.facetStore['datep']){
+
+          var d = key.split("-")
+          if (d.length == 1) {
+            key = key+"-1-1";
+          }
+          key = new Date(key).toISOString()
+          range.push(key);
+          // var hists = this.facetStore['datep'][key]['count']
+          // while(hists > 0) {
+          //   range.push(key);
+          //   hists--;
+          // }
+        }
+        if (range.length != 0) {
+          var date = range[0].split("-")
+          var startDate = {year: date[0], month: date[1], day: date[2]}
+          date = range[range.length-1].split("-")
+          var endDate = {year: date[0], month: date[1], day: date[2]}
+          this.$set(this.daterange, "startDate", startDate);
+          this.$set(this.daterange, "endDate", endDate);
+          this.$set(this.daterange, "range", range);
+        }
+      }
+      console.log(this.daterange)
     },
     toggleFilter: function (key, value) {
       console.log('toggleFilter')

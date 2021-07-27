@@ -17,6 +17,15 @@
                      :facetSetting="facetSetting"
                      :facetStore="facetStore"
                      :state="state"
+                     :sliderrange="daterange.range"
+                     :startDate="daterange.startDate"
+                     :endDate="daterange.endDate"
+                                   :start-year="daterange.startDate.year"
+                                   :start-month="daterange.startDate.month"
+                                   :start-day="daterange.startDate.day"
+                                   :end-year="daterange.endDate.year"
+                                   :end-month="daterange.endDate.month"
+                                   :end-day="daterange.endDate.day"
 
           >
           </FacetNumericRangeSlider>
@@ -35,6 +44,19 @@ export default {
     FacetNumericRangeSlider
   },
   props: {
+    daterange: {
+      startDate: {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      },
+      endDate: {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      },
+      range: []
+    },
     "facetStore": Object,
     "facets": Array,
     "state": Object,
