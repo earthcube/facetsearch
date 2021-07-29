@@ -42,6 +42,7 @@
 </template>
 
 <script>
+import data from "./data.json";
 import Vue from 'vue'
 import Results from "./Results";
 import Facets from "./Facets";
@@ -310,7 +311,8 @@ export default {
       self.currentResults.splice(0, len);
       newResults.forEach((i) => self.currentResults.push(i))
 
-
+      console.log(data)
+      console.log(data.map(d => new Date(d).valueOf()))
       this.resetFacetCount();
       // then reduce the items to get the current count for each facet
       _.each(self.facets, function (facet) {
@@ -368,6 +370,7 @@ export default {
           this.$set(this.daterange, "startDate", startDate);
           this.$set(this.daterange, "endDate", endDate);
           this.$set(this.daterange, "range", range);
+          console.log(this.daterange.range)
         }
       }
       console.log(this.daterange)

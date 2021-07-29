@@ -20,12 +20,12 @@
                      :sliderrange="daterange.range"
                      :startDate="daterange.startDate"
                      :endDate="daterange.endDate"
-                                   :start-year="daterange.startDate.year"
-                                   :start-month="daterange.startDate.month"
-                                   :start-day="daterange.startDate.day"
-                                   :end-year="daterange.endDate.year"
-                                   :end-month="daterange.endDate.month"
-                                   :end-day="daterange.endDate.day"
+                     :start-year="daterange.startDate.year"
+                     :start-month="daterange.startDate.month"
+                     :start-day="daterange.startDate.day"
+                     :end-year="daterange.endDate.year"
+                     :end-month="daterange.endDate.month"
+                     :end-day="daterange.endDate.day"
 
           >
           </FacetNumericRangeSlider>

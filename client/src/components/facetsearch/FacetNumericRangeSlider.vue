@@ -10,7 +10,7 @@
 <!--    <span>startDate: {{startMonth}}</span>-->
 <!--    <span>startDate: {{startDay}}</span>-->
 <!--    <span>endDate: {{endYear}}</span>-->
-    <span>range: {{sliderrange}}</span>
+<!--    <span>range: {{sliderrange}}</span>-->
 
     <b-collapse
         :id="'accordion_slider'+ facetSetting.field"
@@ -22,15 +22,15 @@
 
       <HistogramSlider
           style="margin: 200px auto"
-          :data="data"
+          :data="mydata"
           :width="200"
           :bar-height="50"
           :prettify="prettify"
           :drag-interval="true"
           :force-edges="false"
           :colors="['#4facfe', '#00f2fe']"
-          :min="new Date(startYear, startMonth, startDay).valueOf()"
-          :max="new Date(endYear, endMonth, endDay).valueOf()"
+          :min="new Date(1950,1,1).valueOf()"
+          :max="new Date(2050,1,1).valueOf()"
           @finish="sliderChanged"
       >
       </HistogramSlider>
@@ -60,31 +60,32 @@
 // import VueRangeSlider from 'vue-range-component'
 // import HistRangeSlider from './HistRangeSlider.vue'
 
-// import data from "./data.json";
+import datafile from "./data.json";
 import HistogramSlider from 'vue-histogram-slider';
 import 'vue-histogram-slider/dist/histogram-slider.css';
+import {mapState} from "vuex";
 
 
 export default {
   name: "FacetRange",
   props: {
     startYear: {
-      type: Number
+      type: String
     },
     startMonth: {
-      type: Number
+      type: String
     },
     startDay: {
-      type: Number
+      type: String
     },
     endYear: {
-      type: Number
+      type: String
     },
     endMonth: {
-      type: Number
+      type: String
     },
     endDay: {
-      type: Number
+      type: String
     },
     // startDate: {
     //   year: "numeric",
@@ -109,17 +110,20 @@ export default {
   },
   data() {
     return {
+      myself: "this",
+      // mydata:[],
+      mydata: datafile.map(d => new Date(d).valueOf()),
       rangeShow: "no",
       rangeStartDate: "",
       rangeEndDate: "",
       facetItems: this.facetStore[this.facetSetting.field],
-      data: this.sliderrange.map(d => new Date(d)),
       prettify: function(ts) {
-        return new Date(ts).toLocaleDateString("en", {
+        var newDate = new Date(ts).toLocaleDateString("en", {
           year: "numeric",
           month: "short",
           day: "numeric"
         });
+        return newDate;
       }
     }
   },
@@ -127,15 +131,33 @@ export default {
     // VueRangeSlider,
     HistogramSlider
   },
+  computed: {
+    ...mapState(['results']),
+    //...mapGetters(['q',])
+  },
+  watch: {
+    results: 'calculateYearHistorgram',
+  },
+  mounted() {
+    console.log(this.sliderrange)
+  },
   methods: {
     sliderChanged(values) {
-      this.rangeShow = "yes"
-      this.rangeStartDate = new Date(values.from).toISOString().slice(0,10).replace(/-/g,"-")
-      this.rangeEndDate = new Date(values.to).toISOString().slice(0,10).replace(/-/g,"-")
-      console.log("drag: " + this.rangeStartDate + ", to " + this.rangeEndDate)
+      console.log(values)
+      // this.rangeShow = "yes"
+      // this.rangeStartDate = new Date(values.from).toISOString().slice(0,10).replace(/-/g,"-")
+      // this.rangeEndDate = new Date(values.to).toISOString().slice(0,10).replace(/-/g,"-")
+      // console.log("drag: " + this.rangeStartDate + ", to " + this.rangeEndDate)
     }
     ,
     calculateYearHistorgram(){
+      console.log(this.results)
+      // calculate the sliderrange
+      // this.sliderrange = [ "1985-01-01T06:00:00.000Z", "2008-01-01T06:00:00.000Z", "2008-01-01T06:00:00.000Z",  "2008-01-01T06:00:00.000Z", "2020-01-01T06:00:00.000Z" ]
+      // for (let date in datafile.map(d => new Date(d).valueOf())) {
+      //   this.mydata.push(date)
+      // }
+
       // not fully sure this will work... but just the idea of a map fuction to get values.
       // need to trim to first 4 charaters... and trap missing value.
 
