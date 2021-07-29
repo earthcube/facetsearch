@@ -14,6 +14,7 @@
           <!--  </Facet>-->
 
           <FacetNumericRangeSlider v-if="facetSetting.type=='range'"
+                                   :field-name="facetSetting.field"
                      :facetSetting="facetSetting"
                      :facetStore="facetStore"
                      :state="state"
