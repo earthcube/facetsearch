@@ -1,6 +1,6 @@
 <template>
   <div class="filter_card">
-    <b-button block squared v-b-toggle="'accordion_slider'+ facetSetting.field">
+    <b-button block squared v-b-toggle="'accordion_range_'+ facetSetting.field">
       {{ facetSetting.title }}
       <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
       <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>
@@ -13,7 +13,7 @@
 <!--    <span>range: {{sliderrange}}</span>-->
 
     <b-collapse
-        :id="'accordion_slider'+ facetSetting.field"
+        :id="'accordion_range_'+ facetSetting.field"
         :visible="facetSetting.open"
     >
 <!--      <div>-->
@@ -148,15 +148,14 @@ export default {
       // this.rangeStartDate = new Date(values.from).toISOString().slice(0,10).replace(/-/g,"-")
       // this.rangeEndDate = new Date(values.to).toISOString().slice(0,10).replace(/-/g,"-")
       // console.log("drag: " + this.rangeStartDate + ", to " + this.rangeEndDate)
-    }
-    ,
+    },
     calculateYearHistorgram(){
       console.log(this.results)
       // calculate the sliderrange
       // this.sliderrange = [ "1985-01-01T06:00:00.000Z", "2008-01-01T06:00:00.000Z", "2008-01-01T06:00:00.000Z",  "2008-01-01T06:00:00.000Z", "2020-01-01T06:00:00.000Z" ]
-      // for (let date in datafile.map(d => new Date(d).valueOf())) {
-      //   this.mydata.push(date)
-      // }
+      for (let date in datafile.map(d => new Date(d).valueOf())) {
+        this.mydata.push(date)
+      }
 
       // not fully sure this will work... but just the idea of a map fuction to get values.
       // need to trim to first 4 charaters... and trap missing value.
