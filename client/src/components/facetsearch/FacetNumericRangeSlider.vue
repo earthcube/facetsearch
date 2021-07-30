@@ -17,7 +17,7 @@
 <!--        :visible="facetSetting.open"-->
 <!--    >-->
       <div class="m-2 clearfix">
-        <RangeSlider :startDate="rangeStartDate" :endDate="rangeEndDate"></RangeSlider>
+        <RangeSlider :filterDates="mydata" :startDate="rangeStartDate" :endDate="rangeEndDate"></RangeSlider>
       </div>
 
 <!--      <HistogramSlider-->
@@ -163,6 +163,12 @@ export default {
       // console.log(this.results)
       this.mydata = this.results.filter(item => 'datep' in item).map(item => item['datep'])
       console.log(this.mydata)
+      this.mydata = Array.from(new Set(this.mydata));
+      this.mydata.sort( function(a, b){
+        var c = new Date(a);
+        var d = new Date(b);
+        return c-d;
+      });
       // calculate the sliderrange
       // this.sliderrange = [ "1985-01-01T06:00:00.000Z", "2008-01-01T06:00:00.000Z", "2008-01-01T06:00:00.000Z",  "2008-01-01T06:00:00.000Z", "2020-01-01T06:00:00.000Z" ]
       // for (let date in datafile.map(d => new Date(d).valueOf())) {
@@ -185,8 +191,8 @@ export default {
      //      }
      //
      //  )
-      this.rangeStartDate = _.min(this.mydata)
-      this.rangeEndDate = _.max(this.mydata)
+      this.rangeStartDate = new Date(_.min(this.mydata)).getFullYear()-1
+      this.rangeEndDate = new Date(_.max(this.mydata)).getFullYear()+1
       console.log(this.rangeStartDate + ", " + this.rangeEndDate)
       // this.$refs["slider-"+ this.fieldName].refresh()
       //  ,

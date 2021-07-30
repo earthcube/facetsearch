@@ -30,6 +30,7 @@ export default {
     endDate: {
       required: true
     },
+    filterDates : []
   },
   data() {
     return {
@@ -41,11 +42,17 @@ export default {
   },
   methods: {
     callbackRange () {
+      console.log(this.filterDates)
       var newRangeStartDate = this.value[0]
       var newRangeEndDate = this.value[1]
       console.log(newRangeStartDate + ", " + newRangeEndDate)
-      this.toggleFilter('datep', newRangeStartDate.toString());
-      // this.toggleFilter('datep', newRangeEndDate);
+
+      var filteredDates = this.filterDates.filter(date => new Date(date.toString()) >= new Date(newRangeStartDate.toString())
+          && new Date(date.toString()) <= new Date(newRangeEndDate.toString()))
+      console.log(filteredDates)
+      for (let i = 0; i < filteredDates.length; i++) {
+        this.toggleFilter('datep', filteredDates[i]);
+      }
     }
   },
 }
