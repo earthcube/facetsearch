@@ -113,7 +113,7 @@
 
                 <b-card>
                     <b-card-title>Downloads</b-card-title>
-                    <downloadfiles></downloadfiles>
+                    <downloadfiles d="d"></downloadfiles>
                 </b-card>
             </b-col>
         </b-row>
