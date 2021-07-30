@@ -17,7 +17,7 @@
 <!--        :visible="facetSetting.open"-->
 <!--    >-->
       <div class="m-2 clearfix">
-        <VueRangeSlider ref="slider-{{facetSetting.field}}" :data="mydata"> </VueRangeSlider>
+        <RangeSlider :startDate="rangeStartDate" :endDate="rangeEndDate"></RangeSlider>
       </div>
 
 <!--      <HistogramSlider-->
@@ -25,7 +25,6 @@
 <!--          :data="mydata"-->
 <!--          :width="200"-->
 <!--          :bar-height="50"-->
-
 <!--          :drag-interval="true"-->
 <!--          :force-edges="false"-->
 <!--          :colors="['#4facfe', '#00f2fe']"-->
@@ -56,8 +55,13 @@
 </template>
 <script>
 
- import 'vue-range-component/dist/vue-range-slider.css'
- import VueRangeSlider from 'vue-range-component'
+import RangeSlider from './RangeSlider.vue'
+
+// import HistogramSlider from "vue3-histogram-slider";
+// import "vue3-histogram-slider/dist/histogram-slider.css";
+
+ // import 'vue-range-component/dist/vue-range-slider.css'
+ // import VueRangeSlider from 'vue-range-component'
 // import HistRangeSlider from './HistRangeSlider.vue'
 
 //import datafile from "./data.json";
@@ -114,26 +118,25 @@ export default {
   },
   data() {
     return {
-      myself: "this",
-      mydata:[],
+      mydata: [],
       //  mydata: datafile.map(d => new Date(d).valueOf()),
       rangeShow: "no",
       rangeStartDate: "",
       rangeEndDate: "",
       facetItems: this.facetStore[this.facetSetting.field],
-      prettify: function(ts) {
-        var newDate = new Date(ts).toLocaleDateString("en", {
-          year: "numeric",
-          month: "short",
-          day: "numeric"
-        });
-        return newDate;
-      }
+      // prettify: function(ts) {
+      //   var newDate = new Date(ts).toLocaleDateString("en", {
+      //     year: "numeric",
+      //     month: "short",
+      //     day: "numeric"
+      //   });
+      //   return newDate;
+      // }
     }
   },
   components: {
-     VueRangeSlider,
-    //HistogramSlider
+    RangeSlider,
+    // HistogramSlider
   },
   computed: {
     ...mapState(['results']),
@@ -142,47 +145,50 @@ export default {
   watch: {
     results: 'calculateYearList',
   },
-  mounted() {
-    console.log(this.sliderrange)
-  },
+  // mounted() {
+  //   console.log(this.sliderrange)
+  // },
   methods: {
-    sliderChanged(values) {
-      console.log(values)
-      // this.rangeShow = "yes"
-      // this.rangeStartDate = new Date(values.from).toISOString().slice(0,10).replace(/-/g,"-")
-      // this.rangeEndDate = new Date(values.to).toISOString().slice(0,10).replace(/-/g,"-")
-      // console.log("drag: " + this.rangeStartDate + ", to " + this.rangeEndDate)
-    },
+    // sliderChanged(values) {
+    //   console.log(values)
+    //   // this.rangeShow = "yes"
+    //   // this.rangeStartDate = new Date(values.from).toISOString().slice(0,10).replace(/-/g,"-")
+    //   // this.rangeEndDate = new Date(values.to).toISOString().slice(0,10).replace(/-/g,"-")
+    //   // console.log("drag: " + this.rangeStartDate + ", to " + this.rangeEndDate)
+    // },
     calculateYearList(){
-      var self = this;
+      // var self = this;
 
-      this.mydata.splice(this.results.length) // empty
-      console.log(this.results)
+      // this.mydata.splice(this.results.length) // empty
+      // console.log(this.results)
+      this.mydata = this.results.filter(item => 'datep' in item).map(item => item['datep'])
+      console.log(this.mydata)
       // calculate the sliderrange
       // this.sliderrange = [ "1985-01-01T06:00:00.000Z", "2008-01-01T06:00:00.000Z", "2008-01-01T06:00:00.000Z",  "2008-01-01T06:00:00.000Z", "2020-01-01T06:00:00.000Z" ]
       // for (let date in datafile.map(d => new Date(d).valueOf())) {
       //   this.mydata.push(date)
       //
 
-     //let values = this.results.forEach((r )=>
-      this.results.forEach((r,i )=>
-              // new Date(r[this.fieldName]).valueOf()
-          {
-            if (r[self.fieldName]!==undefined) {
-              self.$set(
-                  self.mydata,i, parseInt(r[self.fieldName].substr(0,4))
-              )
-            } else {
-              self.$set(
-                  self.mydata,i, 2020)
-
-            }
-          }
-
-      )
+     // let values = this.results.forEach((r )=>
+     //  this.results.forEach((r,i )=>
+     //          // new Date(r[this.fieldName]).valueOf()
+     //      {
+     //        if (r[self.fieldName]!==undefined) {
+     //          self.$set(
+     //              self.mydata,i, parseInt(r[self.fieldName].substr(0,4))
+     //          )
+     //        } else {
+     //          self.$set(
+     //              self.mydata,i, 2020)
+     //
+     //        }
+     //      }
+     //
+     //  )
       this.rangeStartDate = _.min(this.mydata)
       this.rangeEndDate = _.max(this.mydata)
-      this.$refs["slider-"+ this.fieldName].refresh()
+      console.log(this.rangeStartDate + ", " + this.rangeEndDate)
+      // this.$refs["slider-"+ this.fieldName].refresh()
       //  ,
       //     values
       // )
