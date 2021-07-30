@@ -35,6 +35,7 @@ export default {
   data() {
     return {
       value: [0, 2050],
+      olderFilters: [],
     }
   },
   components: {
@@ -50,8 +51,17 @@ export default {
       var filteredDates = this.filterDates.filter(date => new Date(date.toString()) >= new Date(newRangeStartDate.toString())
           && new Date(date.toString()) <= new Date(newRangeEndDate.toString()))
       console.log(filteredDates)
-      for (let i = 0; i < filteredDates.length; i++) {
-        this.toggleFilter('datep', filteredDates[i]);
+
+
+      // send difference filters between olderFilters and filteredDates
+      var difference1 = this.olderFilters.filter(x => !filteredDates.includes(x));
+      var difference2 = filteredDates.filter(x => !this.olderFilters.includes(x));
+      var difference = difference1.concat(difference2)
+      console.log(difference)
+      this.olderFilters = filteredDates
+
+      for (let i = 0; i < difference.length; i++) {
+        this.toggleFilter('datep', difference[i]);
       }
     }
   },
