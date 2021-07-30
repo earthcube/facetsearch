@@ -56,5 +56,16 @@ export default {
         ],
     LIMIT_DEFAULT: 10,
     LIMIT_OPTIONS: [10,50,100,1000,5000],
-    RELATEDDATA_COUNT: 10
+    RELATEDDATA_COUNT: 10,
+    NOTEBOOKS: [
+        {
+            name:'binder',
+            baseurl:"https://mybinder.org/v2/gh/earthcube/NotebookTemplates.git/geocodes_template?urlpath=",
+            dispatcherPage:"/notebooks/template.ipynb",
+            contentQuerySingle:'contenturl=${contentUrl}&urn=${urn}',
+            contentQuery:'dataset={"contenturl":"${contentUrl}","urn":"${urn}"}',
+            pageTemplate:"nb=${notebooktorun}",
+            escapeEncodeParameters: true
+        },
+    ]
 }
