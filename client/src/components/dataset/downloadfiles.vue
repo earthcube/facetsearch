@@ -20,7 +20,7 @@
                              target="_blank"
                   >
 
-                    <b-img :src="binderBadge" width="64" ></b-img>
+                    <b-img :src="nb.badge" width="64" ></b-img>
                   </b-button>
         </b-button-group>
       </b-button-group>
@@ -87,16 +87,26 @@ export default {
 
       let nbParams = nbParamsT({contentUrl:contentUrl,format:format,urn:urn})
       let nbPage = nbPageT({notebooktorun:page})
-      let params = `${dispatcherPage}&${nbParams}&${nbPage}`
-      if (NbConfig.escapeEncodeParameters) {
+      let params = ''
+      if (Object.prototype.hasOwnProperty.call(NbConfig,'dispatcherPage')) {
+         params = `${dispatcherPage}&${nbParams}&${nbPage}`
+      } else {
+        params = `${nbParams}&${nbPage}`
+      }
 
+      if (NbConfig.binderEncodeParameters) {
+        // this uses a ? to append parmeters to the page, rather than and ampersand.
+        // for binder. template page (template.ipnb?.... so that it works.)
         let params2 = `?${nbParams}&${nbPage}` // double encode
         // params2 = encodeURIComponent(params2)
-        params = `${dispatcherPage}${params2}`
+        if (Object.prototype.hasOwnProperty.call(NbConfig,'dispatcherPage')) {
+          params = `${dispatcherPage}${params2}`
+        }
+        //params = `${dispatcherPage}${params2}`
         //params = encodeURIComponent(params)
        // params =encodeURIComponent(dispatcherPage)
       }
-      return `${serverBase}${params}`
+      return `${serverBase}?${params}`
 
     },
     toMetadata() {
