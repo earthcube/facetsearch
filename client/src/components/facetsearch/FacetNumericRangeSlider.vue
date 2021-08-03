@@ -194,6 +194,7 @@ export default {
       this.rangeStartDate = new Date(_.min(this.mydata)).getFullYear()-1
       this.rangeEndDate = new Date(_.max(this.mydata)).getFullYear()+1
       console.log(this.rangeStartDate + ", " + this.rangeEndDate)
+      this.$root.$emit('refresh slider range', 'init', this.rangeStartDate, this.rangeEndDate, this.mydata)
       // this.$refs["slider-"+ this.fieldName].refresh()
       //  ,
       //     values

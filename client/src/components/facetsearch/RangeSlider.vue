@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <vue-range-slider ref="slider" v-model="value" :min=parseInt(startDate) :max=parseInt(endDate) @drag-end="callbackRange"></vue-range-slider>
+      <vue-range-slider ref="slider" v-model="value" :tooltip=false :min=parseInt(startDate) :max=parseInt(endDate) @drag-end="updateRange"></vue-range-slider>
     </div>
     <div>
     <span
@@ -22,6 +22,11 @@
 import 'vue-range-component/dist/vue-range-slider.css'
 import VueRangeSlider from 'vue-range-component'
 export default {
+  // provide: function () {
+  //   return {
+  //     updateRange: this.updateRange,
+  //   }
+  // },
   inject: ["toggleFilter"],
   props: {
     startDate: {
@@ -36,22 +41,44 @@ export default {
     return {
       value: [0, 2050],
       olderFilters: [],
+      sliderInit: true,
     }
   },
   components: {
     VueRangeSlider
   },
+  mounted() {
+    this.$root.$on('refresh slider range', (action, start, end, mydata) => {
+      this.updateRange(action, start, end, mydata);
+    });
+  },
   methods: {
-    callbackRange () {
+    updateRange (action, start, end, mydata) {
       console.log(this.filterDates)
       var newRangeStartDate = this.value[0]
       var newRangeEndDate = this.value[1]
+      if (action === 'clear') {
+        newRangeStartDate = this.startDate
+        newRangeEndDate = this.startDate
+        this.value = [newRangeStartDate, newRangeEndDate]
+        this.olderFilters = []
+        return
+
+      } else if(action == 'init') {
+        this.sliderInit = true
+        newRangeStartDate = start
+        newRangeEndDate = end
+        this.startDate = start
+        this.endDate = end
+        this.value = [newRangeStartDate, newRangeEndDate]
+        this.filterDates = mydata
+      }
+
       console.log(newRangeStartDate + ", " + newRangeEndDate)
 
       var filteredDates = this.filterDates.filter(date => new Date(date.toString()) >= new Date(newRangeStartDate.toString())
           && new Date(date.toString()) <= new Date(newRangeEndDate.toString()))
       console.log(filteredDates)
-
 
       // send difference filters between olderFilters and filteredDates
       var difference1 = this.olderFilters.filter(x => !filteredDates.includes(x));

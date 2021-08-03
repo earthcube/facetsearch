@@ -358,6 +358,7 @@ export default {
     clearFilters: function () {
       this.state.filters = {}
       this.filter()
+      this.$root.$emit('refresh slider range', 'clear')
     },
     order: function (orderBy) {
       let self = this;
