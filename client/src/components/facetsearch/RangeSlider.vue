@@ -59,7 +59,7 @@ export default {
       var newRangeEndDate = this.value[1]
       if (action === 'clear') {
         newRangeStartDate = this.startDate
-        newRangeEndDate = this.startDate
+        newRangeEndDate = this.endDate
         this.value = [newRangeStartDate, newRangeEndDate]
         this.olderFilters = []
         return
