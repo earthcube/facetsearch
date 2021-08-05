@@ -2,7 +2,7 @@ name: Dockerize  Vue Client
 on:
   push:
     branches:
-      - range_slider
+      - feat/binder
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
 defaults:
