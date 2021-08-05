@@ -40,7 +40,7 @@
                 v-bind:key="f"
             >
                 <b-badge variant="info" class="m-1"
-                    v-for="applied in filters[f]"
+                    v-for="applied in consolidateFilter(f)"
                     v-bind:key="applied"
                 >
                     <!--{{ f }} / -->{{ applied }}
@@ -90,6 +90,18 @@ export default {
 
   ,
   methods: {
+    consolidateFilter: function (key){
+      var filters = this.filters[key]
+      if ('datep' === key) {
+        var years = new Set()
+        for (let i = 0; i < filters.length; i++) {
+          var date = filters[i]
+          years.add(date.split("-")[0])
+        }
+        filters = Array.from(years);
+      }
+      return filters
+    },
     deselect() {
 
       this.clearFilters()
