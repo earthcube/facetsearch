@@ -72,6 +72,7 @@ export default {
         this.endDate = end
         this.value = [newRangeStartDate, newRangeEndDate]
         // this.filterDates = mydata
+        this.filterDates = []
         console.log(mydata)
       }
 
