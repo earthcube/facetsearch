@@ -8926,6 +8926,11 @@ vue-loader@^15.9.2:
     vue-hot-reload-api "^2.3.0"
     vue-style-loader "^4.1.0"
 
+vue-range-component-fixed@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/vue-range-component-fixed/-/vue-range-component-fixed-1.0.3.tgz#c232e9c782a95d3f14b7c18997c8c4ef6e7c3751"
+  integrity sha512-nvK74pILljmCKAUb5N8ywnSWKolILdMLz/9v/HKHo+6LdH3D4M9tAQ5keftX9bYvtMceIZ/t28pPcVUPnBHoPA==
+
 vue-range-component@^1.0.3:
   version "1.0.3"
   resolved "https://registry.npmjs.org/vue-range-component/-/vue-range-component-1.0.3.tgz"

@@ -54,7 +54,7 @@ export default {
             field: 'datep',
             title: 'Year Published Range',
             sort: 'acs',
-            open: false,
+            open: true,
             type:'range'
 
         },

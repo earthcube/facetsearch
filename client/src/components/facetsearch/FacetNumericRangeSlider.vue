@@ -12,11 +12,11 @@
 <!--    <span>endDate: {{endYear}}</span>-->
 <!--    <span>range: {{sliderrange}}</span>-->
 
-<!--    <b-collapse-->
-<!--        :id="'accordion_range_'+ facetSetting.field"-->
-<!--        :visible="facetSetting.open"-->
-<!--    >-->
-      <div class="m-2 clearfix">
+    <b-collapse
+        :id="'accordion_range_'+ facetSetting.field"
+        :visible="facetSetting.open"
+    >
+      <div class="mx-2 clearfix">
         <RangeSlider :filterDates="mydata" :startDate="rangeStartDate" :endDate="rangeEndDate"></RangeSlider>
       </div>
 
@@ -47,7 +47,7 @@
 <!--          v-text="daterange.endDate"-->
 <!--      ></span>-->
 <!--      <span class="subheading font-weight-light mr-1"> year</span>-->
-<!--    </b-collapse>-->
+    </b-collapse>
 
   </div>
 

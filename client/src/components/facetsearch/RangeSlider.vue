@@ -1,7 +1,9 @@
 <template>
   <div>
     <div>
-      <vue-range-slider ref="slider" v-model="value" :tooltip=false :min=parseInt(startDate) :max=parseInt(endDate) @drag-end="updateRange"></vue-range-slider>
+      <vue-range-slider
+          ref="slider" class="mx-2" v-model="value" :tooltip="false"
+          :min=parseInt(startDate) :max=parseInt(endDate) @drag-end="updateRange"></vue-range-slider>
     </div>
     <div>
     <span
@@ -20,7 +22,7 @@
 </template>
 <script>
 import 'vue-range-component/dist/vue-range-slider.css'
-import VueRangeSlider from 'vue-range-component'
+import VueRangeSlider from 'vue-range-component-fixed'
 export default {
   // provide: function () {
   //   return {
