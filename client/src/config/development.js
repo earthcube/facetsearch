@@ -46,7 +46,7 @@ export default {
             title: 'Year Published',
             sort: 'acs',
             open: false,
-            type:'text'
+            type:'year text'
 
         },
 

@@ -20,6 +20,19 @@
         <RangeSlider :filterDates="mydata" :startDate="rangeStartDate" :endDate="rangeEndDate"></RangeSlider>
       </div>
 
+      <b-list-group flush>
+        <FacetTextItem
+            v-for='(info, term) in facetItems'
+            v-bind:key="info.id"
+            v-bind:id="facetStore[facetSetting.field][term].id"
+            :term="term"
+            :count="info.count"
+            :facetSetting="facetSetting"
+            :isActive="info.isActive"
+        ></FacetTextItem>
+      </b-list-group>
+
+
 <!--      <HistogramSlider-->
 <!--          style="margin: auto"-->
 <!--          :data="mydata"-->
@@ -34,8 +47,8 @@
 <!--      >-->
 <!--      </HistogramSlider>-->
 
-      <span v-if="rangeShow=='yes'" >Range startDate: {{rangeStartDate}}  to  </span>
-      <span v-if="rangeShow=='yes'" >Range endDate: {{rangeEndDate}}</span>
+<!--      <span v-if="rangeShow=='yes'" >Range startDate: {{rangeStartDate}}  to  </span>-->
+<!--      <span v-if="rangeShow=='yes'" >Range endDate: {{rangeEndDate}}</span>-->
 
 <!--      <span-->
 <!--          class="text-h2 font-weight-light"-->
@@ -55,6 +68,7 @@
 </template>
 <script>
 
+import FacetTextItem from "./FacetTextItem";
 import RangeSlider from './RangeSlider.vue'
 
 // import HistogramSlider from "vue3-histogram-slider";
@@ -69,6 +83,7 @@ import RangeSlider from './RangeSlider.vue'
 //import 'vue-histogram-slider/dist/histogram-slider.css';
 import {mapState} from "vuex";
 import _ from 'lodash'
+import {bus} from "../../main";
 
 
 export default {
@@ -135,6 +150,7 @@ export default {
     }
   },
   components: {
+    FacetTextItem,
     RangeSlider,
     // HistogramSlider
   },
@@ -145,10 +161,20 @@ export default {
   watch: {
     results: 'calculateYearList',
   },
-  // mounted() {
-  //   console.log(this.sliderrange)
-  // },
+  mounted(){
+    var self = this;
+    bus.$on('facetupdate', () => {
+      console.log("facetupdate event");
+      self.facetItems = self.facetStore[self.facetSetting.field];
+      self.updateFacetItems()
+    })
+  },
   methods: {
+    updateFacetItems: function(){
+      console.log("facetupdateitems methtod called event");
+      this.$forceUpdate();
+      //  this.facetItems = this.facetStore[this.facetSetting.field];
+    },
     // sliderChanged(values) {
     //   console.log(values)
     //   // this.rangeShow = "yes"

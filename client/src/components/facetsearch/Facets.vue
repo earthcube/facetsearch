@@ -13,6 +13,7 @@
           <!--         v-bind:facetStore="facetStore2" >-->
           <!--  </Facet>-->
 
+
           <FacetNumericRangeSlider v-if="facetSetting.type=='range'"
                                    :field-name="facetSetting.field"
                      :facetSetting="facetSetting"
