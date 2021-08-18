@@ -13,7 +13,7 @@
           <b-button   size="sm" variant="primary"
 
           >Open in</b-button>
-                  <b-button  size="sm" variant="primary"
+                  <b-button v-show="nbBinderShow(nb,dl.contentUrl,dl.encodingFormat)"  size="sm" variant="primary"
                              v-for="(nb, nbindex) in notebooksservers"
                              v-bind:key="nbindex"
                             v-bind:href="nbBinderUrl(nb,dl.contentUrl,dl.encodingFormat,d)"
@@ -70,6 +70,33 @@ export default {
   },
 
   methods: {
+    nbBinderShow(NbConfig, contentUrl,format
+
+    ){
+      let show = true
+      // format = encodeURIComponent(format)
+      //let binderBase = "https://mybinder.org/v2/gh/earthcube/NotebookTemplates.git/geocodes_template"
+
+      //let nbParams = `?contenturl=${contentUrl}&format=${format}&urn=${urn}`
+      //const binderBaseT = _.template(NbConfig.baseurl, FacetsConfig.ES_TEMPLATE_OPTIONS)
+      //const dispatcherPageT = _.template(NbConfig.dispatcherPage, FacetsConfig.ES_TEMPLATE_OPTIONS)
+      const datatypes = NbConfig.formats ? NbConfig.formats : ['*']
+
+      if (Array.isArray(datatypes)){
+        if (datatypes.includes('*')) return true
+
+      //   let hasValue = _.find(datatypes, (dt) =>format === dt)
+        let hasValue = _.indexOf(datatypes, format)
+        if (hasValue>-1) show = true
+        else show = false
+      } else {
+        if (datatypes==='*') return true
+        if (datatypes === format) show = true
+      }
+
+      return show
+
+    },
     nbBinderUrl(NbConfig, contentUrl,format,urn
         , page=''
     ){
