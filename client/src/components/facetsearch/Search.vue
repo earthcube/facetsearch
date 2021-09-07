@@ -16,7 +16,7 @@
                     ></Facets>
                   <feedback subject = 'Search' :name="textQuery" :urn="feedBackItemId"> </feedback>
 <!--                  <RecordsMap > </RecordsMap>-->
-<!--                  <router-link :to="{name: 'RecordsMap'}" class="mr-0" >RecordsMap</router-link>-->
+                  <router-link :to="{name: 'RecordsMap'}" class="mr-0" >RecordsMap</router-link>
                   <div class="buttons mt-3">
                     <b-button variant="outline-primary" v-on:click.stop="showMap">Records Map</b-button>
                   </div>

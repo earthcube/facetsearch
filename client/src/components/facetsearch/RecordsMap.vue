@@ -36,11 +36,13 @@ export default {
 //    LMarker,
 
   }, watch: {
-    jsonLdCompact: 'toMap'
+    jsonLdCompact: 'toMap',
+    results: 'toMap'
   },
   props: {},
   data() {
     return {
+      myresult: [],
       mapboxurl: "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
       attribution: `Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>`,
       center: [46.8832566, -114.0870563],
@@ -58,7 +60,7 @@ export default {
     this.toMap()
   },
   computed: {
-    ...mapState(['jsonLdObj', 'jsonLdCompact'])
+    ...mapState(['results', 'jsonLdObj', 'jsonLdCompact'])
 
   },
   methods: {
@@ -80,7 +82,9 @@ export default {
       var minlon = 9.55
       var box = [[maxlat, maxlon],
                  [minlat, minlon]]
-
+      if (this.results)
+        this.myresult = this.results
+      console.log(this.results)
       this.center = [(box[0][0] + box[1][0]) / 2, (box[0][1] + box[1][1]) / 2]; // original centerpoint hell, montanta
       this.$nextTick(() => {
         this.myRecordsMap = L.map(this.$refs.myRecordsMap.id, {fullscreenControl: true,
