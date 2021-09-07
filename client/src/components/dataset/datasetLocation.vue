@@ -143,6 +143,7 @@ export default {
 
           var northing = (box[0][0] + box[1][0]) / 2
           var easting = (box[0][1] + box[1][1]) / 2
+
           console.log(`box center: ${northing} ${easting}`)
           self.center = [northing, easting]
         } else {

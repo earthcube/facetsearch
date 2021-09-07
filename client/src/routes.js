@@ -4,6 +4,7 @@ import Search from "./components/facetsearch/Search";
 import dataset from "./components/dataset/dataset";
 import tool from "./components/tools/tool"
 import about from "./components/help/about"
+import RecordsMap from "./components/facetsearch/RecordsMap"
 
 export default  new Router({
     //mode: "history",
@@ -33,6 +34,7 @@ export default  new Router({
         // {path:'/dataset/:o',name:'dataset',component:dataset,props:true},
         //{path:'/tool/:o',name:'tool',component:tool,props:true},
         {path:'/about',name:'about',component:about,},
+        {path:'/RecordsMap',name:'RecordsMap',component:RecordsMap,},
 // catch all case
         { path: '*'},
     ],

@@ -15,6 +15,11 @@
                         v-bind:state="state"
                     ></Facets>
                   <feedback subject = 'Search' :name="textQuery" :urn="feedBackItemId"> </feedback>
+<!--                  <RecordsMap > </RecordsMap>-->
+<!--                  <router-link :to="{name: 'RecordsMap'}" class="mr-0" >RecordsMap</router-link>-->
+                  <div class="buttons mt-3">
+                    <b-button variant="outline-primary" v-on:click.stop="showMap">Records Map</b-button>
+                  </div>
                 </b-col>
 
                 <!-- filter and results -->
@@ -54,6 +59,7 @@ import {mapActions,
  // mapGetters
 } from "vuex";
 import feedback from "../feedback/feedback";
+// import RecordsMap from "./RecordsMap"
 
 export default {
   name: "Search",
@@ -95,7 +101,8 @@ export default {
     ResultHeader,
     Results,
     Facets,
-    feedback
+    feedback,
+    // RecordsMap
   },
   data() {
     return {
@@ -165,6 +172,11 @@ export default {
         searchExactMatch: this.searchExactMatch,
         resourceType: this.resourceType
       })
+    },
+    showMap: function() {
+      var fullUrl = window.location.origin + '#/RecordsMap'
+      console.log(fullUrl)
+      window.open(fullUrl, '_blank')
     },
     search: function () {
       this.feedBackItemId = "search?q="+this.textQuery;
