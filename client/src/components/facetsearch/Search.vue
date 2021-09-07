@@ -174,9 +174,11 @@ export default {
       })
     },
     showMap: function() {
-      var fullUrl = window.location.origin + '#/RecordsMap'
-      console.log(fullUrl)
-      window.open(fullUrl, '_blank')
+
+        this.$store.state.q = this.textQuery;
+        this.$store.state.rt = 'all' // for now
+        this.$router.push({name: 'RecordsMap', query:{q:this.textQuery, resourceType: this.resourceType} }).catch(err => {console.log('ignore'+err)})
+
     },
     search: function () {
       this.feedBackItemId = "search?q="+this.textQuery;

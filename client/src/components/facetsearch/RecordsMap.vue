@@ -14,9 +14,10 @@
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 
-import {mapState} from "vuex";
+import {mapActions, mapState} from "vuex";
 
 import { Icon } from 'leaflet';
+import FacetsConfig from "../../config";
 // import { latLng } from "leaflet";
 // import { LMap, LTileLayer, LMarker, LPopup, LTooltip } from "vue2-leaflet";
 
@@ -36,13 +37,12 @@ export default {
 //    LMarker,
 
   }, watch: {
-    jsonLdCompact: 'toMap',
     results: 'toMap'
   },
-  props: {},
+  props: {  textQuery: String, // this needs to be here route passes as a prop
+    resourceType: String},
   data() {
     return {
-      myresult: [],
       mapboxurl: "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
       attribution: `Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>`,
       center: [46.8832566, -114.0870563],
@@ -51,19 +51,41 @@ export default {
       mapOptions: {
         zoomSnap: 0.5
       },
-      myRecordsMap:{}
-
+      myRecordsMap:{},
+      o: 0,
+      n: FacetsConfig.LIMIT_DEFAULT,
+      searchExactMatch: true
     }
   },
   mounted() {
-    this.hasSpatial = false;
-    this.toMap()
+    const o = 0;
+    this.queryRunning = true;
+    this.$store.state.q = this.textQuery
+    let lastItems = this.$store.getters.getLastQueryResults(this.textQuery)
+    if (lastItems){
+      this.$store.commit('setResults',lastItems)
+      //this.queryRunning = false;
+      this.search()
+    } else {
+      this.$store.dispatch('getResults', {
+            textQuery: this.textQuery,
+            limit: this.n,
+            offset: o,
+            searchExactMatch: this.searchExactMatch,
+            resourceType: this.resourceType
+          }
+      )
+    }
+  //  this.hasSpatial = false;
+    //this.toMap()
   },
   computed: {
-    ...mapState(['results', 'jsonLdObj', 'jsonLdCompact'])
+    ...mapState(['results'])
 
   },
   methods: {
+    ...mapActions([
+      'getResults', 'getQueryTemplate']),
     zoomUpdated(zoom) {
       this.zoom = zoom;
     },
@@ -75,16 +97,14 @@ export default {
     },
     toMap: function () {
       var self = this;
-
+      console.log(this.results.length)
       var maxlat = 63.35
       var maxlon = 9.55
       var minlat = 63.35
       var minlon = 9.55
       var box = [[maxlat, maxlon],
                  [minlat, minlon]]
-      if (this.results)
-        this.myresult = this.results
-      console.log(this.results)
+
       this.center = [(box[0][0] + box[1][0]) / 2, (box[0][1] + box[1][1]) / 2]; // original centerpoint hell, montanta
       this.$nextTick(() => {
         this.myRecordsMap = L.map(this.$refs.myRecordsMap.id, {fullscreenControl: true,

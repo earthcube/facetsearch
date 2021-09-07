@@ -34,7 +34,8 @@ export default  new Router({
         // {path:'/dataset/:o',name:'dataset',component:dataset,props:true},
         //{path:'/tool/:o',name:'tool',component:tool,props:true},
         {path:'/about',name:'about',component:about,},
-        {path:'/RecordsMap',name:'RecordsMap',component:RecordsMap,},
+        {path:'/RecordsMap',name:'RecordsMap',component:RecordsMap,
+            props: route => ({ textQuery :route.query.q, resourceType : route.query.resourceType})},
 // catch all case
         { path: '*'},
     ],
