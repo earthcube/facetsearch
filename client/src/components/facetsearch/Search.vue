@@ -16,7 +16,7 @@
                     ></Facets>
                   <feedback subject = 'Search' :name="textQuery" :urn="feedBackItemId"> </feedback>
 <!--                  <RecordsMap > </RecordsMap>-->
-                  <router-link :to="{name: 'RecordsMap'}" class="mr-0" >RecordsMap</router-link>
+<!--                  <router-link :to="{name: 'RecordsMap'}" class="mr-0" >RecordsMap</router-link>-->
                   <div class="buttons mt-3">
                     <b-button variant="outline-primary" v-on:click.stop="showMap">Records Map</b-button>
                   </div>
@@ -175,10 +175,9 @@ export default {
     },
     showMap: function() {
 
-        this.$store.state.q = this.textQuery;
-        this.$store.state.rt = 'all' // for now
-        this.$router.push({name: 'RecordsMap', query:{q:this.textQuery, resourceType: this.resourceType} }).catch(err => {console.log('ignore'+err)})
-
+      this.$store.state.q = this.textQuery;
+      this.$store.state.rt = 'all' // for now
+      this.$router.push({name: 'RecordsMap', query:{q:this.textQuery, resourceType: this.resourceType} }).catch(err => {console.log('ignore'+err)})
     },
     search: function () {
       this.feedBackItemId = "search?q="+this.textQuery;
