@@ -1,17 +1,17 @@
 <template  >
     <div class="filter_card">
-        <b-button block squared v-b-toggle="'accordion_'+ facetSetting.field">
+        <b-button block squared v-b-toggle="'accordion_text_'+ facetSetting.field">
             {{facetSetting.title}}
             <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
             <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>
         </b-button>
 
         <b-collapse
-            :id="'accordion_'+ facetSetting.field"
+            :id="'accordion_text_'+ facetSetting.field"
             :visible="facetSetting.open"
         >
             <b-list-group flush>
-                <FacetItem
+                <FacetTextItem
                     v-for='(info, term) in facetItems'
                     v-bind:key="info.id"
                     v-on:click.native="_handleClick"
@@ -20,7 +20,7 @@
                     :count="info.count"
                     :facetSetting="facetSetting"
                     :isActive="info.isActive"
-                ></FacetItem>
+                ></FacetTextItem>
             </b-list-group>
         </b-collapse>
     </div>
@@ -29,12 +29,12 @@
 <script>
 //import Vue from 'vue'
 import _ from "underscore";
-import FacetItem from "./FacetItem";
+import FacetTextItem from "./FacetTextItem";
 import {bus} from "../../main.js"
 import Vue from "vue";
 export default {
-  name: "Facet",
-  components: {FacetItem},
+  name: "FacetText",
+  components: {FacetTextItem},
   inject: ["toggleFilter"],
   props: {
     "facetSetting":Object,

@@ -10,39 +10,53 @@ export default {
     JSONLD_PROXY: "https://alpha.geocodes.earthcube.org/ec/api/dataset/${o}",
     // allow us to use the same delimiters as lithtml
     ES_TEMPLATE_OPTIONS : {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
-    FACETS: [
+    FACETS:  [
         {
             field: 'resourceType',
             title: 'Resource Type',
             sort: 'acs',
-            open: false
+            open: false,
+            type:'text'
         },
         {
             field: 'kw',
             title: 'Keywords',
             sort: 'acs',
-            open: true
+            open: true,
+            type:'text'
 
         },
         {
             field: 'placenames',
             title: 'Place',
             sort: 'acs',
-            open: true
+            open: true,
+            type:'text'
 
         },
         {
             field: 'pubname',
             title: 'Publisher/Repo',
             sort: 'acs',
-            open: false
+            open: false,
+            type:'text'
 
         },
         {
             field: 'datep',
             title: 'Year Published',
             sort: 'acs',
-            open: false
+            open: false,
+            type:'text'
+
+        },
+
+        {
+            field: 'datep',
+            title: 'Year Published Range',
+            sort: 'acs',
+            open: false,
+            type:'range'
 
         },
     ],

@@ -15,6 +15,8 @@
                         v-bind:state="state"
                     ></Facets>
                   <feedback subject = 'Search' :name="textQuery" :urn="feedBackItemId"> </feedback>
+
+<!--                  <HistRangeSlider></HistRangeSlider>-->
                 </b-col>
 
                 <!-- filter and results -->
@@ -39,6 +41,7 @@
 </template>
 
 <script>
+
 import Vue from 'vue'
 import Results from "./Results";
 import Facets from "./Facets";
@@ -54,6 +57,9 @@ import {mapActions,
  // mapGetters
 } from "vuex";
 import feedback from "../feedback/feedback";
+
+// import HistRangeSlider from "./HistRangeSlider.vue"
+
 
 export default {
   name: "Search",
@@ -95,10 +101,12 @@ export default {
     ResultHeader,
     Results,
     Facets,
-    feedback
+    feedback,
+
   },
   data() {
     return {
+      value: 1,
       isModalVisible: false,
       feedBackItemId: String,
       o: 0,
@@ -289,7 +297,8 @@ export default {
       self.currentResults.splice(0, len);
       newResults.forEach((i) => self.currentResults.push(i))
 
-
+     /// console.log(data)
+     // console.log(data.map(d => new Date(d).valueOf()))
       this.resetFacetCount();
       // then reduce the items to get the current count for each facet
       _.each(self.facets, function (facet) {
@@ -349,6 +358,7 @@ export default {
     clearFilters: function () {
       this.state.filters = {}
       this.filter()
+      this.$root.$emit('refresh slider range', 'clear')
     },
     order: function (orderBy) {
       let self = this;
