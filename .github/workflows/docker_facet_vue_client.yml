@@ -40,10 +40,10 @@ jobs:
         with:
           images: nsfearthcube/ec_facets_client
           flavor: |
-            latest=auto
+            latest=true
           tags: |
-            type=ref,event=branch
             type=ref,event=tag
+            type=ref,event=branch
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
