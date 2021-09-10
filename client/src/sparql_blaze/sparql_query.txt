@@ -5,7 +5,8 @@ prefix schema: <http://schema.org/>
 prefix sschema: <https://schema.org/>
 SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", ") AS ?placenames)
         (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)
-        ?datep  (GROUP_CONCAT(DISTINCT ?url; SEPARATOR=", ") AS ?disurl) (MAX(?score1) as ?score)
+        ?datep  (GROUP_CONCAT(DISTINCT ?url; SEPARATOR=", ") AS ?disurl) (MAX(?score1) as ?score)  (MAX(?lat) as ?maxlat) (Min(?lat) as ?minlat) (MAX(?lon) as ?maxlon) (Min(?lon) as ?minlon)
+        (MIN(?box) as ?bbox)
         WHERE {
             ?lit bds:search "${q}" .
             ?lit bds:matchAllTerms ${exact} .
@@ -42,10 +43,13 @@ SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname (GROUP_CONCA
             OPTIONAL {?subj schema:datePublished|sschema:datePublished ?datep .}
             OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|sschema:sdPublisher|schema:provider/schema:name ?pubname .}
             OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name ?placename .}
-            OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
+             OPTIONAL {?subj schema:spatialCoverage/schema:geo/schema:latitude|sschema:spatialCoverage/sschema:geo/sschema:latitude ?lat .}
+           OPTIONAL {?subj schema:spatialCoverage/schema:geo/schema:longitude|sschema:spatialCoverage/sschema:geo/sschema:longitude ?lon .}
+           OPTIONAL {?subj schema:spatialCoverage/schema:geo/schema:box|sschema:spatialCoverage/sschema:geo/schema:box ?box .}
+           OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
 
 }
-GROUP BY ?subj ?pubname ?placenames ?kw ?datep ?disurl ?score ?name ?description  ?resourceType ?g
+GROUP BY ?subj ?pubname ?placenames ?kw ?datep ?disurl ?score ?name ?description  ?resourceType ?g  ?minlat ?maxlat ?minlon ?maxlon ?bbox
 ORDER BY DESC(?score)
 
 LIMIT ${n}
