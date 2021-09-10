@@ -65,7 +65,7 @@ export default {
             binderEncodeParameters: true,
             dispatcherPage:"urlpath=notebooks/template.ipynb",
 
-            contentQuery:'dataset={"contenturl":"${contentUrl}","urn":"${urn}"}',
+            contentQuery:'dataset={"contenturl":"${contentUrl}","ext":"${format}","urn":"${urn}"}',
             pageTemplate:"nb=${notebooktorun}",
             formats:['text/csv','text/tsv', 'text/tab-separated-values', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
 

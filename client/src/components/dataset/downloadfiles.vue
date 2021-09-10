@@ -100,7 +100,10 @@ export default {
     nbBinderUrl(NbConfig, contentUrl,format,urn
         , page=''
     ){
-     // format = encodeURIComponent(format)
+      format = format.replace('#',"<hash>")
+      format = encodeURIComponent(format)
+
+      contentUrl = contentUrl.replace('#',"<hash>")
       //let binderBase = "https://mybinder.org/v2/gh/earthcube/NotebookTemplates.git/geocodes_template"
 
       //let nbParams = `?contenturl=${contentUrl}&format=${format}&urn=${urn}`
