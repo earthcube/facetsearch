@@ -70,11 +70,7 @@ export default {
         this.sliderInit = true
         newRangeStartDate = start
         newRangeEndDate = end
-        this.startDate = start
-        this.endDate = end
         this.value = [newRangeStartDate, newRangeEndDate]
-        // this.filterDates = mydata
-        this.filterDates = []
         console.log(mydata)
       }
 
