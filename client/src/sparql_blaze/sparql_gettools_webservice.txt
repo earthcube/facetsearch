@@ -10,7 +10,7 @@ prefix schema: <https://schema.org/>
              OPTIONAL {?dist schema:contentUrl ?durl }.
      }
      BIND (str(?type) as ?label)
-    SERVICE <http://132.249.238.169:8080/fuseki/ecrr/query> {
+    SERVICE <https://graph.geodex.org/blazegraph/namespace/ecrr/sparql> {
       GRAPH <http://earthcube.org/gleaner-summoned>
 
             {
