@@ -44,6 +44,7 @@ export default {
       value: [0, 2050],
       olderFilters: [],
       sliderInit: true,
+      myfilterDates : []
     }
   },
   components: {
@@ -70,17 +71,16 @@ export default {
         this.sliderInit = true
         newRangeStartDate = start
         newRangeEndDate = end
-        this.startDate = start
-        this.endDate = end
         this.value = [newRangeStartDate, newRangeEndDate]
-        // this.filterDates = mydata
-        this.filterDates = []
+        this.myfilterDates = []
         console.log(mydata)
+      } else {
+        this.myfilterDates = this.filterDates
       }
 
       console.log(newRangeStartDate + ", " + newRangeEndDate)
 
-      var filteredDates = this.filterDates.filter(date => new Date(date.toString()) >= new Date(newRangeStartDate.toString())
+      var filteredDates = this.myfilterDates.filter(date => new Date(date.toString()) >= new Date(newRangeStartDate.toString())
           && new Date(date.toString()) <= new Date(newRangeEndDate.toString()))
       console.log(filteredDates)
 
