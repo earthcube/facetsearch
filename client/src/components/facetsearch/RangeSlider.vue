@@ -74,6 +74,9 @@ export default {
         this.value = [newRangeStartDate, newRangeEndDate]
         this.myfilterDates = []
         console.log(mydata)
+      } else if(this.startDate == this.value[0] && this.endDate == this.value[1]) {
+        console.log("empty the filter")
+        this.myfilterDates = []
       } else {
         this.myfilterDates = this.filterDates
       }
