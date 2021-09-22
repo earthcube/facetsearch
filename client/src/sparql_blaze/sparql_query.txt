@@ -15,7 +15,7 @@ SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname (GROUP_CONCA
             # positive types
             ${rt}
             #
-            filter( ?score1 > 0.34).
+            filter( ?score1 > 0.14).
           #BIND (IF (exists {?subj a schema:Dataset .} ||exists{?subj a sschema:Dataset .} , "data", "tool" ) AS ?resourceType).
           values (?type ?resourceType) {
             (schema:Dataset "data")
