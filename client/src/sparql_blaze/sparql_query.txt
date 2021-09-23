@@ -27,7 +27,7 @@ SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname
     			AS ?resourceType).
             optional {?subj schema:distribution/schema:url|schema:subjectOf/schema:url ?url .}
             OPTIONAL {?subj schema:datePublished|sschema:datePublished ?date_p .}
-            OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|sschema:sdPublisher|schema:provider/schema:name ?pub_name .}
+            OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|sschema:sdPublisher|sschema:provider/schema:name ?pub_name .}
             OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name ?place_name .}
             OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
             BIND ( IF ( BOUND(?date_p), ?date_p, "No datePublished") as ?datep ) .
