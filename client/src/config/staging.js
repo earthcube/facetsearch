@@ -51,14 +51,7 @@ export default {
 
         },
 
-        {
-            field: 'datep',
-            title: 'Year Published Range',
-            sort: 'acs',
-            open: false,
-            type:'range'
 
-        },
     ],
     ORDER_BY_DEFAULT: 'score',
     ORDER_BY_OPTIONS:
