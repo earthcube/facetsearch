@@ -1,4 +1,5 @@
 export default {
+    NODE_ENV: process.env.NODE_ENV || 'unknown',
     API_URL: 'http://localhost:3000',
     TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql',
     //TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',

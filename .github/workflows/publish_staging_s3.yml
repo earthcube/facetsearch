@@ -15,7 +15,8 @@ jobs:
       - name: Create Node Environment
         uses: actions/setup-node@v2
         env:
-          NODE_ENV: production
+#          NODE_ENV: production
+          NODE_ENV: staging
         with:
           node-version: '14'
       - run: npm install -g @vue/cli yarn

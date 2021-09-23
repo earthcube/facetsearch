@@ -3,18 +3,24 @@
     <navHeader></navHeader>
 
     <router-view></router-view>
-    <div  class="fixed-bottom float-right font-weight-lighter" > Version: {{$store.getters.appVersion}} Date: {{$store.getters.appDate}} </div>
+    <div  class="fixed-bottom float-right font-weight-lighter" > Version: {{$store.getters.appVersion}} Date: {{$store.getters.appDate}} {{NODE_ENV}} </div>
   </div>
 </template>
 
 <script>
 //import Search from './components/facetsearch/Search.vue'
+import FacetsConfig from './config'
 import navHeader  from './components/navHeader.vue'
 //import Landing from "./components/landing/landing.vue";
 
 
 export default {
   name: 'App',
+  data() {
+    return {
+      NODE_ENV: FacetsConfig.NODE_ENV
+     }
+  },
   components: {
  //   Landing,
  //   Search,
