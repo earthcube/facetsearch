@@ -21,7 +21,7 @@ jobs:
           node-version: '14'
       - run: npm install -g @vue/cli yarn
       - run: yarn install
-      - run: yarn production
+      - run: yarn staging
       - name: Deploy
         uses: s0/git-publish-subdir-action@develop
         env:
