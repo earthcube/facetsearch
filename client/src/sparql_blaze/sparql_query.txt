@@ -43,8 +43,8 @@ SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname
           } ?subj a ?type .
             optional {?subj schema:distribution/schema:url|sschema:subjectOf/sschema:url ?url .}
             OPTIONAL {?subj schema:datePublished|sschema:datePublished ?datep .}
-            OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|sschema:sdPublisher|sschema:provider/schema:name ?pub_name .}
-            OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name ?place_name .}
+            OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|sschema:sdPublisher|sschema:provider/schema:name ?pubname .}
+            OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name ?placename .}
 
             OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
 
