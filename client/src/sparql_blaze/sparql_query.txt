@@ -42,7 +42,7 @@ SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname
             #(UNDEF "other")  # assume it's data. At least we should get  name.
           } ?subj a ?type .
             optional {?subj schema:distribution/schema:url|sschema:subjectOf/sschema:url ?url .}
-            OPTIONAL {?subj schema:datePublished|sschema:datePublished ?date_p .}
+            OPTIONAL {?subj schema:datePublished|sschema:datePublished ?datep .}
             OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|sschema:sdPublisher|sschema:provider/schema:name ?pub_name .}
             OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name ?place_name .}
 
