@@ -3,19 +3,21 @@
     <div>
       <vue-range-slider
           ref="slider" class="mx-2" v-model="value" :tooltip="false"
-          :min=parseInt(startDate) :max=parseInt(endDate) @drag-end="updateRange"></vue-range-slider>
+          :min=parseInt(startDate) :max=parseInt(endDate) @drag-end="updateRange" :disabled="disableDrag"></vue-range-slider>
     </div>
     <div>
     <span
         class="text-h2 font-weight-light"
         v-text="value[0]"
+        v-if="filterDates.length > 0"
     ></span>
-      <span class="subheading font-weight-light mr-1"> year to </span>
+      <span class="subheading font-weight-light mr-1" v-if="filterDates.length > 0"> year to </span>
       <span
           class="text-h2 font-weight-light"
           v-text="value[1]"
+          v-if="filterDates.length > 0"
       ></span>
-      <span class="subheading font-weight-light mr-1"> year</span>
+      <span class="subheading font-weight-light mr-1" v-if="filterDates.length > 0"> year</span>
     </div>
   </div>
 
@@ -44,7 +46,8 @@ export default {
       value: [0, 2050],
       olderFilters: [],
       sliderInit: true,
-      myfilterDates : []
+      myfilterDates : [],
+      disableDrag: false
     }
   },
   components: {
@@ -57,6 +60,12 @@ export default {
   },
   methods: {
     updateRange (action, start, end, mydata) {
+      if(this.disableDrag && action != 'init') {
+        return
+      }
+      // if(this.myfilterDates.length === 0) {
+      //   return
+      // }
       console.log(this.filterDates)
       var newRangeStartDate = this.value[0]
       var newRangeEndDate = this.value[1]
@@ -72,6 +81,11 @@ export default {
         newRangeStartDate = start
         newRangeEndDate = end
         this.value = [newRangeStartDate, newRangeEndDate]
+        if (start === 0 && end === 0) {
+          this.disableDrag = true
+        } else {
+          this.disableDrag = false
+        }
         this.myfilterDates = []
         console.log(mydata)
       } else {
