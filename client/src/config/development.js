@@ -47,10 +47,18 @@ export default {
             title: 'Year Published',
             sort: 'acs',
             open: false,
-            type:'year text'
+            type:'text'
 
         },
 
+        {
+            field: 'datep',
+            title: 'Year Published Range',
+            sort: 'acs',
+            open: false,
+            type:'range'
+
+        },
 
     ],
     ORDER_BY_DEFAULT: 'score',
