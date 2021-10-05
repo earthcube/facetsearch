@@ -19,6 +19,13 @@ export default {
             type:'text'
     },
         {
+            field: 'minimap',
+            title: 'Mini Map',
+            sort: 'acs',
+            open: true,
+            type:'map'
+        },
+        {
             field: 'kw',
             title: 'Keywords',
             sort: 'acs',

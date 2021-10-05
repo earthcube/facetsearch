@@ -1,6 +1,16 @@
 <template>
   <div id="facets">
     <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
+<!--          <p>-->
+<!--            {{facetSetting.title}} {{facetSetting.type}}-->
+<!--          </p>-->
+          <FacetMap v-if="facetSetting.type=='map'"
+                     :facetSetting="facetSetting"
+                     :facetStore="facetStore"
+                     :state="state"
+
+          >
+          </FacetMap>
           <FacetText v-if="facetSetting.type=='text'"
                      :facetSetting="facetSetting"
                      :facetStore="facetStore"
@@ -26,6 +36,7 @@
 </template>
 
 <script>
+import FacetMap from "./FacetMap"
 import FacetText from "./FacetText";
 import FacetNumericRangeSlider from "./FacetNumericRangeSlider";
 
@@ -33,6 +44,7 @@ export default {
   name: "Facets",
   components: {
     FacetText,
+    FacetMap,
     FacetNumericRangeSlider
   },
   props: {
