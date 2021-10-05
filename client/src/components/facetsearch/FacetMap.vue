@@ -12,9 +12,7 @@
         :visible="facetSetting.open"
     >
       <b-card variant="secondary" v-show="hasSpatial">
-        <b-card-title>Location</b-card-title>
         <div ref="myMap" id="myMap" style="width: 100%; height: 320px;" ></div>
-
       </b-card>
     </b-collapse>
 
@@ -70,6 +68,7 @@ export default {
   },
   mounted() {
     this.hasSpatial = true;
+    this.toMap()
   },
   computed: {
     ...mapState(['jsonLdObj', 'jsonLdCompact'])
@@ -86,9 +85,6 @@ export default {
       this.bounds = bounds;
     },
     toMap: function () {
-      var self = this;
-      console.log(this.results.length)
-      if (this.results.length <= 0) return
       this.$nextTick(() => {
 
         //this.$refs.myMap.mapObject.setView(this.center, 13);
