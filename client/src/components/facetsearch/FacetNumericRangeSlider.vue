@@ -188,7 +188,11 @@ export default {
       // this.mydata.splice(this.results.length) // empty
       // console.log(this.results)
       this.mydata = this.results.filter(item => 'datep' in item).map(item => item['datep'])
-      console.log(this.mydata)
+      if (this.mydata.length === 0) {
+        this.$root.$emit('refresh slider range', 'init', 0, 0, this.mydata)
+        return
+      }
+        console.log(this.mydata)
       this.mydata = Array.from(new Set(this.mydata));
       this.mydata.sort( function(a, b){
         var c = new Date(a);
