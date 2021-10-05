@@ -15,6 +15,7 @@
         <div ref="myMap" id="myMap" style="width: 100%; height: 320px;" ></div>
       </b-card>
     </b-collapse>
+
     <label>North:</label>
     <vue-numeric-input :value="20.123456" precision="6"></vue-numeric-input>
     <label>South:</label>
@@ -23,10 +24,8 @@
     <vue-numeric-input :value="20.123456" precision="6"></vue-numeric-input>
     <label>East:</label>
     <vue-numeric-input :value="20.123456" precision="6"></vue-numeric-input>
-    
     <b-nav-form v-on:submit.prevent="onSubmitNavbar" v-show="$route.name.toLowerCase() != 'landing'">
       <b-input-group size="sm">
-        <b-form-input type="search" placeholder="Search"></b-form-input>
         <b-input-group-append>
           <b-button type="submit" variant="secondary"><b-icon icon="search"></b-icon></b-button>
         </b-input-group-append>
