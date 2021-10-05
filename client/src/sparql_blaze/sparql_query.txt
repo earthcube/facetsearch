@@ -6,8 +6,9 @@ prefix sschema: <https://schema.org/>
 SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname
 	(GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", ") AS ?placenames)
         (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)
-        ?datep  (GROUP_CONCAT(DISTINCT ?url; SEPARATOR=", ") AS ?disurl) (MAX(?score1) as ?score)
-	   (MAX(?lat) as ?maxlat) (Min(?lat) as ?minlat) (MAX(?lon) as ?maxlon) (Min(?lon) as ?minlon)
+        ?datep  (GROUP_CONCAT(DISTINCT ?url; SEPARATOR=", ") AS ?disurl)
+	#   (MAX(?lat) as ?maxlat) (Min(?lat) as ?minlat) (MAX(?lon) as ?maxlon) (Min(?lon) as ?minlon)
+	    (MAX(?version) as ?latestVersion)
         WHERE {
             ?lit bds:search "${q}" .
             ?lit bds:matchAllTerms false .
@@ -23,6 +24,7 @@ SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname
            # Minus {?subj a schema:Person } .
            # Minus {?subj a sschema:Person } .
              }
+          ?subj schema:version|sschema:version ?version .
 #BIND (IF (exists {?subj a schema:Dataset .} ||exists{?subj a sschema:Dataset .} , "data", "tool" ) AS ?resourceType).
           values (?type ?resourceType) {
             (schema:Dataset "data")
@@ -42,14 +44,15 @@ SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname
             #(UNDEF "other")  # assume it's data. At least we should get  name.
           } ?subj a ?type .
             optional {?subj schema:distribution/schema:url|sschema:subjectOf/sschema:url ?url .}
-            OPTIONAL {?subj schema:datePublished|sschema:datePublished ?datep .}
+            OPTIONAL {?subj schema:datePublished|sschema:datePublished|schema:dateCreated|sschema:dateCreated ?datep .}
             OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|sschema:sdPublisher|sschema:provider/schema:name ?pubname .}
             OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name ?placename .}
 
             OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
 
         }
-        GROUP BY ?subj ?pubname ?placenames ?kw ?datep ?disurl ?score ?name ?description  ?resourceType ?g ?minlat ?maxlat ?minlon ?maxlon
+       # GROUP BY ?subj ?pubname ?placenames ?kw ?datep ?disurl ?name ?description  ?resourceType ?g ?version ?minlat ?maxlat ?minlon ?maxlon
+       GROUP BY ?subj ?pubname ?placenames ?kw ?datep ?disurl  ?name ?description  ?resourceType ?g ?version
         ORDER BY DESC(?score)
 LIMIT ${n}
 OFFSET ${o}
