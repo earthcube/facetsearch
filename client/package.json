@@ -27,6 +27,7 @@
     "vue-histogram-slider": "^0.3.8",
     "vue-json-component": "^0.4.1",
     "vue-json-pretty": "^1.8.0",
+    "vue-numeric-input": "^2.0.0",
     "vue-range-component": "^1.0.3",
     "vue-range-component-fixed": "^1.0.3",
     "vue-router": "^3.5.1",

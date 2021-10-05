@@ -15,13 +15,30 @@
         <div ref="myMap" id="myMap" style="width: 100%; height: 320px;" ></div>
       </b-card>
     </b-collapse>
-
+    <label>North:</label>
+    <vue-numeric-input :value="20.123456" precision="6"></vue-numeric-input>
+    <label>South:</label>
+    <vue-numeric-input :value="20.123456" precision="6"></vue-numeric-input>
+    <label>West:</label>
+    <vue-numeric-input :value="20.123456" precision="6"></vue-numeric-input>
+    <label>East:</label>
+    <vue-numeric-input :value="20.123456" precision="6"></vue-numeric-input>
+    
+    <b-nav-form v-on:submit.prevent="onSubmitNavbar" v-show="$route.name.toLowerCase() != 'landing'">
+      <b-input-group size="sm">
+        <b-form-input type="search" placeholder="Search"></b-form-input>
+        <b-input-group-append>
+          <b-button type="submit" variant="secondary"><b-icon icon="search"></b-icon></b-button>
+        </b-input-group-append>
+      </b-input-group>
+    </b-nav-form>
   </div>
 
 
 </template>
 
 <script>
+import VueNumericInput from 'vue-numeric-input';
 import "leaflet/dist/leaflet.css";
 import L from 'leaflet';
 import {
@@ -42,6 +59,7 @@ Icon.Default.mergeOptions({
 export default {
   name: 'FacetMap',
   components: {
+    VueNumericInput,
     // LMap,
     //   LTileLayer,
 //    LMarker,
@@ -56,7 +74,7 @@ export default {
   },
   data() {
     return {
-      hasSpatial: true,
+      hasSpatial: false,
       mapboxurl: "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
       attribution: `Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>`,
       center: [46.8832566, -114.0870563],
