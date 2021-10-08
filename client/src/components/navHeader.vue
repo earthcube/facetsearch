@@ -8,7 +8,7 @@
             </b-navbar-nav>
 
             <!-- can use the :disabled attribute to trigger hidding the logo...but only hiding on small screens (see css below) -->
-            <b-navbar-brand :to="{name: 'landing'}" class="mr-0"><logoEarthcube width="120px" /></b-navbar-brand>
+            <b-navbar-brand href="https://www.earthcube.org/" target="_blank" class="mr-0"><logoEarthcube width="120px" /></b-navbar-brand>
             <b-navbar-brand :to="{name: 'landing'}" class="border-left border-light pl-2 ml-2 mr-auto"
                 :disabled="showBackButton()"
             ><logoGeoCodes width="100px" /></b-navbar-brand>

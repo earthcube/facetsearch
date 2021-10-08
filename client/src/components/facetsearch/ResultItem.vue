@@ -3,8 +3,12 @@
         v-on:click="showDetails"
         v-bind:class="['type_' + item.resourceType.toLowerCase()]"
     >
-        <b-card-title class="name" v-html="item.name"></b-card-title>
-        <b-card-title class="publisher" v-if="item.pubname" v-html="item.pubname"></b-card-title>
+      <router-link  :to="linkTo()">
+        <b-card-title class="name" v-html="item.name">
+
+        </b-card-title>
+      </router-link>
+      <b-card-title class="publisher" v-if="item.pubname" v-html="item.pubname"></b-card-title>
 
         <b-card-text class="description small mb-2" v-if="item.description" v-html="item.description"></b-card-text>
 
@@ -53,6 +57,25 @@ export default {
   , methods: {
     ...mapActions([
        'hasConnectedTools']),
+    linkTo() {
+      if (this.item.resourceType === 'tool') {
+        return {
+          name: 'tool',
+          params: {
+            t: this.item.subj
+          }
+        };
+
+      } else if (this.item.resourceType === 'data') {
+        return {
+          name: 'dataset',
+          params: {
+            d: this.item.g
+          }
+        };
+
+      }
+    },
     showDetails() {
 
       if (this.item.resourceType==='tool'){
