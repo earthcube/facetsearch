@@ -17,20 +17,18 @@
     </b-collapse>
 
     <label>North:</label>
-    <vue-numeric-input :value="20.123456" precision="6"></vue-numeric-input>
+    <vue-numeric-input v-bind:precision="6" v-model="north"></vue-numeric-input>
     <label>South:</label>
-    <vue-numeric-input :value="20.123456" precision="6"></vue-numeric-input>
+    <vue-numeric-input v-bind:precision="6" v-model="south"></vue-numeric-input>
     <label>West:</label>
-    <vue-numeric-input :value="20.123456" precision="6"></vue-numeric-input>
+    <vue-numeric-input v-bind:precision="6" v-model="west"></vue-numeric-input>
     <label>East:</label>
-    <vue-numeric-input :value="20.123456" precision="6"></vue-numeric-input>
-    <b-nav-form v-on:submit.prevent="onSubmitNavbar" v-show="$route.name.toLowerCase() != 'landing'">
-      <b-input-group size="sm">
-        <b-input-group-append>
-          <b-button type="submit" variant="secondary"><b-icon icon="search"></b-icon></b-button>
-        </b-input-group-append>
-      </b-input-group>
-    </b-nav-form>
+    <vue-numeric-input v-bind:precision="6" v-model="east"></vue-numeric-input>
+
+    <b-input-group size="sm">
+      <b-button v-on:click="search"><b-icon icon="search"></b-icon></b-button>
+    </b-input-group>
+
   </div>
 
 
@@ -79,8 +77,11 @@ export default {
       center: [46.8832566, -114.0870563],
       zoom: 8,
       maxZoom: 12,
-      myMap:{}
-
+      myMap:{},
+      north: '20.123456',
+      south: '20.123456',
+      west: '20.123456',
+      east: '20.123456',
     }
   },
   mounted() {
@@ -92,6 +93,9 @@ export default {
 
   },
   methods: {
+    search: function () {
+      console.log(this.north)
+    },
     zoomUpdated(zoom) {
       this.zoom = zoom;
     },
