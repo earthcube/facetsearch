@@ -26,7 +26,7 @@
     <vue-numeric-input v-bind:precision="6" v-model="east"></vue-numeric-input>
 
     <b-input-group size="sm">
-      <b-button v-on:click="drawBB"> Draw Bounding Box</b-button>
+      <b-button v-on:click="filterBB"> Filter Bounding Box</b-button>
     </b-input-group>
 
   </div>
@@ -63,6 +63,10 @@ export default {
 
   }, watch: {
     results: 'toMap',
+    north: 'toMap',
+    south: 'toMap',
+    east: 'toMap',
+    west: 'toMap'
   },
   props: {
     "facetSetting": Object,
@@ -89,11 +93,12 @@ export default {
     this.hasSpatial = true;
   },
   computed: {
-    ...mapState(['results', 'north'])
+    ...mapState(['results', 'north', 'south', 'west', 'east'])
   },
   methods: {
-    drawBB: function () {
-      this.toMap()
+    filterBB: function () {
+      console.log("filter in bounding box")
+      // this.toMap()
     },
     zoomUpdated(zoom) {
       this.zoom = zoom;
