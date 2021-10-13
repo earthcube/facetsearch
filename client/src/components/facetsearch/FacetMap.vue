@@ -26,7 +26,7 @@
     <vue-numeric-input v-bind:precision="6" v-model="east"></vue-numeric-input>
 
     <b-input-group size="sm">
-      <b-button v-on:click="search"><b-icon icon="search"></b-icon></b-button>
+      <b-button v-on:click="drawBB"> Draw Bounding Box</b-button>
     </b-input-group>
 
   </div>
@@ -62,7 +62,7 @@ export default {
 //    LMarker,
 
   }, watch: {
-    jsonLdCompact: 'toMap'
+    results: 'toMap',
   },
   props: {
     "facetSetting": Object,
@@ -77,24 +77,23 @@ export default {
       center: [46.8832566, -114.0870563],
       zoom: 8,
       maxZoom: 12,
-      myMap:{},
       north: '20.123456',
       south: '20.123456',
       west: '20.123456',
       east: '20.123456',
+      prev_bounding_box: undefined,
+      prev_marker: undefined,
     }
   },
   mounted() {
     this.hasSpatial = true;
-    this.toMap()
   },
   computed: {
-    ...mapState(['jsonLdObj', 'jsonLdCompact'])
-
+    ...mapState(['results', 'north'])
   },
   methods: {
-    search: function () {
-      console.log(this.north)
+    drawBB: function () {
+      this.toMap()
     },
     zoomUpdated(zoom) {
       this.zoom = zoom;
@@ -109,7 +108,9 @@ export default {
       this.$nextTick(() => {
 
         //this.$refs.myMap.mapObject.setView(this.center, 13);
-        this.mymap = L.map(this.$refs.myMap.id).setView(this.center, 8);
+        if(this.mymap === undefined) {
+          this.mymap = L.map(this.$refs.myMap.id).setView(this.center, 8);
+        }
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
           maxZoom: 13,
           attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
@@ -120,12 +121,36 @@ export default {
         }).addTo(this.mymap);
         // reactive... set
         // var mymap = L.map('mapid').setView(centerpoint, 13);
-        if (name) {
-          L.marker(self.center).addTo(this.mymap)
-              .bindPopup(name).openPopup();
-        } else {
-          L.marker(self.center).addTo(this.mymap);
+        // if (name) {
+        //   L.marker(self.center).addTo(this.mymap)
+        //       .bindPopup(name).openPopup();
+        // } else {
+        //   L.marker(self.center).addTo(this.mymap);
+        // }
+
+        var box = [[this.north, this.east],
+          [this.south, this.west]]
+        var corner1 = L.latLng(box[0][0], box[0][1]),
+            corner2 = L.latLng(box[1][0], box[1][1]),
+            bounds = L.latLngBounds(corner1, corner2);
+        console.log('bounds valid ' + bounds.isValid())
+        // not always correct order.
+        let padding = Math.abs(box[0][0] - box[0][1])/2
+        this.mymap.fitBounds(bounds, {padding: [padding,padding], maxZoom: 12});
+        if (this.prev_bounding_box!==undefined) {
+          console.log("remove prev bounding box and marker")
+          this.mymap.removeLayer(this.prev_bounding_box)
         }
+        if (this.prev_marker !== undefined) {
+          console.log("remove prev marker")
+          this.mymap.removeLayer(this.prev_marker)
+        }
+        this.prev_bounding_box = L.rectangle(bounds, {color: "#ff7800", weight: 1}).addTo(this.mymap);
+        // move bounding box center
+        var northing = (box[0][0] + box[1][0]) / 2
+        var easting = (box[0][1] + box[1][1]) / 2
+        self.center = [northing, easting]
+        this.prev_marker = L.marker(self.center).addTo(this.mymap);
 
         setTimeout(() => {
           this.mymap.panTo(self.center);
@@ -133,6 +158,7 @@ export default {
         }, 100)
       })
     },
+
   }
 
 };
