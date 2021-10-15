@@ -15,12 +15,13 @@ router.get('/', function(req, res, next) {
 });
 /* GET CONFIG . */
 router.get('/config', function(req, res, next) {
-    var c = global.gConfig.config
+    var c = JSON.parse(JSON.stringify(global.gConfig.config)); // make a copy since omit fields later
     c.jsonldStore = _.omit(c.jsonldStore, ["accessKey", "secretKey"])
+
     var returnConfig = {
         NODE_ENV:process.env.NODE_ENV ,
-
-        config: c
+        S3ADDRESS:process.env.S3ADDRESS,
+        config:  c
     }
    // res.status(err.response.status)
     res.json(returnConfig);
