@@ -1,6 +1,6 @@
-var endPoint = process.env.MINIO_ENDPOINT || "oss.geodex.org"
-var accessKey = process.env.MINIO_ACCESS || 'AKIAIOSFODNN7EXAMPLE'
-var secretKey = process.env.MINIO_SECRET || 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+var endPoint = process.env.S3_ENDPOINT || "oss.geocodes.earthcube.org"
+var accessKey = process.env.S3KEY || 'AKIAIOSFODNN7EXAMPLE'
+var secretKey = process.env.S3SECRET || 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 exports.config = {
     jsonldStore: {
         "type": "minio",
