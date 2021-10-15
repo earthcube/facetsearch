@@ -7,10 +7,22 @@ const minio = require('minio')
 
 var toolsController = require('../api/tools')
 var datasetController = require('../api/dataset_s3_store')
+const _ = require("lodash");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Earthcube Geocodes Faceted Client API' });
+});
+/* GET CONFIG . */
+router.get('/config', function(req, res, next) {
+    var c = global.gConfig.config
+    c.jsonldStore = _.omit(c.jsonldStore, ["accessKey", "secretKey"])
+    var returnConfig = {
+        NODE_ENV:process.env.NODE_ENV ,
+        config: c
+    }
+   // res.status(err.response.status)
+    res.json(returnConfig);
 });
 router.get('/tools/*', function(req,
                               res,
