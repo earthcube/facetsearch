@@ -19,6 +19,7 @@ router.get('/config', function(req, res, next) {
     c.jsonldStore = _.omit(c.jsonldStore, ["accessKey", "secretKey"])
     var returnConfig = {
         NODE_ENV:process.env.NODE_ENV ,
+
         config: c
     }
    // res.status(err.response.status)
