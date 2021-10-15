@@ -1,7 +1,7 @@
 export default {
     NODE_ENV: process.env.NODE_ENV || 'unknown',
     API_URL: `https://alpha.geocodes.earthcube.org/ec/api`,
-    TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql',
+    TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/nabu/sparql',
     THROUGHPUTDB_URL: 'https://throughputdb.com/api/ccdrs/annotations',
     //TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',
     SPARQL_QUERY:'queries/sparql_query.txt',

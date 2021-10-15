@@ -1,7 +1,7 @@
 exports.config = {
     jsonldStore: {
         "type": "minio",
-        "endPoint": "oss.geodex.org",
+        "endPoint": "oss.geocodes.earthcube.org",
             "port": 443,
         useSSL: true,
         accessKey: 'AKIAIOSFODNN7EXAMPLE',
