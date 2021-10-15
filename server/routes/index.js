@@ -7,7 +7,6 @@ const minio = require('minio')
 
 var toolsController = require('../api/tools')
 var datasetController = require('../api/dataset_s3_store')
-const _ = require("lodash");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
