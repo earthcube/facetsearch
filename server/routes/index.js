@@ -10,7 +10,20 @@ var datasetController = require('../api/dataset_s3_store')
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Earthcube Geocodes Faceted Client API' });
+});
+/* GET CONFIG . */
+router.get('/config', function(req, res, next) {
+    var c = JSON.parse(JSON.stringify(global.gConfig.config)); // make a copy since omit fields later
+    c.jsonldStore = _.omit(c.jsonldStore, ["accessKey", "secretKey"])
+
+    var returnConfig = {
+        NODE_ENV:process.env.NODE_ENV ,
+        S3ADDRESS:process.env.S3ADDRESS,
+        config:  c
+    }
+   // res.status(err.response.status)
+    res.json(returnConfig);
 });
 router.get('/tools/*', function(req,
                               res,

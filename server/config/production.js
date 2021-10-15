@@ -1,4 +1,4 @@
-var endPoint = process.env.S3_ENDPOINT || "oss.geocodes.earthcube.org"
+var endPoint = process.env.S3ADDRESS || "oss.geocodes.earthcube.org"
 var accessKey = process.env.S3KEY || 'AKIAIOSFODNN7EXAMPLE'
 var secretKey = process.env.S3SECRET || 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 exports.config = {
