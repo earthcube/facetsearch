@@ -4,6 +4,7 @@ var router = express.Router();
 const url = require('url');
 const querystring = require('querystring');
 const minio = require('minio')
+const _ =require('lodash')
 
 var toolsController = require('../api/tools')
 var datasetController = require('../api/dataset_s3_store')
