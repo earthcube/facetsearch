@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="vue_client npm serve" type="js.build_tools.npm">
+  <configuration default="false" name="default vue_client npm serve" type="js.build_tools.npm">
     <package-json value="$PROJECT_DIR$/client/package.json" />
     <command value="run" />
     <scripts>

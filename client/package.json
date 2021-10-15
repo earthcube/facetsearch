@@ -49,6 +49,7 @@
     "sass-loader": "^10.1.1",
     "vue-jest": "^3.0.7",
     "vue-template-compiler": "^2.6.11",
+    "webpack-cli": "^4.9.0",
     "webpack-version-file-plugin": "^0.4.0"
   },
   "eslintConfig": {
