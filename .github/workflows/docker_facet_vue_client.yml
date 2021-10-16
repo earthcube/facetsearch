@@ -13,11 +13,11 @@ jobs:
     name: Dockerize Vue Client
     runs-on: ubuntu-latest
     steps:
-      -  name: Install GitVersion
-          uses: gittools/actions/gitversion/setup@v0.9.7
-          with:
-            versionSpec: '1.x'
-            includePrerelease: true
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.7
+        with:
+          versionSpec: '1.x'
+          includePrerelease: true
       - name: Checkout Repo
         uses: actions/checkout@v2
       - name: Determine Version
@@ -26,7 +26,7 @@ jobs:
           useConfigFile: true
           configFilePath: client/VersionConfig.yml
       - name: Display SemVer
-          run: |
+        run: |
             echo "SemVer: $GITVERSION_SEMVER"
       - name: Create Node Environment
         uses: actions/setup-node@v2

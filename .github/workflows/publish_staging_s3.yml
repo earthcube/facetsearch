@@ -24,7 +24,7 @@ jobs:
           useConfigFile: true
           configFilePath: client/VersionConfig.yml
       - name: Display SemVer
-          run: |
+        run: |
             echo "SemVer: $GITVERSION_SEMVER"
       - name: Create Node Environment
         uses: actions/setup-node@v2
