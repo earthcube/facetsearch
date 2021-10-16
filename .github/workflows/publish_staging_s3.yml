@@ -7,7 +7,7 @@ defaults:
     working-directory: ./client
 jobs:
   deploy:
-    name: Deploy Application
+    name: Deploy Application b
     runs-on: ubuntu-latest
     steps:
       - name: Install GitVersion

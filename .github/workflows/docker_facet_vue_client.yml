@@ -10,7 +10,7 @@ defaults:
     working-directory: ./client
 jobs:
   deploy:
-    name: Dockerize Vue Client
+    name: Dockerize Vue Client b
     runs-on: ubuntu-latest
     steps:
       - name: Install GitVersion
