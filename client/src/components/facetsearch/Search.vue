@@ -140,6 +140,10 @@ export default {
     this.$store.state.q = this.textQuery
     let lastItems = this.$store.getters.getLastQueryResults(this.textQuery)
     if (lastItems){
+
+      const hit = microCache.get(this.textQuery)
+      console.log("hit: " + hit)
+
       this.$store.commit('setResults',lastItems)
       //this.queryRunning = false;
       this.search()
@@ -382,6 +386,14 @@ export default {
     }
   }
 }
+
+const LRU = require('lru-cache')
+const microCache = LRU({
+  max: 100,
+  maxAge: 1000 // Important: entries expires after 1 second.
+})
+
+
 </script>
 
 <style scoped>
