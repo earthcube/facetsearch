@@ -52,14 +52,14 @@ import FacetsConfig from '../../config.js'
 
 import {bus} from "../../main.js"
 import ResultHeader from "./ResultHeader";
-import {mapActions,
+import {
+  mapActions, mapGetters,
   mapState,
- // mapGetters
+  // mapGetters
 } from "vuex";
 import feedback from "../feedback/feedback";
 
 // import HistRangeSlider from "./HistRangeSlider.vue"
-
 
 export default {
   name: "Search",
@@ -75,8 +75,9 @@ export default {
     }
   },
   computed: {
-    ...mapState(['results','searchExactMatch']),
+    ...mapState(['results','searchExactMatch', 'microCache']),
     //...mapGetters(['q',])
+    ...mapGetters (['hasMicroCache', 'getMicroCache'])
   },
   watch: {
     results: 'search',
@@ -127,10 +128,12 @@ export default {
       // -- end edit  facets
       queryRunning: false,
     // resourceType queries are in state.js
-
+    //   microCache: null
     }
   },
+  created() {
 
+  },
   mounted() {
     //const self = this;
     //const q = "water";
@@ -138,15 +141,21 @@ export default {
     const o = 0;
     this.queryRunning = true;
     this.$store.state.q = this.textQuery
-    let lastItems = this.$store.getters.getLastQueryResults(this.textQuery)
-    if (lastItems){
 
-      const hit = microCache.get(this.textQuery)
-      console.log("hit: " + hit)
 
-      this.$store.commit('setResults',lastItems)
-      //this.queryRunning = false;
+    // const hit = this.getMicroCache.get(this.textQuery)
+
+    if (this.hasMicroCache(this.textQuery)) {
+      console.log("lru has " + this.textQuery)
       this.search()
+    // }
+    // // console.log("hit: " + hit)
+    //
+    // let lastItems = this.$store.getters.getLastQueryResults(this.textQuery)
+    // if (lastItems){
+    //   this.$store.commit('setResults',lastItems)
+    //   //this.queryRunning = false;
+    //   this.search()
     } else {
       this.$store.dispatch('getResults', {
             textQuery: this.textQuery,
@@ -156,6 +165,7 @@ export default {
             resourceType: this.resourceType
           }
       )
+      // this.getMicroCache.set(this.textQuery, this.results)
     }
 
 
@@ -179,6 +189,7 @@ export default {
       })
     },
     search: function () {
+      this.$store.commit('setMicroCache', {'key': this.textQuery, 'value': this.results})
       this.feedBackItemId = "search?q="+this.textQuery;
       this.queryRunning = false;
       this.items = this.results;
@@ -387,11 +398,6 @@ export default {
   }
 }
 
-const LRU = require('lru-cache')
-const microCache = LRU({
-  max: 100,
-  maxAge: 1000 // Important: entries expires after 1 second.
-})
 
 
 </script>

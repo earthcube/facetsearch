@@ -11,6 +11,8 @@ import FacetsConfig from "./config";
 import SpaqlQuery from 'raw-loader!./sparql_blaze/sparql_query.txt'
 import SpaqlHasToolsQuery from 'raw-loader!./sparql_blaze/sparql_hastools.txt'
 
+import LRU from "lru-cache"
+
 let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
 let TRIPLESTORE_URL = FacetsConfig.TRIPLESTORE_URL
 
@@ -43,8 +45,18 @@ export const store = new Vuex.Store({
             ['tool', "{ ?subj rdf:type schema:SoftwareApplication . } UNION { ?subj rdf:type sschema:SoftwareApplication . } "],
        //     ['project', "{ ?subj rdf:type schema:ResearchProject . } UNION { ?subj rdf:type sschema:ResearchProject . } "],
         ]),
+        microCache: new LRU({
+            max: 100000, // 100k entries.
+            // maxAge: 36000 // Important: entries expires after 1 second.
+        })
     },
     getters: {
+        hasMicroCache: (state) => (key)  => {
+            return state.microCache.has(key)
+        },
+        getMicroCache: (state) => (key)  => {
+            return state.microCache.get(key)
+        },
         appVersion: (state) => {
             return state.packageVersion
         },
@@ -76,6 +88,10 @@ export const store = new Vuex.Store({
 
     },
     mutations: {
+        setMicroCache: (state, obj) => {
+            console.log("obj.key," + obj.key + ", obj.value" + obj.value)
+            state.microCache.set(obj.key, obj.value)
+        },
         setJsonLd(state, obj) {
 
             state.jsonLdObj = obj
@@ -287,7 +303,7 @@ export const store = new Vuex.Store({
         // ,
         async getResults(context, queryObject) {
             //var self = this;
-
+            console.log("search " + context)
             var q = queryObject.textQuery;
             let o = queryObject.offset;
             let n = queryObject.limit;
