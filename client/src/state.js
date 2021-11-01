@@ -28,7 +28,10 @@ export const store = new Vuex.Store({
         queryTemplates: new Map(),
         lastQueryResults: new Map(), // query, num results
         lastDatasetIds: [],
-        connectedTools: new Map(), // object id, hasConnectedTools
+        connectedTools: new LRU({
+            max: 100000, // 100k entries.
+            // maxAge: 36000 // Important: entries expires after 1 second.
+        }), // object id, hasConnectedTools
         toolsMap: new Map(), // object id, hasConnectedTools
         q: '',
         rt:'all', // resourceType all
@@ -66,6 +69,9 @@ export const store = new Vuex.Store({
         // prep for when we expand queries beyond text
         getLastQuery: (state) => {
             return state.lastTextQueries[0]
+        },
+        hasConnectedTool: (state) => (key)  => {
+            return state.connectedTools.has(key)
         },
         getConnectedTool: (state) => (id) => {
             return state.connectedTools.get(id)
@@ -414,11 +420,11 @@ export const store = new Vuex.Store({
         },
 
         hasConnectedTools: async function (context, payload) {
-            if (context.getters.getConnectedTool(payload)) {
+            if (context.getters.hasConnectedTool(payload)) {
+                console.log("payload: " + payload)
                 console.log('hasConnectedTools:cached:' + context.getters.getConnectedTool(payload));
-               Promise.resolve(context.getters.getConnectedTool(payload))
-                //return
-
+                Promise.resolve(context.getters.getConnectedTool(payload))
+                return context.getters.getConnectedTool(payload)
             }
             // const template_name = "hasTools"
             // const hasToolsTemplate = context.dispatch('getQueryTemplate', {
@@ -452,6 +458,7 @@ export const store = new Vuex.Store({
                     console.log(params["query"]);
                 }
                 context.commit('addConnectedTools', {id: payload, hasTool: hasTool})
+                console.log("put to LRU cache " + payload)
                 return hasTool;
 
             })
