@@ -1,0 +1,66 @@
+prefix schema: <https://schema.org/>
+   PREFIX schemaold: <http://schema.org/>
+   prefix ecrro: <http://cor.esipfed.org/ont/earthcube/>
+
+  select DISTINCT ?dataname ?appname  ?rrs  ?altName ?description ?type ?template
+   WHERE
+   {
+     # graph is urn:UUID for a dataset record (graph)
+       graph <${g}> {
+	   #is there a distribution with a schema:serviceType property
+       ?s schemaold:distribution|schema:distribution ?dist ;
+            schemaold:name|schema:name ?dataname  .
+       ?dist  schemaold:serviceType|schema:serviceType ?type ;
+           schemaold:potentialAction/schemaold:target/schemaold:urlTemplate|schema:potentialAction/schema:target/schema:urlTemplate ?template.
+      }
+     BIND (str(?type) as ?label)
+    SERVICE <http://132.249.238.169:8080/fuseki/ecrr/query> 
+	{
+      GRAPH <http://earthcube.org/gleaner-summoned>
+            {?rrs a schema:SoftwareApplication ;
+                   schema:name ?appname ;
+				   schema:additionalProperty ?prop ;
+                  schema:description ?description .
+              ?prop schema:name ?pname ;
+			    schema:value/schema:name ?pval.
+			  
+              filter ( (?pname = 'Interface specification') && (str(?pval) = ?label) )
+              OPTIONAL{ ?rrs schema:alternateName ?altName }
+            }
+    }
+  }
+
+   
+   
+   
+   *** no graph parameter
+   
+   prefix schema: <https://schema.org/>
+   PREFIX schemaold: <http://schema.org/>
+   prefix ecrro: <http://cor.esipfed.org/ont/earthcube/>
+   select DISTINCT ?dataname ?appname  ?rrs  ?altName ?description ?type ?template
+   WHERE
+   {
+      {
+	   #is there a distribution with a schema:serviceType property
+       ?s schemaold:distribution|schema:distribution ?dist ;
+            schemaold:name|schema:name ?dataname  .
+       ?dist  schemaold:serviceType|schema:serviceType ?type ;
+           schemaold:potentialAction/schemaold:target/schemaold:urlTemplate|schema:potentialAction/schema:target/schema:urlTemplate ?template.
+      }
+     BIND (str(?type) as ?label)
+    SERVICE <http://132.249.238.169:8080/fuseki/ecrr/query> 
+	{
+      GRAPH <http://earthcube.org/gleaner-summoned>
+            {?rrs a schema:SoftwareApplication ;
+                   schema:name ?appname ;
+				   schema:additionalProperty ?prop ;
+                  schema:description ?description .
+              ?prop schema:name ?pname ;
+			    schema:value/schema:name ?pval.
+			  
+              filter ( (?pname = 'Interface specification') && (str(?pval) = ?label) )
+              OPTIONAL{ ?rrs schema:alternateName ?altName }
+            }
+    }
+  }
