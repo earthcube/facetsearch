@@ -20,6 +20,7 @@
     "jsonpath": "^1.1.1",
     "jsonpath-plus": "^5.1.0",
     "leaflet": "^1.7.1",
+    "localforage": "^1.10.0",
     "lru-cache": "^5.1.1",
     "query-string": "^7.0.0",
     "querystring": "^0.2.1",
