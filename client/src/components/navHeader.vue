@@ -40,6 +40,7 @@
                 <b-nav-item v-on:click.stop="showSparqlGui"  class="text-nowrap" target="_blank">SPARQL</b-nav-item>
                 <b-nav-item v-on:click.stop="showSparqlNb"  class="text-nowrap" target="_blank">SPARQL NB</b-nav-item>
                 <b-nav-item :to="{name: 'about'}" class="mr-0" >About</b-nav-item>
+                <b-nav-item :to="{name: 'collection'}" class="mr-0" >collection</b-nav-item>
 
               </b-navbar-nav>
             </b-collapse>
