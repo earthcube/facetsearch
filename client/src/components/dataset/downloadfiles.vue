@@ -20,7 +20,7 @@
                              target="_blank"
                   >
 
-                    <b-img :src="nb.badge" width="64" ></b-img>
+                    <b-img :src="nb.badge" width="64" :alt="nb.name"></b-img>
                   </b-button>
         </b-button-group>
       </b-button-group>
