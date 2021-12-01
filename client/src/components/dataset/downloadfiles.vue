@@ -19,8 +19,9 @@
                             v-bind:href="nbBinderUrl(nb,dl.contentUrl,dl.encodingFormat,d)"
                              target="_blank"
                   >
+                    <b-link v-if="nb.badge === '' "  width="64" >{{nb.name}}</b-link>
+                    <b-img v-else :src="nb.badge" width="64" :alt="nb.name"></b-img>
 
-                    <b-img :src="nb.badge" width="64" :alt="nb.name"></b-img>
                   </b-button>
         </b-button-group>
       </b-button-group>
