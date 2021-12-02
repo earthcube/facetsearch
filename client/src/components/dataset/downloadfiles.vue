@@ -19,7 +19,7 @@
                             v-bind:href="nbBinderUrl(nb,dl.contentUrl,dl.encodingFormat,d)"
                              target="_blank"
                   >
-                    <div v-if="nb.badge === '' "  width="64" >{{nb.name}}</div>
+                    <span v-if="nb.badge === '' "  width="64" >{{nb.name}}</span>
                     <b-img v-else :src="nb.badge" width="64" :alt="nb.name"></b-img>
 
                   </b-button>
