@@ -432,7 +432,11 @@ export const store = new Vuex.Store({
             //     name: template_name
             // })
             const resultsTemplate = _.template(SpaqlHasToolsQuery, esTemplateOptions)
-            let hasToolsQuery = resultsTemplate({g: payload});
+
+            let hasToolsQuery = resultsTemplate({g: payload,
+                ecrr_service: FacetsConfig.ECRR_TRIPLESTORE_URL,
+                ecrr_graph: FacetsConfig.ECRR_GRAPH
+            });
 
             var url = FacetsConfig.TRIPLESTORE_URL;
             var params = {

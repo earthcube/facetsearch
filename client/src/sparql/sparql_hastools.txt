@@ -16,8 +16,8 @@ PREFIX schema:  <https://schema.org/>
 			  }
 		 }
 		 BIND (str(?type) as ?label)
-		 SERVICE <http://132.249.238.169:8080/fuseki/ecrr/query> {
-		  GRAPH <http://earthcube.org/gleaner-summoned>
+		 SERVICE <${ecrr_service}> {
+		  GRAPH <${ecrr_graph}>
 		   {
 			  ?rrs schema:supportingData ?df.
 				  ?df schema:encodingFormat  ?label ;

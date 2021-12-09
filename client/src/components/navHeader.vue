@@ -112,7 +112,7 @@ name: "navHeader",
 
       }
       let route = stringify(paramData)
-      let acutalUrl = basepath +route
+      let acutalUrl = basepath + route
 
       window.open(acutalUrl, '_blank')
     },
