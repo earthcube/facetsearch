@@ -32,8 +32,7 @@
 import {mapState} from "vuex";
 import axios from "axios";
 import {schemaItem} from "../../api/jsonldObject";
-
-// import FacetsConfig from "../../config";
+import FacetsConfig from "../../config";
 
 export default {
   name: "annotation",
@@ -79,7 +78,7 @@ export default {
 
       var dbid = 'r3d100012894'
 
-      var url = 'https://throughputdb.com/api/ccdrs/annotations';
+      var url = FacetsConfig.THROUGHPUTDB_URL;
       var params = {
         // fixed for now
         dbid: dbid,
