@@ -2,8 +2,8 @@ export default {
     NODE_ENV: process.env.NODE_ENV || 'unknown',
     API_URL: `https://alpha.geocodes.earthcube.org/ec/api`,
     TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/nabu/sparql',
-    ECRR_TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/ecrr/sparql',// dev
-    //ECRR_TRIPLESTORE_URL:'http://132.249.238.169:8080/fuseki/ecrr/query', // fuseki
+    //ECRR_TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/ecrr/sparql',// dev
+    ECRR_TRIPLESTORE_URL:'http://132.249.238.169:8080/fuseki/ecrr/query', // fuseki
     ECRR_GRAPH: 'http://earthcube.org/gleaner-summoned',
     // ECRR_GRAPH: 'http://earthcube.org/gleaner-summoned', //fuskei
     THROUGHPUTDB_URL: 'https://throughputdb.com/api/ccdrs/annotations',
