@@ -1,7 +1,7 @@
 export default {
     NODE_ENV: process.env.NODE_ENV || 'unknown',
     API_URL: 'http://localhost:3000',
-    TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/nabu/sparql',
+    TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/earthcube/sparql',
     //TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',
     ECRR_TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/ecrr/sparql',// dev
     //ECRR_TRIPLESTORE_URL:'http://132.249.238.169:8080/fuseki/ecrr/query', // fuseki
@@ -14,7 +14,7 @@ export default {
     SPARQL_TOOLS_DOWNLOAD:'queries/sparql_gettools_download.txt',
     JSONLD_PROXY: "http://localhost:3000/${o}",
     SPARQL_NB: "https://beta.geocodes.earthcube.org/notebook/mkQ?q=${q}",
-    SPARQL_YASGUI: "https://alpha.geocodes.earthcube.org/sparqlgui?",
+    SPARQL_YASGUI: "https://geocodes.earthcube.org/sparqlgui?",
     // allow us to use the same delimiters as lithtml
     ES_TEMPLATE_OPTIONS : {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
     FACETS: [

@@ -28,12 +28,15 @@ module.exports = {
             },
             optimization: {
                 splitChunks: {
+                   // chunks: 'all',
                     cacheGroups: {
                         shared: {
+                          //  test: /[\\/]node_modules[\\/](vue|vuex|vue-loader|vue-axios)[\\/]/,
                             test: /[\\/]node_modules[\\/]/,
-                            name: 'vendor',
-                            enforce: true,
-                            chunks: 'all',
+                            // name: 'vendor',
+                           // enforce: true,
+                           // chunks: 'all',
+                            reuseExistingChunk: true,
                         }
                     }
                 }

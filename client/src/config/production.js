@@ -6,7 +6,7 @@ export default {
     ECRR_TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/ecrr/sparql',// dev
     //ECRR_TRIPLESTORE_URL:'http://132.249.238.169:8080/fuseki/ecrr/query', // fuseki
     ECRR_GRAPH: 'http://earthcube.org/gleaner-summoned',
-    // ECRR_GRAPH: 'http://earthcube.org/gleaner-summoned', //fuskei
+     //ECRR_GRAPH: 'http://earthcube.org/gleaner-summoned', //fuskei
     THROUGHPUTDB_URL: 'https://throughputdb.com/api/ccdrs/annotations',
     SPARQL_QUERY:'queries/sparql_query.txt',
     SPARQL_HASTOOLS:'queries/sparql_hastools.txt',
@@ -14,7 +14,7 @@ export default {
     SPARQL_TOOLS_DOWNLOAD:'queries/sparql_gettools_download.txt',
     JSONLD_PROXY: "${window.location.origin}/ec/api/${o}",
     SPARQL_NB: "https://beta.geocodes.earthcube.org/notebook/mkQ?q=${q}",
-    SPARQL_YASGUI: "https://alpha.geocodes.earthcube.org/sparqlgui?",
+    SPARQL_YASGUI: "https://geocodes.earthcube.org/sparqlgui?",
     // allow us to use the same delimiters as lithtml
     ES_TEMPLATE_OPTIONS : {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
     FACETS: [
