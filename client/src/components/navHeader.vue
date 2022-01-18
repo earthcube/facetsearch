@@ -88,12 +88,15 @@ name: "navHeader",
       //     break
       //   }
       // }
-      localforage.getItem(this.item.g, function (err, value) {
+      if (!this.textQuery || this.textQuery.length === 0 ) {
+        return
+      }
+      localforage.getItem(self.textQuery, function (err, value) {
         if (value === null) {
           localforage.setItem(
-              "query",
+              self.textQuery,
               // self.item.g,
-              self.item
+              self.textQuery
           ).then((value) => {
             console.log("store " + value.g + " to localstorage");
           }).catch((err) => {
