@@ -30,8 +30,7 @@
                  v-bind:key="item.row"
                  :item="item">
               <b-card tag="article" class="rounded-0"
-                      v-on:click="showDetails"
-                      v-bind:class="['type_' + item.resourceType.toLowerCase()]"
+
               >
                 <!--        <router-link  :to="linkTo()">-->
                 <b-card-title class="name" v-html="item.name">
@@ -91,7 +90,18 @@ export default {
     }).then(function() {
       console.log('Iteration has completed');
       // self.collections['data'] = colls
-      Vue.set(self.collections, 'data', colls)
+      var data_collections = []
+      var query_collections = []
+      for(let i = 0; i < colls.length; i++) {
+        var item = colls[i]
+        if(typeof item === 'object' && 'g' in item) {
+          data_collections.push(item)
+        } else {
+          query_collections.push({name: item})
+        }
+      }
+      Vue.set(self.collections, 'data', data_collections)
+      Vue.set(self.collections, 'query', query_collections)
     }).catch(function(err) {
       // This code runs if there were any errors
       console.log(err);
