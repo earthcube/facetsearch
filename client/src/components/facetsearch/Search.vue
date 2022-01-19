@@ -16,6 +16,10 @@
                     ></Facets>
                   <feedback subject = 'Search' :name="textQuery" :urn="feedBackItemId"> </feedback>
 
+                  <div class="badges mt-2">
+                    <b-button variant="link" size="sm" class="ml2-auto" v-on:click="addToCollection">Store Query</b-button>
+                  </div>
+
 <!--                  <HistRangeSlider></HistRangeSlider>-->
                 </b-col>
 
@@ -58,6 +62,8 @@ import {
   // mapGetters
 } from "vuex";
 import feedback from "../feedback/feedback";
+import localforage from "localforage";
+
 
 // import HistRangeSlider from "./HistRangeSlider.vue"
 
@@ -187,6 +193,43 @@ export default {
         searchExactMatch: this.searchExactMatch,
         resourceType: this.resourceType
       })
+    },
+    addToCollection() {
+      var self = this
+      this.clickToAddCollection = true
+      // var toAdd = true
+      // for(var i = 0; i < this.collections.length; i++) {
+      //   var item = this.collections[i]
+      //   if (item.g === this.item.g) {
+      //     toAdd = false
+      //     break
+      //   }
+      // }
+      if (!this.textQuery || this.textQuery.length === 0 ) {
+        return
+      }
+      localforage.getItem(self.textQuery, function (err, value) {
+        if (value === null) {
+          localforage.setItem(
+              self.textQuery,
+              // self.item.g,
+              self.textQuery
+          ).then((value) => {
+            console.log("store " + value.g + " to localstorage");
+          }).catch((err) => {
+            console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
+          });
+          console.log("add to collection");
+        } else {
+          // localforage.setItem(newFilename, value, function () {
+          //   localforage.removeItem(filename, function () { return callback(); });
+          // });
+          console.log(value)
+        }
+      });
+      // if(toAdd) {
+      //   // Vue.set(this.collections, this.collections.length, this.item)
+      // }
     },
     search: function () {
       this.$store.commit('setMicroCache', {'key': this.textQuery, 'value': this.results})

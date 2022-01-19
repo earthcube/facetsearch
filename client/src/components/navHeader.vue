@@ -36,9 +36,9 @@
                         </b-input-group-append>
                     </b-input-group>
                 </b-nav-form>
-                <div class="badges mt-2">
-                  <b-button variant="link" size="sm" class="ml2-auto" v-on:click="addToCollection">add query to collection</b-button>
-                </div>
+<!--                <div class="badges mt-2">-->
+<!--                  <b-button variant="link" size="sm" class="ml2-auto" v-on:click="addToCollection">Store Query</b-button>-->
+<!--                </div>-->
                 <b-nav-item v-on:click.stop="showSparqlGui"  class="text-nowrap" target="_blank">SPARQL</b-nav-item>
                 <b-nav-item v-on:click.stop="showSparqlNb"  class="text-nowrap" target="_blank">SPARQL NB</b-nav-item>
                 <b-nav-item :to="{name: 'about'}" class="mr-0" >About</b-nav-item>
@@ -77,43 +77,6 @@ name: "navHeader",
   }
   },
   methods:{
-    addToCollection() {
-      var self = this
-      this.clickToAddCollection = true
-      // var toAdd = true
-      // for(var i = 0; i < this.collections.length; i++) {
-      //   var item = this.collections[i]
-      //   if (item.g === this.item.g) {
-      //     toAdd = false
-      //     break
-      //   }
-      // }
-      if (!this.textQuery || this.textQuery.length === 0 ) {
-        return
-      }
-      localforage.getItem(self.textQuery, function (err, value) {
-        if (value === null) {
-          localforage.setItem(
-              self.textQuery,
-              // self.item.g,
-              self.textQuery
-          ).then((value) => {
-            console.log("store " + value.g + " to localstorage");
-          }).catch((err) => {
-            console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
-          });
-          console.log("add to collection");
-        } else {
-          // localforage.setItem(newFilename, value, function () {
-          //   localforage.removeItem(filename, function () { return callback(); });
-          // });
-          console.log(value)
-        }
-      });
-      // if(toAdd) {
-      //   // Vue.set(this.collections, this.collections.length, this.item)
-      // }
-    },
     showBackButton() {
     return false;
 //        return (['dataset', 'tool'].includes(this.$route.name.toLowerCase())) ? true : false;
