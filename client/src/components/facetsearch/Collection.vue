@@ -1,6 +1,20 @@
 <template>
   <b-container fluid="md" class="mt-3">
       <b-row>
+        <b-col md="12">
+          <b-btn variant="outline-primary" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
+        </b-col>
+<!--        <b-form-checkbox-group-->
+<!--            v-model="selected"-->
+<!--            :options="options"-->
+<!--            class="mb-3"-->
+<!--            value-field="item"-->
+<!--            text-field="name"-->
+<!--            disabled-field="notEnabled"-->
+<!--        ></b-form-checkbox-group>-->
+<!--        <div class="mt-3">Selected: <strong>{{ selected }}</strong></div>-->
+
+
         <!-- sidebar -->
         <b-col md="3" class="sidebar">
 <!--          <Facets-->
