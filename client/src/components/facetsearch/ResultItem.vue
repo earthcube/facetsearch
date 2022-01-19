@@ -29,7 +29,7 @@
                 <a class="card-link" target="_blank" v-if="i.length >0" >{{ i}}</a>
             </b-badge>
           </span>
-      <b-button variant="link" size="sm" class="ml2-auto" v-on:click="addToCollection">add collection</b-button>
+      <b-button variant="link" size="sm" class="ml2-auto" v-on:click="addToCollection">Store Dataset</b-button>
     </div>
   </b-card>
 </template>
