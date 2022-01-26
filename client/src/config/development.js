@@ -12,25 +12,27 @@ export default {
     ES_TEMPLATE_OPTIONS : {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
     COLLECTION_FACETS: [
         {
-            field: 'dataType',
-            title: 'Data Type',
+            field: 'unassigned',
+            title: 'Unassigned Collection',
             sort: 'acs',
             open: false,
-            type:'text'
+            type:'unassigned',
+            collections: ["data", "query", "tool"],
+            items: [{id: "data", count: 0, isActive: false, name: "data"},
+                {id: "query", count: 0, isActive: false, name: "query"},
+                {id: "tool", count: 0, isActive: false, name: "tool"}]
         },
         {
-            field: 'toolType',
-            title: 'Tool Type',
+            field: 'all',
+            title: 'All Collections',
             sort: 'acs',
             open: false,
-            type:'text'
-        },
-        {
-            field: 'queryType',
-            title: 'Query Type',
-            sort: 'acs',
-            open: false,
-            type:'text'
+            type:'all',
+            collections: ["data", "query", "tool"],
+            items: [{id: "data", count: 0, isActive: false, name: "data"},
+                {id: "query", count: 0, isActive: false, name: "query"},
+                {id: "tool", count: 0, isActive: false, name: "tool"}],
+            names: [],
         },
     ],
     FACETS: [
