@@ -76,7 +76,7 @@ export default {
         if (value === null) {
           localforage.setItem(
               self.item.g,
-              self.item
+              {'type': 'data', 'collection': 'unassigned', 'value': self.item}
           ).then((value) => {
             console.log("store " + value.g + " to localstorage");
           }).catch((err) => {

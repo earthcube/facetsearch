@@ -4,24 +4,9 @@
         <b-col md="12">
           <b-btn variant="outline-primary" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
         </b-col>
-<!--        <b-form-checkbox-group-->
-<!--            v-model="selected"-->
-<!--            :options="options"-->
-<!--            class="mb-3"-->
-<!--            value-field="item"-->
-<!--            text-field="name"-->
-<!--            disabled-field="notEnabled"-->
-<!--        ></b-form-checkbox-group>-->
-<!--        <div class="mt-3">Selected: <strong>{{ selected }}</strong></div>-->
-
 
         <!-- sidebar -->
         <b-col md="3" class="sidebar">
-<!--          <Facets-->
-<!--              v-bind:facets="facets"-->
-<!--              v-bind:facetStore="facetStore"-->
-<!--              v-bind:state="state"-->
-<!--          ></Facets>-->
           <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
             <div class="filter_card">
               <b-button block squared v-b-toggle="'accordion_text_'+ facetSetting.field" @click="chooseType(facetSetting.field)">
@@ -31,8 +16,46 @@
               </b-button>
 
             </div>
-          </div>
+            <b-collapse
+                :id="'accordion_text_'+ facetSetting.field"
+                :visible="facetSetting.open"
+            >
 
+              <div v-if="facetSetting.type=='unassigned'">
+              <b-list-group flush>
+<!--                <b-list-group-item v-for="coll in facetSetting.collections" :key="coll">-->
+<!--                  <p>{{ coll }}</p>-->
+<!--                </b-list-group-item>-->
+                <FacetTextItem
+                    v-for='item in facetSetting.items'
+                    v-bind:key="item.id"
+                    v-on:click.native="_handleClick(item, facetSetting.field)"
+                    :term="item.name"
+                    :count="item.count"
+                    :facetSetting="facetSetting"
+                    :isActive="item.isActive"
+                ></FacetTextItem>
+              </b-list-group>
+              </div>
+              <div v-if="facetSetting.type=='all'">
+                <b-list-group flush>
+                      <b-list-group-item v-for="name in facetSetting.names" :key="name">
+                        <p>{{ name }}</p>
+                      </b-list-group-item>
+<!--                  <FacetTextItem-->
+<!--                      v-for='item in facetSetting.items'-->
+<!--                      v-bind:key="item.id"-->
+<!--                      v-on:click.native="_handleClick(item, facetSetting.field)"-->
+<!--                      :term="item.name"-->
+<!--                      :count="item.count"-->
+<!--                      :facetSetting="facetSetting"-->
+<!--                      :isActive="item.isActive"-->
+<!--                  ></FacetTextItem>-->
+                </b-list-group>
+              </div>
+            </b-collapse>
+
+          </div>
 
         </b-col>
 
@@ -59,6 +82,7 @@
             </div>
           </div>
         </b-col>
+        <CreateCollection subject = 'Search'> </CreateCollection>
       </b-row>
   </b-container>
 
@@ -71,18 +95,22 @@
 // import Facets from "./Facets";
 import localforage from 'localforage';
 import FacetsConfig from "../../config";
+import FacetTextItem from "./FacetTextItem";
 // import _ from "underscore";
 import Vue from "vue";
+import CreateCollection from "./CreateCollection";
 
 export default {
   name: "Collection.vue",
   components: {
-    // Facets,
+    FacetTextItem,
+    CreateCollection,
   },
   data () {
     return {
       type: '',
       collections: {},
+      assigned_collection_names: [],
       facetStore: {},
       facets: FacetsConfig.COLLECTION_FACETS,
       //---- ok to edit facets
@@ -95,9 +123,6 @@ export default {
     var self = this
     var colls = []
     localforage.iterate(function(value, key) {
-      // Resulting key/value pair -- this callback
-      // will be executed for every item in the
-      // database.
       console.log([key, value]);
       colls.push(value)
       // Vue.set(self.collections, self.collections.length, value)
@@ -106,24 +131,69 @@ export default {
       // self.collections['data'] = colls
       var data_collections = []
       var query_collections = []
+      var assigned_collection_names = []
       for(let i = 0; i < colls.length; i++) {
         var item = colls[i]
-        if(typeof item === 'object' && 'g' in item) {
-          data_collections.push(item)
-        } else {
-          query_collections.push({name: item})
+        if( item['collection'] == 'unassigned'){
+          if (item['type'] == 'query') {
+            query_collections.push({name: item.value})
+          } else if(item['type'] == 'data') {
+            data_collections.push(item.value)
+          }
+        } else if(item['collection'] == 'collection name') {
+          assigned_collection_names.push(item.value)
         }
       }
+
       Vue.set(self.collections, 'data', data_collections)
       Vue.set(self.collections, 'query', query_collections)
+
+      for(let i = 0; i < FacetsConfig.COLLECTION_FACETS.length; i++) {
+        if(FacetsConfig.COLLECTION_FACETS[i].field == 'unassigned') {
+          Vue.set(self.facets, i, {
+            field: FacetsConfig.COLLECTION_FACETS[i].field,
+            title: FacetsConfig.COLLECTION_FACETS[i].title,
+            sort: FacetsConfig.COLLECTION_FACETS[i].sort,
+            open: FacetsConfig.COLLECTION_FACETS[i].open,
+            type: FacetsConfig.COLLECTION_FACETS[i].type,
+            collections: FacetsConfig.COLLECTION_FACETS[i].collections,
+            items: [{id: "data", count: data_collections.length, isActive: false, name: "data"},
+              {id: "query", count: query_collections.length, isActive: false, name: "query"},
+              {id: "tool", count: 0, isActive: false, name: "tool"}]
+          })
+        }else if(FacetsConfig.COLLECTION_FACETS[i].field == 'all') {
+          Vue.set(self.facets, i, {
+            field: FacetsConfig.COLLECTION_FACETS[i].field,
+            title: FacetsConfig.COLLECTION_FACETS[i].title,
+            sort: FacetsConfig.COLLECTION_FACETS[i].sort,
+            open: FacetsConfig.COLLECTION_FACETS[i].open,
+            type: FacetsConfig.COLLECTION_FACETS[i].type,
+            collections: FacetsConfig.COLLECTION_FACETS[i].collections,
+            names: assigned_collection_names,
+          })
+        }
+      }
+
     }).catch(function(err) {
       // This code runs if there were any errors
       console.log(err);
     });
   },
   methods:{
+    _handleClick: function(item, type) {
+      // const self = this;
+      console.log(item + type)
+      if(item.id === 'data') {
+        this.type = 'data'
+      } else if(item.id === 'tool') {
+        this.type = 'tool'
+      } else if(item.id === 'query') {
+        this.type = 'query'
+      }
+    },
     showDetails() {
       console.log("clicl on item");
+
     },
     chooseType(field) {
       console.log("chooseType: " + field);
@@ -200,3 +270,4 @@ export default {
 }
 
 </style>
+

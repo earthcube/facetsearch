@@ -208,14 +208,14 @@ export default {
       if (!this.textQuery || this.textQuery.length === 0 ) {
         return
       }
+
       localforage.getItem(self.textQuery, function (err, value) {
         if (value === null) {
           localforage.setItem(
               self.textQuery,
-              // self.item.g,
-              self.textQuery
+              {'type': 'query', 'collection': 'unassigned', 'value': self.textQuery}
           ).then((value) => {
-            console.log("store " + value.g + " to localstorage");
+            console.log("store: " + "unassigned query "+self.textQuery + value.g + " to localstorage");
           }).catch((err) => {
             console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
           });
@@ -227,6 +227,26 @@ export default {
           console.log(value)
         }
       });
+
+      // localforage.getItem(self.textQuery, function (err, value) {
+      //   if (value === null) {
+      //     localforage.setItem(
+      //         self.textQuery,
+      //         // self.item.g,
+      //         self.textQuery
+      //     ).then((value) => {
+      //       console.log("store " + value.g + " to localstorage");
+      //     }).catch((err) => {
+      //       console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
+      //     });
+      //     console.log("add to collection");
+      //   } else {
+      //     // localforage.setItem(newFilename, value, function () {
+      //     //   localforage.removeItem(filename, function () { return callback(); });
+      //     // });
+      //     console.log(value)
+      //   }
+      // });
       // if(toAdd) {
       //   // Vue.set(this.collections, this.collections.length, this.item)
       // }
