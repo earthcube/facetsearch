@@ -23,9 +23,6 @@
 
               <div v-if="facetSetting.type=='unassigned'">
               <b-list-group flush>
-<!--                <b-list-group-item v-for="coll in facetSetting.collections" :key="coll">-->
-<!--                  <p>{{ coll }}</p>-->
-<!--                </b-list-group-item>-->
                 <FacetTextItem
                     v-for='item in facetSetting.items'
                     v-bind:key="item.id"
@@ -40,7 +37,33 @@
               <div v-if="facetSetting.type=='all'">
                 <b-list-group flush>
                       <b-list-group-item v-for="name in facetSetting.names" :key="name">
-                        <p>{{ name }}</p>
+                          <div class="filter_card">
+                            <b-button block squared v-b-toggle="'accordion_text_'+ name" @click="chooseType(name)">
+                              {{name}}
+                              <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
+                              <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>
+                            </b-button>
+                          </div>
+
+                        <b-collapse
+                            :id="'accordion_text_'+ name"
+                            :visible="false"
+                        >
+
+                          <b-list-group flush>
+                            <FacetTextItem
+                                v-for='item in facetSetting.items'
+                                v-bind:key="item.id"
+                                v-on:click.native="_handleClick(item, facetSetting.field)"
+                                :term="item.name"
+                                :count="item.count"
+                                :facetSetting="facetSetting"
+                                :isActive="item.isActive"
+                            ></FacetTextItem>
+                          </b-list-group>
+
+                        </b-collapse>
+
                       </b-list-group-item>
 <!--                  <FacetTextItem-->
 <!--                      v-for='item in facetSetting.items'-->
@@ -177,6 +200,9 @@ export default {
             open: FacetsConfig.COLLECTION_FACETS[i].open,
             type: FacetsConfig.COLLECTION_FACETS[i].type,
             collections: FacetsConfig.COLLECTION_FACETS[i].collections,
+            items: [{id: "data", count: data_collections.length, isActive: false, name: "data"},
+              {id: "query", count: query_collections.length, isActive: false, name: "query"},
+              {id: "tool", count: 0, isActive: false, name: "tool"}],
             names: assigned_collection_names,
           })
         }
