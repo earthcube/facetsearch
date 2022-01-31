@@ -78,7 +78,6 @@
                 <b-card-text class="description small mb-2" v-if="item.description" v-html="item.description"></b-card-text>
 
               </b-card>
-
             </div>
           </div>
         </b-col>
@@ -99,6 +98,7 @@ import FacetTextItem from "./FacetTextItem";
 // import _ from "underscore";
 import Vue from "vue";
 import CreateCollection from "./CreateCollection";
+import {mapGetters} from "vuex";
 
 export default {
   name: "Collection.vue",
@@ -113,11 +113,19 @@ export default {
       assigned_collection_names: [],
       facetStore: {},
       facets: FacetsConfig.COLLECTION_FACETS,
+      // allCollections: [],
       //---- ok to edit facets
       // facets: FacetsConfig.FACETS,
     }
   },
-
+  provide: function () {
+    return {
+      updteAllCollections: this.updteAllCollections,
+    }
+  },
+  computed: {
+    ...mapGetters (['getCollections'])
+  },
   // computed: { ...mapState ([ 'collections'])},
   mounted() {
     var self = this
@@ -180,6 +188,23 @@ export default {
     });
   },
   methods:{
+    updteAllCollections: function(colls) {
+      // this.allCollections = colls
+      console.log(this.allCollections)
+      for(let i = 0; i < FacetsConfig.COLLECTION_FACETS.length; i++) {
+        if(FacetsConfig.COLLECTION_FACETS[i].field == 'all') {
+          Vue.set(this.facets, i, {
+            field: FacetsConfig.COLLECTION_FACETS[i].field,
+            title: FacetsConfig.COLLECTION_FACETS[i].title,
+            sort: FacetsConfig.COLLECTION_FACETS[i].sort,
+            open: FacetsConfig.COLLECTION_FACETS[i].open,
+            type: FacetsConfig.COLLECTION_FACETS[i].type,
+            collections: FacetsConfig.COLLECTION_FACETS[i].collections,
+            names: colls,
+          })
+        }
+      }
+    },
     _handleClick: function(item, type) {
       // const self = this;
       console.log(item + type)
