@@ -41,16 +41,21 @@
 
 <script>
 import localforage from "localforage";
-
+import {mapGetters, mapState} from "vuex";
 
 export default {
   name: "CreateCollection.vue",
+  inject: ["updteAllCollections"],
   data(){ return {
     isFeedbackVisible: true,
     name: '',
     nameState: null,
   }},
-
+  computed: {
+    ...mapState(['setNewCollection']),
+    //...mapGetters(['q',])
+    ...mapGetters (['getCollections'])
+  },
   methods: {
     showModal() {
       this.isFeedbackVisible = true;
@@ -79,6 +84,7 @@ export default {
       if (!this.checkFormValidity()) {
         return
       }
+      this.$store.commit('setNewCollection', {'key': this.name, 'value': this.name})
       console.log(this.name)
       localforage.getItem(this.name, function (err, value) {
         if (value === null) {
@@ -87,6 +93,18 @@ export default {
               {'type': 'collection name', 'collection': 'collection name', 'value': self.name}
           ).then((value) => {
             console.log("store: " + "collection name "+self.name + value.g + " to localstorage");
+            var colls = []
+            localforage.iterate(function(value, key) {
+              console.log([key, value]);
+              colls.push(value.value)
+              // Vue.set(self.collections, self.collections.length, value)
+            }).then(function() {
+              self.updteAllCollections(colls)
+            }).catch(function(err) {
+              // This code runs if there were any errors
+              console.log(err);
+            });
+
           }).catch((err) => {
             console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
           });
