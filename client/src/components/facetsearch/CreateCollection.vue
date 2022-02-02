@@ -95,8 +95,10 @@ export default {
             console.log("store: " + "collection name "+self.name + value.g + " to localstorage");
             var colls = []
             localforage.iterate(function(value, key) {
-              console.log([key, value]);
-              colls.push(value.value)
+              if(value.type === "collection name") {
+                console.log([key, value]);
+                colls.push(value.value)
+              }
               // Vue.set(self.collections, self.collections.length, value)
             }).then(function() {
               self.updteAllCollections(colls)

@@ -3,6 +3,7 @@
       <b-row>
         <b-col md="12">
           <b-btn variant="outline-primary" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
+          <CreateCollection> </CreateCollection>
         </b-col>
 
         <!-- sidebar -->
@@ -104,7 +105,6 @@
             </div>
           </div>
         </b-col>
-        <CreateCollection subject = 'Search'> </CreateCollection>
       </b-row>
   </b-container>
 
@@ -226,6 +226,9 @@ export default {
             open: FacetsConfig.COLLECTION_FACETS[i].open,
             type: FacetsConfig.COLLECTION_FACETS[i].type,
             collections: FacetsConfig.COLLECTION_FACETS[i].collections,
+            items: [{id: "data", count: 0, isActive: false, name: "data"},
+              {id: "query", count: 0, isActive: false, name: "query"},
+              {id: "tool", count: 0, isActive: false, name: "tool"}],
             names: colls,
           })
         }
