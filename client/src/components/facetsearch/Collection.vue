@@ -39,7 +39,7 @@
                 <b-list-group flush>
                       <b-list-group-item v-for="name in facetSetting.names" :key="name">
                           <div class="filter_card">
-                            <b-button block squared v-b-toggle="'accordion_text_'+ name" @click="chooseType(name)">
+                            <b-button block squared v-b-toggle="'accordion_text_'+ name" @click="chooseType(name, facetSetting.type)">
                               {{name}}
                               <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
                               <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>
@@ -90,19 +90,97 @@
             <div v-for="item in this.collections[this.type]"
                  v-bind:key="item.row"
                  :item="item">
-              <b-card tag="article" class="rounded-0"
+              <div v-if="item.collection=='unassigned'">
+              <b-card tag="article" class="rounded-0">
 
-              >
                 <!--        <router-link  :to="linkTo()">-->
-                <b-card-title class="name" v-html="item.name">
+                <b-card-title class="name" v-html="item.value.name">
                 </b-card-title>
                 <!--        </router-link>-->
-                <b-card-title class="publisher" v-if="item.pubname" v-html="item.pubname"></b-card-title>
+                <b-card-title class="publisher" v-if="item.value.pubname" v-html="item.value.pubname"></b-card-title>
 
-                <b-card-text class="description small mb-2" v-if="item.description" v-html="item.description"></b-card-text>
+                <b-card-text class="description small mb-2" v-if="item.value.description" v-html="item.value.description"></b-card-text>
+
+                {{item}}
+                <div v-if="item.collection=='unassigned'">
+                <b-button variant="link" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move to Collection</b-button>
+                </div>
+                <div v-if="item.collection !=='unassigned'">
+                  <b-button variant="link" size="sm" class="ml2-auto" v-on:click="moveToCollection">Remove from Collection</b-button>
+                </div>
+
+                <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
+                  <div v-if="facetSetting.type=='all'">
+<!--                    {{item}}-->
+                    <v-select
+                        v-model="item.moveCollection"
+                        :id="'accordion_text_'+ item.name"
+                        :options="facetSetting.names"
+                        @input="(name) => updateSelectedCollection(item, name)"
+                    ></v-select>
+
+<!--                    <select v-model="selected" :id="'accordion_text_'+ item.name">-->
+<!--                      <option v-for="name in facetSetting.names" v-bind:key="name" :value="name">-->
+<!--                        {{ name }}-->
+<!--                      </option>-->
+<!--                    </select>-->
+<!--                    <span>Selected: {{ selected }}</span>-->
+
+
+<!--                    <b-button v-b-toggle="'accordion_text_'+ item.name" @click="chooseType(facetSetting.field)">-->
+<!--                      Move to Collection-->
+<!--                      <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>-->
+<!--                      <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>-->
+<!--                    </b-button>-->
+
+<!--                    <b-collapse :id="'accordion_text_'+ item.name" :visible="facetSetting.open">-->
+<!--                      <div class="custom-control custom-radio">-->
+<!--                        <div v-for="name in facetSetting.names" :key="name">-->
+<!--                          {{name}}-->
+<!--&lt;!&ndash;                          <input type="radio" class="custom-control-input" :id="'checker_'+name" name="allCollections">&ndash;&gt;-->
+<!--&lt;!&ndash;                          <label class="custom-control-label" for="'checker_'+name">{{name}}</label>&ndash;&gt;-->
+<!--                          <input type="radio" v-model="profileImg" name="profileImg" :value="name">-->
+<!--                        </div>-->
+<!--                      </div>-->
+<!--                    </b-collapse>-->
+
+
+<!--                    <div class="filter_card">-->
+<!--                      <b-button block squared v-b-toggle="'move_to_collection'+ facetSetting.field" @click="visible = !visible">-->
+<!--                        Move to Collection-->
+<!--                        <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>-->
+<!--                        <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>-->
+<!--                      </b-button>-->
+<!--                    </div>-->
+
+
+<!--                  <b-collapse-->
+<!--                      :id="'move_to_collection_'+facetSetting.field"-->
+<!--                      v-model="visible"-->
+<!--                  >-->
+<!--                    <b-list-group flush>-->
+<!--                      <b-list-group-item v-for="name in facetSetting.names" :key="name">-->
+<!--                        <div class="filter_card">-->
+<!--                          <b-button block squared v-b-toggle="'move_to_collection_'+ name" @click="chooseType(name)">-->
+<!--                            {{name}}-->
+<!--                          </b-button>-->
+<!--                        </div>-->
+
+<!--                      </b-list-group-item>-->
+<!--                    </b-list-group>-->
+
+
+<!--                  </b-collapse>-->
+
+
+                  </div>
+                </div>
+
 
               </b-card>
+                </div>
             </div>
+
           </div>
         </b-col>
       </b-row>
@@ -122,6 +200,10 @@ import FacetTextItem from "./FacetTextItem";
 import Vue from "vue";
 import CreateCollection from "./CreateCollection";
 import {mapGetters} from "vuex";
+import vSelect from "vue-select";
+import "vue-select/dist/vue-select.css";
+
+Vue.component("v-select", vSelect);
 
 export default {
   name: "Collection.vue",
@@ -131,6 +213,7 @@ export default {
   },
   data () {
     return {
+      visible: false,
       type: '',
       collections: {},
       assigned_collection_names: [],
@@ -167,9 +250,10 @@ export default {
         var item = colls[i]
         if( item['collection'] == 'unassigned'){
           if (item['type'] == 'query') {
-            query_collections.push({name: item.value})
+            query_collections.push(item)
+            // query_collections.push({name: item.value})
           } else if(item['type'] == 'data') {
-            data_collections.push(item.value)
+            data_collections.push(item)
           }
         } else if(item['collection'] == 'collection name') {
           assigned_collection_names.push(item.value)
@@ -214,6 +298,15 @@ export default {
     });
   },
   methods:{
+    updateSelectedCollection:  function(item, collectionName) {
+      console.log(item.collection)
+      console.log(collectionName)
+      item.moveCollection = collectionName
+    },
+    moveToCollection: function(item) {
+      console.log("moveToCollection")
+      console.log(item)
+    },
     updteAllCollections: function(colls) {
       // this.allCollections = colls
       console.log(this.allCollections)
@@ -249,8 +342,9 @@ export default {
       console.log("clicl on item");
 
     },
-    chooseType(field) {
-      console.log("chooseType: " + field);
+    chooseType(field, type) {
+      console.log("field: " + field);
+      console.log("chooseType: " + type);
       if(field === 'dataType') {
         this.type = 'data'
       } else if(field === 'toolType') {

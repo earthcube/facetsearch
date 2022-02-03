@@ -35,6 +35,7 @@
     "vue-range-component": "^1.0.3",
     "vue-range-component-fixed": "^1.0.3",
     "vue-router": "^3.5.1",
+    "vue-select": "^3.16.0",
     "vue2-leaflet": "^2.6.0",
     "vuex": "^3.6.2"
   },
