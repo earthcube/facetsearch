@@ -213,7 +213,7 @@ export default {
         if (value === null) {
           localforage.setItem(
               self.textQuery,
-              {'type': 'query', 'collection': 'unassigned', 'value': {'name': self.textQuery}}
+              {'type': 'query', 'collection': 'unassigned', 'value': {'name': self.textQuery, 'g': self.textQuery}}
           ).then((value) => {
             console.log("store: " + "unassigned query "+self.textQuery + value.g + " to localstorage");
           }).catch((err) => {
