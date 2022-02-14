@@ -3,7 +3,7 @@
       <b-row>
         <b-col md="12">
           <b-btn variant="outline-primary" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
-          <CreateCollection> </CreateCollection>
+<!--          <CreateCollection> </CreateCollection>-->
         </b-col>
 
         <!-- sidebar -->
@@ -142,6 +142,9 @@
           </div>
         </b-col>
 
+        <b-col md="12">
+          <CreateCollection> </CreateCollection>
+        </b-col>
 
       </b-row>
   </b-container>
