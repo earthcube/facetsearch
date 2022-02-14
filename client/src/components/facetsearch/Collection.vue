@@ -12,8 +12,10 @@
             <div class="filter_card">
               <b-button block squared v-b-toggle="'accordion_text_'+ facetSetting.field" @click="chooseType(facetSetting.field)">
                 {{facetSetting.title}}
-                <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
+<!--                <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>-->
+                <b-icon icon="dash-square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
                 <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>
+
               </b-button>
 
             </div>
@@ -41,7 +43,7 @@
                           <div class="filter_card">
                             <b-button block squared v-b-toggle="'accordion_text_'+ name" @click="chooseType(name, facetSetting.type)">
                               {{name}}
-                              <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
+                              <b-icon icon="dash-square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
                               <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>
                             </b-button>
                           </div>
@@ -80,8 +82,12 @@
             </b-collapse>
 
           </div>
-
+          <b-col md="12">
+            <CreateCollection> </CreateCollection>
+          </b-col>
         </b-col>
+
+
 
         <!-- filter and results -->
         <b-col md="9" class="results">
@@ -140,10 +146,6 @@
             </div>
 
           </div>
-        </b-col>
-
-        <b-col md="12">
-          <CreateCollection> </CreateCollection>
         </b-col>
 
       </b-row>
