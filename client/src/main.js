@@ -8,7 +8,7 @@ import { BootstrapVue, IconsPlugin, BootstrapVueIcons } from 'bootstrap-vue'
 // Import Bootstrap an BootstrapVue CSS files (order is important)
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-
+import localForage from 'localforage';
 // Make BootstrapVue available throughout your project
 Vue.use(BootstrapVue)
 // Optionally install the BootstrapVue icon components plugin
@@ -35,6 +35,25 @@ Vue.use(VueGtag, {
 // router.onReady(() => {
 //   router.replace(router.currentRoute.fullPath);
 // });
+
+
+// Using setDriver()
+localForage.setDriver([
+    localForage.INDEXEDDB,
+    localForage.LOCALSTORAGE,
+    localForage.WEBSQL,
+]);
+
+// Using config()
+localForage.config({
+    driver: [
+        localForage.INDEXEDDB,
+        localForage.LOCALSTORAGE,
+        localForage.WEBSQL,
+    ],
+    name: 'ec',     // These fields
+    version: 1.0,      // are totally optional
+});
 Vue.config.productionTip = false
 Vue.config.devtools = true
 export const bus = new Vue(); // https://blog.logrocket.com/using-event-bus-in-vue-js-to-pass-data-between-components/
