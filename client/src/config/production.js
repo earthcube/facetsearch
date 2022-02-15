@@ -9,7 +9,7 @@ export default {
     SPARQL_TOOLS_DOWNLOAD:'queries/sparql_gettools_download.txt',
     JSONLD_PROXY: "${window.location.origin}/ec/api/${o}",
     SPARQL_NB: "https://beta.geocodes.earthcube.org/notebook/mkQ?q=${q}",
-    SPARQL_YASGUI: "https://alpha.geocodes.earthcube.org/sparqlgui",
+    SPARQL_YASGUI: "https://geocodes.earthcube.org/sparqlgui?",
     // allow us to use the same delimiters as lithtml
     ES_TEMPLATE_OPTIONS : {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
     FACETS: [
