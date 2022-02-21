@@ -20,7 +20,7 @@ export default {
     COLLECTION_FACETS: [
         {
             field: 'unassigned',
-            title: 'Unassigned Collection',
+            title: 'Default Collection',
             sort: 'acs',
             open: false,
             type:'unassigned',
@@ -40,6 +40,7 @@ export default {
                 {id: "query", count: 0, isActive: false, name: "query"},
                 {id: "tool", count: 0, isActive: false, name: "tool"}],
             names: [],
+            assigned: [],
         },
     ],
     FACETS: [

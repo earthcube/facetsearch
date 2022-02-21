@@ -38,6 +38,11 @@
               </b-list-group>
               </div>
               <div v-if="facetSetting.type=='all'">
+<!--                <div v-for="name in facetSetting.names" :key="name">-->
+<!--                  <div v-for='item in facetSetting.items' v-bind:key="item.id">-->
+<!--                    {{item}}-->
+<!--                  </div>-->
+<!--                </div>-->
                 <b-list-group flush>
                       <b-list-group-item v-for="name in facetSetting.names" :key="name">
                           <div class="filter_card">
@@ -47,15 +52,13 @@
                               <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>
                             </b-button>
                           </div>
-
                         <b-collapse
                             :id="'accordion_text_'+ name"
                             :visible="false"
                         >
-
                           <b-list-group flush>
                             <FacetTextItem
-                                v-for='item in facetSetting.items'
+                                v-for='item in facetSetting.items[name]'
                                 v-bind:key="item.id"
                                 v-on:click.native="_handleClick(item, facetSetting.field, name)"
                                 :term="item.name"
@@ -106,23 +109,55 @@
                 <b-card-title class="publisher" v-if="item.value.pubname" v-html="item.value.pubname"></b-card-title>
 
                 <b-card-text class="description small mb-2" v-if="item.value.description" v-html="item.value.description"></b-card-text>
-
-                {{item}}
+<!--                {{item}}-->
 
                 <div v-if="item.collection=='unassigned'">
-                  <b-button variant="link" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move to Collections</b-button>
-                  <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
-<!--                                          {{item}}-->
-                    <div v-if="facetSetting.title=='All Collections'">
-                      <v-select
-                          multiple
-                          v-model="item.collections"
-                          :id="'accordion_text_'+ item.value.name"
-                          :options="facetSetting.names"
-                          @input="(name) => updateMovedToCollection(item, name)"
-                      ></v-select>
-                    </div>
-                  </div>
+                  <b-container fluid="md" class="mt-3">
+                    <b-row>
+<!--                      <b-col md="12">-->
+<!--&lt;!&ndash;                        <b-button variant="link" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move to Collections</b-button>&ndash;&gt;-->
+<!--                        <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">-->
+<!--      &lt;!&ndash;                                          {{item}}&ndash;&gt;-->
+<!--                          <div v-if="facetSetting.title=='All Collections'">-->
+
+<!--                            <v-select-->
+<!--                                placeholder="Being assigned to"-->
+<!--                                multiple-->
+<!--                                v-model="item.collections"-->
+<!--                                :id="'accordion_text_'+ item.value.name"-->
+<!--                                :options="facetSetting.names"-->
+<!--                                @input="(name) => updateMovedToCollection(item, name)"-->
+<!--                            ></v-select>-->
+<!--                          </div>-->
+<!--                        </div>-->
+<!--                        </b-col>-->
+
+<!--                      <b-col md="12">-->
+<!--                        <b-button variant="link" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move to Collections</b-button>-->
+<!--                      </b-col>-->
+                      <b-col cols="8">
+                        <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
+                          <!--                                          {{item}}-->
+                          <div v-if="facetSetting.title=='All Collections'">
+
+                            <v-select
+                                placeholder="Being assigned to"
+                                multiple
+                                v-model="item.collections"
+                                :id="'accordion_text_'+ item.value.name"
+                                :options="facetSetting.names"
+                                @input="(name) => updateMovedToCollection(item, name)"
+                            ></v-select>
+                          </div>
+                        </div>
+
+                      </b-col>
+                      <b-col>
+<!--                        <b-button variant="link" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move to Collections</b-button>-->
+                        <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Confirm</b-button>
+                      </b-col>
+                      </b-row>
+                    </b-container>
                 </div>
 
                 <div v-if="item.collection !=='unassigned'">
@@ -131,6 +166,7 @@
 <!--                    {{item}}-->
                     <div v-if="facetSetting.title=='All Collections'">
                       <v-select
+                          placeholder="Being removed from"
                           multiple
                           v-model="item.collections"
                           :id="'accordion_text_'+ item.value.name"
@@ -217,6 +253,7 @@ export default {
       }).then(function() {
         console.log('Iteration has completed');
         // self.collections['data'] = colls
+        var assgined = {}
         var data_collections = []
         var query_collections = []
         var assigned_collection_names = []
@@ -231,6 +268,16 @@ export default {
             }
           } else if(item['collection'] == 'collection name') {
             assigned_collection_names.push(item.value)
+          } else if(item['collection'] == 'assigned') {
+            if('collections' in item && item['collections'] !== undefined) {
+              for (let j = 0; j < item.collections.length; j++) {
+                var name = item.collections[j]
+                if (!(name in assgined)) {
+                  assgined[name] = {'data': 0, 'query': 0, 'tool': 0}
+                }
+                assgined[name][item['type']] += 1
+              }
+            }
           }
         }
 
@@ -251,6 +298,23 @@ export default {
                 {id: "tool", count: 0, isActive: false, name: "tool"}]
             })
           }else if(FacetsConfig.COLLECTION_FACETS[i].field == 'all') {
+            var items = {}
+            for(let i = 0; i < assigned_collection_names.length; i++) {
+              if(assigned_collection_names[i] in assgined) {
+                var assgin = assgined[assigned_collection_names[i]]
+                // items.push([{id: "data", count: assgin['data'], isActive: false, name: "data"},
+                //   {id: "query", count: assgin['query'], isActive: false, name: "query"},
+                //   {id: "tool", count: assgin['tool'], isActive: false, name: "tool"}])
+                items[assigned_collection_names[i]] = [{id: "data", count: assgin['data'], isActive: false, name: "data"},
+                  {id: "query", count: assgin['query'], isActive: false, name: "query"},
+                  {id: "tool", count: assgin['tool'], isActive: false, name: "tool"}]
+              }else {
+                items[assigned_collection_names[i]] = [{id: "data", count: 0, isActive: false, name: "data"},
+                  {id: "query", count: 0, isActive: false, name: "query"},
+                  {id: "tool", count: 0, isActive: false, name: "tool"}]
+              }
+            }
+
             Vue.set(self.facets, i, {
               field: FacetsConfig.COLLECTION_FACETS[i].field,
               title: FacetsConfig.COLLECTION_FACETS[i].title,
@@ -258,9 +322,7 @@ export default {
               open: FacetsConfig.COLLECTION_FACETS[i].open,
               type: FacetsConfig.COLLECTION_FACETS[i].type,
               collections: FacetsConfig.COLLECTION_FACETS[i].collections,
-              items: [{id: "data", count: data_collections.length, isActive: false, name: "data"},
-                {id: "query", count: query_collections.length, isActive: false, name: "query"},
-                {id: "tool", count: 0, isActive: false, name: "tool"}],
+              items: items,
               names: assigned_collection_names,
             })
           }
@@ -359,9 +421,6 @@ export default {
             open: FacetsConfig.COLLECTION_FACETS[i].open,
             type: FacetsConfig.COLLECTION_FACETS[i].type,
             collections: FacetsConfig.COLLECTION_FACETS[i].collections,
-            items: [{id: "data", count: 0, isActive: false, name: "data"},
-              {id: "query", count: 0, isActive: false, name: "query"},
-              {id: "tool", count: 0, isActive: false, name: "tool"}],
             names: colls,
           })
         }
@@ -435,8 +494,9 @@ export default {
         this.type = 'tool'
       } else if(field === 'queryType') {
         this.type = 'query'
+      } else if(field == 'all') {
+        this.reloadCollections()
       }
-
     },
   },
 }
