@@ -54,10 +54,17 @@
             <div v-for="type in this.types"
                  v-bind:key="type.row"
                  :type="type">
-              <header>
-                <h1>{{type.name}}</h1>
-              </header>
-
+              <div v-if="(type.content).length">
+                <header>
+                  <h1 class="mb-3">{{type.name}}</h1>
+                </header>
+              </div>
+              <div v-if="!(type.content).length">
+                <header>
+                  <h1 class="mb-3">{{type.name}}</h1>
+                  <p class="mb-3">No items</p>
+                </header>
+              </div>
 
               <div v-for="item in type.content"
                    v-bind:key="item.row"
