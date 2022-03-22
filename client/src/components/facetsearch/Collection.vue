@@ -29,7 +29,7 @@
           <CreateCollection> </CreateCollection>
         </b-col>
 
-        <b-col md="3" class="sidebar">
+        <b-col md="3" class="sidebar scrollable text-center green flex-grow-1 flex-shrink-0 overflow-auto">
           <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
 
               <div class="filter_card">
@@ -570,6 +570,10 @@ export default {
 .collapsed > .when-open,
 .not-collapsed > .when-closed {
   display: none;
+}
+
+.scrollable {
+  overflow-y: scroll;
 }
 
 </style>
