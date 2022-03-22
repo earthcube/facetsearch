@@ -35,13 +35,15 @@
               <div class="filter_card">
                 <div v-if="facetSetting.type=='all'">
                   <div v-for='name in facetSetting.names' :key="name">
-                    <!--                    {{name}}-->
+<!--                                        {{name}}-->
+                    <div v-if="facetSetting.names.length">
                     <b-list-group flush>
                       <CollectionMenuItem
                           v-on:click.native="_handleClick(item, facetSetting.field, name)"
                           :term="name"
                       ></CollectionMenuItem>
                     </b-list-group>
+                    </div>
                   </div>
                 </div>
               </div>
