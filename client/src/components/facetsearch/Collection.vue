@@ -1,188 +1,141 @@
 <template>
   <b-container fluid="md" class="mt-3">
-      <b-row>
+    <b-row>
         <b-col md="12">
           <b-btn variant="outline-primary" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
 <!--          <CreateCollection> </CreateCollection>-->
         </b-col>
 
+
         <!-- sidebar -->
         <b-col md="3" class="sidebar">
           <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
             <div class="filter_card">
-              <b-button block squared v-b-toggle="'accordion_text_'+ facetSetting.field" @click="chooseType(facetSetting.field)">
-                {{facetSetting.title}}
-<!--                <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>-->
-                <b-icon icon="dash-square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
-                <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>
-
-              </b-button>
-
+              <div v-if="facetSetting.field=='unassigned'">
+                <b-button block squared v-b-toggle="'accordion_text_'+ facetSetting.field" @click="chooseType(facetSetting.field)">
+                  {{facetSetting.title}}
+  <!--                <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>-->
+  <!--                <b-icon icon="dash-square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>-->
+  <!--                <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>-->
+                </b-button>
+              </div>
             </div>
-            <b-collapse
-                :id="'accordion_text_'+ facetSetting.field"
-                :visible="facetSetting.open"
-            >
-
-              <div v-if="facetSetting.type=='unassigned'">
-              <b-list-group flush>
-                <FacetTextItem
-                    v-for='item in facetSetting.items'
-                    v-bind:key="item.id"
-                    v-on:click.native="_handleClick(item, facetSetting.field)"
-                    :term="item.name"
-                    :count="item.count"
-                    :facetSetting="facetSetting"
-                    :isActive="item.isActive"
-                ></FacetTextItem>
-              </b-list-group>
-              </div>
-              <div v-if="facetSetting.type=='all'">
-<!--                <div v-for="name in facetSetting.names" :key="name">-->
-<!--                  <div v-for='item in facetSetting.items' v-bind:key="item.id">-->
-<!--                    {{item}}-->
-<!--                  </div>-->
-<!--                </div>-->
-                <b-list-group flush>
-                      <b-list-group-item v-for="name in facetSetting.names" :key="name">
-                          <div class="filter_card">
-                            <b-button block squared v-b-toggle="'accordion_text_'+ name" @click="chooseType(name, facetSetting.type)">
-                              {{name}}
-                              <b-icon icon="dash-square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>
-                              <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>
-                            </b-button>
-                          </div>
-                        <b-collapse
-                            :id="'accordion_text_'+ name"
-                            :visible="false"
-                        >
-                          <b-list-group flush>
-                            <FacetTextItem
-                                v-for='item in facetSetting.items[name]'
-                                v-bind:key="item.id"
-                                v-on:click.native="_handleClick(item, facetSetting.field, name)"
-                                :term="item.name"
-                                :count="item.count"
-                                :facetSetting="facetSetting"
-                                :isActive="item.isActive"
-                            ></FacetTextItem>
-                          </b-list-group>
-
-                        </b-collapse>
-
-                      </b-list-group-item>
-<!--                  <FacetTextItem-->
-<!--                      v-for='item in facetSetting.items'-->
-<!--                      v-bind:key="item.id"-->
-<!--                      v-on:click.native="_handleClick(item, facetSetting.field)"-->
-<!--                      :term="item.name"-->
-<!--                      :count="item.count"-->
-<!--                      :facetSetting="facetSetting"-->
-<!--                      :isActive="item.isActive"-->
-<!--                  ></FacetTextItem>-->
-                </b-list-group>
-              </div>
-            </b-collapse>
 
           </div>
-          <b-col md="12">
-            <CreateCollection> </CreateCollection>
-          </b-col>
+
         </b-col>
 
+        <b-col md="12">
+          <CreateCollection> </CreateCollection>
+        </b-col>
 
+        <b-col md="3" class="sidebar">
+          <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
 
-        <!-- filter and results -->
-        <b-col md="9" class="results">
-          <div class="mt-3">
-            <!-- list of results -->
-            <div v-for="item in this.collections[this.type]"
-                 v-bind:key="item.row"
-                 :item="item">
-<!--              <div v-if="item.collection=='unassigned'">-->
-              <b-card tag="article" class="rounded-0">
-
-                <!--        <router-link  :to="linkTo()">-->
-                <b-card-title class="name" v-html="item.value.name">
-                </b-card-title>
-                <!--        </router-link>-->
-                <b-card-title class="publisher" v-if="item.value.pubname" v-html="item.value.pubname"></b-card-title>
-
-                <b-card-text class="description small mb-2" v-if="item.value.description" v-html="item.value.description"></b-card-text>
-<!--                {{item}}-->
-
-                <div v-if="item.collection=='unassigned'">
-                  <b-container fluid="md" class="mt-3">
-                    <b-row>
-<!--                      <b-col md="12">-->
-<!--&lt;!&ndash;                        <b-button variant="link" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move to Collections</b-button>&ndash;&gt;-->
-<!--                        <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">-->
-<!--      &lt;!&ndash;                                          {{item}}&ndash;&gt;-->
-<!--                          <div v-if="facetSetting.title=='All Collections'">-->
-
-<!--                            <v-select-->
-<!--                                placeholder="Being assigned to"-->
-<!--                                multiple-->
-<!--                                v-model="item.collections"-->
-<!--                                :id="'accordion_text_'+ item.value.name"-->
-<!--                                :options="facetSetting.names"-->
-<!--                                @input="(name) => updateMovedToCollection(item, name)"-->
-<!--                            ></v-select>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                        </b-col>-->
-
-<!--                      <b-col md="12">-->
-<!--                        <b-button variant="link" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move to Collections</b-button>-->
-<!--                      </b-col>-->
-                      <b-col cols="8">
-                        <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
-                          <!--                                          {{item}}-->
-                          <div v-if="facetSetting.title=='All Collections'">
-
-                            <v-select
-                                placeholder="Being assigned to"
-                                multiple
-                                v-model="item.collections"
-                                :id="'accordion_text_'+ item.value.name"
-                                :options="facetSetting.names"
-                                @input="(name) => updateMovedToCollection(item, name)"
-                            ></v-select>
-                          </div>
-                        </div>
-
-                      </b-col>
-                      <b-col>
-<!--                        <b-button variant="link" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move to Collections</b-button>-->
-                        <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Confirm</b-button>
-                      </b-col>
-                      </b-row>
-                    </b-container>
-                </div>
-
-                <div v-if="item.collection !=='unassigned'">
-                  <b-button variant="link" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Remove from Collections</b-button>
-                  <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
-<!--                    {{item}}-->
-                    <div v-if="facetSetting.title=='All Collections'">
-                      <v-select
-                          placeholder="Being removed from"
-                          multiple
-                          v-model="item.collections"
-                          :id="'accordion_text_'+ item.value.name"
-                          :options="facetSetting.names"
-                          @input="(name) => updateRemovedCollection(item, name)"
-                      ></v-select>
-                    </div>
+              <div class="filter_card">
+                <div v-if="facetSetting.type=='all'">
+                  <div v-for='name in facetSetting.names' :key="name">
+                    <!--                    {{name}}-->
+                    <b-list-group flush>
+                      <CollectionMenuItem
+                          v-on:click.native="_handleClick(item, facetSetting.field, name)"
+                          :term="name"
+                      ></CollectionMenuItem>
+                    </b-list-group>
                   </div>
                 </div>
+              </div>
+          </div>
 
-              </b-card>
-<!--                </div>-->
+        </b-col>
+
+        <b-col md="9" class="results">
+          <div class="mt-3">
+            <div v-for="type in this.types"
+                 v-bind:key="type.row"
+                 :type="type">
+              <header>
+                <h1>{{type.name}}</h1>
+              </header>
+
+
+              <div v-for="item in type.content"
+                   v-bind:key="item.row"
+                   :item="item">
+<!--                {{item}}-->
+                <b-card tag="article" class="rounded-0">
+
+                  <b-card-title class="name" v-html="item.value.name">
+                  </b-card-title>
+                  <b-card-title class="publisher" v-if="item.value.pubname" v-html="item.value.pubname"></b-card-title>
+
+                  <b-card-text class="description small mb-2" v-if="item.value.description" v-html="item.value.description"></b-card-text>
+                  <!--                {{item}}-->
+                  <div v-if="item.collection=='unassigned'">
+                    <b-container fluid="md" class="mt-3">
+                      <b-row>
+                        <b-col cols="8">
+                          <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
+                            <!--                                          {{item}}-->
+                            <div v-if="facetSetting.title=='All Collections'">
+
+                              <v-select
+                                  placeholder="Being assigned to"
+                                  multiple
+                                  v-model="item.collections"
+                                  :id="'accordion_text_'+ item.value.name"
+                                  :options="facetSetting.names"
+                                  @input="(name) => updateMovedToCollection(item, name)"
+                              ></v-select>
+                            </div>
+                          </div>
+
+                        </b-col>
+                        <b-col>
+                          <!--                        <b-button variant="link" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move to Collections</b-button>-->
+                          <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Confirm</b-button>
+                        </b-col>
+                      </b-row>
+                    </b-container>
+                  </div>
+
+                  <div v-if="item.collection !=='unassigned'">
+                    <b-container fluid="md" class="mt-3">
+                      <b-row>
+                        Being removed from
+                      </b-row>
+                      <b-row>
+                        <b-col cols="8">
+
+                          <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
+                            <!--                    {{item}}-->
+                            <div v-if="facetSetting.title=='All Collections'">
+                              <v-select disabled
+                                  placeholder="Being removed from"
+                                  multiple
+                                  v-model="item.collections"
+                                  :id="'accordion_text_'+ item.value.name"
+                                  :options="facetSetting.names"
+                                  @input="(name) => updateRemovedCollection(item, name)"
+                              ></v-select>
+                            </div>
+                          </div>
+                        </b-col>
+                        <b-col>
+                          <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Confirm</b-button>
+                        </b-col>
+                      </b-row>
+                    </b-container>
+                  </div>
+                </b-card>
+
+              </div>
             </div>
 
           </div>
         </b-col>
+
+
 
       </b-row>
   </b-container>
@@ -196,21 +149,25 @@
 // import Facets from "./Facets";
 import localforage from 'localforage';
 import FacetsConfig from "../../config";
-import FacetTextItem from "./FacetTextItem";
+// import FacetTextItem from "./FacetTextItem";
 // import _ from "underscore";
 import Vue from "vue";
 import CreateCollection from "./CreateCollection";
+import CollectionMenuItem from "./CollectionMenuItem";
 import {mapGetters} from "vuex";
 import vSelect from "vue-select";
+import VueScrollbox from 'vue-scrollbox';
 import "vue-select/dist/vue-select.css";
 
 Vue.component("v-select", vSelect);
+Vue.component('vue-scrollbox', VueScrollbox);
 
 export default {
   name: "Collection.vue",
   components: {
-    FacetTextItem,
+    // FacetTextItem,
     CreateCollection,
+    CollectionMenuItem,
   },
   data () {
     return {
@@ -222,9 +179,13 @@ export default {
       facets: FacetsConfig.COLLECTION_FACETS,
       selectedCollectionItems: {},
       selectedCollectionName: '',
+      datasets: [],
+      queries: [],
+      tools: [],
       // allCollections: [],
       //---- ok to edit facets
       // facets: FacetsConfig.FACETS,
+      types: {},
     }
   },
   provide: function () {
@@ -363,13 +324,21 @@ export default {
             item
         ).then(() => {
           // update collections
-          var currentColl = self.collections[self.type]
-          var indx = currentColl.indexOf(item)
+          // var currentColl = self.collections[self.type]
+          // var indx = currentColl.indexOf(item)
+          // if (indx > -1) {
+          //   currentColl.splice(indx, 1);
+          //   console.log("delete: " + item.value.name + " type: " + self.type + ", " + currentColl);
+          // }
+          // Vue.set(self.collections, self.type, currentColl)
+          var content = self.types[item.type].content
+          var indx = content.indexOf(item)
           if (indx > -1) {
-            currentColl.splice(indx, 1);
-            console.log("delete: " + item.value.name + " type: " + self.type + ", " + currentColl);
+            content.splice(indx, 1);
+            console.log("delete: " + item.value.name + " type: " + item.type + ", " + content);
           }
-          Vue.set(self.collections, self.type, currentColl)
+          // Vue.set(self.collections, item.type, currentColl)
+          Vue.set(self.types, item.type, {'name': item.type, 'content': content})
           self.reloadCollections()
         }).catch((err) => {
           console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
@@ -395,18 +364,19 @@ export default {
             item
         ).then(() => {
           // update collections
-          var currentColl = self.collections[self.type]
-          var indx = currentColl.indexOf(item)
+          var content = self.types[item.type].content
+          var indx = content.indexOf(item)
           if (indx > -1) {
-            currentColl.splice(indx, 1);
-            console.log("delete: " + item.value.name + " type: " + self.type + ", " + currentColl);
+            content.splice(indx, 1);
+            console.log("delete: " + item.value.name + " type: " + item.type + ", " + content);
           }
-          Vue.set(self.collections, self.type, currentColl)
-
+          // Vue.set(self.collections, item.type, currentColl)
+          Vue.set(self.types, item.type, {'name': item.type, 'content': content})
         }).catch((err) => {
           console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
         });
         console.log("add to collection");
+        self.reloadCollections()
       });
     },
     updteAllCollections: function(colls) {
@@ -425,9 +395,55 @@ export default {
           })
         }
       }
+      this.reloadCollections()
+    },
+    populateAssignedCollection: function(type, collname) {
+      const self = this;
+      this.type = 'all'
+      //collection name;
+      //select type:
+      console.log(collname)
+      this.selectedCollectionName = collname
+      var colls = []
+      localforage.iterate(function(value, key) {
+        console.log([key, value]);
+        if(value.type === type && (value.collections === collname || (Array.isArray(value.collections) && value.collections.includes(collname))))
+          colls.push(value)
+        // Vue.set(self.collections, self.collections.length, value)
+      }).then(function() {
+        console.log('Iteration has completed');
+        if(!(self.selectedCollectionName in self.selectedCollectionItems)) {
+          self.selectedCollectionItems[self.selectedCollectionName] = []
+        }
+        var set = new Set()
+        // var selectedcoll = self.selectedCollectionItems[collname]
+        var selectedcoll = self.selectedCollectionItems[collname].filter(item => item.type === type);
+        for(let i = 0; i < self.selectedCollectionItems[self.selectedCollectionName].length; i++) {
+          var item = self.selectedCollectionItems[self.selectedCollectionName][i];
+          if (type === item.type) {
+            set.add(item.value.name)
+          }
+        }
+        for(let i = 0; i < colls.length; i++) {
+          // if(!self.selectedCollectionItems[self.selectedCollectionName].includes(colls[i])) {
+          //   self.selectedCollectionItems[self.selectedCollectionName].push(colls[i])
+          // }
+          if(!set.has(colls[i].value.name)) {
+            set.add(colls[i].value.name)
+            // self.selectedCollectionItems[self.selectedCollectionName].push(colls[i])
+            selectedcoll.push(colls[i])
+          }
+        }
+        // Vue.set(self.selectedCollectionItems, collname, selectedcoll)
+        self.type = collname
+        // Vue.set(self.collections, collname, selectedcoll)
+        Vue.set(self.types, type, {'name': type, 'content': selectedcoll})
+      }).catch(function(err) {
+        // This code runs if there were any errors
+        console.log(err);
+      });
     },
     _handleClick: function(item, type, collname) {
-      const self = this;
       // console.log(item + type)
       if(type == "unassigned") {
         if (item.id === 'data') {
@@ -438,52 +454,27 @@ export default {
           this.type = 'query'
         }
       } else {
-        this.type = 'all'
-        //collection name;
-        //select type:
-        console.log(collname)
-        console.log(item.id)
-        this.selectedCollectionName = collname
-        var colls = []
-        localforage.iterate(function(value, key) {
-          console.log([key, value]);
-          if(value.type === item.id && (value.collections === collname || (Array.isArray(value.collections) && value.collections.includes(collname))))
-            colls.push(value)
-          // Vue.set(self.collections, self.collections.length, value)
-        }).then(function() {
-          console.log('Iteration has completed');
-          if(!(self.selectedCollectionName in self.selectedCollectionItems)) {
-            self.selectedCollectionItems[self.selectedCollectionName] = []
-          }
-          var set = new Set()
-          var selectedcoll = self.selectedCollectionItems[collname]
-          for(let i = 0; i < self.selectedCollectionItems[self.selectedCollectionName].length; i++) {
-            var item = self.selectedCollectionItems[self.selectedCollectionName][i];
-            set.add(item.value.name)
-          }
-          for(let i = 0; i < colls.length; i++) {
-            // if(!self.selectedCollectionItems[self.selectedCollectionName].includes(colls[i])) {
-            //   self.selectedCollectionItems[self.selectedCollectionName].push(colls[i])
-            // }
-            if(!set.has(colls[i].value.name)) {
-              set.add(colls[i].value.name)
-              // self.selectedCollectionItems[self.selectedCollectionName].push(colls[i])
-              selectedcoll.push(colls[i])
-            }
-          }
-          // Vue.set(self.selectedCollectionItems, collname, selectedcoll)
-          self.type = collname
-          Vue.set(self.collections, collname, selectedcoll)
-        }).catch(function(err) {
-          // This code runs if there were any errors
-          console.log(err);
-        });
+        this.populateAssignedCollection('data', collname)
+        this.populateAssignedCollection('query', collname)
+        this.populateAssignedCollection('tool', collname)
 
       }
     },
     showDetails() {
       console.log("clicl on item");
 
+    },
+    populate(name) {
+      var data = []
+      for (let i = 0; i < this.collections[name].length; i++) {
+        if ('collection' in this.collections[name][i]) {
+          if (this.collections[name][i]['collection'] == 'unassigned') {
+            data.push(this.collections[name][i])
+          }
+        }
+        // this.datasets = data
+        Vue.set(this.types, name, {'name': name, 'content': data})
+      }
     },
     chooseType(field, type) {
       console.log("field: " + field);
@@ -496,6 +487,19 @@ export default {
         this.type = 'query'
       } else if(field == 'all') {
         this.reloadCollections()
+      } else if(field == 'unassigned') {
+        // this.type = 'data'
+        // this.field = 'unassigned'
+
+        if('data' in this.collections) {
+          this.populate('data')
+        }
+        if('query' in this.collections) {
+          this.populate('query')
+        }
+        if('tool' in this.collections) {
+          this.populate('tool')
+        }
       }
     },
   },
