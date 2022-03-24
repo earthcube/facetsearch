@@ -56,6 +56,7 @@
             <div v-for="type in this.types"
                  v-bind:key="type.row"
                  :type="type">
+<!--              {{type}}-->
               <div v-if="(type.content).length">
                 <header>
                   <h1 class="mb-3">{{type.name}}</h1>
@@ -226,6 +227,7 @@ export default {
         var assgined = {}
         var data_collections = []
         var query_collections = []
+        var tool_collections = []
         var assigned_collection_names = []
         for(let i = 0; i < colls.length; i++) {
           var item = colls[i]
@@ -235,6 +237,8 @@ export default {
               // query_collections.push({name: item.value})
             } else if(item['type'] == 'data') {
               data_collections.push(item)
+            } else if(item['type'] == 'tool') {
+              tool_collections.push(item)
             }
           } else if(item['collection'] == 'collection name') {
             assigned_collection_names.push(item.value)
@@ -253,6 +257,7 @@ export default {
 
         Vue.set(self.collections, 'data', data_collections)
         Vue.set(self.collections, 'query', query_collections)
+        Vue.set(self.collections, 'tool', tool_collections)
 
         for(let i = 0; i < FacetsConfig.COLLECTION_FACETS.length; i++) {
           if(FacetsConfig.COLLECTION_FACETS[i].field == 'unassigned') {
@@ -332,6 +337,7 @@ export default {
             item.value.g,
             item
         ).then(() => {
+          console.log(item.value.g + " is " + item.collection)
           // update collections
           // var currentColl = self.collections[self.type]
           // var indx = currentColl.indexOf(item)
@@ -372,6 +378,7 @@ export default {
             item.value.g,
             item
         ).then(() => {
+          console.log(item.value.g + " is " + item.collection)
           // update collections
           var content = self.types[item.type].content
           var indx = content.indexOf(item)
@@ -474,16 +481,32 @@ export default {
 
     },
     populate(name) {
+      // var data = []
+      // for (let i = 0; i < this.collections[name].length; i++) {
+      //   if ('collection' in this.collections[name][i]) {
+      //     if (this.collections[name][i]['collection'] == 'unassigned') {
+      //       data.push(this.collections[name][i])
+      //     }
+      //   }
+      //   // this.datasets = data
+      //   Vue.set(this.types, name, {'name': name, 'content': data})
+      // }
+      var self = this
       var data = []
-      for (let i = 0; i < this.collections[name].length; i++) {
-        if ('collection' in this.collections[name][i]) {
-          if (this.collections[name][i]['collection'] == 'unassigned') {
-            data.push(this.collections[name][i])
-          }
-        }
-        // this.datasets = data
-        Vue.set(this.types, name, {'name': name, 'content': data})
-      }
+      localforage.iterate(function(value, key) {
+        console.log([key, value]);
+        if(value.type === name && value.collection == "unassigned")
+          data.push(value)
+        // Vue.set(self.collections, self.collections.length, value)
+      }).then(function() {
+        console.log(data)
+        Vue.set(self.types, name, {'name': name, 'content': data})
+      }).catch(function(err) {
+        // This code runs if there were any errors
+        console.log(err);
+      });
+
+
     },
     chooseType(field, type) {
       console.log("field: " + field);
