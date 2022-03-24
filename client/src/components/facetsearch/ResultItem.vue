@@ -29,7 +29,8 @@
                 <a class="card-link" target="_blank" v-if="i.length >0" >{{ i}}</a>
             </b-badge>
           </span>
-      <b-button variant="link" size="sm" class="ml2-auto" v-on:click="addToCollection">Store Dataset</b-button>
+      <b-button variant="link" size="sm" class="ml2-auto" v-on:click="addToCollection('data')">Store Dataset</b-button>
+      <b-button variant="link" size="sm" class="ml2-auto" v-if="connectedTools" v-on:click="addToCollection('tool')">Store Tool</b-button>
     </div>
   </b-card>
 </template>
@@ -61,7 +62,7 @@ export default {
   , methods: {
     ...mapActions([
       'hasConnectedTools']),
-    addToCollection() {
+    addToCollection(type) {
       var self = this
       this.clickToAddCollection = true
       // var toAdd = true
@@ -76,7 +77,7 @@ export default {
         if (value === null) {
           localforage.setItem(
               self.item.g,
-              {'type': 'data', 'collection': 'unassigned', 'value': self.item}
+              {'type': type, 'collection': 'unassigned', 'value': self.item}
           ).then((value) => {
             console.log("store " + value.g + " to localstorage");
           }).catch((err) => {
