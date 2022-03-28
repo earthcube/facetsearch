@@ -68,7 +68,7 @@
                   <p class="mb-3">No items</p>
                 </header>
               </div>
-
+<!--              {{$data.currentClick }}-->
               <div v-for="item in type.content"
                    v-bind:key="item.row"
                    :item="item">
@@ -80,7 +80,7 @@
                   <b-card-title class="publisher" v-if="item.value.pubname" v-html="item.value.pubname"></b-card-title>
 
                   <b-card-text class="description small mb-2" v-if="item.value.description" v-html="item.value.description"></b-card-text>
-                  <!--                {{item}}-->
+<!--                                  {{item}}-->
                   <div v-if="item.collection=='unassigned'">
                     <b-container fluid="md" class="mt-3">
                       <b-row>
@@ -103,39 +103,58 @@
                         </b-col>
                         <b-col>
                           <!--                        <b-button variant="link" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move to Collections</b-button>-->
-                          <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Confirm</b-button>
+                          <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move</b-button>
                         </b-col>
                       </b-row>
                     </b-container>
                   </div>
 
-                  <div v-if="item.collection !=='unassigned'">
-                    <b-container fluid="md" class="mt-3">
-                      <b-row>
-                        Being removed from
-                      </b-row>
-                      <b-row>
-                        <b-col cols="8">
-
-                          <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
-                            <!--                    {{item}}-->
-                            <div v-if="facetSetting.title=='All Collections'">
-                              <v-select disabled
-                                  placeholder="Being removed from"
-                                  multiple
-                                  v-model="item.collections"
-                                  :id="'accordion_text_'+ item.value.name"
-                                  :options="facetSetting.names"
-                                  @input="(name) => updateRemovedCollection(item, name)"
-                              ></v-select>
+                  <div v-if="item.collection =='assigned'">
+                    <div v-if="$data.currentClick =='assigned'">
+                      <b-container fluid="md" class="mt-3">
+                        <b-row>
+                          Being removed from
+                        </b-row>
+                        <b-row>
+                          <b-col cols="8">
+                            <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
+                              <!--                    {{item}}-->
+                              <div v-if="facetSetting.title=='All Collections'">
+                                <v-select disabled
+                                    placeholder="Being removed from"
+                                    multiple
+                                    v-model="item.collections"
+                                    :id="'accordion_text_'+ item.value.name"
+                                    :options="facetSetting.names"
+                                    @input="(name) => updateRemovedCollection(item, name)"
+                                ></v-select>
+                              </div>
                             </div>
+                          </b-col>
+                          <b-col>
+                            <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Confirm</b-button>
+                            <confirm-dialogue ref="confirmDialogue"></confirm-dialogue>
+                          </b-col>
+                        </b-row>
+                      </b-container>
+                    </div>
+
+                    <div v-if="$data.currentClick =='unassigned'">
+                      <b-container fluid="md" class="mt-3">
+                        <b-row>
+                          Has been in Collections:
+                        </b-row>
+                        <b-row>
+                          <div v-for="removecollection in item.removeCollection" v-bind:key="removecollection">
+                            {{removecollection}} {{" "}}
+<!--                            <b-icon icon="exclamation-circle-fill" variant="success"></b-icon>-->
+                            <b-icon icon="check-square" scale="1" variant="success"></b-icon>
                           </div>
-                        </b-col>
-                        <b-col>
-                          <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Confirm</b-button>
-                        </b-col>
-                      </b-row>
-                    </b-container>
+                        </b-row>
+
+                      </b-container>
+                    </div>
+
                   </div>
                 </b-card>
 
@@ -168,6 +187,7 @@ import {mapGetters} from "vuex";
 import vSelect from "vue-select";
 import VueScrollbox from 'vue-scrollbox';
 import "vue-select/dist/vue-select.css";
+import ConfirmDialogue from './ConfirmDialogue.vue'
 
 Vue.component("v-select", vSelect);
 Vue.component('vue-scrollbox', VueScrollbox);
@@ -178,6 +198,7 @@ export default {
     // FacetTextItem,
     CreateCollection,
     CollectionMenuItem,
+    ConfirmDialogue,
   },
   data () {
     return {
@@ -196,6 +217,7 @@ export default {
       //---- ok to edit facets
       // facets: FacetsConfig.FACETS,
       types: {},
+      currentClick: "",
     }
   },
   provide: function () {
@@ -316,53 +338,63 @@ export default {
       console.log(collectionNames)
       item.moveCollection = collectionNames
     },
-    removeFromCollection: function(item) {
+    async removeFromCollection(item) {
       if (item.removeCollection.length === 0)
         return
       var self = this
       console.log("removeFromCollection")
-      var newColl = item.collections.filter(collname => (!item.removeCollection.includes(collname)))
-      item.collections = newColl
-      // write back to storage.
-      localforage.getItem(item.value.g, function (err, value) {
-        console.log(err)
-        console.log(value)
-        if (item.collections.length === 0) {
-          item.collection = "unassigned"
-        }
-        item.removeCollection = []
-        item.moveCollection = []
 
-        localforage.setItem(
-            item.value.g,
-            item
-        ).then(() => {
-          console.log(item.value.g + " is " + item.collection)
-          // update collections
-          // var currentColl = self.collections[self.type]
-          // var indx = currentColl.indexOf(item)
-          // if (indx > -1) {
-          //   currentColl.splice(indx, 1);
-          //   console.log("delete: " + item.value.name + " type: " + self.type + ", " + currentColl);
-          // }
-          // Vue.set(self.collections, self.type, currentColl)
-          var content = self.types[item.type].content
-          var indx = content.indexOf(item)
-          if (indx > -1) {
-            content.splice(indx, 1);
-            console.log("delete: " + item.value.name + " type: " + item.type + ", " + content);
+      const ok = await this.$refs.confirmDialogue[0].show({
+        title: 'Remove Confirmation',
+        message: 'Are you sure you want to remove this item back to default collection?',
+        okButton: 'Remove',
+      })
+      if (ok) {
+        var newColl = item.collections.filter(collname => (!item.removeCollection.includes(collname)))
+        item.collections = newColl
+        // write back to storage.
+        localforage.getItem(item.value.g, function (err, value) {
+          console.log(err)
+          console.log(value)
+          if (item.collections.length === 0) {
+            item.collection = "unassigned"
           }
-          // Vue.set(self.collections, item.type, currentColl)
-          Vue.set(self.types, item.type, {'name': item.type, 'content': content})
-          self.reloadCollections()
-        }).catch((err) => {
-          console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
+          item.removeCollection = []
+          item.moveCollection = []
+
+          localforage.setItem(
+              item.value.g,
+              item
+          ).then(() => {
+            console.log(item.value.g + " is " + item.collection)
+            // update collections
+            // var currentColl = self.collections[self.type]
+            // var indx = currentColl.indexOf(item)
+            // if (indx > -1) {
+            //   currentColl.splice(indx, 1);
+            //   console.log("delete: " + item.value.name + " type: " + self.type + ", " + currentColl);
+            // }
+            // Vue.set(self.collections, self.type, currentColl)
+            var content = self.types[item.type].content
+            var indx = content.indexOf(item)
+            if (indx > -1) {
+              content.splice(indx, 1);
+              console.log("delete: " + item.value.name + " type: " + item.type + ", " + content);
+            }
+            // Vue.set(self.collections, item.type, currentColl)
+            Vue.set(self.types, item.type, {'name': item.type, 'content': content})
+            self.reloadCollections()
+          }).catch((err) => {
+            console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
+          });
         });
-      });
+      }
     },
     moveToCollection: function(item) {
-      if (!('moveCollection' in item) || item.moveCollection === 0)
+      if (!('moveCollection' in item) || item.moveCollection === 0) {
+        console.log("skip move to empty collections")
         return
+      }
       console.log("moveToCollection")
       console.log(item)
       var self = this
@@ -388,11 +420,12 @@ export default {
           }
           // Vue.set(self.collections, item.type, currentColl)
           Vue.set(self.types, item.type, {'name': item.type, 'content': content})
+          console.log("add to collection");
+          // self.reloadCollections()
+          self.chooseType("unassigned", "")
         }).catch((err) => {
           console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
         });
-        console.log("add to collection");
-        self.reloadCollections()
       });
     },
     updteAllCollections: function(colls) {
@@ -470,6 +503,7 @@ export default {
           this.type = 'query'
         }
       } else {
+        this.currentClick = "assigned"
         this.populateAssignedCollection('data', collname)
         this.populateAssignedCollection('query', collname)
         this.populateAssignedCollection('tool', collname)
@@ -495,7 +529,8 @@ export default {
       var data = []
       localforage.iterate(function(value, key) {
         console.log([key, value]);
-        if(value.type === name && value.collection == "unassigned")
+        // if(value.type === name && value.collection == "unassigned")
+        if(value.type === name)
           data.push(value)
         // Vue.set(self.collections, self.collections.length, value)
       }).then(function() {
@@ -509,6 +544,7 @@ export default {
 
     },
     chooseType(field, type) {
+      this.currentClick = field
       console.log("field: " + field);
       console.log("chooseType: " + type);
       if(field === 'dataType') {
