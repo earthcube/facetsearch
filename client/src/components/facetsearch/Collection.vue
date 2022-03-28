@@ -177,10 +177,10 @@
                               </div>
                             </div>
                           </b-col>
-<!--                          <b-col>-->
-<!--                            <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Confirm</b-button>-->
-<!--                            <confirm-dialogue ref="confirmDialogue"></confirm-dialogue>-->
-<!--                          </b-col>-->
+                          <b-col>
+                            <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Confirm</b-button>
+                            <confirm-dialogue ref="confirmDialogue"></confirm-dialogue>
+                          </b-col>
                         </b-row>
                       </b-container>
                     </div>
