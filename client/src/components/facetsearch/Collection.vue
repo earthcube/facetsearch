@@ -1,4 +1,6 @@
 <template>
+  <article class="media content-section">
+    <div class="media-body">
   <b-container fluid="md" class="mt-3">
     <b-row>
         <b-col md="12">
@@ -52,6 +54,13 @@
         </b-col>
 
         <b-col md="9" class="results">
+          <div class="mb-2 mb-lg-0">
+            <header>
+              <div v-if="($data.collectionTitle).length">
+                <h1 class="article-title mx-auto">{{$data.collectionTitle}} Collection</h1>
+              </div>
+            </header>
+          </div>
           <div class="mt-3">
             <div v-for="type in this.types"
                  v-bind:key="type.row"
@@ -59,7 +68,8 @@
 <!--              {{type}}-->
               <div v-if="(type.content).length">
                 <header>
-                  <h1 class="mb-3">{{type.name}}</h1>
+                  <hr class="divider"/>
+                  <h2 class="mb-3">{{type.name}}</h2>
                 </header>
               </div>
               <div v-if="!(type.content).length">
@@ -144,14 +154,34 @@
                         <b-row>
                           Has been in Collections:
                         </b-row>
+<!--                        <b-row>-->
+<!--                          <div v-for="removecollection in item.removeCollection" v-bind:key="removecollection">-->
+<!--                            {{removecollection}} {{" "}}-->
+<!--&lt;!&ndash;                            <b-icon icon="exclamation-circle-fill" variant="success"></b-icon>&ndash;&gt;-->
+<!--                            <b-icon icon="check-square" scale="1" variant="success"></b-icon>-->
+<!--                          </div>-->
+<!--                        </b-row>-->
                         <b-row>
-                          <div v-for="removecollection in item.removeCollection" v-bind:key="removecollection">
-                            {{removecollection}} {{" "}}
-<!--                            <b-icon icon="exclamation-circle-fill" variant="success"></b-icon>-->
-                            <b-icon icon="check-square" scale="1" variant="success"></b-icon>
-                          </div>
+                          <b-col cols="8">
+                            <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
+                              <!--                    {{item}}-->
+                              <div v-if="facetSetting.title=='All Collections'">
+                                <v-select disabled
+                                          placeholder="Being removed from"
+                                          multiple
+                                          v-model="item.collections"
+                                          :id="'accordion_text_'+ item.value.name"
+                                          :options="facetSetting.names"
+                                          @input="(name) => updateRemovedCollection(item, name)"
+                                ></v-select>
+                              </div>
+                            </div>
+                          </b-col>
+<!--                          <b-col>-->
+<!--                            <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Confirm</b-button>-->
+<!--                            <confirm-dialogue ref="confirmDialogue"></confirm-dialogue>-->
+<!--                          </b-col>-->
                         </b-row>
-
                       </b-container>
                     </div>
 
@@ -169,6 +199,8 @@
       </b-row>
   </b-container>
 
+    </div>
+  </article>
 
 </template>
 
@@ -218,6 +250,7 @@ export default {
       // facets: FacetsConfig.FACETS,
       types: {},
       currentClick: "",
+      collectionTitle: "",
     }
   },
   provide: function () {
@@ -503,6 +536,7 @@ export default {
           this.type = 'query'
         }
       } else {
+        this.collectionTitle = collname
         this.currentClick = "assigned"
         this.populateAssignedCollection('data', collname)
         this.populateAssignedCollection('query', collname)
@@ -558,7 +592,7 @@ export default {
       } else if(field == 'unassigned') {
         // this.type = 'data'
         // this.field = 'unassigned'
-
+        this.collectionTitle = ""
         if('data' in this.collections) {
           this.populate('data')
         }

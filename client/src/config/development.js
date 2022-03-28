@@ -13,7 +13,7 @@ export default {
     COLLECTION_FACETS: [
         {
             field: 'unassigned',
-            title: 'Default Collection',
+            title: 'All Items',
             sort: 'acs',
             open: false,
             type:'unassigned',
