@@ -123,28 +123,28 @@
                     <div v-if="$data.currentClick =='assigned'">
                       <b-container fluid="md" class="mt-3">
                         <b-row>
-                          Being removed from
+                          Has been in Collections:
                         </b-row>
                         <b-row>
                           <b-col cols="8">
                             <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
-                              <!--                    {{item}}-->
+<!--                                                  {{item}}-->
                               <div v-if="facetSetting.title=='All Collections'">
                                 <v-select disabled
                                     placeholder="Being removed from"
                                     multiple
                                     v-model="item.collections"
                                     :id="'accordion_text_'+ item.value.name"
-                                    :options="facetSetting.names"
+                                    :options="item.collections"
                                     @input="(name) => updateRemovedCollection(item, name)"
                                 ></v-select>
                               </div>
                             </div>
                           </b-col>
-                          <b-col>
-                            <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Confirm</b-button>
-                            <confirm-dialogue ref="confirmDialogue"></confirm-dialogue>
-                          </b-col>
+<!--                          <b-col>-->
+<!--                            <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Confirm</b-button>-->
+<!--                            <confirm-dialogue ref="confirmDialogue"></confirm-dialogue>-->
+<!--                          </b-col>-->
                         </b-row>
                       </b-container>
                     </div>
@@ -152,7 +152,7 @@
                     <div v-if="$data.currentClick =='unassigned'">
                       <b-container fluid="md" class="mt-3">
                         <b-row>
-                          Has been in Collections:
+                          Can be removed from collections:
                         </b-row>
 <!--                        <b-row>-->
 <!--                          <div v-for="removecollection in item.removeCollection" v-bind:key="removecollection">-->
@@ -164,21 +164,21 @@
                         <b-row>
                           <b-col cols="8">
                             <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
-                              <!--                    {{item}}-->
+<!--                                                  {{item}}-->
                               <div v-if="facetSetting.title=='All Collections'">
-                                <v-select disabled
+                                <v-select
                                           placeholder="Being removed from"
                                           multiple
-                                          v-model="item.collections"
+                                          v-model="item.assignedCollections"
                                           :id="'accordion_text_'+ item.value.name"
-                                          :options="facetSetting.names"
+                                          :options="item.collections"
                                           @input="(name) => updateRemovedCollection(item, name)"
                                 ></v-select>
                               </div>
                             </div>
                           </b-col>
                           <b-col>
-                            <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Confirm</b-button>
+                            <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Remove</b-button>
                             <confirm-dialogue ref="confirmDialogue"></confirm-dialogue>
                           </b-col>
                         </b-row>
@@ -379,22 +379,24 @@ export default {
 
       const ok = await this.$refs.confirmDialogue[0].show({
         title: 'Remove Confirmation',
-        message: 'Are you sure you want to remove this item back to default collection?',
+        message: 'Are you sure you want to remove this item from ' + item.assignedCollections + ' collection(s)?',
         okButton: 'Remove',
       })
       if (ok) {
-        var newColl = item.collections.filter(collname => (!item.removeCollection.includes(collname)))
-        item.collections = newColl
+        // var newColl = item.collections.filter(collname => (!item.removeCollection.includes(collname)))
+        item.assignedCollections = [...item.collections.filter(collname => (!item.assignedCollections.includes(collname)))]
+        // item.collections = newColl
         // write back to storage.
         localforage.getItem(item.value.g, function (err, value) {
           console.log(err)
           console.log(value)
-          if (item.collections.length === 0) {
+          if (item.assignedCollections.length === 0) {
             item.collection = "unassigned"
+            item.collections = []
           }
-          item.removeCollection = []
+          item.removeCollection = [...item.assignedCollections]
           item.moveCollection = []
-
+          item.collections = [...item.assignedCollections]
           localforage.setItem(
               item.value.g,
               item
@@ -408,15 +410,25 @@ export default {
             //   console.log("delete: " + item.value.name + " type: " + self.type + ", " + currentColl);
             // }
             // Vue.set(self.collections, self.type, currentColl)
+
             var content = self.types[item.type].content
-            var indx = content.indexOf(item)
-            if (indx > -1) {
-              content.splice(indx, 1);
-              console.log("delete: " + item.value.name + " type: " + item.type + ", " + content);
+            if(item.assignedCollections.length === 0) {
+              var indx = content.indexOf(item)
+              if (indx > -1) {
+                content.splice(indx, 1);
+                console.log("delete: " + item.value.name + " type: " + item.type + ", " + content);
+              }
             }
             // Vue.set(self.collections, item.type, currentColl)
+            console.log("reload collection after remove from collection")
             Vue.set(self.types, item.type, {'name': item.type, 'content': content})
             self.reloadCollections()
+            self.chooseType("unassigned", "")
+            // if (item.assignedCollections.length === 0) {
+            //   self.chooseType("unassigned", "")
+            // } else {
+            //   self.chooseType("all", "")
+            // }
           }).catch((err) => {
             console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
           });
@@ -431,14 +443,15 @@ export default {
       console.log("moveToCollection")
       console.log(item)
       var self = this
-      item.collections = item.moveCollection
-      item.removeCollection = item.collections
+      item.collections = [...item.moveCollection]
+      item.removeCollection = [...item.collections]
       // write back to storage.
       localforage.getItem(item.value.g, function (err, value) {
         console.log(err)
         console.log(value)
         item.collection = "assigned"
         item.moveCollection = []
+        item.assignedCollections = [...item.collections]
         localforage.setItem(
             item.value.g,
             item
@@ -453,8 +466,8 @@ export default {
           }
           // Vue.set(self.collections, item.type, currentColl)
           Vue.set(self.types, item.type, {'name': item.type, 'content': content})
-          console.log("add to collection");
-          // self.reloadCollections()
+          console.log("reload collection after move to collections");
+          self.reloadCollections()
           self.chooseType("unassigned", "")
         }).catch((err) => {
           console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
