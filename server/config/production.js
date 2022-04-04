@@ -5,8 +5,8 @@ exports.config = {
     jsonldStore: {
         "type": "minio",
         "endPoint": endPoint,
-        "port": 443,
-        useSSL: true,
+        "port": 80,
+        useSSL: false,
         accessKey: accessKey,
         secretKey: secretKey
 
