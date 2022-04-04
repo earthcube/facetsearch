@@ -1,8 +1,13 @@
 export default {
     NODE_ENV: process.env.NODE_ENV || 'unknown',
     API_URL: 'http://localhost:3000',
-    TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/nabu/sparql',
+    TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/earthcube/sparql',
     //TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',
+    ECRR_TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/ecrr/sparql',// dev
+    //ECRR_TRIPLESTORE_URL:'http://132.249.238.169:8080/fuseki/ecrr/query', // fuseki
+    ECRR_GRAPH: 'http://earthcube.org/gleaner-summoned',
+   // ECRR_GRAPH: 'http://earthcube.org/gleaner-summoned', //fuskei
+    THROUGHPUTDB_URL: 'https://throughputdb.com/api/ccdrs/annotations',
     SPARQL_QUERY:'queries/sparql_query.txt',
     SPARQL_HASTOOLS:'queries/sparql_hastools.txt',
     SPARQL_TOOLS_WEBSERVICE:'queries/sparql_gettools_webservice.txt',
@@ -90,7 +95,7 @@ export default {
         },
         {
             name:'Collab-Developer',
-            badge:"",
+            badge:"https://camo.githubusercontent.com/84f0493939e0c4de4e6dbe113251b4bfb5353e57134ffd9fcab6b8714514d4d1/68747470733a2f2f636f6c61622e72657365617263682e676f6f676c652e636f6d2f6173736574732f636f6c61622d62616467652e737667",
             baseurl:"http://141.142.218.86:3031/mknb",
             binderEncodeParameters: false,
             contentQuery:'url=${contentUrl}&ext=${format}&urn=${urn}&encoding=${format}',

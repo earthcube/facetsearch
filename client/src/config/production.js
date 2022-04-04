@@ -3,6 +3,11 @@ export default {
     API_URL: `${window.location.origin}/ec/api`,
     TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql',
     //TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',
+    //ECRR_TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/ecrr/sparql',// dev
+    ECRR_TRIPLESTORE_URL:'http://132.249.238.169:8080/fuseki/ecrr/query', // fuseki
+    //ECRR_GRAPH: 'http://earthcube.org/gleaner-summoned',
+     ECRR_GRAPH: 'http://earthcube.org/gleaner-summoned', //fuskei
+    THROUGHPUTDB_URL: 'https://throughputdb.com/api/ccdrs/annotations',
     SPARQL_QUERY:'queries/sparql_query.txt',
     SPARQL_HASTOOLS:'queries/sparql_hastools.txt',
     SPARQL_TOOLS_WEBSERVICE:'queries/sparql_gettools_webservice.txt',

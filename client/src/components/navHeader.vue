@@ -53,7 +53,8 @@ import logoEarthcube from "@/components/logos/logoEarthcube";
 import logoGeoCodes from "@/components/logos/logoGeoCodes";
 import {stringify} from "query-string"
 import _ from "lodash"
-import FacetsConfig from '../config'
+import FacetsConfig from "../config";
+
 export default {
 name: "navHeader",
   components: {logoEarthcube, logoGeoCodes},
@@ -112,7 +113,7 @@ name: "navHeader",
 
       }
       let route = stringify(paramData)
-      let acutalUrl = basepath +route
+      let acutalUrl = basepath + route
 
       window.open(acutalUrl, '_blank')
     },

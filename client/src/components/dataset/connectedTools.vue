@@ -148,7 +148,8 @@ export default {
       var self = this
       const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, esTemplateOptions)
       // const resultsTemplate = _.template(SpaqlToolsDownloadQuery, esTemplateOptions)
-      let hasToolsQuery = resultsTemplate({g: graphUri});
+      let hasToolsQuery = resultsTemplate({g: graphUri, ecrr_service: FacetsConfig.ECRR_TRIPLESTORE_URL,
+        ecrr_graph: FacetsConfig.ECRR_GRAPH});
 
       var url = FacetsConfig.TRIPLESTORE_URL;
       var params = {
@@ -178,7 +179,8 @@ export default {
     , getDownloadableTools(graphUri) {
       var self = this;
       const resultsTemplate = _.template(SpaqlToolsDownloadQuery, esTemplateOptions)
-      let hasToolsQuery = resultsTemplate({g: graphUri});
+      let hasToolsQuery = resultsTemplate({g: graphUri, ecrr_service: FacetsConfig.ECRR_TRIPLESTORE_URL,
+        ecrr_graph: FacetsConfig.ECRR_GRAPH});
 
       var url = FacetsConfig.TRIPLESTORE_URL;
       var params = {
