@@ -103,6 +103,9 @@ in case more intro paragraph text is needed
 
             <p class="mt-4"><a href="https://github.com/earthcube" target="_blank">Open source</a> under the <a href="https://opensource.org/licenses/MIT" target="_blank">MIT License</a></p>
         </b-container>
+      <div>
+        <b-link :to="{name: 'configuration'}" class="mr-0" >Config</b-link>
+      </div>
     </b-container>
 </template>
 
