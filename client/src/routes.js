@@ -5,6 +5,7 @@ import dataset from "./components/dataset/dataset";
 import tool from "./components/tools/tool"
 import about from "./components/help/about"
 import cart from "./components/datacart/cart"
+import configuration from "./components/configuration"
 
 export default  new Router({
     //mode: "history",
@@ -35,6 +36,7 @@ export default  new Router({
         //{path:'/tool/:o',name:'tool',component:tool,props:true},
         {path:'/about',name:'about',component:about,},
         {path:'/cart',name:'cart', component:cart},
+        {path:'/config',name:'configuration', component:configuration},
 // catch all case
         { path: '*'},
     ],
