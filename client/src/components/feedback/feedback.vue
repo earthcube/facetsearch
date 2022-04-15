@@ -1,6 +1,6 @@
 <template>
   <div class="feedback" >
-    <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>
+    <b-button class="m-2" v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Feedback</b-button>
     <b-modal
         size="lg"
         id="feedback-modal"

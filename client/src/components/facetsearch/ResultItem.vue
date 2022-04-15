@@ -29,10 +29,14 @@
                 <a class="card-link" target="_blank" v-if="i.length >0" >{{ i}}</a>
             </b-badge>
           </span>
-      <b-button variant="link" size="sm" class="ml2-auto" v-if="!connectedTools" v-on:click="addToCollection('data')">Store Dataset</b-button>
-      <b-button variant="link" size="sm" class="ml2-auto" v-if="connectedTools" v-on:click="addToCollection('tool')">Store Tool</b-button>
+    </div>
+    <div class="badges mt-2">
+      <b-button variant="primary" size="sm" class="ml2-auto" v-if="item.resourceType=='data'" v-on:click="addToCollection(item.resourceType)">Store Dataset</b-button>
+      <b-button variant="primary" size="sm" class="ml2-auto" v-else-if="item.resourceType=='tool'" v-on:click="addToCollection(item.resourceType)">Store Tool</b-button>
+      <b-button variant="primary" size="sm" class="ml2-auto" v-else v-on:click="addToCollection(item.resourceType)">Store Other</b-button>
     </div>
   </b-card>
+
 </template>
 
 <script>

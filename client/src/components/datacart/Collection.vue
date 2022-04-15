@@ -57,9 +57,14 @@
           <div class="mb-2 mb-lg-0">
             <header>
               <div v-if="($data.collectionTitle).length">
-                <h1 class="article-title mx-auto">{{$data.collectionTitle}} Collection</h1>
+                <h1 class="article-title mx-auto">Collection {{$data.collectionTitle}} </h1>
               </div>
             </header>
+          </div>
+          <div>
+            <b-badge>Tool</b-badge>
+            <b-badge>Query</b-badge>
+            <b-badge>Data</b-badge><span>placeholders for filters</span>
           </div>
           <div class="mt-3">
             <div v-for="type in this.types"
@@ -69,7 +74,7 @@
               <div v-if="(type.content).length">
                 <header>
                   <hr class="divider"/>
-                  <h2 class="mb-3">{{type.name}}</h2>
+                  <h2 class="mb-3 text-capitalize" >{{type.name}}</h2>
                 </header>
               </div>
               <div v-if="!(type.content).length">
@@ -123,7 +128,7 @@
                     <div v-if="$data.currentClick =='assigned'">
                       <b-container fluid="md" class="mt-3">
                         <b-row>
-                          Has been in Collections:
+                          In Collections:
                         </b-row>
                         <b-row>
                           <b-col cols="8">
