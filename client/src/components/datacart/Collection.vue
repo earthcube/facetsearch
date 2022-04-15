@@ -4,7 +4,7 @@
   <b-container fluid="md" class="mt-3">
     <b-row>
         <b-col md="12">
-          <b-btn variant="outline-primary" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
+          <b-btn class="m-2" variant="outline-primary" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
 <!--          <CreateCollection> </CreateCollection>-->
         </b-col>
 
@@ -14,7 +14,9 @@
           <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
             <div class="filter_card">
               <div v-if="facetSetting.field=='unassigned'">
-                <b-button block squared v-b-toggle="'accordion_text_'+ facetSetting.field" @click="chooseType(facetSetting.field)">
+                <b-button block squared
+                          v-b-toggle="'accordion_text_'+ facetSetting.field"
+                          @click="chooseType(facetSetting.field)">
                   {{facetSetting.title}}
   <!--                <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>-->
   <!--                <b-icon icon="dash-square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>-->

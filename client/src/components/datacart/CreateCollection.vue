@@ -1,7 +1,7 @@
 <template>
   <div class="feedback" >
 <!--    <b-button v-b-modal.feedback-modal variant="outline-secondary" @click="showModal">Create Collection</b-button>-->
-    <b-button variant="primary" v-b-modal.feedback-modal @click="showModal">Create Collection</b-button>
+    <b-button variant="primary" class="m-2" v-b-modal.feedback-modal @click="showModal">Create Collection</b-button>
     <b-modal
         size="lg"
         id="feedback-modal"

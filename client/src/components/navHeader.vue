@@ -39,7 +39,7 @@
 <!--                <div class="badges mt-2">-->
 <!--                  <b-button variant="link" size="sm" class="ml2-auto" v-on:click="addToCollection">Store Query</b-button>-->
 <!--                </div>-->
-                <b-nav-item :to="{name: 'collection'}" class="mr-0" >Collection</b-nav-item>
+                <b-nav-item :to="{name: 'collection'}" class="mr-0" >Saved Items</b-nav-item>
 
                 <b-dropdown text="SPARQL" variant="primary">
                   <b-dropdown-item v-on:click.stop="showSparqlGui"  target="_blank">SPARQL UI</b-dropdown-item>

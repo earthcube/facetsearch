@@ -5,7 +5,7 @@
           {{ currentCount }} &nbsp; selected of &nbsp; {{ totalCount }} results
         </b-col>
         <b-col >
-          <b-button class="ml2-auto badges mt-2" variant="link" size="sm"  v-on:click="addQueryToCollection">Store Query</b-button>
+          <b-button class="ml2-auto badges mt-2" variant="primary" size="sm"  v-on:click="addQueryToCollection">Save Query</b-button>
         </b-col>
       </b-row>
         <b-row align-v="center">

@@ -31,9 +31,9 @@
           </span>
     </div>
     <div class="badges mt-2">
-      <b-button variant="primary" size="sm" class="ml2-auto" v-if="item.resourceType=='data'" v-on:click="addToCollection(item.resourceType)">Store Dataset</b-button>
-      <b-button variant="primary" size="sm" class="ml2-auto" v-else-if="item.resourceType=='tool'" v-on:click="addToCollection(item.resourceType)">Store Tool</b-button>
-      <b-button variant="primary" size="sm" class="ml2-auto" v-else v-on:click="addToCollection(item.resourceType)">Store Other</b-button>
+      <b-button variant="primary" size="sm" class="ml2-auto" v-if="item.resourceType=='data'" v-on:click="addToCollection(item.resourceType)">Save Dataset</b-button>
+      <b-button variant="primary" size="sm" class="ml2-auto" v-else-if="item.resourceType=='tool'" v-on:click="addToCollection(item.resourceType)">Save Tool</b-button>
+      <b-button variant="primary" size="sm" class="ml2-auto" v-else v-on:click="addToCollection(item.resourceType)">Save Other</b-button>
     </div>
   </b-card>
 
