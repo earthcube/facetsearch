@@ -64,15 +64,27 @@
             </header>
           </div>
           <div>
-            <b-badge>Tool</b-badge>
-            <b-badge>Query</b-badge>
-            <b-badge>Data</b-badge><span>placeholders for filters</span>
+            <v-btn type="button" class="btn btn-primary" v-on:click="chooseFilter('tool')">
+              Tool
+            </v-btn>
+            <button type="button" class="btn btn-primary" v-on:click="chooseFilter('query')">
+              Query
+            </button>
+            <button type="button" class="btn btn-primary" v-on:click="chooseFilter('data')">
+              Data
+            </button>
+<!--            <b-badge>Tool </b-badge>-->
+<!--            <b-badge>Query</b-badge>-->
+<!--            <b-badge>Data</b-badge>-->
+            <span>placeholders for filters</span>
           </div>
           <div class="mt-3">
             <div v-for="type in this.types"
                  v-bind:key="type.row"
                  :type="type">
 <!--              {{type}}-->
+              <div v-if="$data.filterType.indexOf(type.name) > -1">
+                <!--                {{$data.filterType }}-->
               <div v-if="(type.content).length">
                 <header>
                   <hr class="divider"/>
@@ -85,117 +97,119 @@
                   <p class="mb-3">No items</p>
                 </header>
               </div>
-<!--              {{$data.currentClick }}-->
-              <div v-for="item in type.content"
-                   v-bind:key="item.row"
-                   :item="item">
-<!--                {{item}}-->
-                <b-card tag="article" class="rounded-0">
 
-                  <b-card-title class="name" v-html="item.value.name">
-                  </b-card-title>
-                  <b-card-title class="publisher" v-if="item.value.pubname" v-html="item.value.pubname"></b-card-title>
+                <div v-for="item in type.content"
+                     v-bind:key="item.row"
+                     :item="item">
+<!--                  {{item}}-->
+                  <b-card tag="article" class="rounded-0">
 
-                  <b-card-text class="description small mb-2" v-if="item.value.description" v-html="item.value.description"></b-card-text>
-<!--                                  {{item}}-->
-                  <div v-if="item.collection=='unassigned'">
-                    <b-container fluid="md" class="mt-3">
-                      <b-row>
-                        <b-col cols="8">
-                          <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
-                            <!--                                          {{item}}-->
-                            <div v-if="facetSetting.title=='All Collections'">
+                    <b-card-title class="name" v-html="item.value.name">
+                    </b-card-title>
+                    <b-card-title class="publisher" v-if="item.value.pubname" v-html="item.value.pubname"></b-card-title>
 
-                              <v-select
-                                  placeholder="Being assigned to"
-                                  multiple
-                                  v-model="item.collections"
-                                  :id="'accordion_text_'+ item.value.name"
-                                  :options="facetSetting.names"
-                                  @input="(name) => updateMovedToCollection(item, name)"
-                              ></v-select>
-                            </div>
-                          </div>
-
-                        </b-col>
-<!--                        <b-col>-->
-<!--                          &lt;!&ndash;                        <b-button variant="link" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move to Collections</b-button>&ndash;&gt;-->
-<!--                          <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move</b-button>-->
-<!--                        </b-col>-->
-                      </b-row>
-                    </b-container>
-                  </div>
-
-                  <div v-if="item.collection =='assigned'">
-                    <div v-if="$data.currentClick =='assigned'">
+                    <b-card-text class="description small mb-2" v-if="item.value.description" v-html="item.value.description"></b-card-text>
+<!--                    show url of query-->
+                    <b-card-text class="description small mb-2" v-if="item.value.url" v-html="item.value.url"></b-card-text>
+  <!--                                  {{item}}-->
+                    <div v-if="item.collection=='unassigned'">
                       <b-container fluid="md" class="mt-3">
-                        <b-row>
-                          In Collections:
-                        </b-row>
                         <b-row>
                           <b-col cols="8">
                             <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
-<!--                                                  {{item}}-->
+                              <!--                                          {{item}}-->
                               <div v-if="facetSetting.title=='All Collections'">
-                                <v-select disabled
-                                    placeholder="Being removed from"
+
+                                <v-select
+                                    placeholder="Being assigned to"
                                     multiple
                                     v-model="item.collections"
                                     :id="'accordion_text_'+ item.value.name"
                                     :options="facetSetting.names"
-                                    @input="(name) => updateRemovedCollection(item, name, false)"
+                                    @input="(name) => updateMovedToCollection(item, name)"
                                 ></v-select>
                               </div>
                             </div>
+
                           </b-col>
-<!--                          <b-col>-->
-<!--                            <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Confirm</b-button>-->
-<!--                            <confirm-dialogue ref="confirmDialogue"></confirm-dialogue>-->
-<!--                          </b-col>-->
+  <!--                        <b-col>-->
+  <!--                          &lt;!&ndash;                        <b-button variant="link" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move to Collections</b-button>&ndash;&gt;-->
+  <!--                          <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="moveToCollection(item)">Move</b-button>-->
+  <!--                        </b-col>-->
                         </b-row>
                       </b-container>
                     </div>
 
-                    <div v-if="$data.currentClick =='unassigned'">
-                      <b-container fluid="md" class="mt-3">
-                        <b-row>
-                          In Collections:
-                        </b-row>
-<!--                        <b-row>-->
-<!--                          <div v-for="removecollection in item.removeCollection" v-bind:key="removecollection">-->
-<!--                            {{removecollection}} {{" "}}-->
-<!--&lt;!&ndash;                            <b-icon icon="exclamation-circle-fill" variant="success"></b-icon>&ndash;&gt;-->
-<!--                            <b-icon icon="check-square" scale="1" variant="success"></b-icon>-->
-<!--                          </div>-->
-<!--                        </b-row>-->
-                        <b-row>
-                          <b-col cols="8">
-                            <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
-<!--                                                  {{item}}-->
-                              <div v-if="facetSetting.title=='All Collections'">
-                                <v-select
-                                          placeholder="Being removed from"
-                                          multiple
-                                          v-model="item.assignedCollections"
-                                          :id="'accordion_text_'+ item.value.name"
-                                          :options="facetSetting.names"
-                                          v-on:option:selected="updateRemovedCollection(item, $event, false)"
-                                          v-on:option:deselected="optionRemoved($event, item)"
-                                ></v-select>
+                    <div v-if="item.collection =='assigned'">
+                      <div v-if="$data.currentClick =='assigned'">
+                        <b-container fluid="md" class="mt-3">
+                          <b-row>
+                            In Collections:
+                          </b-row>
+                          <b-row>
+                            <b-col cols="8">
+                              <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
+  <!--                                                  {{item}}-->
+                                <div v-if="facetSetting.title=='All Collections'">
+                                  <v-select disabled
+                                      placeholder="Being removed from"
+                                      multiple
+                                      v-model="item.collections"
+                                      :id="'accordion_text_'+ item.value.name"
+                                      :options="facetSetting.names"
+                                      @input="(name) => updateRemovedCollection(item, name, false)"
+                                  ></v-select>
+                                </div>
                               </div>
-                            </div>
-                          </b-col>
-<!--                          <b-col>-->
-<!--                            <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Remove</b-button>-->
-<!--                            <confirm-dialogue ref="confirmDialogue"></confirm-dialogue>-->
-<!--                          </b-col>-->
-                        </b-row>
-                      </b-container>
+                            </b-col>
+  <!--                          <b-col>-->
+  <!--                            <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Confirm</b-button>-->
+  <!--                            <confirm-dialogue ref="confirmDialogue"></confirm-dialogue>-->
+  <!--                          </b-col>-->
+                          </b-row>
+                        </b-container>
+                      </div>
+
+                      <div v-if="$data.currentClick =='unassigned'">
+                        <b-container fluid="md" class="mt-3">
+                          <b-row>
+                            In Collections:
+                          </b-row>
+  <!--                        <b-row>-->
+  <!--                          <div v-for="removecollection in item.removeCollection" v-bind:key="removecollection">-->
+  <!--                            {{removecollection}} {{" "}}-->
+  <!--&lt;!&ndash;                            <b-icon icon="exclamation-circle-fill" variant="success"></b-icon>&ndash;&gt;-->
+  <!--                            <b-icon icon="check-square" scale="1" variant="success"></b-icon>-->
+  <!--                          </div>-->
+  <!--                        </b-row>-->
+                          <b-row>
+                            <b-col cols="8">
+                              <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
+  <!--                                                  {{item}}-->
+                                <div v-if="facetSetting.title=='All Collections'">
+                                  <v-select
+                                            placeholder="Being removed from"
+                                            multiple
+                                            v-model="item.assignedCollections"
+                                            :id="'accordion_text_'+ item.value.name"
+                                            :options="facetSetting.names"
+                                            v-on:option:selected="updateRemovedCollection(item, $event, false)"
+                                            v-on:option:deselected="optionRemoved($event, item)"
+                                  ></v-select>
+                                </div>
+                              </div>
+                            </b-col>
+  <!--                          <b-col>-->
+  <!--                            <b-button variant="outline-primary" size="sm" class="ml2-auto" v-on:click="removeFromCollection(item)">Remove</b-button>-->
+  <!--                            <confirm-dialogue ref="confirmDialogue"></confirm-dialogue>-->
+  <!--                          </b-col>-->
+                          </b-row>
+                        </b-container>
+                      </div>
+
                     </div>
-
-                  </div>
-                </b-card>
-
+                  </b-card>
+                </div>
               </div>
             </div>
 
@@ -257,6 +271,7 @@ export default {
       //---- ok to edit facets
       // facets: FacetsConfig.FACETS,
       types: {},
+      filterType: "tool query data",
       currentClick: "",
       collectionTitle: "",
     }
@@ -370,6 +385,19 @@ export default {
         // This code runs if there were any errors
         console.log(err);
       });
+    },
+    chooseFilter: function(type) {
+      if(this.filterType.indexOf(type) > -1) {
+        this.filterType = this.filterType.replaceAll(type, '')
+      } else {
+        this.filterType = this.filterType + " " + type
+      }
+/*      if(this.filterType === "tool query data") {
+        this.filterType = type
+      } else {
+        this.filterType = "tool query data"
+      }*/
+      console.log("choose: filter: " + this.filterType)
     },
     optionRemoved: function(option, item) {
       console.log(option + ", " + item)

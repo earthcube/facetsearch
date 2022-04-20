@@ -157,7 +157,7 @@ export default {
         if (value === null) {
           localforage.setItem(
               query,
-              {'type': 'query', 'collection': 'unassigned', 'value': {'name': query, 'g': query}}
+              {'type': 'query', 'collection': 'unassigned', 'value': {'name': query, 'g': query, 'url': window.location.href }}
           ).then((value) => {
             console.log("store: " + "unassigned query "+ query + value.g + " to localstorage");
           }).catch((err) => {
