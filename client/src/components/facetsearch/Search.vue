@@ -354,6 +354,16 @@ export default {
       self.state.shownResults = 0;
     },
     toggleFilter: function (key, value) {
+      console.log( window.location.href );
+      var stateObj = { key: value};
+      if(window.location.href.includes(encodeURI("&"+key+"="+value))) {
+        var href = window.location.href
+        href = href.replace(encodeURI("&"+key+"="+value), '');
+        history.pushState(stateObj, "", href);
+      } else {
+        history.pushState(stateObj, "", window.location.href+"&"+key+"="+value);
+      }
+      console.log( window.location.href );
       console.log('toggleFilter')
       var state = this.state;
       this.$set(state.filters, key, state.filters[key] || [])
@@ -377,6 +387,16 @@ export default {
       this.filter();
     },
     clearFilters: function () {
+      console.log( window.location.href );
+      var href = window.location.href;
+      for (const [key, value] of Object.entries(this.state.filters)) {
+        console.log(key, value);
+        for (let s of value) {
+          href = href.replace(encodeURI("&"+key+"="+s), '');
+          console.log(href)
+        }
+      }
+      history.pushState("", "", href);
       this.state.filters = {}
       this.filter()
       this.$root.$emit('refresh slider range', 'clear')

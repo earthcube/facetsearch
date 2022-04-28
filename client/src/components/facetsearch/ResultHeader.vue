@@ -165,9 +165,15 @@ export default {
           });
           console.log("add to collection");
         } else {
-          // localforage.setItem(newFilename, value, function () {
-          //   localforage.removeItem(filename, function () { return callback(); });
-          // });
+          value['value']['url'] = window.location.href
+          localforage.setItem(
+              query, value
+          ).then((value) => {
+            console.log("store: " + "unassigned query "+ query + value.g + " to localstorage");
+          }).catch((err) => {
+            console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
+          });
+          console.log("update to collection");
           console.log(value)
         }
       });
