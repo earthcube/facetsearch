@@ -142,10 +142,21 @@ export default {
   mounted() {
     //const self = this;
     //const q = "water";
-
+    console.log( window.location.href );
     const o = 0;
     this.queryRunning = true;
     this.$store.state.q = this.textQuery
+
+
+    let paramString = window.location.href.split('?')[1];
+    let queryString = new URLSearchParams(paramString);
+    for(let pair of queryString.entries()) {
+      if(pair[0] === 'q') continue
+      if(pair[0] === 'resourceType' && pair[1] == 'all') continue
+      // console.log("Key is:" + pair[0]);
+      // console.log("Value is:" + pair[1]);
+      this.toggleFilter(pair[0], pair[1], true)
+    }
 
 
     // const hit = this.getMicroCache.get(this.textQuery)
@@ -353,15 +364,17 @@ export default {
       });
       self.state.shownResults = 0;
     },
-    toggleFilter: function (key, value) {
+    toggleFilter: function (key, value, skipfilterUrl=false) {
       console.log( window.location.href );
       var stateObj = { key: value};
-      if(window.location.href.includes(encodeURI("&"+key+"="+value))) {
-        var href = window.location.href
-        href = href.replace(encodeURI("&"+key+"="+value), '');
-        history.pushState(stateObj, "", href);
-      } else {
-        history.pushState(stateObj, "", window.location.href+"&"+key+"="+value);
+      if(!skipfilterUrl) {
+        if (window.location.href.includes(encodeURI("&" + key + "=" + value))) {
+          var href = window.location.href
+          href = href.replace(encodeURI("&" + key + "=" + value), '');
+          history.pushState(stateObj, "", href);
+        } else {
+          history.pushState(stateObj, "", window.location.href + "&" + key + "=" + value);
+        }
       }
       console.log( window.location.href );
       console.log('toggleFilter')
