@@ -154,10 +154,24 @@ export default {
       }
       let query = self.$store.state.q
       localforage.getItem(query, function (err, value) {
+        var desp = {}
+        let paramString = window.location.href.split('?')[1];
+        let queryString = new URLSearchParams(paramString);
+        for(let pair of queryString.entries()) {
+          if(pair[0] === 'q') continue
+          if(pair[0] === 'resourceType' && pair[1] == 'all') continue
+          if(!(pair[0] in desp)) {
+            desp[pair[0]] = new Set()
+          }
+          desp[pair[0]].add(pair[1])
+        }
+        for (const [key, value] of Object.entries(desp)) {
+          desp[key] = [...value]
+        }
         if (value === null) {
           localforage.setItem(
               query,
-              {'type': 'query', 'collection': 'unassigned', 'value': {'name': query, 'g': query, 'url': window.location.href }}
+              {'type': 'query', 'collection': 'unassigned', 'value': {'name': query, 'g': query, 'url': window.location.href , 'description': desp}}
           ).then((value) => {
             console.log("store: " + "unassigned query "+ query + value.g + " to localstorage");
           }).catch((err) => {
@@ -165,6 +179,7 @@ export default {
           });
           console.log("add to collection");
         } else {
+          value['value']['description'] = desp
           value['value']['url'] = window.location.href
           localforage.setItem(
               query, value
