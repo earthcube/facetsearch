@@ -108,7 +108,23 @@
                     </b-card-title>
                     <b-card-title class="publisher" v-if="item.value.pubname" v-html="item.value.pubname"></b-card-title>
 
-                    <b-card-text class="description small mb-2" v-if="item.value.description" v-html="item.value.description"></b-card-text>
+                    <div v-if="item.type!=='query'">
+                      <b-card-text class="description small mb-2" v-if="item.value.description" v-html="item.value.description"></b-card-text>
+                    </div>
+                    <div v-if="item.type=='query'">
+<!--                                          {{item.value.description}}-->
+                      <div v-for="(item, key) in item.value.description" :key="key">
+<!--                        <div>{{ key }}: {{ item }}</div>-->
+                        <div class="keywords" >
+                          <div class="label">Keywords: {{key}}</div>
+                        </div>
+                        <div class="values "  >
+                          <span class="keyword mx-2 text-secondary" v-for="kw in item" v-bind:key="kw" v-html="kw"></span>
+                        </div>
+
+                      </div>
+
+                    </div>
 <!--                    show url of query-->
                     <b-card-text class="description small mb-2" v-if="item.value.url" v-html="item.value.url"></b-card-text>
   <!--                                  {{item}}-->
