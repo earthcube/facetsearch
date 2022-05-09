@@ -180,7 +180,7 @@ export default {
           console.log("add to collection");
         } else {
           value['value']['description'] = desp
-          value['value']['url'] = window.location.href
+          value['value']['url'] = value['value']['url'] + ", " + window.location.href
           localforage.setItem(
               query, value
           ).then((value) => {
