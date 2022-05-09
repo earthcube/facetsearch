@@ -114,7 +114,6 @@
                     <div v-if="item.type=='query'">
 <!--                                          {{item.value.description}}-->
                       <div v-for="(item, key) in item.value.description" :key="key">
-<!--                        <div>{{ key }}: {{ item }}</div>-->
                         <div class="keywords" >
                           <div class="label">Keywords: {{key}}</div>
                         </div>
