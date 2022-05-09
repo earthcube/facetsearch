@@ -171,7 +171,7 @@ export default {
         if (value === null) {
           localforage.setItem(
               window.location.href,
-              {'type': 'query', 'collection': 'unassigned', 'value': {'name': query, 'g': query, 'url': window.location.href , 'description': desp}}
+              {'type': 'query', 'collection': 'unassigned', 'value': {'name': query, 'g': window.location.href, 'url': window.location.href , 'description': desp}}
           ).then((value) => {
             console.log("store: " + "unassigned query "+ query + value.g + " to localstorage");
           }).catch((err) => {
@@ -181,6 +181,7 @@ export default {
         } else {
           value['value']['description'] = desp
           value['value']['url'] = window.location.href
+          value['value']['g'] = window.location.href
           localforage.setItem(
               window.location.href, value
           ).then((value) => {
