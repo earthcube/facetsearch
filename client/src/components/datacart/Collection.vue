@@ -538,7 +538,7 @@ export default {
         console.log("skip move to empty collections")
         return
       }
-      console.log("moveToCollection")
+      console.log("moveToCollection " + item.value.g)
       console.log(item)
       var self = this
       item.collections = [...item.assignedCollections]
@@ -614,15 +614,15 @@ export default {
         for(let i = 0; i < self.selectedCollectionItems[self.selectedCollectionName].length; i++) {
           var item = self.selectedCollectionItems[self.selectedCollectionName][i];
           if (type === item.type) {
-            set.add(item.value.name)
+            set.add(item.value.g)
           }
         }
         for(let i = 0; i < colls.length; i++) {
           // if(!self.selectedCollectionItems[self.selectedCollectionName].includes(colls[i])) {
           //   self.selectedCollectionItems[self.selectedCollectionName].push(colls[i])
           // }
-          if(!set.has(colls[i].value.name)) {
-            set.add(colls[i].value.name)
+          if(!set.has(colls[i].value.g)) {
+            set.add(colls[i].value.g)
             // self.selectedCollectionItems[self.selectedCollectionName].push(colls[i])
             selectedcoll.push(colls[i])
           }
