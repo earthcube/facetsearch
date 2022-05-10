@@ -395,7 +395,7 @@ export default {
             })
           }
         }
-
+        self.chooseType('unassigned', '')
       }).catch(function(err) {
         // This code runs if there were any errors
         console.log(err);
