@@ -34,7 +34,8 @@
         </b-col>
         <b-col md="12"> <OpenCollection> </OpenCollection> </b-col>
 
-				<!--
+				<!-- 
+						do not use this
 				<b-button-group vertical class="ml-1">
           <b-button   size="sm" variant="primary"
           >Open collection</b-button>
@@ -94,9 +95,12 @@
 <!--            <b-badge>Tool </b-badge>-->
 <!--            <b-badge>Query</b-badge>-->
 <!--            <b-badge>Data</b-badge>-->
+				<!-- 
             <span>placeholders 4 filters, will not happen</span>
+				-->
           </div>
 
+				<!-- 
 				<b-button-group vertical class="ml-d">
           <b-button   size="sm" variant="primary" >Open query</b-button> 
         </b-button-group>
@@ -104,7 +108,7 @@
 				<b-button-group vertical class="ml-d">
           <b-button   size="sm" variant="primary" >Open data</b-button> 
         </b-button-group>
-
+				-->
 
           <div class="mt-3">
             <div v-for="type in this.types"
