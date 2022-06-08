@@ -32,6 +32,24 @@
         <b-col md="12">
           <CreateCollection> </CreateCollection>
         </b-col>
+        <b-col md="12"> <OpenCollection> </OpenCollection> </b-col>
+
+				<!--
+				<b-button-group vertical class="ml-1">
+          <b-button   size="sm" variant="primary"
+          >Open collection</b-button>
+                  <b-button v-show="nbBinderShow(nb,dl.contentUrl,dl.encodingFormat)"  size="sm" variant="primary"
+                             v-for="(nb, nbindex) in notebooksservers"
+                             v-bind:key="nbindex"
+                            v-bind:href="nbBinderUrl(nb,dl.contentUrl,dl.encodingFormat,d)"
+                             target="_blank"
+                  >
+                    <span v-if="nb.badge === '' "  width="64" >{{nb.name}}</span>
+                    <b-img v-else :src="nb.badge" width="64" :alt="nb.name"></b-img>
+                  </b-button>
+        </b-button-group>
+				-->
+
 
         <b-col md="3" class="sidebar scrollable text-center green flex-grow-1 flex-shrink-0 overflow-auto">
           <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
@@ -76,8 +94,18 @@
 <!--            <b-badge>Tool </b-badge>-->
 <!--            <b-badge>Query</b-badge>-->
 <!--            <b-badge>Data</b-badge>-->
-            <span>placeholders for filters</span>
+            <span>placeholders 4 filters, will not happen</span>
           </div>
+
+				<b-button-group vertical class="ml-d">
+          <b-button   size="sm" variant="primary" >Open query</b-button> 
+        </b-button-group>
+
+				<b-button-group vertical class="ml-d">
+          <b-button   size="sm" variant="primary" >Open data</b-button> 
+        </b-button-group>
+
+
           <div class="mt-3">
             <div v-for="type in this.types"
                  v-bind:key="type.row"
