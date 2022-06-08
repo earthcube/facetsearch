@@ -6,3 +6,225 @@ https://developer.ibm.com/recipes/tutorials/a-best-practice-in-dockerizing-vue-j
 SPARQL OPTIMIZATION:
 https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/query_optimization
 
+figma:
+https://www.figma.com/file/8vqcoUoqBbhc6x42MhB9BK/Survey?node-id=2%3A14728
+
+SPAQRL servers:
+https://graph.geocodes.earthcube.org/blazegraph/
+  earthcube
+  ecrr
+https://graph.geodex.org/blazegraph/#splash
+  earthcube
+  ecrr
+
+
+ISSUE: Tool query not working
+* old query works... norway. need to watch the network on chrome developers to get working query.
+
+new:
+* record is in earthcube
+* tool record in ecrr
+
+== URN COORDINATES==
+dataset urn:
+	<urn:gleaner2:milled:lipdverse:509e465d0793506b237cea8069c3cb2d276fe9c2>
+Dataset sub;
+<http://lipdverse.org/Temp12k/1_0_2/Svartvatnet-Norway.Seppa.2009.html>
+
+tool subj:
+ <http://n2t.net/ark:/23942/g2733c>
+
+====
+SELECT *
+
+WHERE
+     {
+     GRAPH ?g {?s ?p ?o}
+}
+LIMIT 10
+
+======
+SPARQL QUERIES
+
+text query (norway):
+ (using earthcube namespace)
+==
+PREFIX bds: <http://www.bigdata.com/rdf/search#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix schema: <http://schema.org/>
+prefix sschema: <https://schema.org/>
+SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname
+	(GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", ") AS ?placenames)
+        (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)
+        ?datep  (GROUP_CONCAT(DISTINCT ?url; SEPARATOR=", ") AS ?disurl) (MAX(?score1) as ?score)
+	   (MAX(?lat) as ?maxlat) (Min(?lat) as ?minlat) (MAX(?lon) as ?maxlon) (Min(?lon) as ?minlon)
+        WHERE {
+            ?lit bds:search "norway" .
+            ?lit bds:matchAllTerms false .
+            ?lit bds:relevance ?score1 .
+            ?lit bds:minRelevance 0.14 .
+            ?subj ?p ?lit .
+            #filter( ?score1 > 0.14).
+          graph ?g {
+    	     ?subj schema:name|sschema:name ?name .
+             ?subj schema:description|sschema:description ?description .
+            #Minus {?subj a sschema:ResearchProject } .
+           # Minus {?subj a schema:ResearchProject } .
+           # Minus {?subj a schema:Person } .
+           # Minus {?subj a sschema:Person } .
+             }
+#BIND (IF (exists {?subj a schema:Dataset .} ||exists{?subj a sschema:Dataset .} , "data", "tool" ) AS ?resourceType).
+          values (?type ?resourceType) {
+            (schema:Dataset "data")
+            (sschema:Dataset "data")
+            (schema:ResearchProject "Research Project") #BCODMO- project
+            (sschema:ResearchProject  "Research Project")
+             (schema:SoftwareApplication  "tool")
+             (sschema:SoftwareApplication  "tool")
+             (schema:Person  "Person") #BCODMO- Person
+             (sschema:Person  "Person")
+              (schema:Event  "Event") #BCODMO- deployment
+              (sschema:Event  "Event")
+               (schema:Award  "Award") #BCODMO- Award
+               (sschema:Award  "Award")
+              (schema:DataCatalog  "DataCatalog")
+              (sschema:DataCatalog  "DataCatalog")
+            #(UNDEF "other")  # assume it's data. At least we should get  name.
+          } ?subj a ?type .
+            optional {?subj schema:distribution/schema:url|sschema:subjectOf/sschema:url ?url .}
+            OPTIONAL {?subj schema:datePublished|sschema:datePublished ?datep .}
+            OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|sschema:sdPublisher|sschema:provider/schema:name ?pubname .}
+            OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name ?placename .}
+
+            OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
+
+        }
+        GROUP BY ?subj ?pubname ?placenames ?kw ?datep ?disurl ?score ?name ?description  ?resourceType ?g ?minlat ?maxlat ?minlon ?maxlon
+        ORDER BY DESC(?score)
+LIMIT 10
+OFFSET 0
+
+====
+dataset <http://lipdverse.org/Temp12k/1_0_2/Svartvatnet-Norway.Seppa.2009.html>
+(using earthcube namespace)
+==
+SELECT *
+
+WHERE
+     {
+     GRAPH <urn:gleaner2:milled:lipdverse:509e465d0793506b237cea8069c3cb2d276fe9c2> {?s ?p ?o}
+}
+LIMIT 10
+==
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix sschema: <https://schema.org/>
+SELECT * WHERE {
+
+  <http://lipdverse.org/Temp12k/1_0_2/Svartvatnet-Norway.Seppa.2009.html> ?pred ?obj .
+}
+LIMIT 10
+===
+
+tools<http://n2t.net/ark:/23942/g2733c>
+LIPD  (using ECRR namespace)
+====
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix sschema: <https://schema.org/>
+SELECT * WHERE {
+
+  <http://n2t.net/ark:/23942/g2733c> ?pred ?obj .
+}
+LIMIT 10
+===
+
+tool query:
+	<urn:gleaner2:milled:lipdverse:509e465d0793506b237cea8069c3cb2d276fe9c2>
+(using earthcube namespace)
+	==
+PREFIX schema:  <https://schema.org/>
+PREFIX schemaold:  <http://schema.org/>
+select DISTINCT ?rrs ?name (GROUP_CONCAT(DISTINCT ?curl1; SEPARATOR=", ") AS ?curl)  (GROUP_CONCAT(DISTINCT ?landingPage1; SEPARATOR=", ") AS ?landingPage)
+(GROUP_CONCAT(DISTINCT ?altName1; SEPARATOR=", ") AS ?altName) (GROUP_CONCAT(DISTINCT ?landingName1; SEPARATOR=", ") AS ?landingName) ?swversion ?identifier ?description
+WHERE                    {
+    graph <urn:gleaner:milled:lipdverse:509e465d0793506b237cea8069c3cb2d276fe9c2>
+      {
+        {
+          ?s schemaold:distribution|schema:distribution ?dist .
+          ?dist  schemaold:encodingFormat|schema:encodingFormat ?type .
+          ?dist schemaold:contentUrl|schema:contentUrl|schema:url|schemaold:url ?curl1
+        }
+        UNION {
+          VALUES (?dataset) { ( schema:Dataset ) ( schemaold:Dataset ) }
+          ?s a ?dataset .
+          ?s  schemaold:encodingFormat|schema:encodingFormat ?type .
+          }
+     }
+     BIND (str(?type) as ?label)
+     SERVICE <http://132.249.238.169:8080/fuseki/ecrr/query> {
+      GRAPH <http://earthcube.org/gleaner-summoned>
+       {
+         { ?rrs a schema:SoftwareApplication .
+         ?rrs schema:supportingData ?df.
+              ?df schema:encodingFormat  ?label ;
+                  schema:position "input".
+              ?rrs schema:name ?name;
+                   schema:description ?description .
+
+               ?rrs schema:subjectOf/schema:url ?landingPage1
+               OPTIONAL{ ?rrs schema:alternateName ?altName1 }
+               # vue does not like version... observables property, so swversion
+               OPTIONAL{ ?rrs schema:version ?swversion }
+                OPTIONAL{ ?rrs schema:identifier ?identifier }
+                optional{?rrs schema:subjectOf/schema:name ?landingName1 }
+      }
+
+   }
+  }
+}
+ GROUP BY ?rrs ?name   ?description ?swversion  ?identifier
+
+
+ ==== REVISED? no graph ===
+ PREFIX schema:  <https://schema.org/>
+ PREFIX schemaold:  <http://schema.org/>
+ select DISTINCT ?rrs ?name (GROUP_CONCAT(DISTINCT ?curl1; SEPARATOR=", ") AS ?curl)  (GROUP_CONCAT(DISTINCT ?landingPage1; SEPARATOR=", ") AS ?landingPage)
+ (GROUP_CONCAT(DISTINCT ?altName1; SEPARATOR=", ") AS ?altName) (GROUP_CONCAT(DISTINCT ?landingName1; SEPARATOR=", ") AS ?landingName) ?swversion ?identifier ?description
+ WHERE                    {
+     graph <urn:gleaner:milled:lipdverse:509e465d0793506b237cea8069c3cb2d276fe9c2>
+       {
+         {
+           ?s schemaold:distribution|schema:distribution ?dist .
+           ?dist  schemaold:encodingFormat|schema:encodingFormat ?type .
+           ?dist schemaold:contentUrl|schema:contentUrl|schema:url|schemaold:url ?curl1
+         }
+         UNION {
+           VALUES (?dataset) { ( schema:Dataset ) ( schemaold:Dataset ) }
+           ?s a ?dataset .
+           ?s  schemaold:encodingFormat|schema:encodingFormat ?type .
+           }
+      }
+      BIND (str(?type) as ?label)
+      SERVICE <https://graph.geocodes.earthcube.org/blazegraph/ecrr/query> {
+
+          { ?rrs a schema:SoftwareApplication .
+          ?rrs schema:supportingData ?df.
+               ?df schema:encodingFormat  ?label ;
+                   schema:position "input".
+               ?rrs schema:name ?name;
+                    schema:description ?description .
+
+                ?rrs schema:subjectOf/schema:url ?landingPage1
+                OPTIONAL{ ?rrs schema:alternateName ?altName1 }
+                # vue does not like version... observables property, so swversion
+                OPTIONAL{ ?rrs schema:version ?swversion }
+                 OPTIONAL{ ?rrs schema:identifier ?identifier }
+                 optional{?rrs schema:subjectOf/schema:name ?landingName1 }
+       }
+
+
+   }
+ }
+  GROUP BY ?rrs ?name   ?description ?swversion  ?identifier
