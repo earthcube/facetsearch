@@ -1,5 +1,13 @@
 <template>
     <b-container fluid="md" class="result_header mt-3">
+      <b-row justify-content-md-center>
+        <b-col sm class="text-nowrap p-1 ml-2 bd-highlight" >
+          {{ currentCount }} &nbsp; selected of &nbsp; {{ totalCount }} results
+        </b-col>
+        <b-col >
+          <b-button class="ml2-auto badges mt-2" variant="primary" size="sm"  v-on:click="addQueryToCollection">Save Query</b-button>
+        </b-col>
+      </b-row>
         <b-row align-v="center">
             <b-col sm class="text-nowrap">
                 <b-input-group prepend="Sort By:" size="sm">
@@ -13,9 +21,6 @@
                 </b-input-group>
             </b-col>
 
-            <b-col sm class="text-nowrap">
-                {{ currentCount }} &nbsp; selected of &nbsp; {{ totalCount }} results
-            </b-col>
 <!--
             <b-col sm>
                 <b-form-checkbox v-model="searchExact" name="Match All Terms" switch>Match All Terms</b-form-checkbox>
@@ -56,6 +61,7 @@
 import FacetsConfig from '../../config.js'
 import {mapState} from "vuex";
 import {bus} from "@/main";
+import localforage from "localforage";
 //import {mapState} from "vuex";
 
 export default {
@@ -116,7 +122,7 @@ export default {
     searchExactChanged() {
      // this.setSearchExactmatch(this.searchExact)
       this.$store.state.searchExactMatch = this.searchExact
-    }
+    },
 //   $('.orderbyitem').each(function(){
 //   var id = this.id.substr(8);
 //   if (settings.state.orderBy == id) {
@@ -132,6 +138,85 @@ export default {
 //   order();
 //   updateResults();
 // });
+    addQueryToCollection() {
+      var self = this
+      this.clickToAddCollection = true
+      // var toAdd = true
+      // for(var i = 0; i < this.collections.length; i++) {
+      //   var item = this.collections[i]
+      //   if (item.g === this.item.g) {
+      //     toAdd = false
+      //     break
+      //   }
+      // }
+      if (!this.$store.state.q || this.$store.state.q.length === 0 ) {
+        return
+      }
+      let query = self.$store.state.q
+      localforage.getItem(window.location.href, function (err, value) {
+        var desp = {}
+        let paramString = window.location.href.split('?')[1];
+        let queryString = new URLSearchParams(paramString);
+        for(let pair of queryString.entries()) {
+          if(pair[0] === 'q') continue
+          if(pair[0] === 'resourceType' && pair[1] == 'all') continue
+          if(!(pair[0] in desp)) {
+            desp[pair[0]] = new Set()
+          }
+          desp[pair[0]].add(pair[1])
+        }
+        for (const [key, value] of Object.entries(desp)) {
+          desp[key] = [...value]
+        }
+        if (value === null) {
+          localforage.setItem(
+              window.location.href,
+              {'type': 'query', 'collection': 'unassigned', 'value': {'name': query, 'g': window.location.href, 'url': window.location.href , 'description': desp}}
+          ).then((value) => {
+            console.log("store: " + "unassigned query "+ query + value.g + " to localstorage");
+          }).catch((err) => {
+            console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
+          });
+          console.log("add to collection");
+        } else {
+          value['value']['description'] = desp
+          value['value']['url'] = window.location.href
+          value['value']['g'] = window.location.href
+          localforage.setItem(
+              window.location.href, value
+          ).then((value) => {
+            console.log("store: " + "unassigned query "+ query + value.g + " to localstorage");
+          }).catch((err) => {
+            console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
+          });
+          console.log("update to collection");
+          console.log(value)
+        }
+      });
+
+      // localforage.getItem(self.textQuery, function (err, value) {
+      //   if (value === null) {
+      //     localforage.setItem(
+      //         self.textQuery,
+      //         // self.item.g,
+      //         self.textQuery
+      //     ).then((value) => {
+      //       console.log("store " + value.g + " to localstorage");
+      //     }).catch((err) => {
+      //       console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
+      //     });
+      //     console.log("add to collection");
+      //   } else {
+      //     // localforage.setItem(newFilename, value, function () {
+      //     //   localforage.removeItem(filename, function () { return callback(); });
+      //     // });
+      //     console.log(value)
+      //   }
+      // });
+      // if(toAdd) {
+      //   // Vue.set(this.collections, this.collections.length, this.item)
+      // }
+    },
   }
 
 }

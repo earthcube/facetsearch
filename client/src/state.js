@@ -5,13 +5,14 @@ Vue.use(Vuex)
 
 import axios from "axios"
 import jsonld from "jsonld";
-import _ from "underscore";
+import _, {isArray} from "underscore";
 import FacetsConfig from "./config";
 //import {bus} from "./main";
 import SpaqlQuery from 'raw-loader!./sparql_blaze/sparql_query.txt'
 import SpaqlHasToolsQuery from 'raw-loader!./sparql_blaze/sparql_hastools.txt'
 
 import LRU from "lru-cache"
+import localforage from "localforage";
 
 let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
 let TRIPLESTORE_URL = FacetsConfig.TRIPLESTORE_URL
@@ -51,9 +52,27 @@ export const store = new Vuex.Store({
         microCache: new LRU({
             max: 100000, // 100k entries.
             // maxAge: 36000 // Important: entries expires after 1 second.
-        })
+        }),
+        collection: {},// key: name,
     },
     getters: {
+        getCollections: ()  => {
+            var colls = []
+            localforage.iterate(function(value, key) {
+                console.log([key, value]);
+                colls.push(value)
+                // Vue.set(self.collections, self.collections.length, value)
+            }).then(function() {
+                console.log('Iteration has completed');
+                console.log(colls)
+                return colls
+            }).catch(function(err) {
+                // This code runs if there were any errors
+                console.log(err);
+            });
+
+        },
+
         hasMicroCache: (state) => (key)  => {
             return state.microCache.has(key)
         },
@@ -94,6 +113,26 @@ export const store = new Vuex.Store({
 
     },
     mutations: {
+        setNewCollection: (state, obj) => {
+            localforage.getItem(obj.key, function (err, value) {
+                if (value === null) {
+                    localforage.setItem(
+                        obj.key,
+                        {'type': 'collection name', 'collection': 'collection name', 'value': obj.key}
+                    ).then((value) => {
+                        console.log("store: " + "collection name "+obj.key+ value.g + " to localstorage");
+                    }).catch((err) => {
+                        console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
+                    });
+                    console.log("add to collection");
+                } else {
+                    // localforage.setItem(newFilename, value, function () {
+                    //   localforage.removeItem(filename, function () { return callback(); });
+                    // });
+                    console.log(value)
+                }
+            });
+        },
         setMicroCache: (state, obj) => {
             console.log("obj.key," + obj.key + ", obj.value" + obj.value)
             state.microCache.set(obj.key, obj.value)
@@ -147,6 +186,58 @@ export const store = new Vuex.Store({
         // },
     },
     actions: {
+        async getItemsForCollection  (context,CollName)  {
+            var collection = {
+                description: {
+                    name:"",
+                    breif:""
+                },
+                queries: [],
+                tools:[],
+                datasets:[]
+            }
+            const collObj =  await localforage.getItem(CollName)
+            collection.description.name = collObj.value;
+            await localforage.iterate(function(value, key){
+                console.log([key, value]);
+                if (value?.assignedCollections?.length > 0 ) {
+                    if ( isArray(value.assignedCollections) ) {
+                    const collections = value.assignedCollections
+                    if (collections.find( (a ) => a === CollName ) ) {
+                        if (value.type === 'data') {
+                            const datadescr = value.value
+                            delete datadescr.description
+                            delete datadescr.placenames
+                            delete datadescr.kw
+                            delete datadescr.s3score
+                            collection.datasets.push(datadescr)
+                        } else if (value.type === 'tool') {
+                            const datadescr = value.value
+                            delete datadescr.description
+                            delete datadescr.placenames
+                            delete datadescr.kw
+                            delete datadescr.s3score
+                            collection.tools.push(datadescr)
+
+                        } else if (value.type === 'query') {
+                            const datadescr = value.value
+                            delete datadescr.url
+                            collection.queries.push(datadescr)
+                        }
+                    }
+                    }
+                }
+                // Vue.set(self.collections, self.collections.length, value)
+            }).catch(function(err) {
+                // This code runs if there were any errors
+                console.log(err);
+            }).finally( ()=> {
+
+            })
+            return collection
+
+
+        },
         async fetchJsonLd(context, o) {
             Vue.$gtag.event('view_item', {
                     items: [{

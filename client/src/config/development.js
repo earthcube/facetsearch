@@ -17,6 +17,32 @@ export default {
     SPARQL_YASGUI: "https://geocodes.earthcube.org/sparqlgui?",
     // allow us to use the same delimiters as lithtml
     ES_TEMPLATE_OPTIONS : {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
+    COLLECTION_FACETS: [
+        {
+            field: 'unassigned',
+            title: 'All Items',
+            sort: 'acs',
+            open: false,
+            type:'unassigned',
+            collections: ["data", "query", "tool"],
+            items: [{id: "data", count: 0, isActive: false, name: "data"},
+                {id: "query", count: 0, isActive: false, name: "query"},
+                {id: "tool", count: 0, isActive: false, name: "tool"}]
+        },
+        {
+            field: 'all',
+            title: 'All Collections',
+            sort: 'acs',
+            open: false,
+            type:'all',
+            collections: ["data", "query", "tool"],
+            items: [{id: "data", count: 0, isActive: false, name: "data"},
+                {id: "query", count: 0, isActive: false, name: "query"},
+                {id: "tool", count: 0, isActive: false, name: "tool"}],
+            names: [],
+            assigned: [],
+        },
+    ],
     FACETS: [
         {
         field: 'resourceType',

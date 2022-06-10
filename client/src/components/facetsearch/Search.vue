@@ -16,6 +16,8 @@
                     ></Facets>
                   <feedback subject = 'Search' :name="textQuery" :urn="feedBackItemId"> </feedback>
 
+
+
 <!--                  <HistRangeSlider></HistRangeSlider>-->
                 </b-col>
 
@@ -26,7 +28,8 @@
                         :current-count="currentResults.length"
                         :total-count="items.length"
                         :filters="state.filters"
-                    ></ResultHeader>
+
+                                            ></ResultHeader>
 
                     <Results
                         v-bind:currentResults="currentResults"
@@ -58,6 +61,8 @@ import {
   // mapGetters
 } from "vuex";
 import feedback from "../feedback/feedback";
+
+
 
 // import HistRangeSlider from "./HistRangeSlider.vue"
 
@@ -137,10 +142,21 @@ export default {
   mounted() {
     //const self = this;
     //const q = "water";
-
+    console.log( window.location.href );
     const o = 0;
     this.queryRunning = true;
     this.$store.state.q = this.textQuery
+
+
+    let paramString = window.location.href.split('?')[1];
+    let queryString = new URLSearchParams(paramString);
+    for(let pair of queryString.entries()) {
+      if(pair[0] === 'q') continue
+      if(pair[0] === 'resourceType' && pair[1] == 'all') continue
+      // console.log("Key is:" + pair[0]);
+      // console.log("Value is:" + pair[1]);
+      this.toggleFilter(pair[0], pair[1], true)
+    }
 
 
     // const hit = this.getMicroCache.get(this.textQuery)
@@ -188,6 +204,7 @@ export default {
         resourceType: this.resourceType
       })
     },
+
     search: function () {
       this.$store.commit('setMicroCache', {'key': this.textQuery, 'value': this.results})
       this.feedBackItemId = "search?q="+this.textQuery;
@@ -347,7 +364,19 @@ export default {
       });
       self.state.shownResults = 0;
     },
-    toggleFilter: function (key, value) {
+    toggleFilter: function (key, value, skipfilterUrl=false) {
+      console.log( window.location.href );
+      var stateObj = { key: value};
+      if(!skipfilterUrl) {
+        if (window.location.href.includes(encodeURI("&" + key + "=" + value))) {
+          var href = window.location.href
+          href = href.replace(encodeURI("&" + key + "=" + value), '');
+          history.pushState(stateObj, "", href);
+        } else {
+          history.pushState(stateObj, "", window.location.href + "&" + key + "=" + value);
+        }
+      }
+      console.log( window.location.href );
       console.log('toggleFilter')
       var state = this.state;
       this.$set(state.filters, key, state.filters[key] || [])
@@ -371,6 +400,16 @@ export default {
       this.filter();
     },
     clearFilters: function () {
+      console.log( window.location.href );
+      var href = window.location.href;
+      for (const [key, value] of Object.entries(this.state.filters)) {
+        console.log(key, value);
+        for (let s of value) {
+          href = href.replace(encodeURI("&"+key+"="+s), '');
+          console.log(href)
+        }
+      }
+      history.pushState("", "", href);
       this.state.filters = {}
       this.filter()
       this.$root.$emit('refresh slider range', 'clear')

@@ -36,9 +36,18 @@
                         </b-input-group-append>
                     </b-input-group>
                 </b-nav-form>
+<!--                <div class="badges mt-2">-->
+<!--                  <b-button variant="link" size="sm" class="ml2-auto" v-on:click="addToCollection">Store Query</b-button>-->
+<!--                </div>-->
+                <b-nav-item :to="{name: 'collection'}" class="mr-0" >Saved Items</b-nav-item>
 
-                <b-nav-item v-on:click.stop="showSparqlGui"  class="text-nowrap" target="_blank">SPARQL</b-nav-item>
-                <b-nav-item v-on:click.stop="showSparqlNb"  class="text-nowrap" target="_blank">SPARQL NB</b-nav-item>
+                <b-dropdown text="SPARQL" variant="primary">
+                  <b-dropdown-item v-on:click.stop="showSparqlGui"  target="_blank">SPARQL UI</b-dropdown-item>
+                  <b-dropdown-item v-on:click.stop="showSparqlNb" target="_blank">SPARQL Notebook</b-dropdown-item>
+                </b-dropdown>
+
+
+
                 <b-nav-item :to="{name: 'about'}" class="mr-0" >About</b-nav-item>
 
               </b-navbar-nav>
@@ -54,6 +63,7 @@ import logoGeoCodes from "@/components/logos/logoGeoCodes";
 import {stringify} from "query-string"
 import _ from "lodash"
 import FacetsConfig from "../config";
+
 
 export default {
 name: "navHeader",

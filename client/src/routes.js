@@ -4,7 +4,7 @@ import Search from "./components/facetsearch/Search";
 import dataset from "./components/dataset/dataset";
 import tool from "./components/tools/tool"
 import about from "./components/help/about"
-import cart from "./components/datacart/cart"
+import collection from "./components/collection/Collection"
 import configuration from "./components/configuration"
 
 export default  new Router({
@@ -35,7 +35,8 @@ export default  new Router({
         // {path:'/dataset/:o',name:'dataset',component:dataset,props:true},
         //{path:'/tool/:o',name:'tool',component:tool,props:true},
         {path:'/about',name:'about',component:about,},
-        {path:'/cart',name:'cart', component:cart},
+        {path:'/collection',name:'collection',component:collection,},
+
         {path:'/config',name:'configuration', component:configuration},
 // catch all case
         { path: '*'},
