@@ -42,6 +42,7 @@ export default {
   nbBinderUrl ( NbConfig,  collectionObj, page=''){
     let collection = JSON.stringify(collectionObj)
     collection  = collection.replace('#',"<hash>")
+    collection = encodeURIComponent(collection)
 
 
 
