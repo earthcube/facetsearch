@@ -165,17 +165,21 @@ export default {
     ...mapGetters (['getCollections'])
   },
   // computed: { ...mapState ([ 'collections'])},
-  mounted() {
-    this.reloadCollections()
+
+  async mounted() {
+
+    await this.reloadCollections()
+    this.currentClick = 'unassigned'
+    this.chooseType('unassigned')
   },
   methods:{
 
-    reloadCollections: function() {
+     reloadCollections: async function() {
       var self = this
       var colls = []
       this.selectedCollectionItems = {}
       this.selectedCollectionName = ""
-      localforage.iterate(function(value, key) {
+      await localforage.iterate(function(value, key) {
         console.log([key, value]);
         colls.push(value)
         // Vue.set(self.collections, self.collections.length, value)
@@ -266,164 +270,7 @@ export default {
         console.log(err);
       });
     },
-    // optionRemoved: function(option, item) {
-    //   console.log(option + ", " + item)
-    //   this.updateRemovedCollection(item, [option], true)
-    // },
-    // updateRemovedCollection:  function(item, collectionNames, isRemove) {
-    //   if (collectionNames.length === 0) return
-    //   var addedCollections = collectionNames
-    //   if('removeCollection' in item && item.removeCollection.length > 0)
-    //     addedCollections = collectionNames.filter(collname => (!item.removeCollection.includes(collname)))
-    //   for(let i = 0; i < collectionNames.length; i++) {
-    //     if(!item.removeCollection.includes(collectionNames[i])) {
-    //       item.removeCollection.push(collectionNames[i])
-    //     }
-    //     if(isRemove && 'assignedCollections' in item)
-    //       if(item.assignedCollections.includes(collectionNames[i])) {
-    //         item.assignedCollections.remove(collectionNames[i])
-    //       }
-    //   }
-    //   // item.removeCollection = collectionNames
-    //   if (addedCollections.length > 0) {
-    //     console.log("updateRemovedCollection: add to coll: " + addedCollections)
-    //     this.moveToCollection(item)
-    //   } else {
-    //     // var removedCollections = item.removeCollection.filter(collname => (!collectionNames.includes(collname)))
-    //     console.log("updateRemovedCollection: remove from coll: " + collectionNames)
-    //     this.removeFromCollection(item)
-    //   }
-    // },
-    // updateMovedToCollection:  function(item, collectionNames) {
-    //   if (collectionNames.length === 0) return
-    //   console.log(item.collection)
-    //   console.log(collectionNames)
-    //   var addedCollections = collectionNames
-    //   if('assignedCollections' in item) {
-    //     for (let i = 0; i < collectionNames.length; i++) {
-    //       if (!item.assignedCollections.includes(collectionNames[i])) {
-    //         item.assignedCollections.push(collectionNames[i])
-    //       }
-    //     }
-    //   } else {
-    //     item.assignedCollections = collectionNames
-    //   }
-    //   if('moveCollection' in item && item.moveCollection.length > 0)
-    //     addedCollections = collectionNames.filter(collname => (!item.moveCollection.includes(collname)))
-    //   item.moveCollection = collectionNames
-    //   if (addedCollections.length > 0) {
-    //     console.log("updateMovedToCollection: add to coll: " + addedCollections)
-    //     this.moveToCollection(item)
-    //   } else {
-    //     var removedCollections = item.moveCollection.filter(collname => (!collectionNames.includes(collname)))
-    //     console.log("updateMovedToCollection: remove from coll: " + removedCollections)
-    //     this.removeFromCollection(item)
-    //   }
-    // },
-    // async removeFromCollection(item) {
-    //   if (item.removeCollection.length === 0)
-    //     return
-    //   var self = this
-    //   console.log("removeFromCollection")
-    //
-    //   // const ok = await this.$refs.confirmDialogue[0].show({
-    //   //   title: 'Remove Confirmation',
-    //   //   message: 'Are you sure you want to remove this item from ' + item.assignedCollections + ' collection(s)?',
-    //   //   okButton: 'Remove',
-    //   // })
-    //   const ok = true
-    //   if (ok) {
-    //     // var newColl = item.collections.filter(collname => (!item.removeCollection.includes(collname)))
-    //     // item.assignedCollections = [...item.collections.filter(collname => (!item.assignedCollections.includes(collname)))]
-    //     // item.collections = newColl
-    //     // write back to storage.
-    //     localforage.getItem(item.value.g, function (err, value) {
-    //       console.log(err)
-    //       console.log(value)
-    //       if (item.assignedCollections.length === 0) {
-    //         item.collection = "unassigned"
-    //         item.collections = []
-    //       }
-    //       item.removeCollection = [...item.assignedCollections]
-    //       item.moveCollection = []
-    //       item.collections = [...item.assignedCollections]
-    //       localforage.setItem(
-    //           item.value.g,
-    //           item
-    //       ).then(() => {
-    //         console.log(item.value.g + " is " + item.collection)
-    //         // update collections
-    //         // var currentColl = self.collections[self.type]
-    //         // var indx = currentColl.indexOf(item)
-    //         // if (indx > -1) {
-    //         //   currentColl.splice(indx, 1);
-    //         //   console.log("delete: " + item.value.name + " type: " + self.type + ", " + currentColl);
-    //         // }
-    //         // Vue.set(self.collections, self.type, currentColl)
-    //
-    //         var content = self.types[item.type].content
-    //         if(item.assignedCollections.length === 0) {
-    //           var indx = content.indexOf(item)
-    //           if (indx > -1) {
-    //             content.splice(indx, 1);
-    //             console.log("delete: " + item.value.name + " type: " + item.type + ", " + content);
-    //           }
-    //         }
-    //         // Vue.set(self.collections, item.type, currentColl)
-    //         console.log("reload collection after remove from collection")
-    //         Vue.set(self.types, item.type, {'name': item.type, 'content': content})
-    //         // self.reloadCollections()
-    //         self.chooseType("unassigned", "")
-    //         // if (item.assignedCollections.length === 0) {
-    //         //   self.chooseType("unassigned", "")
-    //         // } else {
-    //         //   self.chooseType("all", "")
-    //         // }
-    //       }).catch((err) => {
-    //         console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
-    //       });
-    //     });
-    //   }
-    // },
-    // moveToCollection: function(item) {
-    //   if (!('moveCollection' in item) || item.moveCollection === 0) {
-    //     console.log("skip move to empty collections")
-    //     return
-    //   }
-    //   console.log("moveToCollection")
-    //   console.log(item)
-    //   var self = this
-    //   item.collections = [...item.assignedCollections]
-    //   item.removeCollection = [...item.collections]
-    //   // write back to storage.
-    //   localforage.getItem(item.value.g, function (err, value) {
-    //     console.log(err)
-    //     console.log(value)
-    //     item.collection = "assigned"
-    //     item.moveCollection = []
-    //     item.assignedCollections = [...item.collections]
-    //     localforage.setItem(
-    //         item.value.g,
-    //         item
-    //     ).then(() => {
-    //       console.log(item.value.g + " is " + item.collection)
-    //       // update collections
-    //       var content = self.types[item.type].content
-    //       var indx = content.indexOf(item)
-    //       if (indx > -1) {
-    //         content.splice(indx, 1);
-    //         console.log("delete: " + item.value.name + " type: " + item.type + ", " + content);
-    //       }
-    //       // Vue.set(self.collections, item.type, currentColl)
-    //       Vue.set(self.types, item.type, {'name': item.type, 'content': content})
-    //       console.log("reload collection after move to collections");
-    //       // self.reloadCollections()
-    //       self.chooseType("unassigned", "")
-    //     }).catch((err) => {
-    //       console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
-    //     });
-    //   });
-    // },
+
     updteAllCollections: function(colls) {
       // this.allCollections = colls
       console.log(this.allCollections)
