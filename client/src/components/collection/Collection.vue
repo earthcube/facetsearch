@@ -30,7 +30,7 @@
         <b-col md="12">
           <CreateCollection> </CreateCollection>
         </b-col>
-        <b-col md="12"> <OpenCollection> </OpenCollection> </b-col>
+
 
         <b-col md="3" class="sidebar scrollable text-center green flex-grow-1 flex-shrink-0 overflow-auto">
           <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
@@ -216,7 +216,7 @@ import FacetsConfig from "../../config";
 // import _ from "underscore";
 import Vue from "vue";
 import CreateCollection from "./CreateCollection";
-import OpenCollection from "./OpenCollection"; //new
+
 import CollectionMenuItem from "./CollectionMenuItem";
 import {mapGetters} from "vuex";
 import vSelect from "vue-select";
@@ -232,7 +232,6 @@ export default {
   components: {
     // FacetTextItem,
     CreateCollection,
-    OpenCollection, //new
     CollectionMenuItem,
     // ConfirmDialogue,
   },

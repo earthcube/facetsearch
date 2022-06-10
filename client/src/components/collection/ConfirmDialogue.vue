@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import PopupModal from './PopupModal.vue'
+import PopupModal from '../facetsearch/PopupModal.vue'
 
 export default {
   name: 'ConfirmDialogue',

@@ -4,7 +4,7 @@ import Search from "./components/facetsearch/Search";
 import dataset from "./components/dataset/dataset";
 import tool from "./components/tools/tool"
 import about from "./components/help/about"
-import collection from "./components/datacart/Collection"
+import collection from "./components/collection/Collection"
 import configuration from "./components/configuration"
 
 export default  new Router({
