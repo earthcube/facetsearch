@@ -204,7 +204,7 @@ export const store = new Vuex.Store({
                     if ( isArray(value.assignedCollections) ) {
                     const collections = value.assignedCollections
                     if (collections.find( (a ) => a === CollName ) ) {
-                        if (value.type === 'dataset') {
+                        if (value.type === 'data') {
                             const datadescr = value.value
                             collection.datasets.push(datadescr)
                         } else if (value.type === 'tool') {
