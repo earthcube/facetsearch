@@ -206,13 +206,22 @@ export const store = new Vuex.Store({
                     if (collections.find( (a ) => a === CollName ) ) {
                         if (value.type === 'data') {
                             const datadescr = value.value
+                            delete datadescr.description
+                            delete datadescr.placenames
+                            delete datadescr.kw
+                            delete datadescr.s3score
                             collection.datasets.push(datadescr)
                         } else if (value.type === 'tool') {
                             const datadescr = value.value
+                            delete datadescr.description
+                            delete datadescr.placenames
+                            delete datadescr.kw
+                            delete datadescr.s3score
                             collection.tools.push(datadescr)
 
                         } else if (value.type === 'query') {
                             const datadescr = value.value
+                            delete datadescr.url
                             collection.queries.push(datadescr)
                         }
                     }
