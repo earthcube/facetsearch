@@ -288,9 +288,10 @@ export const store = new Vuex.Store({
                            context.commit('setJsonLdCompact', jp)
                        })
                    } catch (ex) {
-                        console.log("JSONLD trasnformation issue. JSON into JSONLDCompact. " +  ex)
+                        console.log("JSONLD transformation issue. JSON into JSONLDCompact. " +  ex)
 
                        context.commit('setJsonLdCompact', jsonLdobj)
+                       throw "JSONLD transformation issue."
                     }
                 }
             ).catch( (exception) => {

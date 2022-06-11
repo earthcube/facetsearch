@@ -164,7 +164,7 @@ import {
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
 //import axios from "axios";
-
+//import toast from 'bootstrap-vue'
 
 export default {
 name: "dataset",
@@ -370,7 +370,17 @@ name: "dataset",
           'omission': '***'
         }))
       }
+      if (mapping.s_name === undefined ||mapping.s_name === ""  ){
+        console.log ('json issue')
 
+          this.$bvToast.toast(`See Metadata for item description`, {
+            title: "JSON Parse or Render Issue",
+
+            solid: true,
+            appendToast: false
+          })
+
+      }
       // show
       this.obscurePage = false;
     },
