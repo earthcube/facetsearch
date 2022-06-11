@@ -264,7 +264,7 @@ export const store = new Vuex.Store({
             var url = new URL(fetchURL);
             return axios.get(url).then(
                 //const content = await rawResponse.json();
-                function (r) {
+                async function (r) {
                     var content = r.data;
                     //console.log(contentAsText);
                     if (typeof content === String) {
@@ -278,13 +278,20 @@ export const store = new Vuex.Store({
 
                     context.commit('setJsonLd', jsonLdobj)
 
-                    const jsonLdContext = {};
-                    jsonld.compact(jsonLdobj, jsonLdContext).then((providers) => {
-                        var j = JSON.stringify(providers, null, 2);
-                        var jp = JSON.parse(j);
-                        console.log(j.toString());
-                        context.commit('setJsonLdCompact', jp)
-                    })
+                   try {
+
+                       const jsonLdContext = {};
+                       await jsonld.compact(jsonLdobj, jsonLdContext).then((providers) => {
+                           var j = JSON.stringify(providers, null, 2);
+                           var jp = JSON.parse(j);
+                           console.log(j.toString());
+                           context.commit('setJsonLdCompact', jp)
+                       })
+                   } catch (ex) {
+                        console.log("JSONLD trasnformation issue. JSON into JSONLDCompact. " +  ex)
+
+                       context.commit('setJsonLdCompact', jsonLdobj)
+                    }
                 }
             ).catch( (exception) => {
                 Vue.$gtag.event('exception', {

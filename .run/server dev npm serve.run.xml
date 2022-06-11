@@ -7,7 +7,11 @@
     </scripts>
     <node-interpreter value="project" />
     <node-options value="-r esm" />
-    <envs />
+    <envs>
+      <env name="S3ADDRESS" value="oss.geocodes.earthcube.org" />
+      <env name="S3KEY" value="GleanerGeocodes" />
+      <env name="S3SECRET" value="ScienceOnSchema123!@#" />
+    </envs>
     <method v="2" />
   </configuration>
 </component>
