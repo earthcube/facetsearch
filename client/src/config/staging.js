@@ -1,12 +1,12 @@
 export default {
     NODE_ENV: process.env.NODE_ENV || 'unknown',
-    API_URL: `https://alpha.geocodes.earthcube.org/ec/api`,
+    API_URL:process.env.VUE_APP_API_URL|| `https://alpha.geocodes.earthcube.org/ec/api`,
    // TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/earthcube/sparql', // dev
    // TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql',   /old prod
-    TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/earthcube/sparql',
+    TRIPLESTORE_URL:process.env.VUE_APP_TRIPLESTORE_URL||'https://graph.geodex.org/blazegraph/namespace/earthcube/sparql',
     //ECRR_TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/ecrr/sparql',// dev
-    ECRR_TRIPLESTORE_URL:'http://132.249.238.169:8080/fuseki/ecrr/query', // fuseki
-    ECRR_GRAPH: 'http://earthcube.org/gleaner-summoned',
+    ECRR_TRIPLESTORE_URL:process.env.VUE_APP_ECRR_TRIPLESTORE_URL||'http://132.249.238.169:8080/fuseki/ecrr/query', // fuseki
+    ECRR_GRAPH: process.env.VUE_APP_ECRR_GRAPH|| 'http://earthcube.org/gleaner-summoned',
     // ECRR_GRAPH: 'http://earthcube.org/gleaner-summoned', //fuskei
     THROUGHPUTDB_URL: 'https://throughputdb.com/api/ccdrs/annotations',
     //TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',
@@ -14,7 +14,7 @@ export default {
     SPARQL_HASTOOLS:'queries/sparql_hastools.txt',
     SPARQL_TOOLS_WEBSERVICE:'queries/sparql_gettools_webservice.txt',
     SPARQL_TOOLS_DOWNLOAD:'queries/sparql_gettools_download.txt',
-    JSONLD_PROXY: "https://alpha.geocodes.earthcube.org/ec/api/dataset/${o}",
+    JSONLD_PROXY: process.env.VUE_APP_JSONLD_PROXY|| "https://alpha.geocodes.earthcube.org/ec/api/dataset/${o}",
     SPARQL_NB: "https://beta.geocodes.earthcube.org/notebook/mkQ?q=${q}",
     SPARQL_YASGUI: "https://geocodes.earthcube.org/sparqlgui?",
     // allow us to use the same delimiters as lithtml
