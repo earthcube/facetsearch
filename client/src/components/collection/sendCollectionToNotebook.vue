@@ -1,5 +1,5 @@
 <template>
-  <b-button v-on:click.stop="getCollectionJson(collectionName)"
+  <b-button v-on:click.stop="getCollectionJson(collectionName)" v-hi
   >Collection To Notebook</b-button>
 </template>
 

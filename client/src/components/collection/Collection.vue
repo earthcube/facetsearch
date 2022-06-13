@@ -61,7 +61,7 @@
                 <h1 class="article-title mx-auto">{{$data.collectionTitle}} Collection</h1>
               </div>
             </header>
-            <sendCollectionToNotebook v-if="(collectionTitle).length" :collection-name="collectionTitle"> </sendCollectionToNotebook>
+            <sendCollectionToNotebook v-if="node_env != 'production' && collectionTitle.length > 0 " :collection-name="collectionTitle"> </sendCollectionToNotebook>
           </div>
           <div class="mt-3">
             <div v-for="type in this.types"
@@ -154,6 +154,7 @@ export default {
       types: {},
       currentClick: "",
       collectionTitle: "",
+      node_env: FacetsConfig.NODE_ENV,
     }
   },
   provide: function () {
