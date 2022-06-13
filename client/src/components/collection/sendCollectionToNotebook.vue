@@ -34,6 +34,7 @@ export default {
       let  coll = await this.getItemsForCollection(collName)
       console.log(coll)
       let url = this.nbBinderUrl(this.nbconfig,coll)
+      // do as a post  https://stackoverflow.com/questions/5684303/javascript-window-open-pass-values-using-post
       window.open(url);
     },
 
