@@ -190,7 +190,7 @@ export const store = new Vuex.Store({
             var collection = {
                 description: {
                     name:"",
-                    breif:""
+                    brief:"Earthcube Collection"
                 },
                 queries: [],
                 tools:[],
@@ -209,14 +209,16 @@ export const store = new Vuex.Store({
                             delete datadescr.description
                             delete datadescr.placenames
                             delete datadescr.kw
-                            delete datadescr.s3score
+                            delete datadescr.score
+                            delete datadescr.s3endpoint
                             collection.datasets.push(datadescr)
                         } else if (value.type === 'tool') {
                             const datadescr = value.value
                             delete datadescr.description
                             delete datadescr.placenames
                             delete datadescr.kw
-                            delete datadescr.s3score
+                            delete datadescr.score
+                            delete datadescr.s3endpoint
                             collection.tools.push(datadescr)
 
                         } else if (value.type === 'query') {
