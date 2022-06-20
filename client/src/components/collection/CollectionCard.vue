@@ -292,7 +292,7 @@ export default {
           colls.push(value)
         // Vue.set(self.collections, self.collections.length, value)
       }).then(function() {
-        console.log('Iteration has completed');
+        console.log('pac Iteration has completed');
         if(!(self.selectedCollectionName in self.selectedCollectionItems)) {
           self.selectedCollectionItems[self.selectedCollectionName] = []
         }

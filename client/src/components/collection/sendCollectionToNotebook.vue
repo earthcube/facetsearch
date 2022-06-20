@@ -32,13 +32,26 @@ export default {
     ...mapActions(['getItemsForCollection']),
     async getCollectionJson( collName){
       let  coll = await this.getItemsForCollection(collName)
+      console.log("coll:")
       console.log(coll)
       let url = this.nbBinderUrl(this.nbconfig,coll)
+      console.log("url=" + url)
       window.open(url);
     },
 
     nbBinderUrl ( NbConfig,  collectionObj, page=''){
-      let collection = JSON.stringify(collectionObj)
+				//let coQ = collectionObj.queries
+				//let coT = collectionObj.tools
+				let coD = collectionObj.datasets
+				let URNd = coD.map(x => x.g)
+					//let URNstr = "{\"URNs\": [" + URNd + "]}"
+						let URNstr = "{URNs: [" + URNd + "]}"
+					//console.log("URN:" + URNd)
+					console.log(URNstr)
+					console.log(collectionObj)
+      //let collection = JSON.stringify(collectionObj)
+      //let collection = JSON.stringify(collectionObjURN)
+      let collection = JSON.stringify(URNstr)
       collection  = collection.replace('#',"<hash>")
       collection = encodeURIComponent(collection)
 
