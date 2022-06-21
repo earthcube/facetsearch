@@ -40,48 +40,51 @@ export default {
     },
 
     nbBinderUrl ( NbConfig,  collectionObj, page=''){
-			let coQ = collectionObj.queries
-					console.log("coQ")
-					console.log(coQ)
-			let coT = collectionObj.tools
-			let coD = collectionObj.datasets
-			let URNq = coQ.map(x => x.name)
-					console.log(URNq)
-			let URNt = coT.map(x => x.g)
-			let URNd = coD.map(x => x.g)
-						var URNdict ={
-										datasets: URNd,
-										queries: URNq,
-										tools: URNt
-								};
-					console.log("URNd_t_q")
-					console.log(URNd)
-					console.log(URNt)
-					console.log(URNq)
-					console.log("URNdict")
-					console.log(URNdict)
-      let collection = JSON.stringify(URNdict)
-					console.log("collection")
-					console.log(collection)
-      //collection  = collection.replace('#',"<hash>")
-      collection = encodeURIComponent(collection)
+		let coQ = collectionObj.queries
+		console.log("coQ")
+		console.log(coQ)
+		let coT = collectionObj.tools
+		let coD = collectionObj.datasets
+		let URNq = coQ.map(x => x.name)
+		console.log(URNq)
+		let URNt = coT.map(x => x.g)
+		let URNd = coD.map(x => x.g)
+		let des = collectionObj.description
+		let name = des.name
+		var URNdict = {
+		name: name,
+		datasets: URNd,
+		queries: URNq,
+		tools: URNt
+		};
+		console.log("URNd_t_q")
+		console.log(URNd)
+		console.log(URNt)
+		console.log(URNq)
+		console.log("URNdict")
+		console.log(URNdict)
+		let collection = JSON.stringify(URNdict)
+		console.log("collection")
+		console.log(collection)
+		//collection  = collection.replace('#',"<hash>")
+		collection = encodeURIComponent(collection)
 
-						//then binder template will need:
-						//ds = ipyparams.params['collection']
-						//print(ds)
-						//dso = json.loads(ds)
-						//# if this cell fails the first run.
-						//# run a second time, and it works.
-						//d=dso.get('datasets')
-						//t=dso.get('tools')
-						//q=dso.get('queries')
-						//print(f'd={d} t={t} q={q}')
+		//then binder template will need:
+		//ds = ipyparams.params['collection']
+		//print(ds)
+		//dso = json.loads(ds)
+		//# if this cell fails the first run.
+		//# run a second time, and it works.
+		//d=dso.get('datasets')
+		//t=dso.get('tools')
+		//q=dso.get('queries')
+		//print(f'd={d} t={t} q={q}')
 
 
 
-      //let binderBase = "https://mybinder.org/v2/gh/earthcube/NotebookTemplates.git/geocodes_template"
+		//let binderBase = "https://mybinder.org/v2/gh/earthcube/NotebookTemplates.git/geocodes_template"
 
-      //let nbParams = `?contenturl=${contentUrl}&format=${format}&urn=${urn}`
+		//let nbParams = `?contenturl=${contentUrl}&format=${format}&urn=${urn}`
       //const binderBaseT = _.template(NbConfig.baseurl, FacetsConfig.ES_TEMPLATE_OPTIONS)
       //const dispatcherPageT = _.template(NbConfig.dispatcherPage, FacetsConfig.ES_TEMPLATE_OPTIONS)
       const serverBase = NbConfig.baseurl
