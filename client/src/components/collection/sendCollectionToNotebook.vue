@@ -40,18 +40,27 @@ export default {
     },
 
     nbBinderUrl ( NbConfig,  collectionObj, page=''){
-				//let coQ = collectionObj.queries
-				//let coT = collectionObj.tools
+//			let coQ = collectionObj.queries
+				let coT = collectionObj.tools
 				let coD = collectionObj.datasets
+//			let URNq = coQ.map(x => x.g)
+				let URNt = coT.map(x => x.g)
 				let URNd = coD.map(x => x.g)
 					//let URNstr = "{\"URNs\": [" + URNd + "]}"
-						let URNstr = "{URNs: [" + URNd + "]}"
+					//let URNstr = "{URNs: [" + URNd + "]}"
+						var URNdict ={
+//							queries: URNq,
+								tools: URNt,
+								datasets: URNd,
+								};
 					//console.log("URN:" + URNd)
-					console.log(URNstr)
+					//console.log(URNstr)
+					console.log(URNdict)
 					console.log(collectionObj)
       //let collection = JSON.stringify(collectionObj)
       //let collection = JSON.stringify(collectionObjURN)
-      let collection = JSON.stringify(URNstr)
+      //let collection = JSON.stringify(URNstr)
+      let collection = JSON.stringify(URNdict)
       collection  = collection.replace('#',"<hash>")
       collection = encodeURIComponent(collection)
 
