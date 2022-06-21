@@ -40,21 +40,24 @@ export default {
     },
 
     nbBinderUrl ( NbConfig,  collectionObj, page=''){
-//			let coQ = collectionObj.queries
+			let coQ = collectionObj.queries
+					console.log("coQ")
+					console.log(coQ)
 			let coT = collectionObj.tools
 			let coD = collectionObj.datasets
-//			let URNq = coQ.map(x => x.g)
+			let URNq = coQ.map(x => x.name)
+					console.log(URNq)
 			let URNt = coT.map(x => x.g)
 			let URNd = coD.map(x => x.g)
 						var URNdict ={
-//							  queries: URNq,
-								tools: URNt,
-								datasets: URNd
+										datasets: URNd,
+										queries: URNq,
+										tools: URNt
 								};
 					console.log("URNd_t_q")
 					console.log(URNd)
 					console.log(URNt)
-					//console.log(URNq)
+					console.log(URNq)
 					console.log("URNdict")
 					console.log(URNdict)
       let collection = JSON.stringify(URNdict)
@@ -71,7 +74,8 @@ export default {
 						//# run a second time, and it works.
 						//d=dso.get('datasets')
 						//t=dso.get('tools')
-						//print(f'd={d} t={t}')
+						//q=dso.get('queries')
+						//print(f'd={d} t={t} q={q}')
 
 
 
