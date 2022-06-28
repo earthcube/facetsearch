@@ -82,12 +82,15 @@ export default {
 		//t=dso.get('tools')
 		//q=dso.get('queries')
 		//print(f'd={d} t={t} q={q}')
+		//binder has own sparql.ipynb now, &colab's is changing as well
+		//hard coded to a machine that I can update more easily till collections more stable
 
 
 
 		//let binderBase = "https://mybinder.org/v2/gh/earthcube/NotebookTemplates.git/geocodes_template"
 
 		//let nbParams = `?contenturl=${contentUrl}&format=${format}&urn=${urn}`
+		//let nbParams = `?contenturl=urn=${urn}`  //try?
       //const binderBaseT = _.template(NbConfig.baseurl, FacetsConfig.ES_TEMPLATE_OPTIONS)
       //const dispatcherPageT = _.template(NbConfig.dispatcherPage, FacetsConfig.ES_TEMPLATE_OPTIONS)
 
@@ -102,14 +105,14 @@ export default {
       let nbParams = nbParamsT({collection:collection})
       let nbPage = nbPageT({notebooktorun:page})
       let params = ''
-      if (Object.prototype.hasOwnProperty.call(NbConfig,'dispatcherPage')) {
+//     if (Object.prototype.hasOwnProperty.call(NbConfig,'dispatcherPage')) {
         //params = `${dispatcherPage}&${nbParams}&${nbPage}`
-        params = `${nbParams}&${nbPage}`  //skip for now
-      } else {
+//       params = `${nbParams}&${nbPage}`  //skip for now
+//     } else {
         params = `${nbParams}&${nbPage}`
-      }
+//     }
 
-      if (NbConfig.binderEncodeParameters) {
+//     if (NbConfig.binderEncodeParameters) {
         // this uses a ? to append parmeters to the page, rather than and ampersand.
         // for binder. template page (template.ipnb?.... so that it works.)
 //        let params2 = `?${nbParams}&${nbPage}` // double encode
@@ -120,7 +123,7 @@ export default {
         //params = `${dispatcherPage}${params2}`
         //params = encodeURIComponent(params)
         // params =encodeURIComponent(dispatcherPage)
-      }
+//     }
       return `${serverBase}?${params}`
 
     },
