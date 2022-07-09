@@ -2,7 +2,7 @@ name: Dockerize  API Node Server
 on:
   push:
     branches:
-      - "deploy/geocodestest"
+      - 'deploy/geocodestest'
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
 defaults:
