@@ -2,6 +2,7 @@ name: Dockerize  Vue Client
 on:
   push:
     branches:
+      - master
       - 'deploy/geocodestest'
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
