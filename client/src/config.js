@@ -3,7 +3,8 @@ var env = process.env.NODE_ENV || 'development'
 var FacetsConfig = {
     development: require('./config/development.js'),
     production: require('./config/production.js'),
-    staging: require('./config/staging.js')
+    staging: require('./config/staging.js'),
+    geocodestest: require('./config/geocodestest.js')
 }
 
 module.exports = FacetsConfig[env]

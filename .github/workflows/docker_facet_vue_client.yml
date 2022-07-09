@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - 'deploy/geocodestest'
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
 defaults:
@@ -19,7 +20,7 @@ jobs:
         uses: actions/setup-node@v2
         env:
           NODE_ENV:
-            production
+            geocodestest
         with:
           node-version: '14'
       - run: npm install -g  yarn
