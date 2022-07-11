@@ -8,6 +8,7 @@
     "staging": "vue-cli-service build --mode staging",
     "servestaging": "vue-cli-service serve --host 0.0.0.0 --mode staging",
     "production": "vue-cli-service build --mode production",
+    "netlify": "vue-cli-service build --mode netlify",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
