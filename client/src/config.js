@@ -4,7 +4,8 @@ var FacetsConfig = {
     development: require('./config/development.js'),
     production: require('./config/production.js'),
     staging: require('./config/staging.js'),
-    geocodestest: require('./config/geocodestest.js')
+    geocodestest: require('./config/geocodestest.js'),
+    netlify: require('./config/netlify.js')
 }
 
 module.exports = FacetsConfig[env]
