@@ -4,6 +4,7 @@ this repo currently supports https://alpha.geocodes.earthcube.org/
 this will become beta...
 
 master branch here  is deployed as https://dev.geocodes.earthcube.org/
+then any push went to dev, now nothing goes to dev
 
 ## Overall
 There are two portions, a node server for services, and a vue client.
