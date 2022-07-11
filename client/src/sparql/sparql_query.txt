@@ -8,7 +8,8 @@ prefix sschema: <https://schema.org/>
 SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", ") AS ?placenames)
         (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)
         ?datep  (GROUP_CONCAT(DISTINCT ?url; SEPARATOR=", ") AS ?disurl) (MAX(?score1) as ?score)
-        ?name ?description ?resourceType ?g   (MAX(?lat) as ?maxlat) (Min(?lat) as ?minlat) (MAX(?lon) as ?maxlon) (Min(?lon) as ?minlon)
+        ?name ?description ?resourceType ?g  
+        # (MAX(?lat) as ?maxlat) (Min(?lat) as ?minlat) (MAX(?lon) as ?maxlon) (Min(?lon) as ?minlon)
         WHERE {
            [] a con-inst:geocodes_fts ;
              con:query "${q}" ;
@@ -33,7 +34,8 @@ SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", "
             BIND ( IF ( BOUND(?pub_name), ?pub_name, "No Publisher") as ?pubname ) .
             BIND ( IF ( BOUND(?place_name), ?place_name, "No spatialCoverage") as ?placename ) .
         }
-        GROUP BY ?subj ?pubname ?placename ?kwu ?datep ?url  ?name ?description  ?resourceType ?g  ?minlat ?maxlat ?minlon ?maxlon
+        GROUP BY ?subj ?pubname ?placename ?kwu ?datep ?url  ?name ?description  ?resourceType ?g 
+        # ?minlat ?maxlat ?minlon ?maxlon
         ORDER BY DESC(?score)
 LIMIT ${n}
 OFFSET ${o}
