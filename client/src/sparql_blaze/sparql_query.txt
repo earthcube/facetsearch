@@ -12,7 +12,7 @@ SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname
             ?lit bds:search "${q}" .
             ?lit bds:matchAllTerms false .
             ?lit bds:relevance ?score1 .
-            ?lit bds:minRelevance 0.14 .
+            ?lit bds:minRelevance 0.44 .
             ?subj ?p ?lit .
             #filter( ?score1 > 0.14).
           graph ?g {
