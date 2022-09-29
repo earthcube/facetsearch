@@ -62,7 +62,7 @@ services:
   yasgui:
     image: erikap/yasgui
     environment:
-      DEFAULT_SPARQL_ENDPOINT: "https://graph.geodex.org/blazegraph/namespace/nabu/sparql"
+      DEFAULT_SPARQL_ENDPOINT: "http://mbobak.ncsa.illinois.edu:9999/blazegraph/namespace/nabu/sparql"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.sparqlgui.entrypoints=http"
