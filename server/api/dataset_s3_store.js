@@ -1,4 +1,5 @@
 var jsonLdObj = require("./jsonldObject");
+var _ = require('lodash')
 var jsonld = require('jsonld')
 var axios = require('axios')
 const https = require('https')
@@ -7,7 +8,7 @@ var d = require('debug')('dataset:dataset')
 var t = require('debug')('dataset:tools')
 var g = require('debug')('dataset:getJson')
 
-var S3_BASE ='http://gleaner.oss.geodex.org/summoned'
+
 
 const getJson =async function(datasetUrn) {
     return  new Promise((resolve, reject) => {
@@ -21,12 +22,19 @@ const getJson =async function(datasetUrn) {
             return;
         }
 
-        var s3Path = `summoned/${part[3]}/${part[4]}.jsonld`
+        //var s3Path = `summoned/${part[3]}/${part[4]}.jsonld`
+        var s3pathtemplate = _.template(global.gConfig.config.datastore.pathtemplate)
+        var s3Path = s3pathtemplate({
+            bucket: global.gConfig.config.datastore.bucket,
+            bucketpath: global.gConfig.config.datastore.bucketpath,
+            reponame: part[3],
+            sha: part[4]
+        })
         g('config'+global.gConfig)
         const mc = new minio.Client(global.gConfig.config.jsonldStore)
         //https://gleaner.oss.geodex.org/summoned/opentopo/0281f678daa333bdc4d9b6bbdf6c07974244e0a4.jsonld
         let jsonld = "";
-        mc.getObject('gleaner', s3Path,
+        mc.getObject(global.gConfig.config.datastore.bucket, s3Path, // mc.getObject('gleaner', s3Path,
             function (err, dataStream) {
                 if (err) {
                     // need better error messaging
