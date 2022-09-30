@@ -4,33 +4,33 @@ import axios from 'axios'
 
 
 
-
-const getJsonLD =  async function (object){
-
-    const fetchURL = `https://dx.geodex.org/id/summoned${object}`
-    console.log(fetchURL);
-    var url = new URL(fetchURL);
-    return axios.get(url).then (
-    //const content = await rawResponse.json();
-    function(r) {
-        var content = r.data;
-        //console.log(contentAsText);
-        if (typeof content === String) {
-            content = content.replace("http://schema.org/", "https://schema.org/")
-        } else {
-            content = JSON.stringify(content)
-            content = content.replace("http://schema.org/", "https://schema.org/")
-        }
-
-        var jsonldObject = JSON.parse(content)
-
-    //console.log(content);
-         return jsonldObject
-    }
-
-    )
-
-}
+// old hard coded to geodex. now retrieved in state object
+// const getJsonLD =  async function (object){
+//
+//     const fetchURL = `https://dx.geodex.org/id/summoned${object}`
+//     console.log(fetchURL);
+//     var url = new URL(fetchURL);
+//     return axios.get(url).then (
+//     //const content = await rawResponse.json();
+//     function(r) {
+//         var content = r.data;
+//         //console.log(contentAsText);
+//         if (typeof content === String) {
+//             content = content.replace("http://schema.org/", "https://schema.org/")
+//         } else {
+//             content = JSON.stringify(content)
+//             content = content.replace("http://schema.org/", "https://schema.org/")
+//         }
+//
+//         var jsonldObject = JSON.parse(content)
+//
+//     //console.log(content);
+//          return jsonldObject
+//     }
+//
+//     )
+//
+// }
 
 const schemaItem = function (name, json_compacted, noSchemaMessage="") {
     let s_name = json_compacted["https://schema.org/" + name] ? json_compacted["https://schema.org/" + name] :
