@@ -17,8 +17,8 @@ const getJson =async function(datasetUrn) {
             return;
         }
         var part = datasetUrn.split(':');
-        if (part.length <4) {
-            reject ({status:404, error:"improper datasetUrn. Missing parts"})
+        if (part.length <3) {
+            reject ({status:404, error:"improper datasetUrn. Missing parts. At minimum: urn:repo:sha"})
             return;
         }
 
@@ -27,8 +27,8 @@ const getJson =async function(datasetUrn) {
         var s3Path = s3pathtemplate({
             bucket: global.gConfig.config.datastore.bucket,
             bucketpath: global.gConfig.config.datastore.bucketpath,
-            reponame: part[3],
-            sha: part[4]
+            reponame: part[part.length - 2], // zero based
+            sha: part[part.length -1 ] // zero based
         })
         g('config'+global.gConfig)
         const mc = new minio.Client(global.gConfig.config.jsonldStore)
