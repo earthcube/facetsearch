@@ -12,7 +12,7 @@ var pathtemplate = process.env.PATHTEMPLATE || '${bucketpath}/${reponame}/${sha}
 
 // options for tool: bucket, bucketpath, reponame, ref (aka ark, or maybe a sha in the future)
 var tooltemplate = process.env.TOOLTEMPLATE || '${bucketpath}/${reponame}/${ref}.json'
-var toolbucket = process.env.BUCKET || 'ecrr'
+var toolbucket = process.env.TOOLBUCKET || 'ecrr'
 var toolpath = process.env.TOOLPATH || 'summoned'
 var toolrepo = process.env.TOOLREPO ||'ecrr_form'
 

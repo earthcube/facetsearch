@@ -47,7 +47,7 @@ exports.getToolss3 =async function(toolArk) {
                //var s3Path = `summoned/${part[3]}/${part[4]}.jsonld`
         var s3tooltemplate = _.template(global.gConfig.config.datastore.tooltemplate)
         var s3Path = s3tooltemplate({
-            bucket: global.gConfig.config.datastore.bucket,
+            bucket: global.gConfig.config.datastore.toolbucket,
             bucketpath: global.gConfig.config.datastore.toolpath,
             reponame: global.gConfig.config.datastore.toolrepo,
             ref: arkurl
