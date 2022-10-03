@@ -5,32 +5,32 @@ const axios =require('axios')
 
 
 
-const getJsonLD =  async function (object){
-
-    const fetchURL = `https://dx.geodex.org/id/summoned${object}`
-    console.log(fetchURL);
-    var url = new URL(fetchURL);
-    return axios.get(url).then (
-    //const content = await rawResponse.json();
-    function(r) {
-        var content = r.data;
-        //console.log(contentAsText);
-        if (typeof content === String) {
-            content = content.replace("http://schema.org/", "https://schema.org/")
-        } else {
-            content = JSON.stringify(content)
-            content = content.replace("http://schema.org/", "https://schema.org/")
-        }
-
-        var jsonldObject = JSON.parse(content)
-
-    //console.log(content);
-         return jsonldObject
-    }
-
-    )
-
-}
+// const getJsonLD =  async function (object){
+//
+//     const fetchURL = `https://dx.geodex.org/id/summoned${object}`
+//     console.log(fetchURL);
+//     var url = new URL(fetchURL);
+//     return axios.get(url).then (
+//     //const content = await rawResponse.json();
+//     function(r) {
+//         var content = r.data;
+//         //console.log(contentAsText);
+//         if (typeof content === String) {
+//             content = content.replace("http://schema.org/", "https://schema.org/")
+//         } else {
+//             content = JSON.stringify(content)
+//             content = content.replace("http://schema.org/", "https://schema.org/")
+//         }
+//
+//         var jsonldObject = JSON.parse(content)
+//
+//     //console.log(content);
+//          return jsonldObject
+//     }
+//
+//     )
+//
+// }
 const schemaItem = function (name, json_compacted, noSchemaMessage="") {
     let s_name = json_compacted["https://schema.org/" + name] ? json_compacted["https://schema.org/" + name] :
         json_compacted["http://schema.org/" + name] ? json_compacted["http://schema.org/" + name] : noSchemaMessage
@@ -222,7 +222,7 @@ const makeLinkObj = function(obj_dist){
 
 
 
-module.exports.getJsonLD = getJsonLD;
+//module.exports.getJsonLD = getJsonLD;
 module.exports.schemaItem =schemaItem
 module.exports.hasSchemaProperty =hasSchemaProperty
 module.exports.geoplacename=geoplacename

@@ -33,24 +33,24 @@ router.get('/tools/*', function(req,
     debug('tools path ' + path);
   var arkurl = path.replace('/tools/','')
   var arkuri = path.substring(path.indexOf('ark:'))
-  toolsController.getTool(arkurl).then(
+    toolsController.getToolss3(arkurl).then( // toolsController.getTool(arkurl).then(
      function(r) {
        res.send(r);
 
      }
   ).catch( function(err){
       // need better error messaging
-      if (err.response.isAxiosError ) {
+      if (err.isAxiosError ) {
           res.status(500)
-          res.render('error', {error: err})
+          res.send({error: err})
 
       } else {
-          if (err.response.status === 404) {
+          if (err.status === 404) {
               res.status(404)
-              res.render('error', {error: "bad ark" + arkuri})
+              res.send({error: "bad ark: " + arkuri})
           } else {
-              res.status(err.response.status)
-              res.render('error', {error: err.response.data})
+              res.status(err.status)
+              res.send({error: err.error})
 
           }
       }
