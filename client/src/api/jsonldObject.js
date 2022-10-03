@@ -1,6 +1,6 @@
 "use strict";
 import _ from 'lodash'
-import axios from 'axios'
+//import axios from 'axios'
 
 
 
@@ -296,5 +296,7 @@ const makeLinkObj = function(obj_dist){
 // module.exports.makeLinkObj=makeLinkObj
 
 
-export { getJsonLD, schemaItem, hasSchemaProperty, getGeoCoordinates,geoplacename,getFirstGeoShape,getDistributions,makeLinkObj, matchDistributions};
+export {
+  //  getJsonLD,
+    schemaItem, hasSchemaProperty, getGeoCoordinates,geoplacename,getFirstGeoShape,getDistributions,makeLinkObj, matchDistributions};
 
