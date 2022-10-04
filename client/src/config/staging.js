@@ -5,6 +5,7 @@ export default {
    // TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql',   /old prod
  // TRIPLESTORE_URL:process.env.VUE_APP_TRIPLESTORE_URL||'https://graph.geodex.org/blazegraph/namespace/earthcube/sparql',
     TRIPLESTORE_URL:'https://graph.geocodes-dev.earthcube.org/blazegraph/namespace/https/sparql',
+   //TRIPLESTORE_URL:'https://mbobak.ncsa.illinois.edu:9999/blazegraph/namespace/nabu/sparql',
     //ECRR_TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/ecrr/sparql',// dev
     ECRR_TRIPLESTORE_URL:process.env.VUE_APP_ECRR_TRIPLESTORE_URL||'http://132.249.238.169:8080/fuseki/ecrr/query', // fuseki
     ECRR_GRAPH: process.env.VUE_APP_ECRR_GRAPH|| 'http://earthcube.org/gleaner-summoned',
