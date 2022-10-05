@@ -3,6 +3,7 @@ export default {
     API_URL: 'http://localhost:3000',
     TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/earthcube/sparql',
     //TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',
+    //TRIPLESTORE_URL:process.env.VUE_APP_TRIPLESTORE_URL||'http://mbobak.ncsa.illinois.edu:9999/blazegraph/namespace/nabu/sparql', // dev on hold
     ECRR_TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/ecrr/sparql',// dev
     //ECRR_TRIPLESTORE_URL:'http://132.249.238.169:8080/fuseki/ecrr/query', // fuseki
     ECRR_GRAPH: 'http://earthcube.org/gleaner-summoned',
