@@ -1,5 +1,5 @@
 export default {
-    NODE_ENV: process.env.NODE_ENV || 'unknown',
+    NODE_ENV: process.env.NODE_ENV || 'production',
     API_URL: process.env.VUE_APP_API_URL|| `${window.location.origin}/ec/api`,
     TRIPLESTORE_URL:process.env.VUE_APP_TRIPLESTORE_URL||'https://graph.geodex.org/blazegraph/namespace/earthcube/sparql', // dev
     //TRIPLESTORE_URL:process.env.VUE_APP_TRIPLESTORE_URL||'http://mbobak.ncsa.illinois.edu:9999/blazegraph/namespace/nabu/sparql', // dev
