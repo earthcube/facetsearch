@@ -1,8 +1,8 @@
 export default {
     NODE_ENV: process.env.NODE_ENV || 'unknown',
     API_URL: process.env.VUE_APP_API_URL|| `${window.location.origin}/ec/api`,
-    //TRIPLESTORE_URL:process.env.VUE_APP_TRIPLESTORE_URL||'https://graph.geodex.org/blazegraph/namespace/earthcube/sparql', // dev
-    TRIPLESTORE_URL:process.env.VUE_APP_TRIPLESTORE_URL||'http://mbobak.ncsa.illinois.edu:9999/blazegraph/namespace/nabu/sparql', // dev
+    TRIPLESTORE_URL:process.env.VUE_APP_TRIPLESTORE_URL||'https://graph.geodex.org/blazegraph/namespace/earthcube/sparql', // dev
+    //TRIPLESTORE_URL:process.env.VUE_APP_TRIPLESTORE_URL||'http://mbobak.ncsa.illinois.edu:9999/blazegraph/namespace/nabu/sparql', // dev
     //TRIPLESTORE_URL:'https://graph.geodex.org/blazegraph/namespace/nabu/sparql', // prod
     //TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',
     //ECRR_TRIPLESTORE_URL:'https://graph.geocodes.earthcube.org/blazegraph/namespace/ecrr/sparql',// dev
