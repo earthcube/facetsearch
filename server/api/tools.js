@@ -45,6 +45,7 @@ exports.getToolss3 =async function(toolArk) {
             return;
         }
                //var s3Path = `summoned/${part[3]}/${part[4]}.jsonld`
+          __.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
         var s3tooltemplate = _.template(global.gConfig.config.datastore.tooltemplate)
         var s3Path = s3tooltemplate({
             bucket: global.gConfig.config.datastore.toolbucket,

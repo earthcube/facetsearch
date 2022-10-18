@@ -23,6 +23,7 @@ const getJson =async function(datasetUrn) {
         }
 
         //var s3Path = `summoned/${part[3]}/${part[4]}.jsonld`
+        _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
         var s3pathtemplate = _.template(global.gConfig.config.datastore.pathtemplate)
         var s3Path = s3pathtemplate({
             bucket: global.gConfig.config.datastore.bucket,
