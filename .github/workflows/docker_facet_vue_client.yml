@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-node@v2
         env:
           NODE_ENV:
-            geocodestest
+            production
         with:
           node-version: '14'
       - run: npm install -g  yarn
