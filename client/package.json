@@ -20,6 +20,7 @@
     "jsonld": "^4.0.1",
     "jsonpath": "^1.1.1",
     "jsonpath-plus": "^5.1.0",
+    "js-yaml": "^4.1.0",
     "leaflet": "^1.7.1",
     "localforage": "^1.10.0",
     "localforage-startswith": "^1.4.0",

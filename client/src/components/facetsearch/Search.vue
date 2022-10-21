@@ -51,7 +51,7 @@ import Facets from "./Facets";
 //import _, { DatasetLocation } from 'underscore';
 import _ from 'underscore';
 //import axios from "axios";
-import FacetsConfig from '../../config.js'
+//import FacetsConfig from '../../config.js'
 
 import {bus} from "../../main.js"
 import ResultHeader from "./ResultHeader";
@@ -80,7 +80,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['results','searchExactMatch', 'microCache']),
+    ...mapState(['results','searchExactMatch', 'microCache','FacetsConfig','esTemplateOptions']),
     //...mapGetters(['q',])
     ...mapGetters (['hasMicroCache', 'getMicroCache'])
   },
@@ -116,9 +116,9 @@ export default {
       isModalVisible: false,
       feedBackItemId: String,
       o: 0,
-      n: FacetsConfig.LIMIT_DEFAULT,
+      n: 9,
 
-      esTemplateOptions: {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
+      esTemplateOptions: this.esTemplateOptions,
       queryTemplates: {},
       state: {
         orderBy: 'score',
@@ -128,7 +128,7 @@ export default {
       currentResults: [],
       facetStore: {},
       //---- ok to edit facets
-      facets: FacetsConfig.FACETS,
+      facets: [],
 
       // -- end edit  facets
       queryRunning: false,
@@ -137,7 +137,8 @@ export default {
     }
   },
   created() {
-
+  this.n= this.FacetsConfig.LIMIT_DEFAULT
+    this.facets =  this.FacetsConfig.FACETS
   },
   mounted() {
     //const self = this;

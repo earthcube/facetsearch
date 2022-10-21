@@ -97,11 +97,11 @@ import SpaqlToolsDownloadQuery from 'raw-loader!../../sparql_blaze/sparql_gettoo
 import SpaqlToolsWebserviceQuery from 'raw-loader!../../sparql_blaze/sparql_gettools_webservice.txt'
 import _ from "lodash";
 
-import FacetsConfig from "../../config";
+//import FacetsConfig from "../../config";
 import axios from "axios";
 
 //let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
-let esTemplateOptions = {interpolate: /\{([^\\}]*(?:\\.[^\\}]*)*)\}/g}
+//let esTemplateOptions = {interpolate: /\{([^\\}]*(?:\\.[^\\}]*)*)\}/g}
 
 export default {
   name: "connectedTools",
@@ -120,7 +120,7 @@ export default {
     jsonLdCompact: 'checkTools',
 
   }, computed: {
-    ...mapState(['jsonLdObj', 'jsonLdCompact']),
+    ...mapState(['jsonLdObj', 'jsonLdCompact', 'esTemplateOptions','FacetsConfig']),
 
 
   },
@@ -132,7 +132,7 @@ export default {
     },
     servicetemplate (turl, durl){
       // template url has {contentURL} that needs to be substituted.
-      let urltemplate = _.template(turl, esTemplateOptions)
+      let urltemplate = _.template(turl, this.esTemplateOptions)
       let serviceUrl = urltemplate({'contentURL':durl})
       this.openWindow( serviceUrl)
 
@@ -147,12 +147,12 @@ export default {
     }
     , getWebTools(graphUri) {
       var self = this
-      const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, esTemplateOptions)
+      const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, this.esTemplateOptions)
       // const resultsTemplate = _.template(SpaqlToolsDownloadQuery, esTemplateOptions)
-      let hasToolsQuery = resultsTemplate({g: graphUri, ecrr_service: FacetsConfig.ECRR_TRIPLESTORE_URL,
-        ecrr_graph: FacetsConfig.ECRR_GRAPH});
+      let hasToolsQuery = resultsTemplate({g: graphUri, ecrr_service: this.FacetsConfig.ECRR_TRIPLESTORE_URL,
+        ecrr_graph: this.FacetsConfig.ECRR_GRAPH});
 
-      var url = FacetsConfig.TRIPLESTORE_URL;
+      var url = this.FacetsConfig.TRIPLESTORE_URL;
       var params = {
         query: hasToolsQuery
       }
@@ -179,11 +179,11 @@ export default {
     }
     , getDownloadableTools(graphUri) {
       var self = this;
-      const resultsTemplate = _.template(SpaqlToolsDownloadQuery, esTemplateOptions)
-      let hasToolsQuery = resultsTemplate({g: graphUri, ecrr_service: FacetsConfig.ECRR_TRIPLESTORE_URL,
-        ecrr_graph: FacetsConfig.ECRR_GRAPH});
+      const resultsTemplate = _.template(SpaqlToolsDownloadQuery, this.esTemplateOptions)
+      let hasToolsQuery = resultsTemplate({g: graphUri, ecrr_service: this.FacetsConfig.ECRR_TRIPLESTORE_URL,
+        ecrr_graph: this.FacetsConfig.ECRR_GRAPH});
 
-      var url = FacetsConfig.TRIPLESTORE_URL;
+      var url = this.FacetsConfig.TRIPLESTORE_URL;
       var params = {
         query: hasToolsQuery
       }
