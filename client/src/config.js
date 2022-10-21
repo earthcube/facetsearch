@@ -16,12 +16,18 @@
 // }
 
 import yaml from 'js-yaml'
-const FacetsConfig =() => {
-    fetch(process.env.BASE_URL + "public/config.yaml")
-    .then((response) => response.json())
+const facetConfigFunction = () => {
+
+     fetch(process.env.BASE_URL + "config/config.yaml")
+    .then((response) => response.text())
     .then((config) => {
-        const y = yaml.load(config)
-        return y
-    })
+     let y =   yaml.load(config)
+        return y;
+
+    }).catch(function (err) {
+            console.log(err)
+        })
 }
+let FacetsConfig = facetConfigFunction()
+
 export default FacetsConfig

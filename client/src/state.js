@@ -13,9 +13,29 @@ import SpaqlHasToolsQuery from 'raw-loader!./sparql_blaze/sparql_hastools.txt'
 
 import LRU from "lru-cache"
 import localforage from "localforage";
+import yaml from "js-yaml";
 
-let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
-let TRIPLESTORE_URL = FacetsConfig.TRIPLESTORE_URL
+//let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
+let esTemplateOptions = {interpolate: /\{([^\\}]*(?:\\.[^\\}]*)*)\}/g}
+//let TRIPLESTORE_URL = FacetsConfig.TRIPLESTORE_URL
+
+//let TRIPLESTORE_URL=FacetsConfigValue.TRIPLESTORE_URL
+export const storeRemoteConfig =  async (remoteConfig="config/config.yaml")=>{
+    let statestore=  fetch(process.env.BASE_URL + remoteConfig)
+        .then((response) => response.text())
+        .then((config) => {
+            let y =   yaml.load(config)
+            let base = store;
+             base.commit('setFacetsConfig',    y)
+             base.commit('setTripleStoreURL',  y.TRIPLESTORE_URL)
+            return  base
+        }).catch(function (err) {
+                console.log(err)
+            }
+        )
+    return await statestore
+
+}
 
 export const store = new Vuex.Store({
     state: {
@@ -39,10 +59,10 @@ export const store = new Vuex.Store({
         searchExactMatch: false,
         // add them to simplify changes
         // should I just dump the facet config object in here/?
-        esTemplateOptions:esTemplateOptions,
+        esTemplateOptions: {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g},
         SpaqlQuery: SpaqlQuery,
         SpaqlHasToolsQuery: SpaqlHasToolsQuery,
-        TRIPLESTORE_URL:TRIPLESTORE_URL,
+        TRIPLESTORE_URL:"https://localhost/blazegraph/namespace/earthcube/sparql'",
         // resultLimit: FacetsConfig.LIMIT_DEFAULT,
         resourceTypeList : new Map( [
             ['data', "{ ?subj rdf:type schema:Dataset . } UNION { ?subj rdf:type sschema:Dataset . } "],
@@ -54,8 +74,22 @@ export const store = new Vuex.Store({
             // maxAge: 36000 // Important: entries expires after 1 second.
         }),
         collection: {},// key: name,
+        FacetsConfig:null,
     },
     getters: {
+        FacetsConfig: (state)=> {
+            // now read on creation
+           return state.FacetsConfig
+            // if (state.FacetsConfig != null){
+            //     return state.FacetsConfig
+            // } else {
+            //     this.initializeFacetsConfig()
+            // }
+        },
+        getesTemplateOptions:(state) => {
+            return state.esTemplateOptions
+
+        },
         getCollections: ()  => {
             var colls = []
             localforage.iterate(function(value, key) {
@@ -113,7 +147,11 @@ export const store = new Vuex.Store({
 
     },
     mutations: {
-        setNewCollection: (state, obj) => {
+        setFacetsConfig: (state,obj) =>
+            {
+                state.FacetsConfig = obj
+            },
+       setNewCollection: (state, obj) => {
             localforage.getItem(obj.key, function (err, value) {
                 if (value === null) {
                     localforage.setItem(
@@ -181,11 +219,26 @@ export const store = new Vuex.Store({
         setLastQueryResults(state, payload){
             state.lastQueryResults.set(payload.key, payload.items)
         },
+        setTripleStoreURL(state, string){
+            state.TRIPLESTORE_URL = string
+        }
         // setResultLimit(state, obj){
         //     state.resultLimit = obj
         // },
     },
     actions: {
+        async initializeFacetsConfig() {
+            return fetch(process.env.BASE_URL + "config/config.yaml")
+                .then((response) => response.text())
+                .then((config) => {
+                    let y =   yaml.load(config)
+                  this.context.commit('setFacetsConfig', y)
+
+
+                }).catch(function (err) {
+                console.log(err)
+            })
+        },
         async getItemsForCollection  (context,CollName)  {
             var collection = {
                 description: {

@@ -11,10 +11,11 @@ SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
 JSONLD_PROXY: http://localhost:3000/${o}
 SPARQL_NB: https://beta.geocodes.earthcube.org/notebook/mkQ?q=${q}
 SPARQL_YASGUI: https://geocodes.earthcube.org/sparqlgui?
+ES_TEMPLATE_OPTIONS : ""
 COLLECTION_FACETS:
   - field: unassigned
     title: All Items
-    sort: acs
+    sort: acs\
     open: false
     type: unassigned
     collections:

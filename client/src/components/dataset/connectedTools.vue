@@ -100,7 +100,8 @@ import _ from "lodash";
 import FacetsConfig from "../../config";
 import axios from "axios";
 
-let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
+//let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
+let esTemplateOptions = {interpolate: /\{([^\\}]*(?:\\.[^\\}]*)*)\}/g}
 
 export default {
   name: "connectedTools",
@@ -131,7 +132,7 @@ export default {
     },
     servicetemplate (turl, durl){
       // template url has {contentURL} that needs to be substituted.
-      let urltemplate = _.template(turl, {interpolate: /\{([^\\}]*(?:\\.[^\\}]*)*)\}/g})
+      let urltemplate = _.template(turl, esTemplateOptions)
       let serviceUrl = urltemplate({'contentURL':durl})
       this.openWindow( serviceUrl)
 
