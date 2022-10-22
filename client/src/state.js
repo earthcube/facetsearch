@@ -303,7 +303,8 @@ export const store = new Vuex.Store({
             //const fetchURL = `https://dx.geodex.org/id/summoned${o}`
             //const proxyLocation = _.template(FacetsConfig.JSONLD_PROXY, esTemplateOptions)
             //const fetchURL = proxyLocation({o: o})
-            const fetchURL = this.state.FacetsConfig.API_URL +`/dataset/${o}`
+            let baseUrlt = _.template(this.state.FacetsConfig.API_URL, esTemplateOptions)
+            const fetchURL = baseUrlt({window_location_origin:window.location.origin}) +`/dataset/${o}`
             console.log(fetchURL);
             var url = new URL(fetchURL);
             return axios.get(url).then(
@@ -367,7 +368,8 @@ export const store = new Vuex.Store({
             )
             // var self = this;
             //var url = new URL(toolArk); // adding ?  or ?? to ark returns some info  eg http://n2t.net/ark:/23942/g2600027??
-            var url = this.state.FacetsConfig.API_URL +`/tools/${toolArk}`
+            let baseUrlt = _.template(this.state.FacetsConfig.API_URL, esTemplateOptions)
+            var url = baseUrlt({window_location_origin:window.location.origin}) +`/tools/${toolArk}`
 
             const config = {
                 url: url,
