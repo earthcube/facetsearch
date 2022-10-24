@@ -109,15 +109,23 @@
 <script>
 import localforage from "localforage";
 import Vue from "vue";
-import FacetsConfig from "../../config";
+import {mapState} from "vuex";
+//import FacetsConfig from "../../config";
 
 export default {
   name: "CollectionCard",
   props: ["item", "currentClick", ],
   data: () => {
     return {
-      facets: FacetsConfig.COLLECTION_FACETS,
+      facets: [], //FacetsConfig.COLLECTION_FACETS,
     }
+  },
+  computed: {
+    ...mapState(['FacetsConfig'])
+
+  },
+  mounted() {
+    this.facets = this.FacetsConfig.COLLECTION_FACETS
   },
   methods: {
     optionRemoved: function(option, item) {

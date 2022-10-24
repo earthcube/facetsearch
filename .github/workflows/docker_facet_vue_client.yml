@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - feat_configFromPublic
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
 defaults:

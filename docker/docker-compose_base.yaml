@@ -1,4 +1,9 @@
-version: '3'
+version: '3.3'
+configs:
+  ecgraph:
+    file: ../client/public/config/config.yaml
+networks:
+  traefik_default:
 services:
   # this needs to be run with the geocodes/geodex compose file
   # docker-compose --env-file env.beta -f docker-compose.yaml -f docker-compose_base.yaml up -d
@@ -76,6 +81,9 @@ services:
     environment:
       - NODE_ENV=production
       - DOMAIN=https://${SERVER}.${HOST:?HOST environment varaible is required}/
+    configs:
+      - source:   facets_config
+        target: /usr/src/app/dist/public/config/config.yaml
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.beta.entrypoints=http"
@@ -97,5 +105,3 @@ services:
       - "traefik.http.middlewares.beta.headers.addvaryheader=true"
     networks:
       - traefik_default
-networks:
-  traefik_default:

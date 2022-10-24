@@ -1,4 +1,12 @@
-version: '3'
+version: '3.3'
+volumes:
+  node_modules_server:
+  node_modules_client:
+networks:
+  traefik_default:
+configs:
+  ecgraph:
+    file: ../client/public/config/config.yaml
 services:
   traefik:
     image: traefik:v2.0.2
@@ -89,6 +97,9 @@ services:
     volumes:
       - ../client:/usr/src/app
       - node_modules_client:/usr/src/app/node_modules
+    configs:
+      - source:   facets_config
+        target: /usr/src/app/dist/public/config/config.yaml
     environment:
       - NODE_ENV=production
       - DOMAIN=https://${HOST:?HOST environment varaible is required}/
@@ -110,8 +121,4 @@ services:
     networks:
       - traefik_default
 
-volumes:
-  node_modules_server:
-  node_modules_client:
-networks:
-  traefik_default:
+
