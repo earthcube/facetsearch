@@ -99,7 +99,7 @@ services:
       - node_modules_client:/usr/src/app/node_modules
     configs:
       - source:   facets_config
-        target: /usr/src/app/dist/public/config/config.yaml
+        target: /usr/src/app/dist/config/config.yaml
     environment:
       - NODE_ENV=production
       - DOMAIN=https://${HOST:?HOST environment varaible is required}/

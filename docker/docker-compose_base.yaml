@@ -83,7 +83,7 @@ services:
       - DOMAIN=https://${SERVER}.${HOST:?HOST environment varaible is required}/
     configs:
       - source:   facets_config
-        target: /usr/src/app/dist/public/config/config.yaml
+        target: /usr/src/app/dist/config/config.yaml
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.beta.entrypoints=http"
