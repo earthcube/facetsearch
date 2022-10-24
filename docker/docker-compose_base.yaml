@@ -17,13 +17,17 @@ services:
     #build: ./server
     environment:
       - NODE_ENV=production
-      - FACET_SERVICES_FILE=./config/development.js
-      - S3ADDRESS=s3system:9000
-      - S3BUCKET=sites
-      - S3PREFIX=alpha
-      - DOMAIN=https://${SERVER}.${HOST:?HOST environment varaible is required}/
-      - S3KEY=${S3KEY}
-      - S3SECRET=${S3SECRET}
+      - S3ADDRESS=${GLEANER_OSS_CONSOLE_DOMAIN}
+      - S3KEY=${MINIO_ROOT_ACCESS_KEY}
+      - S3SECRET=${MINIO_ROOT_SECRET_KEY}
+      - S3SSL=${S3SSL}
+      - S3PORT=${S3PORT}
+      - BUCKET=${BUCKET}
+      - BUCKETPATH=${BUCKETPATH}
+      - PATHTEMPLATE=${PATHTEMPLATE}
+      - TOOLTEMPLATE=${TOOLTEMPLATE}
+      - TOOLPATH=${TOOLPATH}
+      - TOOLREPO=${TOOLREPO}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.beta-server.entrypoints=http"

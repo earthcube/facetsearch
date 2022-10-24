@@ -16,6 +16,7 @@
 // }
 
 // we can use an env variable, since this runs server side.
-var servicesConfigFile = process.env.FACET_SERVICES_FILE || "./config/development.js"
+ // these are all set by ENV variable.
+var servicesConfigFile = "./config/services.js"
 global.gConfig = require(servicesConfigFile)
 debug(global.gConfig)
