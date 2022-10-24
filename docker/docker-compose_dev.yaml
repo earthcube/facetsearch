@@ -44,6 +44,7 @@ services:
         - node_modules_server:/usr/src/app/node_modules
     environment:
       - NODE_ENV=production
+      - FACET_SERVICES_FILE=./config/development.js
       #- NODE_ENV=development
       - DEBUG=*
       - S3ADDRESS=s3system:9000

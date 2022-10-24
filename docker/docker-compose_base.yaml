@@ -17,6 +17,7 @@ services:
     #build: ./server
     environment:
       - NODE_ENV=production
+      - FACET_SERVICES_FILE=./config/development.js
       - S3ADDRESS=s3system:9000
       - S3BUCKET=sites
       - S3PREFIX=alpha

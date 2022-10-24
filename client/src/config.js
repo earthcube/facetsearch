@@ -17,7 +17,8 @@
 
 import yaml from 'js-yaml'
 const facetConfigFunction = () => {
-
+// we really cannot use a process.env value for file name, because that gets embedded in webpack,
+// aka would need a new container for every file
      fetch(process.env.BASE_URL + "config/config.yaml")
     .then((response) => response.text())
     .then((config) => {
