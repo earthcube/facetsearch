@@ -516,6 +516,7 @@ export const store = new Vuex.Store({
                 headers: {
                     'Accept': 'application/sparql-results+json',
                    // 'Content-Type': 'application/sparql-query'
+                    'X-BIGDATA-MAX-QUERY-MILLIS': 90000  // 90 seconds
                 },
                 params: params
                 //data: sparql
