@@ -464,6 +464,7 @@ export const store = new Vuex.Store({
                 //  query: encodeURIComponent(sparql),
              params.append( "query", sparql)
              params.append(   "queryLn",'sparql')
+            params.append(   "timeout",90)
             //params.append("analytic", "true")
             //params.append("RTO", "true") runtime optimizer
             const config = {
@@ -472,7 +473,7 @@ export const store = new Vuex.Store({
                 headers: {
                     'Accept': 'application/sparql-results+json',
                    // 'Content-Type': 'application/sparql-query'
-                    'X-BIGDATA-MAX-QUERY-MILLIS': 90000  // 90 seconds
+                   // 'X-BIGDATA-MAX-QUERY-MILLIS': 90000  // 90 seconds. can use causes cors error
                 },
                 params: params
                 //data: sparql
