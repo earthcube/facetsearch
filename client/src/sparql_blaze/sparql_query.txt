@@ -12,7 +12,7 @@ SELECT distinct ?g ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR="
             ?lit bds:search "${q}" . 
             ?lit bds:matchAllTerms false .
             ?lit bds:relevance ?score1 .
-            ?lit bds:minRelevance 0.24 .
+            ?lit bds:minRelevance 0.14 .
             ?subj ?p ?lit .
             #filter( ?score1 > 0.14).
 #BIND (IF (exists {?subj a schema:Dataset .} || exists{?subj a sschema:Dataset .} , "data",
@@ -37,6 +37,8 @@ SELECT distinct ?g ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR="
             (sschema:DataCatalog "DataCatalog")
              (schema:SoftwareApplication  "tool")
              (sschema:SoftwareApplication  "tool")
+             (schema:mainEntity  "tool")
+             (sschema:mainEntity  "tool") 
               } ?subj a ?type .
            }
         optional {?subj schema:distribution/schema:url|schema:subjectOf/schema:url ?url .}
