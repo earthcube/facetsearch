@@ -1,15 +1,12 @@
 PREFIX bds: <http://www.bigdata.com/rdf/search#>
-PREFIX con: <http://www.ontotext.com/connectors/lucene#>
-PREFIX luc: <http://www.ontotext.com/owlim/lucene#>
-PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 prefix schema: <http://schema.org/>
 prefix sschema: <https://schema.org/>
-SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", ") AS ?placenames)
+SELECT distinct ?g ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", ") AS ?placenames)
         (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)
         ?datep  (GROUP_CONCAT(DISTINCT ?url; SEPARATOR=", ") AS ?disurl) (MAX(?score1) as ?score)
-        ?name ?description ?resourceType ?g
+        ?name ?description ?resourceType 
         #(MAX(?lat) as ?maxlat) (Min(?lat) as ?minlat) (MAX(?lon) as ?maxlon) (Min(?lon) as ?minlon)
          WHERE {
             ?lit bds:search "${q}" . 
@@ -19,35 +16,43 @@ SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", "
             ?subj ?p ?lit .
             #filter( ?score1 > 0.14).
 #BIND (IF (exists {?subj a schema:Dataset .} || exists{?subj a sschema:Dataset .} , "data",
-#(IF (exists {?subj a schema:SoftwareApplication .} || exists{?subj a sschema:SoftwareApplication .} , "tool", "other")) ) AS ?resourceType).
+#     (IF (exists {?subj a schema:SoftwareApplication .} || exists{?subj a sschema:SoftwareApplication .}   
+#, "tool", "other")) ) AS ?resourceType).
+
           graph ?g {
              ?subj schema:name|sschema:name ?name .
              ?subj schema:description|sschema:description ?description . 
-        #   ?subj a schema:Dataset|sschema:Dataset|schema:SoftwareApplication|sschema:SoftwareApplication .
-            values (?type ?resource_Type) {
-             (schema:Dataset "data")
-             (sschema:Dataset "data")
-             (schema:SoftwareApplication  "tool")
-             (sschema:SoftwareApplication  "tool")
-              } ?subj a ?type .
        #    Minus {?subj a sschema:ResearchProject } .
        #    Minus {?subj a schema:ResearchProject } .
        #    Minus {?subj a schema:Person } .
        #    Minus {?subj a sschema:Person } .
-            }
-            optional {?subj schema:distribution/schema:url|schema:subjectOf/schema:url ?url .}
-            OPTIONAL {?subj schema:datePublished|sschema:datePublished ?date_p .}
-            OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|schema:publisher/schema:legalName|sschema:publisher/sschema:legalName|schema:sdPublisher|sschema:sdPublisher  ?pub_name .}
-            OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name ?place_name .}
+##  ?subj a schema:Dataset|sschema:Dataset|schema:SoftwareApplication|sschema:SoftwareApplication .
+ #   { ?subj rdf:type schema:Dataset . } UNION { ?subj rdf:type sschema:Dataset . } UNION
+ #   { ?subj rdf:type schema:DataCatalog . } UNION { ?subj rdf:type sschema:DataCatalog . } UNION
+ #   { ?subj rdf:type schema:SoftwareApplication . } UNION { ?subj rdf:type sschema:SoftwareApplication . }           
+            values (?type ?resource_Type) {
+            (schema:Dataset "Dataset")
+            (sschema:Dataset "Dataset")
+            (schema:DataCatalog "DataCatalog")
+            (sschema:DataCatalog "DataCatalog")
+             (schema:SoftwareApplication  "tool")
+             (sschema:SoftwareApplication  "tool")
+              } ?subj a ?type .
+           }
+        optional {?subj schema:distribution/schema:url|schema:subjectOf/schema:url ?url .}
+        OPTIONAL {?subj schema:datePublished|sschema:datePublished ?date_p .}
+        OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|schema:publisher/schema:legalName|sschema:publisher/sschema:legalName  ?pub_name .}
+        OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name|sschema:sdPublisher ?place_name .}
 #OPTIONAL {?subj schema:spatialCoverage/schema:geo/schema:latitude|sschema:spatialCoverage/sschema:geo/schema:latitude ?lat .}
 #OPTIONAL {?subj schema:spatialCoverage/schema:geo/schema:longitude|sschema:spatialCoverage/sschema:geo/schema:longitude ?lon .}
-            OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
+        OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
             BIND ( IF ( BOUND(?date_p), ?date_p, "No datePublished") as ?datep ) .
             BIND ( IF ( BOUND(?pub_name), ?pub_name, "No Publisher") as ?pubname ) .
             BIND ( IF ( BOUND(?place_name), ?place_name, "No spatialCoverage") as ?placename ) .
             BIND ( IF ( BOUND(?resource_Type), ?resource_Type, "other") as ?resourceType ) .
         }
-        GROUP BY ?subj ?pubname ?placename ?kwu ?datep ?url  ?name ?description  ?resourceType ?g
+# GROUP BY ?g ?subj ?pubname ?placename ?kw ?datep ?url ?score1 ?name ?description  ?resourceType 
+    GROUP BY ?g ?subj ?pubname ?placenames ?kw ?datep ?disurl ?score ?name ?description  ?resourceType 
         #?minlat ?maxlat ?minlon ?maxlon
         ORDER BY DESC(?score) 
 LIMIT ${n}
