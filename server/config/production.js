@@ -2,7 +2,7 @@ var endPoint = process.env.S3ADDRESS || "oss.geodex.org"
 var accessKey = process.env.S3KEY || 'AKIAIOSFODNN7EXAMPLE'
 var secretKey = process.env.S3SECRET || 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 var useSSL = process.env.S3SSL || true
-var s3Port =  process.env.S3PORT || 443
+var s3Port =  parseInt(process.env.S3PORT, 443)|| 443
 var bucket = process.env.BUCKET || 'gleaner'
 var bucketpath = process.env.BUCKETPATH || 'summoned'
 // options for path: bucket, bucketpath, reponame, sha
