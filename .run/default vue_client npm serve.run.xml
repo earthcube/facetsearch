@@ -6,7 +6,9 @@
       <script value="serve" />
     </scripts>
     <node-interpreter value="project" />
-    <envs />
+    <envs>
+      <env name="FACETS_CONFIG_FILE" value="config/config_dev.yaml" />
+    </envs>
     <method v="2" />
   </configuration>
 </component>

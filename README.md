@@ -57,7 +57,7 @@ yarn lint
 
 ### configuration
 in client/src/config there are configurationfiles
-If you add one, it need to be added to client/src/config.js
+If you add one, it need to be added to client/src/config.json
 
 
 ### Customize configuration

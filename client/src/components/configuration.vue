@@ -15,27 +15,34 @@
 </template>
 
 <script>
-import FacetsConfig from '../config'
+//import FacetsConfig from '../config'
 import axios from "axios";
 import VueJsonPretty from 'vue-json-pretty';
+import {mapState} from "vuex";
 
 export default {
   name: "configuration",
   components:{ VueJsonPretty},
   data() {
     return {
-      config: FacetsConfig,
+      config:{} ,
       serverConfig: {},
 
     }
   },
+  computed: {
+    ...mapState(['FacetsConfig'])
+
+  },
   async mounted(){
     var self = this
-    axios.get(FacetsConfig.API_URL+"/config").then(function (response) {
+    this.config =  this.FacetsConfig
+    axios.get(this.config.API_URL+"/config").then(function (response) {
       self.serverConfig = response.data
     }).catch(function (err) {
       console.log(err)
     })
+
   }
 }
 </script>

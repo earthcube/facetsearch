@@ -1,3 +1,7 @@
+config changes not showing up in developement.
+you will need to build, or just copy the file into dist/config
+
+
 https://peachscript.github.io/vue-infinite-loading/guide/#installation
 
 Components list:

@@ -40,10 +40,10 @@
 
 import {mapState} from "vuex";
 import axios from "axios";
-import FacetsConfig from "../../config";
+//import FacetsConfig from "../../config";
 import SpaqlToolsWebserviceQuery from 'raw-loader!../../sparql_blaze/sparql_relateddatafilename.txt'
 
-let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
+
 import _ from "lodash";
 import {schemaItem} from "../../api/jsonldObject";
 
@@ -70,7 +70,7 @@ export default {
     // }
   },
   computed: {
-    ...mapState(['jsonLdObj', 'jsonLdCompact'])
+    ...mapState(['jsonLdObj', 'jsonLdCompact','FacetsConfig'])
 
   },
   methods: {
@@ -83,9 +83,9 @@ export default {
 
       console.log(realtedTextFields)
 
-      const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, esTemplateOptions)
-      let hasToolsQuery = resultsTemplate({relatedData: realtedTextFields, n: FacetsConfig.RELATEDDATA_COUNT});
-      var url = FacetsConfig.TRIPLESTORE_URL;
+      const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, this.FacetsConfig.esTemplateOptions)
+      let hasToolsQuery = resultsTemplate({relatedData: realtedTextFields, n: this.FacetsConfig.RELATEDDATA_COUNT});
+      var url = this.FacetsConfig.TRIPLESTORE_URL;
       var params = {
         query: hasToolsQuery
       }

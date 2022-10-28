@@ -11,6 +11,18 @@ module.exports = {
     //     ? '/client/'
     //     : '/'
 
+        // chainWebpack: config => {
+        //     config.plugin('copy')
+        //         .tap(args => {
+        //             args[0].push({
+        //                 from: path.resolve(__dirname, 'src/public/config'),
+        //                 to: path.resolve(__dirname, 'dist/config'),
+        //                 toType: 'dir',
+        //                 ignore: ['.DS_Store']
+        //             })
+        //             return args
+        //         })
+        // },
         configureWebpack: {
             plugins: [
                 new webpack.DefinePlugin({

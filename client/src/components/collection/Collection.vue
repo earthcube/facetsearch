@@ -107,7 +107,7 @@
 // import {mapState} from "vuex";
 // import Facets from "./Facets";
 import localforage from 'localforage';
-import FacetsConfig from "../../config";
+//import FacetsConfig from "../../config";
 // import FacetTextItem from "./FacetTextItem";
 // import _ from "underscore";
 import Vue from "vue";
@@ -116,7 +116,7 @@ import CreateCollection from "./CreateCollection";
 import CollectionMenuItem from "./CollectionMenuItem";
 import sendCollectionToNotebook from "./sendCollectionToNotebook";
 import CollectionCard from "./CollectionCard"
-import {mapGetters} from "vuex";
+import {mapGetters, mapState} from "vuex";
 import vSelect from "vue-select";
 import VueScrollbox from 'vue-scrollbox';
 import "vue-select/dist/vue-select.css";
@@ -142,7 +142,7 @@ export default {
       collections: {},
       assigned_collection_names: [],
       facetStore: {},
-      facets: FacetsConfig.COLLECTION_FACETS,
+      facets: [], //FacetsConfig.COLLECTION_FACETS,
       selectedCollectionItems: {},
       selectedCollectionName: '',
       datasets: [],
@@ -154,7 +154,7 @@ export default {
       types: {},
       currentClick: "",
       collectionTitle: "",
-      node_env: FacetsConfig.NODE_ENV,
+
     }
   },
   provide: function () {
@@ -163,7 +163,8 @@ export default {
     }
   },
   computed: {
-    ...mapGetters (['getCollections'])
+    ...mapGetters (['getCollections' ]),
+    ...mapState ([ 'FacetsConfig'])
   },
   // computed: { ...mapState ([ 'collections'])},
 
@@ -172,6 +173,7 @@ export default {
     await this.reloadCollections()
     this.currentClick = 'unassigned'
     this.chooseType('unassigned')
+   this.facets = this.FacetsConfig.COLLECTION_FACETS
   },
   methods:{
 
@@ -222,20 +224,20 @@ export default {
         Vue.set(self.collections, 'query', query_collections)
         Vue.set(self.collections, 'tool', tool_collections)
 
-        for(let i = 0; i < FacetsConfig.COLLECTION_FACETS.length; i++) {
-          if(FacetsConfig.COLLECTION_FACETS[i].field == 'unassigned') {
+        for(let i = 0; i <  this.FacetsConfig.COLLECTION_FACETS.length; i++) {
+          if( this.FacetsConfig.COLLECTION_FACETS[i].field == 'unassigned') {
             Vue.set(self.facets, i, {
-              field: FacetsConfig.COLLECTION_FACETS[i].field,
-              title: FacetsConfig.COLLECTION_FACETS[i].title,
-              sort: FacetsConfig.COLLECTION_FACETS[i].sort,
-              open: FacetsConfig.COLLECTION_FACETS[i].open,
-              type: FacetsConfig.COLLECTION_FACETS[i].type,
-              collections: FacetsConfig.COLLECTION_FACETS[i].collections,
+              field: this.FacetsConfig.COLLECTION_FACETS[i].field,
+              title:  this.FacetsConfig.COLLECTION_FACETS[i].title,
+              sort:  this.FacetsConfig.COLLECTION_FACETS[i].sort,
+              open:  this.FacetsConfig.COLLECTION_FACETS[i].open,
+              type:  this.FacetsConfig.COLLECTION_FACETS[i].type,
+              collections:  this.FacetsConfig.COLLECTION_FACETS[i].collections,
               items: [{id: "data", count: data_collections.length, isActive: false, name: "data"},
                 {id: "query", count: query_collections.length, isActive: false, name: "query"},
                 {id: "tool", count: 0, isActive: false, name: "tool"}]
             })
-          }else if(FacetsConfig.COLLECTION_FACETS[i].field == 'all') {
+          }else if( this.FacetsConfig.COLLECTION_FACETS[i].field == 'all') {
             var items = {}
             for(let i = 0; i < assigned_collection_names.length; i++) {
               if(assigned_collection_names[i] in assgined) {
@@ -254,12 +256,12 @@ export default {
             }
 
             Vue.set(self.facets, i, {
-              field: FacetsConfig.COLLECTION_FACETS[i].field,
-              title: FacetsConfig.COLLECTION_FACETS[i].title,
-              sort: FacetsConfig.COLLECTION_FACETS[i].sort,
-              open: FacetsConfig.COLLECTION_FACETS[i].open,
-              type: FacetsConfig.COLLECTION_FACETS[i].type,
-              collections: FacetsConfig.COLLECTION_FACETS[i].collections,
+              field:  this.FacetsConfig.COLLECTION_FACETS[i].field,
+              title:  this.FacetsConfig.COLLECTION_FACETS[i].title,
+              sort:  this.FacetsConfig.COLLECTION_FACETS[i].sort,
+              open:  this.FacetsConfig.COLLECTION_FACETS[i].open,
+              type:  this.FacetsConfig.COLLECTION_FACETS[i].type,
+              collections:  this.FacetsConfig.COLLECTION_FACETS[i].collections,
               items: items,
               names: assigned_collection_names,
             })
@@ -275,15 +277,15 @@ export default {
     updteAllCollections: function(colls) {
       // this.allCollections = colls
       console.log(this.allCollections)
-      for(let i = 0; i < FacetsConfig.COLLECTION_FACETS.length; i++) {
-        if(FacetsConfig.COLLECTION_FACETS[i].field == 'all') {
+      for(let i = 0; i <  this.FacetsConfig.COLLECTION_FACETS.length; i++) {
+        if( this.FacetsConfig.COLLECTION_FACETS[i].field == 'all') {
           Vue.set(this.facets, i, {
-            field: FacetsConfig.COLLECTION_FACETS[i].field,
-            title: FacetsConfig.COLLECTION_FACETS[i].title,
-            sort: FacetsConfig.COLLECTION_FACETS[i].sort,
-            open: FacetsConfig.COLLECTION_FACETS[i].open,
-            type: FacetsConfig.COLLECTION_FACETS[i].type,
-            collections: FacetsConfig.COLLECTION_FACETS[i].collections,
+            field:  this.FacetsConfig.COLLECTION_FACETS[i].field,
+            title:  this.FacetsConfig.COLLECTION_FACETS[i].title,
+            sort:  this.FacetsConfig.COLLECTION_FACETS[i].sort,
+            open:  this.FacetsConfig.COLLECTION_FACETS[i].open,
+            type:  this.FacetsConfig.COLLECTION_FACETS[i].type,
+            collections:  this.FacetsConfig.COLLECTION_FACETS[i].collections,
             names: colls,
           })
         }

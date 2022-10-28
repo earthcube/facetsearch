@@ -22,8 +22,8 @@ import VueGtag from "vue-gtag";
 
 import App from './App.vue'
 import router from './routes'
-import {store} from './state.js'
-
+//import {store} from './state.js'
+import {storeRemoteConfig as store} from './state.js'
 
 Vue.use(VueGtag, {
   config: { id: "G-15XD8YBF5L" ,
@@ -57,9 +57,13 @@ localForage.config({
 Vue.config.productionTip = false
 Vue.config.devtools = true
 export const bus = new Vue(); // https://blog.logrocket.com/using-event-bus-in-vue-js-to-pass-data-between-components/
-new Vue({
-  render: h => h(App),
-  router,
-  store:store
-}).$mount('#app')
+store().then((s)=>{
+    new Vue({
+        render: h => h(App),
+        router,
+        store:  s
+    }).$mount('#app')
+    }
+)
+
 

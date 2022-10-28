@@ -1,4 +1,9 @@
-version: '3'
+version: '3.3'
+configs:
+  ecgraph:
+    file: ../client/public/config/config.yaml
+networks:
+  traefik_default:
 services:
   # this needs to be run with the geocodes/geodex compose file
   # docker-compose --env-file env.beta -f docker-compose.yaml -f docker-compose_base.yaml up -d
@@ -12,12 +17,17 @@ services:
     #build: ./server
     environment:
       - NODE_ENV=production
-      - S3ADDRESS=s3system:9000
-      - S3BUCKET=sites
-      - S3PREFIX=alpha
-      - DOMAIN=https://${SERVER}.${HOST:?HOST environment varaible is required}/
-      - S3KEY=${S3KEY}
-      - S3SECRET=${S3SECRET}
+      - S3ADDRESS=${GLEANER_OSS_DOMAIN}
+      - S3KEY=${MINIO_ROOT_ACCESS_KEY}
+      - S3SECRET=${MINIO_ROOT_SECRET_KEY}
+      - S3SSL=${S3SSL}
+      - S3PORT=${S3PORT}
+      - BUCKET=${BUCKET}
+      - BUCKETPATH=${BUCKETPATH}
+      - PATHTEMPLATE=${PATHTEMPLATE}
+      - TOOLTEMPLATE=${TOOLTEMPLATE}
+      - TOOLPATH=${TOOLPATH}
+      - TOOLREPO=${TOOLREPO}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.beta-server.entrypoints=http"
@@ -76,6 +86,9 @@ services:
     environment:
       - NODE_ENV=production
       - DOMAIN=https://${SERVER}.${HOST:?HOST environment varaible is required}/
+    configs:
+      - source:   facets_config
+        target: /usr/src/app/dist/config/config.yaml
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.beta.entrypoints=http"
@@ -97,5 +110,3 @@ services:
       - "traefik.http.middlewares.beta.headers.addvaryheader=true"
     networks:
       - traefik_default
-networks:
-  traefik_default:

@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import FacetsConfig from '../../config.js'
+//import FacetsConfig from '../../config.js'
 import {mapState} from "vuex";
 import {bus} from "@/main";
 import localforage from "localforage";
@@ -70,7 +70,7 @@ export default {
  //   , "setSearchExactmatch"
   ],
   computed: {
-    ...mapState(['searchExactMatch']),
+    ...mapState(['searchExactMatch','FacetsConfig']),
   },
   props: {
     "totalCount": Number,
@@ -86,10 +86,10 @@ export default {
   },
   data() {
     return {
-      orderBy: FacetsConfig.ORDER_BY_DEFAULT,
-      orderByOptions: FacetsConfig.ORDER_BY_OPTIONS,//{field:'name', title: 'Name', sort: 'asc' },
-      limit: FacetsConfig.LIMIT_DEFAULT,
-      limitOptions: FacetsConfig.LIMIT_OPTIONS,
+      orderBy: this.FacetsConfig.ORDER_BY_DEFAULT,
+      orderByOptions: this.FacetsConfig.ORDER_BY_OPTIONS,//{field:'name', title: 'Name', sort: 'asc' },
+      limit: this.FacetsConfig.LIMIT_DEFAULT,
+      limitOptions: this.FacetsConfig.LIMIT_OPTIONS,
       searchExact: this.searchExactMatch,
     }
   }

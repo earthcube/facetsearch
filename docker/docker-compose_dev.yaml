@@ -1,4 +1,12 @@
-version: '3'
+version: '3.3'
+volumes:
+  node_modules_server:
+  node_modules_client:
+networks:
+  traefik_default:
+configs:
+  ecgraph:
+    file: ../client/public/config/config.yaml
 services:
   traefik:
     image: traefik:v2.0.2
@@ -39,11 +47,16 @@ services:
       #- NODE_ENV=development
       - DEBUG=*
       - S3ADDRESS=s3system:9000
-      - S3BUCKET=sites
-      - S3PREFIX=alpha
-      - DOMAIN=http://${HOST:?HOST environment varaible is required}/
-      - S3KEY={EXAMPLE}
-      - S3SECRET={EXAMPLEKEY}
+      - S3KEY=${MINIO_ROOT_ACCESS_KEY}
+      - S3SECRET=${MINIO_ROOT_SECRET_KEY}
+      - S3SSL=${S3SSL}
+      - S3PORT=${S3PORT}
+      - BUCKET=${BUCKET}
+      - BUCKETPATH=${BUCKETPATH}
+      - PATHTEMPLATE=${PATHTEMPLATE}
+      - TOOLTEMPLATE=${TOOLTEMPLATE}
+      - TOOLPATH=${TOOLPATH}
+      - TOOLREPO=${TOOLREPO}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.alpha-server.entrypoints=http"
@@ -89,6 +102,9 @@ services:
     volumes:
       - ../client:/usr/src/app
       - node_modules_client:/usr/src/app/node_modules
+    configs:
+      - source:   facets_config
+        target: /usr/src/app/dist/config/config.yaml
     environment:
       - NODE_ENV=production
       - DOMAIN=https://${HOST:?HOST environment varaible is required}/
@@ -110,8 +126,4 @@ services:
     networks:
       - traefik_default
 
-volumes:
-  node_modules_server:
-  node_modules_client:
-networks:
-  traefik_default:
+

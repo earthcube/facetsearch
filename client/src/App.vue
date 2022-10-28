@@ -9,17 +9,26 @@
 
 <script>
 //import Search from './components/facetsearch/Search.vue'
-import FacetsConfig from './config'
+//import FacetsConfig from './config'
 import navHeader  from './components/navHeader.vue'
-//import Landing from "./components/landing/landing.vue";
 
+import {mapState} from "vuex";
 
 export default {
   name: 'App',
   data() {
     return {
-      NODE_ENV: FacetsConfig.NODE_ENV
+      NODE_ENV:  ""
+
      }
+  },
+  computed: {
+    ...mapState(['FacetsConfig'])
+
+  },
+  mounted() {
+    this.NODE_ENV = this.FacetsConfig.NODE_ENV
+
   },
   components: {
  //   Landing,

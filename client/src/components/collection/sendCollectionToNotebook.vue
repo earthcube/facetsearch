@@ -4,13 +4,17 @@
 </template>
 
 <script>
-import {mapActions} from "vuex";
+import {mapActions, mapState} from "vuex";
 import _ from "lodash";
-import FacetsConfig from "../../config";
+//import FacetsConfig from "../../config";
 
 export default {
   name: "sendCollectionToNotebook",
   props: ["collectionName" ],
+  computed: {
+    ...mapState(['FacetsConfig'])
+
+  },
   data: function()  {
     return {
       nbconfig:  {
@@ -52,8 +56,8 @@ export default {
       const serverBase = NbConfig.baseurl
       let dispatcherPage =NbConfig.dispatcherPage
 
-      const nbParamsT =_.template(NbConfig.contentQuery, FacetsConfig.ES_TEMPLATE_OPTIONS)
-      const nbPageT =_.template(NbConfig.pageTemplate, FacetsConfig.ES_TEMPLATE_OPTIONS)
+      const nbParamsT =_.template(NbConfig.contentQuery, this.FacetsConfig.ES_TEMPLATE_OPTIONS)
+      const nbPageT =_.template(NbConfig.pageTemplate, this.FacetsConfig.ES_TEMPLATE_OPTIONS)
 
       let nbParams = nbParamsT({collection:collection})
       let nbPage = nbPageT({notebooktorun:page})
