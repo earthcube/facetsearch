@@ -80,14 +80,15 @@ export default {
       let jp = self.jsonLdCompact // just short name
       let realtedTextFields = schemaItem('description', jp) + schemaItem('name', jp);
       realtedTextFields = realtedTextFields.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi,'').replace(/<[^>]+?>/g,'').replace(/\s+/g,' ').replace(/ /g,' ').replace(/>/g,' ');
-
+      realtedTextFields = realtedTextFields.replace(/"/g,'');
       console.log(realtedTextFields)
+      if ( realtedTextFields == "") return;
 
       const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, this.FacetsConfig.esTemplateOptions)
       let hasToolsQuery = resultsTemplate({relatedData: realtedTextFields, n: this.FacetsConfig.RELATEDDATA_COUNT});
       var url = this.FacetsConfig.TRIPLESTORE_URL;
       var params = {
-        query: hasToolsQuery
+        query: "#hastoodsquery /n" +hasToolsQuery
       }
       const config = {
         url: url,
@@ -99,7 +100,7 @@ export default {
         params: params
       }
       console.log('relateddata:query:')
-      console.log(params["query"]);
+     // console.log(params["query"]);
       axios.request(config).then(function (response) {
         //self.webserviceTools =  response.data.results.bindings
         var bindings = response.data.results.bindings

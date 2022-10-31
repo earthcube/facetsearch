@@ -167,7 +167,7 @@ export default {
         params: params
       }
       console.log('webtools:query:')
-      console.log(params["query"]);
+     // console.log(params["query"]);
       axios.request(config).then(function (response) {
         //self.webserviceTools =  response.data.results.bindings
         var bindings = response.data.results.bindings

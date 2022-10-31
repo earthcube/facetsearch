@@ -86,14 +86,19 @@ export default {
   },
   data() {
     return {
-      orderBy: this.FacetsConfig.ORDER_BY_DEFAULT,
-      orderByOptions: this.FacetsConfig.ORDER_BY_OPTIONS,//{field:'name', title: 'Name', sort: 'asc' },
-      limit: this.FacetsConfig.LIMIT_DEFAULT,
-      limitOptions: this.FacetsConfig.LIMIT_OPTIONS,
+      orderBy: "score",
+      orderByOptions: [],//{field:'name', title: 'Name', sort: 'asc' },
+      limit: 100,
+      limitOptions:   [10,50,100,1000],
       searchExact: this.searchExactMatch,
     }
+  },
+  mounted() {
+    this.orderBy=this.FacetsConfig.ORDER_BY_DEFAULT;
+        this.orderByOptions=this.FacetsConfig.ORDER_BY_OPTIONS;//{field:'name', title: 'Name', sort: 'asc' },
+        this.limit=this.FacetsConfig.LIMIT_DEFAULT;
+        this.limitOptions= this.FacetsConfig.LIMIT_OPTIONS;
   }
-
   ,
   methods: {
     consolidateFilter: function (key){

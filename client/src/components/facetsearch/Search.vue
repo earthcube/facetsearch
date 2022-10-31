@@ -61,7 +61,7 @@ import {
   // mapGetters
 } from "vuex";
 import feedback from "../feedback/feedback";
-
+import {v5 as uuidv5} from 'uuid'
 
 
 // import HistRangeSlider from "./HistRangeSlider.vue"
@@ -90,10 +90,10 @@ export default {
     n: 'newTextSearch',
     searchExactMatch: 'newTextSearch',
     resourceType: 'newTextSearch',
-    '$route.params.resourceType': function() {
-      this.newTextSearch()
-      // should get fanche and overlay a loading... then remove loading in toMetadata
-    },
+    // '$route.params.resourceType': function() {
+    //   this.newTextSearch()
+    //   // should get fanche and overlay a loading... then remove loading in toMetadata
+    // },
   },
 
   props: {
@@ -132,19 +132,20 @@ export default {
 
       // -- end edit  facets
       queryRunning: false,
+      lastError: undefined,
     // resourceType queries are in state.js
     //   microCache: null
     }
   },
   created() {
-  this.n= this.FacetsConfig.LIMIT_DEFAULT
+    this.n= this.FacetsConfig.LIMIT_DEFAULT
     this.facets =  this.FacetsConfig.FACETS
   },
   mounted() {
     //const self = this;
     //const q = "water";
     console.log( window.location.href );
-    const o = 0;
+    this.o= 0;
     this.queryRunning = true;
     this.$store.state.q = this.textQuery
 
@@ -161,10 +162,14 @@ export default {
 
 
     // const hit = this.getMicroCache.get(this.textQuery)
+    let queryObj = this.getQueryObj();
 
-    if (this.hasMicroCache(this.textQuery)) {
-      console.log("lru has " + this.textQuery)
+    if (this.hasMicroCache(queryObj.uuid)) {
+      console.log("lru has " + queryObj.uuid)
+
+      // caution, do not set results in this block, since results is watched,  so this ends up called twice
       this.search()
+
     // }
     // // console.log("hit: " + hit)
     //
@@ -173,17 +178,12 @@ export default {
     //   this.$store.commit('setResults',lastItems)
     //   //this.queryRunning = false;
     //   this.search()
-    } else {
-      this.$store.dispatch('getResults', {
-            textQuery: this.textQuery,
-            limit: this.n,
-            offset: o,
-            searchExactMatch: this.searchExactMatch,
-            resourceType: this.resourceType
-          }
-      )
-      // this.getMicroCache.set(this.textQuery, this.results)
     }
+    // else {
+    //   this.$store.dispatch('getResults', queryObj
+    //   )
+   //    this.addtoMicroCache(queryObj, this.results)
+   // }
 
 
 
@@ -192,25 +192,50 @@ export default {
   ,
   methods: {
     ...mapActions([
-      'getResults', 'getQueryTemplate']),
+      'getResults', 'getQueryTemplate', 'addtoMicroCache']),
+     getQueryObj : function() {
+      //let activeFilters = this.state.filters|| []; // filters needs to be moved into actual state in the future
+       let activeFilters =  [];
+       let queryObj = {
+         textQuery: this.textQuery,
+         limit: this.n,
+         offset:  this.o,
+         searchExactMatch: this.searchExactMatch,
+         resourceType: this.resourceType,
+         filters:activeFilters
+       }
+       let string2uuid = JSON.stringify(queryObj)
+       let uuid =uuidv5(string2uuid,uuidv5.URL ) // any old 16 character namespace
+      return { uuid:uuid, query: queryObj};
+     } ,
     //content.results.bindings
     newTextSearch: function () {
       this.queryRunning = true;
       this.$store.state.q = this.textQuery
-      this.getResults({
-        textQuery: this.textQuery,
-        limit: this.n,
-        offset: this.o,
-        searchExactMatch: this.searchExactMatch,
-        resourceType: this.resourceType
+      this.getResults(this.getQueryObj()).then(()=>{
+        this.queryRunning = false;
+      }).catch((ex)=>{
+        this.lastError = ex
+        this.$bvToast.toast(`Query issue ` + ex, {
+          title: "Server issues with query to triplestore",
+
+          solid: true,
+          appendToast: false,
+          noAutoHide: true
+        })
       })
+      //this.queryRunning = false;
     },
 
     search: function () {
-      this.$store.commit('setMicroCache', {'key': this.textQuery, 'value': this.results})
-      this.feedBackItemId = "search?q="+this.textQuery;
+      let queryObj = this.getQueryObj();
+      // these are handles in the state getResults...
+      //this.$store.commit('setMicroCache', {'key':queryObj.uuid, 'value': this.results})
+      // this.$store.commit('setResults',  this.results)
+      this.feedBackItemId = "search?q="+queryObj.query?.textQuery;
       this.queryRunning = false;
       this.items = this.results;
+     // this.items = this.getResults(this.getQueryObj()) // just in case it's not the last query
       this.initFacetCounts();//items,facets, facetStore,  facetSortOption
       this.filter();
       bus.$emit('facetupdate');
