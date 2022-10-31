@@ -1,20 +1,19 @@
 ---
-FACETS_CONFIG_FILE: "config/config.yaml"
-API_URL: http://localhost:3000
-#API_URL: "${window_location_origin}/ec/api"
-TRIPLESTORE_URL: https://graph.geodex.org/blazegraph/namespace/earthcube/sparql
+#API_URL: http://localhost:3000
+API_URL: https://geocodes.geocodes-1.earthcube.org/ec/api
+TRIPLESTORE_URL: https://graph.geocodes-1.earthcube.org/blazegraph/namespace/earthcube/sparql
+ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
 # timeout for blazgraph queries
 BLAZEGRAPH_TIMEOUT: 20
-ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
 ECRR_GRAPH: http://earthcube.org/gleaner-summoned
 THROUGHPUTDB_URL: https://throughputdb.com/api/ccdrs/annotations
 SPARQL_QUERY: queries/sparql_query.txt
 SPARQL_HASTOOLS: queries/sparql_hastools.txt
 SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
 SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
-JSONLD_PROXY: "${window.location.origin}/ec/api/${o}"
-SPARQL_NB: https://beta.geocodes.earthcube.org/notebook/mkQ?q=${q}
-SPARQL_YASGUI: https://geocodes.earthcube.org/sparqlgui?
+JSONLD_PROXY: https://geocodes.geocodes-1.earthcube.org/ec/api/${o}
+SPARQL_NB: https://geocodes.geocodes-1.earthcube.org/notebook/mkQ?q=${q}
+SPARQL_YASGUI: https://geocodes.geocodes-1.earthcube.org/sparqlgui?
 COLLECTION_FACETS:
   - field: unassigned
     title: All Items
