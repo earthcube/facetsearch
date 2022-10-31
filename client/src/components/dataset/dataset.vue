@@ -228,8 +228,17 @@ name: "dataset",
   // async created() {
     this.$store.commit('setJsonLd', {})
     this.$store.commit('setJsonLdCompact', {})
+   this.obscurePage = true;
+    this.$store.dispatch('fetchJsonLd', this.d).then(() => {this.obscurePage = false;}).catch(
+        (ex)=>{
+          this.obscurePage = false;
+          this.$bvToast.toast(`This is probably an issue with stale data, or bad identifier: ` + ex, {
+            title: "No JSONLD Metadata Found",
 
-    this.$store.dispatch('fetchJsonLd', this.d)
+            solid: true,
+            appendToast: false
+          })
+        } )
    // this.$nextTick(() => this.$store.dispatch('fetchJsonLd', this.d) )
   },
   // async beforeUpdate(){
@@ -271,6 +280,8 @@ name: "dataset",
       // var j = JSON.stringify(self.jsonLdCompact, null, 2);
       //var jp = JSON.parse(j);
       var jp = self.jsonLdCompact;
+      if (JSON.stringify(jp) === '{}' )return
+
       // console.log(j.toString());
       mapping.raw_json = jp;
       //mapping.s_identifier_doi = schemaItem('identifier', jp);//self.getDOIUrl()
@@ -370,7 +381,7 @@ name: "dataset",
           'omission': '***'
         }))
       }
-      if (mapping.s_name === undefined ||mapping.s_name === ""  ){
+      if ( JSON.stringify(jp) !== '{}' && ( mapping.s_name === undefined ||mapping.s_name === ""  )  ){
         console.log ('json issue')
 
           this.$bvToast.toast(`See Metadata for item description`, {
