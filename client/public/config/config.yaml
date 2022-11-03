@@ -3,7 +3,8 @@
 #API_URL: http://localhost:3000
 #API_URL: https://geocodes.geocodes-1.earthcube.org/ec/api
 API_URL: https://geocodes.earthcube.org/ec/api
-TRIPLESTORE_URL: https://graph.geocodes-1.earthcube.org/blazegraph/namespace/summary/sparql
+TRIPLESTORE_URL: htttps://graph.geocodes-1.earthcube.org/blazegraph/namespace/earthcube/sparql
+SUMMARYSTORE_URL: htttps://graph.geocodes-1.earthcube.org/blazegraph/namespace/summary/sparql
 ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
 # timeout for blazgraph queries
 BLAZEGRAPH_TIMEOUT: 20
