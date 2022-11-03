@@ -648,8 +648,11 @@ export const store = new Vuex.Store({
             });
 
             var url = this.state.FacetsConfig.TRIPLESTORE_URL;
+            var blazetimeout = this.state.FacetsConfig.BLAZEGRAPH_TIMEOUT || 60;
             var params = {
-                query: hasToolsQuery
+                query: hasToolsQuery,
+                "timeout":blazetimeout,
+                "queryLn":"sparql"
             }
 
             const config = {

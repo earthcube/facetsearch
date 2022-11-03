@@ -181,7 +181,8 @@ export default {
 
             }
         ).catch((err) => {
-          console.error(err);
+          self.connectedTools=false;
+          console.info(err);
         })
       }
 

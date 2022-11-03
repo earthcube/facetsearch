@@ -7,7 +7,7 @@ PREFIX schema:  <https://schema.org/>
 			{
 			  ?s schemaold:distribution|schema:distribution ?dist .
 			  ?dist  schemaold:encodingFormat|schema:encodingFormat ?type .
-              ?dist schemaold:contentUrl|schema:contentUrl|schema:url|schemaolTry t ?curl
+              ?dist schemaold:contentUrl|schema:contentUrl|schema:url|schemaold:url  ?curl
 			}
 			UNION {
 			  VALUES (?dataset) { ( schema:Dataset ) ( schemaold:Dataset ) }
