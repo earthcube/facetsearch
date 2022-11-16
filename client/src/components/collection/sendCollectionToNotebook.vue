@@ -1,5 +1,6 @@
 <template>
   <b-button v-on:click.stop="getCollectionJson(collectionName)" v-hi
+            :disabled="disableCollectionBtn"
   >Collection To Notebook</b-button>
 </template>
 
@@ -42,13 +43,46 @@ export default {
 
 
       },
+      disableCollectionBtn: false,
     }
   },
+  //  beforeUpdate() {
+  //   this.collectionHasItems()
+  // },
   methods:{
     ...mapActions(['getItemsForCollection']),
+    // can't get this to work. tried mounted, created, beforeUpdate. Never gets updated after first laod.
+    // async collectionHasItems(){
+    //   let  coll =  await this.getItemsForCollection(this.collectionName)
+    //   if ( coll.datasets?.length ===0 &&  coll.queries?.length ===0 &&  coll.tools?.length ===0 )
+    //   {
+    //     this.disableCollectionBtn = true
+    //     this.obscurePage = false;
+    //     this.$bvToast.toast(`Add a dataset, query and/or tool to the collection: ` , {
+    //       title: "No Objects in Collection",
+    //
+    //       solid: true,
+    //       appendToast: false
+    //     })
+    //   } else {
+    //     this.disableCollectionBtn = false
+    //   }
+    //
+    //
+    // },
     async getCollectionJson( collName){
       let  coll = await this.getItemsForCollection(collName)
       console.log(coll)
+      if (coll.datasets?.length ==0 && coll.queries?.length ==0 && coll.tools?.length ==0){
+        this.obscurePage = false;
+        this.$bvToast.toast(`Cannot send to a notebook. Please add a dataset, query and/or tool to the collection: ` , {
+          title: "No Objects in Collection",
+
+          solid: true,
+          appendToast: false
+        })
+        return
+      }
       let url = this.nbBinderUrl(this.nbconfig,coll)
       // do as a post  https://stackoverflow.com/questions/5684303/javascript-window-open-pass-values-using-post
       window.open(url, "Notebook", "status=0,title=0,height=600,width=800,scrollbars=1");
