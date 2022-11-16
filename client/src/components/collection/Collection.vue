@@ -142,7 +142,7 @@ export default {
       collections: {},
       assigned_collection_names: [],
       facetStore: {},
-      facets: [], //FacetsConfig.COLLECTION_FACETS,
+      facets:undefined, //FacetsConfig.COLLECTION_FACETS,
       selectedCollectionItems: {},
       selectedCollectionName: '',
       datasets: [],
@@ -167,13 +167,15 @@ export default {
     ...mapState ([ 'FacetsConfig'])
   },
   // computed: { ...mapState ([ 'collections'])},
-
+  created() {
+    this.facets= this.FacetsConfig.COLLECTION_FACETS
+  },
   async mounted() {
     let self = this
     await self.reloadCollections()
     this.currentClick = 'unassigned'
     this.chooseType('unassigned')
-    Vue.set(self.facets,  this.FacetsConfig.COLLECTION_FACETS)
+
   },
   methods:{
 

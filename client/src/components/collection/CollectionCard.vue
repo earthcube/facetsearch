@@ -117,15 +117,16 @@ export default {
   props: ["item", "currentClick", ],
   data: () => {
     return {
-      facets: [], //FacetsConfig.COLLECTION_FACETS,
+      facets: undefined, //FacetsConfig.COLLECTION_FACETS,
     }
   },
   computed: {
     ...mapState(['FacetsConfig'])
 
   },
-  mounted() {
-    this.facets = this.FacetsConfig.COLLECTION_FACETS
+  created() {
+    //https://v2.vuejs.org/v2/guide/list.html#Array-Change-Detection
+   this.facets = this.FacetsConfig.COLLECTION_FACETS
   },
   methods: {
     optionRemoved: function(option, item) {
