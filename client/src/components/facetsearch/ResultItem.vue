@@ -22,7 +22,11 @@
 
     <div class="badges mt-2">
       <b-badge variant="data" class="mr-1"><b-icon class="mr-1" icon="server"></b-icon>{{item.resourceType}}</b-badge>
-      <b-badge variant="tool" class="mr-1" v-if="connectedTools"><b-icon class="mr-1" icon="tools"></b-icon>Connected Tools</b-badge>
+
+      <b-badge variant="tool" class="mr-1" v-if="connectedTools"><b-icon class="mr-1" icon="tools"></b-icon>Connected Tools </b-badge>
+      <Spinner v-if="connectToolsIsLoading" size="small" />
+
+
       <span v-if="item.disurl"> <!-- array created in state.js/flatten... -->
             <b-badge variant="light" class="mr-1" :href="i"  v-for="i in item.disurl" v-bind:key="i">
 
@@ -53,6 +57,7 @@ export default {
       filters : this.state.filters,
       connectedTools: false,
       clickToAddCollection: false,
+      connectToolsIsLoading: true,
     }
   }, computed: {
     ...mapGetters ([
@@ -68,7 +73,7 @@ export default {
       'hasConnectedTools']),
     addToCollection(type) {
       var self = this
-      this.clickToAddCollection = true
+      self.clickToAddCollection = true
       // var toAdd = true
       // for(var i = 0; i < this.collections.length; i++) {
       //   var item = this.collections[i]
@@ -169,19 +174,21 @@ export default {
     }
     ,hasTool() {
       var self = this;
+      self.connectToolsIsLoading = true;
       let gg = self.item.g ;
       if (self.getConnectedTool(gg)) {
         self.connectedTools=self.getConnectedTool(gg);
-
+        self.connectToolsIsLoading = false;
       } else {
         self.hasConnectedTools(gg).then(
             function(o){
 
               self.connectedTools=o;
-
+              self.connectToolsIsLoading = false;
             }
         ).catch((err) => {
           self.connectedTools=false;
+          self.connectToolsIsLoading = false;
           console.info(err);
         })
       }
