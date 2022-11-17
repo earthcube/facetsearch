@@ -24,7 +24,7 @@
       <b-badge variant="data" class="mr-1"><b-icon class="mr-1" icon="server"></b-icon>{{item.resourceType}}</b-badge>
 
       <b-badge variant="tool" class="mr-1" v-if="connectedTools"><b-icon class="mr-1" icon="tools"></b-icon>Connected Tools </b-badge>
-      <Spinner v-if="connectToolsIsLoading" size="small" />
+      <Spinner v-if="!(connectedTools)" size="small" />
 
 
       <span v-if="item.disurl"> <!-- array created in state.js/flatten... -->
@@ -57,7 +57,6 @@ export default {
       filters : this.state.filters,
       connectedTools: false,
       clickToAddCollection: false,
-      connectToolsIsLoading: true,
     }
   }, computed: {
     ...mapGetters ([
@@ -178,17 +177,13 @@ export default {
       let gg = self.item.g ;
       if (self.getConnectedTool(gg)) {
         self.connectedTools=self.getConnectedTool(gg);
-        self.connectToolsIsLoading = false;
       } else {
         self.hasConnectedTools(gg).then(
             function(o){
-
               self.connectedTools=o;
-              self.connectToolsIsLoading = false;
             }
         ).catch((err) => {
           self.connectedTools=false;
-          self.connectToolsIsLoading = false;
           console.info(err);
         })
       }
