@@ -1,7 +1,7 @@
 ---
 
 #API_URL: http://localhost:3000
-API_URL: https://geocodes.geocodes-1.earthcube.org/ec/api
+API_URL: https://geocodes.geocodes.earthcube.org/ec/api
 #API_URL: https://geocodes.earthcube.org/ec/api
 TRIPLESTORE_URL: https://graph.geocodes-1.earthcube.org/blazegraph/namespace/earthcube/sparql
 #SUMMARYSTORE_URL: https://graph.geocodes-1.earthcube.org/blazegraph/namespace/summary/sparql
@@ -16,9 +16,9 @@ SPARQL_QUERY: queries/sparql_query.txt
 SPARQL_HASTOOLS: queries/sparql_hastools.txt
 SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
 SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
-JSONLD_PROXY: https://geocodes.geocodes-1.earthcube.org/ec/api/${o}
-SPARQL_NB: https://geocodes.geocodes-1.earthcube.org/notebook/mkQ?q=${q}
-SPARQL_YASGUI: https://geocodes.geocodes-1.earthcube.org/sparqlgui?
+JSONLD_PROXY: https://geocodes.geocodes.earthcube.org/ec/api/${o}
+SPARQL_NB: https://geocodes.earthcube.org/notebook/mkQ?q=${q}
+SPARQL_YASGUI: https://sparqlui.geocodes-1.earthcube.org/?
 COLLECTION_FACETS:
   - field: unassigned
     title: All Items
