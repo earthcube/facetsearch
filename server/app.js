@@ -5,8 +5,25 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+
+const swaggerUi = require('swagger-ui-express');
+//const openApiDocumentation = require('./openApiDocumentation');
+const swaggerJsdoc = require('swagger-jsdoc');
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Hello World',
+      version: '1.0.0',
+    },
+  },
+  apis: ['./routes/index.js', './routes/users.js'], // files containing annotations as above
+};
+const openapiSpecification = swaggerJsdoc(options);
+
 var config = require('./config.js');
 
 var app = express();
@@ -24,6 +41,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+
+ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

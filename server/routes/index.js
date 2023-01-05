@@ -10,10 +10,28 @@ var toolsController = require('../api/tools')
 var datasetController = require('../api/dataset_s3_store')
 
 /* GET home page. */
+/**
+ * @openapi
+ * /:
+ *   get:
+ *     description: Welcome to swagger-jsdoc!
+ *     responses:
+ *       200:
+ *         description: Returns a mysterious string.
+ */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Earthcube Geocodes Faceted Client API' });
 });
 /* GET CONFIG . */
+/**
+ * @openapi
+ * /config:
+ *   get:
+ *     description: configuration
+ *     responses:
+ *       200:
+ *         description: jsondoc with the endpints.
+ */
 router.get('/config', function(req, res, next) {
     var c = JSON.parse(JSON.stringify(global.gConfig.config)); // make a copy since omit fields later
     c.jsonldStore = _.omit(c.jsonldStore, ["accessKey", "secretKey"])
@@ -26,6 +44,16 @@ router.get('/config', function(req, res, next) {
    // res.status(err.response.status)
     res.json(returnConfig);
 });
+
+/**
+ * @openapi
+ * /tools/*:
+ *   get:
+ *     description: return tools for a give ark
+ *     responses:
+ *       200:
+ *         description: Returns jsonld document.
+ */
 router.get('/tools/*', function(req,
                               res,
                               next) {
@@ -63,6 +91,15 @@ router.get('/tools/*', function(req,
 // dataset/{urn}/download -- return download links and mime types
 //                           maybe return possible transformation
 // dataset/{urn}/download/{type} -- return the data in format as a proxy
+/**
+ * @openapi
+ * /dataset /downloads:
+ *   get:
+ *     description: dataset downloads from a given document
+ *     responses:
+ *       200:
+ *         description: Returns distrubutions.
+ */
 router.get('/dataset/*/downloads', function(req
                                             ,res
                                             , next){
@@ -85,6 +122,16 @@ router.get('/dataset/*/downloads', function(req
         }
     )
 })
+
+/**
+ * @openapi
+ * /dataset/*:
+ *   get:
+ *     description: daasets
+ *     responses:
+ *       200:
+ *         description: Returns jsonld of a dataset for a give sha
+ */
 router.get('/dataset/*', function(req,
                                 res,
                                 next) {
