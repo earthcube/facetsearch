@@ -34,12 +34,13 @@ import _ from 'lodash'
 
 const schemaItem = function (name, json_compacted, noSchemaMessage="") {
     let s_name = json_compacted["https://schema.org/" + name] ? json_compacted["https://schema.org/" + name] :
-        json_compacted["http://schema.org/" + name] ? json_compacted["http://schema.org/" + name] : noSchemaMessage
+        json_compacted["http://schema.org/" + name] ? json_compacted["http://schema.org/" + name] :
+            json_compacted[name] ?     json_compacted[name] : noSchemaMessage
     return s_name;
 }
 const hasSchemaProperty = function (name, jsonObj) {
     // eslint-disable-next-line no-prototype-builtins
-    if ( jsonObj.hasOwnProperty("https://schema.org/" +name) || jsonObj.hasOwnProperty("http://schema.org/" +name) )
+    if ( jsonObj.hasOwnProperty("https://schema.org/" +name ) || jsonObj.hasOwnProperty("http://schema.org/" +name ) || jsonObj.hasOwnProperty (name ) )
         return true;
 }
 const geoplacename = function(s_spatialCoverage){

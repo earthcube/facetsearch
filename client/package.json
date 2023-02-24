@@ -18,7 +18,7 @@
     "bootstrap-vue": "^2.21.2",
     "caniuse-lite": "^1.0.30001349",
     "js-yaml": "^4.1.0",
-    "jsonld": "^4.0.1",
+    "jsonld": "^8.0.0",
     "jsonpath": "^1.1.1",
     "jsonpath-plus": "^5.1.0",
     "leaflet": "^1.7.1",
