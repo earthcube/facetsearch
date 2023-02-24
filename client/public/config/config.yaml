@@ -1,28 +1,8 @@
 ---
-API_URL: https://geocodes.earthcube.org/ec/api
-TRIPLESTORE_URL: https://graph.geocodes-1.earthcube.org/blazegraph/namespace/earthcube/sparql
-ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
-SUMMARYSTORE_URL: https://graph.geocodes-1.earthcube.org/blazegraph/namespace/summary2/sparql
-# timeout for blazgraph queries
-BLAZEGRAPH_TIMEOUT: 20
-ECRR_GRAPH: http://earthcube.org/gleaner-summoned
-THROUGHPUTDB_URL: https://throughputdb.com/api/ccdrs/annotations
-SPARQL_QUERY: queries/sparql_query.txt
-SPARQL_HASTOOLS: queries/sparql_hastools.txt
-SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
-SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
-JSONLD_PROXY: https://geocodes.earthcube.org/ec/api${o}
-SPARQL_NB: https://beta.geocodes.earthcube.org/notebook/mkQ?q=${q}
-SPARQL_YASGUI: https://geocodes.earthcube.org/sparqlgui?
-
-
-#API_URL: https://geocodes.wifire-data.sdsc.edu/ec/api
-##API_URL: https://geocodes.earthcube.org/ec/api
-#TRIPLESTORE_URL: "https://graph.geocodes-dev.earthcube.org/blazegraph/namespace/wifire/sparql"
-##SUMMARYSTORE_URL: https://graph.geocodes-1.earthcube.org/blazegraph/namespace/summary/sparql
-#SUMMARYSTORE_URL: "https://graph.geocodes-dev.earthcube.org/blazegraph/namespace/wifire_summary/sparql"
-##SUMMARYSTORE_URL: https://graph.geodex.org/blazegraph/namespace/summary/sparql
+#API_URL: https://geocodes.earthcube.org/ec/api
+#TRIPLESTORE_URL: https://graph.geocodes-1.earthcube.org/blazegraph/namespace/earthcube/sparql
 #ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
+#SUMMARYSTORE_URL: https://graph.geocodes-1.earthcube.org/blazegraph/namespace/summary2/sparql
 ## timeout for blazgraph queries
 #BLAZEGRAPH_TIMEOUT: 20
 #ECRR_GRAPH: http://earthcube.org/gleaner-summoned
@@ -31,9 +11,29 @@ SPARQL_YASGUI: https://geocodes.earthcube.org/sparqlgui?
 #SPARQL_HASTOOLS: queries/sparql_hastools.txt
 #SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
 #SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
-#JSONLD_PROXY: https://geocodes.wifire-data.sdsc.edu/ec/api/${o}
-#SPARQL_NB: https://geocodes.geocodes-1.earthcube.org/notebook/mkQ?q=${q}
-#SPARQL_YASGUI: https://geocodes.geocodes-1.earthcube.org/sparqlgui?
+#JSONLD_PROXY: https://geocodes.earthcube.org/ec/api${o}
+#SPARQL_NB: https://beta.geocodes.earthcube.org/notebook/mkQ?q=${q}
+#SPARQL_YASGUI: https://geocodes.earthcube.org/sparqlgui?
+
+
+API_URL: https://geocodes.wifire-data.sdsc.edu/ec/api
+#API_URL: https://geocodes.earthcube.org/ec/api
+TRIPLESTORE_URL: "https://graph.geocodes-dev.earthcube.org/blazegraph/namespace/wifire/sparql"
+#SUMMARYSTORE_URL: https://graph.geocodes-1.earthcube.org/blazegraph/namespace/summary/sparql
+SUMMARYSTORE_URL: "https://graph.geocodes-dev.earthcube.org/blazegraph/namespace/wifire_summary/sparql"
+#SUMMARYSTORE_URL: https://graph.geodex.org/blazegraph/namespace/summary/sparql
+ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
+# timeout for blazgraph queries
+BLAZEGRAPH_TIMEOUT: 20
+ECRR_GRAPH: http://earthcube.org/gleaner-summoned
+THROUGHPUTDB_URL: https://throughputdb.com/api/ccdrs/annotations
+SPARQL_QUERY: queries/sparql_query.txt
+SPARQL_HASTOOLS: queries/sparql_hastools.txt
+SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
+SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
+JSONLD_PROXY: https://geocodes.wifire-data.sdsc.edu/ec/api/${o}
+SPARQL_NB: https://geocodes.geocodes-1.earthcube.org/notebook/mkQ?q=${q}
+SPARQL_YASGUI: https://geocodes.geocodes-1.earthcube.org/sparqlgui?
 COLLECTION_FACETS:
   - field: unassigned
     title: All Items

@@ -102,12 +102,12 @@
 
         <b-col md="4">
 
-          <DatasetLocation></DatasetLocation>
+          <DatasetLocation :m="mapping"></DatasetLocation>
 
 
           <b-card>
             <b-card-title>Downloads</b-card-title>
-            <downloadfiles :d="d"></downloadfiles>
+            <downloadfiles :d="d" :m="mapping"></downloadfiles>
           </b-card>
         </b-col>
       </b-row>
@@ -222,6 +222,12 @@ export default {
         s_doiurl: '',
         doi_citation: '', // s_ is schema... doi_citation not a schema element
         doi_metadata: '',
+        s_spatialCoverage:false,
+        placenames: "",
+        box:"",
+        poly:"",
+        points: [],
+
       }
       //jsonLdobj: {},
       //jsonLoaded: true,
@@ -412,12 +418,12 @@ export default {
             //     contentUrl: downloadsurl,
             //     encodingFormat: encodingFormat
             // }]
-            let s_spatialCoverage = schemaItem('spatialCoverage', jp)
-            let placename = geoplacename(s_spatialCoverage)
-            let box = getFirstGeoShape(s_spatialCoverage, 'box')
-            let poly = getFirstGeoShape(s_spatialCoverage, 'polygon')
-            let points = getGeoCoordinates(s_spatialCoverage)
-            console.info(`placename:${placename} box:${box} poly:${poly} points:${points}`)
+            mapping.s_spatialCoverage = schemaItem('spatialCoverage', jp)
+            mapping.placename = geoplacename(mapping.s_spatialCoverage)
+            mapping.box = getFirstGeoShape(mapping.s_spatialCoverage, 'box')
+            mapping.poly = getFirstGeoShape(mapping.s_spatialCoverage, 'polygon')
+            mapping.points = getGeoCoordinates(mapping.s_spatialCoverage)
+            console.info(`placename:${mapping.placename} box:${mapping.box} poly:${mapping.poly} points:${mapping.points}`)
 
             let variableMeasured = schemaItem('variableMeasured', jp)
             if (variableMeasured) {
