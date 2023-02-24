@@ -157,7 +157,7 @@ import citationButton from "@/components/dataset/citationButton";
 //import {JSONPath} from "jsonpath-plus";
 
 //import {getJsonLD} from '../../api/jsonldObject.js'
-import jsonld from "jsonld";
+//import jsonld from "jsonld";
 //import axios from "axios";
 import {mapState, mapActions} from 'vuex'
 import _ from 'lodash'
@@ -167,7 +167,8 @@ import {
   getFirstGeoShape,
   getGeoCoordinates,
   hasSchemaProperty,
-  schemaItem
+  schemaItem,
+    frameJsonLD,
 } from "../../api/jsonldObject";
 //import {JSONView} from "vue-json-component";
 import VueJsonPretty from 'vue-json-pretty';
@@ -316,18 +317,20 @@ export default {
       //   }
       //
       // }
-      let datasetFrame = JSON.parse(`
-{
-  "@context": {
-    "@vocab": "https://schema.org/",
-        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-        "schema": "https://schema.org/",
-        "xsd": "http://www.w3.org/2001/XMLSchema#"
-  },
-  "@type": "schema:Dataset"
-}` )
-      jsonld.frame(jp, datasetFrame).then(
+
+//       let datasetFrame = JSON.parse(`
+// {
+//   "@context": {
+//     "@vocab": "https://schema.org/",
+//         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+//         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+//         "schema": "https://schema.org/",
+//         "xsd": "http://www.w3.org/2001/XMLSchema#"
+//   },
+//   "@type": "schema:Dataset"
+// }` )
+     // jsonld.frame(jp, datasetFrame).then(
+          frameJsonLD(jp, 'Dataset').then(
           (jp) => {
 
 

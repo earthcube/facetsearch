@@ -45,7 +45,7 @@ import SpaqlToolsWebserviceQuery from 'raw-loader!../../sparql_blaze/sparql_rela
 
 
 import _ from "lodash";
-import {schemaItem} from "../../api/jsonldObject";
+import {frameJsonLD, schemaItem} from "../../api/jsonldObject";
 
 
 export default {
@@ -59,7 +59,7 @@ export default {
    // this.showRelatedData()
   },
   watch: {
-    jsonLdCompact: 'showRelatedData'
+    jsonLdObj: 'showRelatedData'
   },
   props: {
 
@@ -77,38 +77,45 @@ export default {
     showRelatedData() {
       var self = this
       console.log('related: ' + self.related)
-      let jp = self.jsonLdCompact // just short name
-      let realtedTextFields = schemaItem('description', jp) + schemaItem('name', jp);
-      realtedTextFields = realtedTextFields.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi,'').replace(/<[^>]+?>/g,'').replace(/\s+/g,' ').replace(/ /g,' ').replace(/>/g,' ');
-      realtedTextFields = realtedTextFields.replace(/"/g,'');
-      console.log(realtedTextFields)
-      if ( realtedTextFields == "") return;
+     // let jp = self.jsonLdCompact // just short name
+      frameJsonLD(self.jsonLdObj, 'Dataset').then(
+          (jp) => {
+            let realtedTextFields = schemaItem('description', jp) + schemaItem('name', jp);
+            realtedTextFields = realtedTextFields.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi, '').replace(/<[^>]+?>/g, '').replace(/\s+/g, ' ').replace(/ /g, ' ').replace(/>/g, ' ');
+            realtedTextFields = realtedTextFields.replace(/"/g, '');
+            console.log(realtedTextFields)
+            if (realtedTextFields == "") return;
 
-      const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, this.FacetsConfig.esTemplateOptions)
-      let hasToolsQuery = resultsTemplate({relatedData: realtedTextFields, n: this.FacetsConfig.RELATEDDATA_COUNT});
-      var url = this.FacetsConfig.TRIPLESTORE_URL;
-      var params = {
-        query: "#hastoodsquery /n" +hasToolsQuery
-      }
-      const config = {
-        url: url,
-        method: 'get',
-        headers: {
-          'Accept': 'application/sparql-results+json',
-          'Content-Type': 'application/json'
-        },
-        params: params
-      }
-      console.log('relateddata:query:')
-     // console.log(params["query"]);
-      axios.request(config).then(function (response) {
-        //self.webserviceTools =  response.data.results.bindings
-        var bindings = response.data.results.bindings
-        let index = 0;
-        bindings.forEach((i) => (i.index = 'relatedData-'+index++));
-        _.remove(bindings, (i) => i.g.value === self.d)
-        self.related = bindings
-      })
+            const resultsTemplate = _.template(SpaqlToolsWebserviceQuery, this.FacetsConfig.esTemplateOptions)
+            let hasToolsQuery = resultsTemplate({
+              relatedData: realtedTextFields,
+              n: this.FacetsConfig.RELATEDDATA_COUNT
+            });
+            var url = this.FacetsConfig.TRIPLESTORE_URL;
+            var params = {
+              query: "#hastoodsquery /n" + hasToolsQuery
+            }
+            const config = {
+              url: url,
+              method: 'get',
+              headers: {
+                'Accept': 'application/sparql-results+json',
+                'Content-Type': 'application/json'
+              },
+              params: params
+            }
+            console.log('relateddata:query:')
+            // console.log(params["query"]);
+            axios.request(config).then(function (response) {
+              //self.webserviceTools =  response.data.results.bindings
+              var bindings = response.data.results.bindings
+              let index = 0;
+              bindings.forEach((i) => (i.index = 'relatedData-' + index++));
+              _.remove(bindings, (i) => i.g.value === self.d)
+              self.related = bindings
+            })
+          }
+      )
     },
     // toRelatedData: function (d) {
     //   // console.log(index)

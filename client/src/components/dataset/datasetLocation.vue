@@ -42,9 +42,9 @@ import {
   // LMarker,
 } from 'vue2-leaflet';
 import {mapState} from "vuex";
-import {schemaItem, getGeoCoordinates, geoplacename, getFirstGeoShape} from '../../api/jsonldObject'
+import {schemaItem, getGeoCoordinates, geoplacename, getFirstGeoShape, frameJsonLD} from '../../api/jsonldObject'
 import { Icon } from 'leaflet';
-import jsonld from "jsonld";
+//import jsonld from "jsonld";
 
 delete Icon.Default.prototype._getIconUrl;
 Icon.Default.mergeOptions({
@@ -109,18 +109,19 @@ export default {
       var obj = this.jsonLdObj
       var self = this;
       // move all the caluations out of nextTick
-      let datasetFrame = JSON.parse(`
-{
-  "@context": {
-    "@vocab": "https://schema.org/",
-        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-        "schema": "https://schema.org/",
-        "xsd": "http://www.w3.org/2001/XMLSchema#"
-  },
-  "@type": "schema:Dataset"
-}`)
-      jsonld.frame(obj, datasetFrame).then(
+//       let datasetFrame = JSON.parse(`
+// {
+//   "@context": {
+//     "@vocab": "https://schema.org/",
+//         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+//         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+//         "schema": "https://schema.org/",
+//         "xsd": "http://www.w3.org/2001/XMLSchema#"
+//   },
+//   "@type": "schema:Dataset"
+// }`)
+//       jsonld.frame(obj, datasetFrame).then(
+          frameJsonLD(obj, 'Dataset').then(
           (obj) => {
             let name = schemaItem('name', obj);
             let s_spatialCoverage = schemaItem('spatialCoverage', obj)

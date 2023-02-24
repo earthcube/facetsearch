@@ -27,7 +27,7 @@
 import {mapState} from "vuex";
 import _ from "lodash";
 import axios from "axios";
-import {schemaItem} from "@/api/jsonldObject";
+import {frameJsonLD, schemaItem} from "@/api/jsonldObject";
 
 export default {
   name: "citationButton",
@@ -38,7 +38,7 @@ export default {
     }
   },
   watch: {
-    jsonLdCompact: "toCitation",
+    jsonLdObj: "toCitation",
   },
   computed: {
     ...mapState(['jsonLdObj', 'jsonLdCompact'])
@@ -75,7 +75,7 @@ export default {
 
     async toCitation() {
       var self = this;
-      var jp = this.jsonLdCompact;
+      var jp = this.jsonLdObj;
       let doiPropertyValues = ["https://registry.identifiers.org/registry/doi",
         "https://registry.identifiers.org/registry/doi",
         "DOI",
@@ -112,50 +112,48 @@ export default {
       // } ,
 
       // being real method
-
-      var s_citation = schemaItem('citation', jp);
-      // check if there is citation string.
-      if (!s_citation.startsWith('http') && s_citation.indexOf('doi.org') < 0 && s_citation !== "") {
-        this.citation = s_citation
-        this.hasCitation = true
-      } else if (s_citation) {
-        self.getDoiService(s_citation).then((data) => {
-              this.citation = data
+      frameJsonLD(jp, 'Dataset').then(
+          (jp) => {
+            var s_citation = schemaItem('citation', jp);
+            // check if there is citation string.
+            if (!s_citation.startsWith('http') && s_citation.indexOf('doi.org') < 0 && s_citation !== "") {
+              this.citation = s_citation
               this.hasCitation = true
+            } else if (s_citation) {
+              self.getDoiService(s_citation).then((data) => {
+                    this.citation = data
+                    this.hasCitation = true
+                  }
+              ).catch(err => console.log(err))
             }
-        ).catch(err => console.log(err))
-      }
 
-    // ok, is there an identifier that is a DOI.
-    var ident = schemaItem('identifier', jp);//self.getDOIUrl()
-    // console.log('ident: ' + ident)
-    if(_.isString(ident)
-)
-{
-  if (ident.indexOf('doi') >= 0) {
-    self.getDoiService(ident).then((data) => {
-      this.citation = data
-      this.hasCitation = true
-    }).catch(err => console.log(err))
-  }
-}
-else
-if (Array.isArray(ident)) {
-  var doi = _.find(ident, (i) => _.includes(doiPropertyValues, i["https://schema.org/propertyID"]))
-  var doi_url = doi["https://schema.org/url"]
-  self.getDoiService(doi_url).then((data) => {
-    this.citation = data
-    this.hasCitation = true
-  }).catch(err => console.log(err))
-}
-var propertyType = schemaItem('propertyID', ident)
-if (propertyType !== undefined && propertyType === 'DOI') {
-  let value = schemaItem('value', ident)
-  self.getDoiService(value).then((data) => {
-    this.citation = data
-    this.hasCitation = true
-  }).catch(err => console.log(err))
-}
+            // ok, is there an identifier that is a DOI.
+            var ident = schemaItem('identifier', jp);//self.getDOIUrl()
+            // console.log('ident: ' + ident)
+            if (_.isString(ident)
+            ) {
+              if (ident.indexOf('doi') >= 0) {
+                self.getDoiService(ident).then((data) => {
+                  this.citation = data
+                  this.hasCitation = true
+                }).catch(err => console.log(err))
+              }
+            } else if (Array.isArray(ident)) {
+              var doi = _.find(ident, (i) => _.includes(doiPropertyValues, i["https://schema.org/propertyID"]))
+              var doi_url = doi["https://schema.org/url"]
+              self.getDoiService(doi_url).then((data) => {
+                this.citation = data
+                this.hasCitation = true
+              }).catch(err => console.log(err))
+            }
+            var propertyType = schemaItem('propertyID', ident)
+            if (propertyType !== undefined && propertyType === 'DOI') {
+              let value = schemaItem('value', ident)
+              self.getDoiService(value).then((data) => {
+                this.citation = data
+                this.hasCitation = true
+              }).catch(err => console.log(err))
+            }
 // if (ident) {
 //   if (Array.isArray(ident)) {
 //     ident.forEach(function (item) {
@@ -190,7 +188,8 @@ if (propertyType !== undefined && propertyType === 'DOI') {
 //     }).catch((err)=> console.log(err))
 //   }
 // }
-
+          }
+      )
 }
 }
 }

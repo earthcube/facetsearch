@@ -31,6 +31,7 @@ import {mapState} from "vuex";
 //const {JSONPath} = require('jsonpath-plus');
 const jp = require('jsonpath')
 import _ from 'lodash'
+import {frameJsonLD} from "@/api/jsonldObject";
 
 export default {
   name: "sampleInfo",
@@ -70,16 +71,17 @@ export default {
       // works below
     // let partOfFields = jp.query(jsonLdObj, "$..hasPart[?(@.additionalType=='http://schema.geolink.org/1.0/base/main#PhysicalSample')]")
       //let partOfFields = jp.query(jsonLdObj, "$..hasPart[?(@.@type=='CreativeWork')]")
-
-      let partOfFields = jp.query(jsonLdObj,
-          //"$..hasPart[?(@.additionalType=='http://schema.geolink.org/1.0/base/main#PhysicalSample')].identifier")
-          "$..hasPart[?(@.additionalType=='http://schema.geolink.org/1.0/base/main#PhysicalSample')].identifier")
-      partOfFields = jp.query(partOfFields, '$[?(@.propertyID == "IGSN")]')
-      partOfFields = _.uniqWith(partOfFields, (a,b)=> a.value === b.value )
-      console.log('partOf: ' + partOfFields.length)
-      console.log(partOfFields)
-     this.partOf = partOfFields
-
+      frameJsonLD(jsonLdObj, 'Dataset').then(
+          (jsonLdObj) => {
+            let partOfFields = jp.query(jsonLdObj,
+                //"$..hasPart[?(@.additionalType=='http://schema.geolink.org/1.0/base/main#PhysicalSample')].identifier")
+                "$..hasPart[?(@.additionalType=='http://schema.geolink.org/1.0/base/main#PhysicalSample')].identifier")
+            partOfFields = jp.query(partOfFields, '$[?(@.propertyID == "IGSN")]')
+            partOfFields = _.uniqWith(partOfFields, (a, b) => a.value === b.value)
+            console.log('partOf: ' + partOfFields.length)
+            console.log(partOfFields)
+            this.partOf = partOfFields
+          })
     },
     // toRelatedData: function (d) {
     //   // console.log(index)
@@ -95,6 +97,8 @@ export default {
     //   });
     //  // this.$forceUpdate()
     // }
+
+
 
   },
   created() {
