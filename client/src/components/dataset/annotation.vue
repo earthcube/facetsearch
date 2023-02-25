@@ -31,7 +31,7 @@
 
 import {mapState} from "vuex";
 import axios from "axios";
-import {schemaItem} from "../../api/jsonldObject";
+import {frameJsonLD, schemaItem} from "../../api/jsonldObject";
 import FacetsConfig from "../../config";
 
 export default {
@@ -43,7 +43,7 @@ export default {
     }
   },
   watch: {
-    jsonLdCompact: 'getAnnotationData',
+    jsonLdObj: 'getAnnotationData',
 
   }, computed: {
     ...mapState(['jsonLdObj', 'jsonLdCompact'])
@@ -59,50 +59,54 @@ export default {
     getAnnotationData() {
       var self = this
 
-      let jp = self.jsonLdCompact // just short name
+      let jp = self.jsonLdObj // just short name
       // console.log(jp.toString());
-      let s_identifier = schemaItem('identifier', jp);
-      if (!Array.isArray(s_identifier))
-        s_identifier =[s_identifier] // make an array
-      // find returns the first found element
-      let t_identifiers = s_identifier.find(
-          (obj) => obj["https://schema.org/propertyID"]=== "http://linked.earth/ontology#hasDatasetId"
+      frameJsonLD(jp, 'Dataset').then(
+          (jp) => {
+            let s_identifier = schemaItem('identifier', jp);
+            if (!Array.isArray(s_identifier))
+              s_identifier = [s_identifier] // make an array
+            // find returns the first found element
+            let t_identifiers = s_identifier.find(
+                (obj) => obj["https://schema.org/propertyID"] === "http://linked.earth/ontology#hasDatasetId"
+            )
+
+            if (t_identifiers && t_identifiers["https://schema.org/value"]) {
+              this.throughputIdentifier = t_identifiers["https://schema.org/value"]
+            }
+            console.log('this.throughputIdentifier:' + this.throughputIdentifier);
+            if (this.throughputIdentifier === undefined)
+              return
+
+            var dbid = 'r3d100012894'
+
+            var url = FacetsConfig.THROUGHPUTDB_URL;
+            var params = {
+              // fixed for now
+              dbid: dbid,
+              additionalType: 'http://linked.earth/ontology#Dataset',
+              id: this.throughputIdentifier
+            }
+            const config = {
+              url: url,
+              method: 'get',
+              headers: {
+                'Accept': 'application/sparql-results+json',
+                'Content-Type': 'application/json'
+              },
+              params: params
+            }
+            axios.request(config).then(function (response) {
+              console.log('annotation counts: ' + response.data.data.length)
+              for (var i = 0; i < response.data.data.length; i++) {
+                console.log(response.data.data[i].annotation)
+                self.list.push({label: 1 + i, description: response.data.data[i].annotation})
+              }
+            })
+          }
       )
-
-      if (t_identifiers && t_identifiers["https://schema.org/value"] ){
-        this.throughputIdentifier = t_identifiers["https://schema.org/value"]
-      }
-      console.log('this.throughputIdentifier:' + this.throughputIdentifier);
-      if (this.throughputIdentifier === undefined)
-        return
-
-      var dbid = 'r3d100012894'
-
-      var url = FacetsConfig.THROUGHPUTDB_URL;
-      var params = {
-        // fixed for now
-        dbid: dbid,
-        additionalType: 'http://linked.earth/ontology#Dataset',
-        id: this.throughputIdentifier
-      }
-      const config = {
-        url: url,
-        method: 'get',
-        headers: {
-          'Accept': 'application/sparql-results+json',
-          'Content-Type': 'application/json'
-        },
-        params: params
-      }
-      axios.request(config).then(function (response) {
-        console.log('annotation counts: ' + response.data.data.length)
-        for (var i = 0; i < response.data.data.length; i++) {
-          console.log(response.data.data[i].annotation)
-          self.list.push({label: 1+i, description: response.data.data[i].annotation})
-        }
-      })
-    }
-  },
+    },
+  }
 }
 </script>
 

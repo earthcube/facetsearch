@@ -319,14 +319,37 @@ export const store = new Vuex.Store({
                         content = content.replace("http://schema.org/", "https://schema.org/")
                     }
 
-                    let jsonLdobj = JSON.parse(content)
-
+                   // wifire uses jsonld flattened, so at load let's convert items to expanded
+                     let jsonLdobj = JSON.parse(content)
                     context.commit('setJsonLd', jsonLdobj)
+
+                    // attempt to clean up below. Let's just pass the original
+                    // const jsonLdContext = {"@vocab":"https://schema.org/"};
+                    // try {
+                    //
+                    //
+                    //     await jsonld.expand(jsonLdobj, jsonLdContext).then((providers) => {
+                    //         var j = JSON.stringify(providers, null, 2);
+                    //         var jp = JSON.parse(j);
+                    //         //   console.log(j.toString());
+                    //         context.commit('setJsonLd', jp)
+                    //     })
+                    // } catch (ex) {
+                    //     console.log("JSONLD transformation issue. JSON into JSONLDCompact. " +  ex)
+                    //
+                    //     context.commit('setJsonLd', jsonLdobj)
+                    //     throw "JSONLD transformation issue."
+                    // }
+
+
 
                    try {
 
-                       const jsonLdContext = {};
-                       await jsonld.compact(jsonLdobj, jsonLdContext).then((providers) => {
+// this will return an array, if there is more than one type.
+                       // empty context to get what was a mistake... prefix with https://schema.org
+// do any framing in the component pages.
+
+                       await jsonld.compact(jsonLdobj, {} ).then((providers) => {
                            var j = JSON.stringify(providers, null, 2);
                            var jp = JSON.parse(j);
                         //   console.log(j.toString());

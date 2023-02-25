@@ -1,5 +1,6 @@
 "use strict";
 import _ from 'lodash'
+import jsonld from "jsonld";
 //import axios from 'axios'
 
 
@@ -32,14 +33,31 @@ import _ from 'lodash'
 //
 // }
 
+const frameJsonLD= async function(jsonldObj, schemaType) {
+    let frame = JSON.parse(`
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "schema": "https://schema.org/",
+        "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@type": "schema:${schemaType}"
+}` )
+
+   return  jsonld.frame(jsonldObj, frame)
+}
+
 const schemaItem = function (name, json_compacted, noSchemaMessage="") {
     let s_name = json_compacted["https://schema.org/" + name] ? json_compacted["https://schema.org/" + name] :
-        json_compacted["http://schema.org/" + name] ? json_compacted["http://schema.org/" + name] : noSchemaMessage
+        json_compacted["http://schema.org/" + name] ? json_compacted["http://schema.org/" + name] :
+            json_compacted[name] ?     json_compacted[name] : noSchemaMessage
     return s_name;
 }
 const hasSchemaProperty = function (name, jsonObj) {
     // eslint-disable-next-line no-prototype-builtins
-    if ( jsonObj.hasOwnProperty("https://schema.org/" +name) || jsonObj.hasOwnProperty("http://schema.org/" +name) )
+    if ( jsonObj.hasOwnProperty("https://schema.org/" +name ) || jsonObj.hasOwnProperty("http://schema.org/" +name ) || jsonObj.hasOwnProperty (name ) )
         return true;
 }
 const geoplacename = function(s_spatialCoverage){
@@ -117,7 +135,7 @@ const getGeoCoordinates = function(s_spatialCoverage){
     // sometimes obj has no @type..
 
     if (Array.isArray(geo)) {
-        geo = geo.filter((obj) => obj['@type'] === 'https://schema.org/GeoCoordinates' || obj['@type'] === 'http://schema.org/GeoCoordinates');
+        geo = geo.filter((obj) => obj['@type'].endsWith( 'GeoCoordinates') );
 
         coords = geo.map(function (obj) {
             var lat = schemaItem('latitude', obj)
@@ -128,7 +146,7 @@ const getGeoCoordinates = function(s_spatialCoverage){
         })
     }
     else {
-        if (geo['@type']=== 'https://schema.org/GeoCoordinates' || geo['@type'] === 'http://schema.org/GeoCoordinates') {
+        if ( geo['@type'].endsWith( 'GeoCoordinates') ) {
             var lat = schemaItem('latitude', geo)
             var lon = schemaItem('longitude', geo)
             if (lat && lon) {
@@ -298,5 +316,5 @@ const makeLinkObj = function(obj_dist){
 
 export {
   //  getJsonLD,
-    schemaItem, hasSchemaProperty, getGeoCoordinates,geoplacename,getFirstGeoShape,getDistributions,makeLinkObj, matchDistributions};
+    frameJsonLD, schemaItem, hasSchemaProperty, getGeoCoordinates,geoplacename,getFirstGeoShape,getDistributions,makeLinkObj, matchDistributions};
 

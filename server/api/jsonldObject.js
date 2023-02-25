@@ -116,7 +116,7 @@ const getGeoCoordinates = function(s_spatialCoverage){
     // sometimes obj has no @type..
 
     if (Array.isArray(geo)) {
-        geo = geo.filter((obj) => obj['@type'] === 'https://schema.org/GeoCoordinates' || obj['@type'] === 'http://schema.org/GeoCoordinates');
+        geo = geo.filter( (obj) => obj['@type'].endsWith( 'GeoCoordinates') );
 
         coords = geo.map(function (obj) {
             var lat = schemaItem('latitude', obj)
@@ -127,7 +127,7 @@ const getGeoCoordinates = function(s_spatialCoverage){
         })
     }
     else {
-        if (geo['@type']=== 'https://schema.org/GeoCoordinates' || geo['@type'] === 'http://schema.org/GeoCoordinates') {
+        if (geo['@type'].endsWith(  'GeoCoordinates') ) {
             var lat = schemaItem('latitude', geo)
             var lon = schemaItem('longitude', geo)
             if (lat && lon) {
