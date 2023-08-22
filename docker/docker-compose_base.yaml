@@ -1,22 +1,47 @@
-version: '3.3'
-configs:
-  ecgraph:
-    file: ../client/public/config/config.yaml
+#####################
+# THIS DOES NOT USE SECRETS
+#
+# THIS can be used mtultiple times, by setting a variable
+#  ${GC_HOST}
+#  IT INCLUDES A  TRAEFIK Routing names: tennant${GC_BASE}`-server, tennant${GC_BASE}`-client, tennant${GC_BASE}`-nb
+# and HOST NAME ${GC_CLIENT_DOMAIN}
+#
+# IT DOES NOT USE SECRETS
+##########
+version: '3.5'
 networks:
-  traefik_default:
+  traefik_proxy:
+    external: true
+configs:
+  facets_config_named:
+    external: true
+    name:   ${FACETS_CONFIG_CONFIG}
+
 services:
-  # this needs to be run with the geocodes/geodex compose file
-  # docker-compose --env-file env.beta -f docker-compose.yaml -f docker-compose_base.yaml up -d
-  # env needs to contain
-  ## SERVER
-  ## S3KEY
-  ## S3SECRET
+  # the base routes:
+  # geocodes /
+  # vue services: /ec/api
+  # notebook proxy: /notebook
+
+  # this needs to be run with the services-compose file
+  # docker-compose --.env-file .env.{yourcongig} -f service-compose.yaml -f geocodes-compose.yaml up -d
+  # .env needs to contain
+  ## GC_CLIENT_DOMAIN
+  ## MINIO_SERVICE_ACCESS_KEY
+  ## MINIO_SERVICE_SECRET_KEY
+  # for Nobebook proxy
+  ## GC_GITHUB_SECRET=OAUTH SECRET
+  ## GC_GITHUB_CLIENTID=OAUTH APP ID
+  ## GC_NB_AUTH_MODE=service
+
 
   vue-services:
     image: nsfearthcube/ec_facets_api_nodejs:latest
+    #    profiles: ["geocodes"]
     #build: ./server
+    restart: unless-stopped
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=produdction
       - S3ADDRESS=${GLEANER_OSS_DOMAIN}
       - S3KEY=${MINIO_ROOT_ACCESS_KEY}
       - S3SECRET=${MINIO_ROOT_SECRET_KEY}
@@ -24,89 +49,107 @@ services:
       - S3PORT=${S3PORT}
       - BUCKET=${BUCKET}
       - BUCKETPATH=${BUCKETPATH}
-      - PATHTEMPLATE=${PATHTEMPLATE}
-      - TOOLTEMPLATE=${TOOLTEMPLATE}
+      #      - PATHTEMPLATE=${PATHTEMPLATE}
+      #      - TOOLTEMPLATE=${TOOLTEMPLATE}
       - TOOLPATH=${TOOLPATH}
       - TOOLREPO=${TOOLREPO}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.beta-server.entrypoints=http"
-      - "traefik.http.routers.beta-server.priority=90"
-      - "traefik.http.routers.beta-server.rule=Host(`${SERVER}.${HOST:?HOST environment variable is required}`) && PathPrefix(`/ec/api`)"
-      - "traefik.http.middlewares.beta-server-https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.routers.beta-server.middlewares=beta-server-https-redirect"
-      - "traefik.http.routers.beta-server-secure.priority=91"
-      - "traefik.http.routers.beta-server-secure.entrypoints=https"
-      - "traefik.http.routers.beta-server-secure.rule=Host(`${SERVER}.${HOST:?HOST environment is required}`) && PathPrefix(`/ec/api`)"
-      - "traefik.http.routers.beta-server-secure.tls=true"
-      - "traefik.http.routers.beta-server-secure.tls.certresolver=http"
-      - "traefik.http.routers.beta-server-secure.service=beta-server"
-      - "traefik.http.services.beta-server.loadbalancer.server.port=3000"
-      - "traefik.docker.network=traefik_default"
-      - "traefik.http.middlewares.beta-server.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
-      - "traefik.http.middlewares.beta-server.headers.accesscontrolalloworigin=*"
-      - "traefik.http.middlewares.beta-server.headers.accesscontrolmaxage=100"
-      - "traefik.http.middlewares.beta-server.headers.addvaryheader=true"
+      - "traefik.http.routers.`tennant${GC_BASE}`-server.entrypoints=http"
+      - "traefik.http.routers.`tennant${GC_BASE}`-server.priority=90"
+      - "traefik.http.routers.`tennant${GC_BASE}`-server.rule=Host(`${GC_CLIENT_DOMAIN:?GC_CLIENT_DOMAIN environment variable is required}`) && PathPrefix(`/ec/api`)"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`-server-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.`tennant${GC_BASE}`-server.middlewares=`tennant${GC_BASE}`-server-https-redirect"
+      - "traefik.http.routers.`tennant${GC_BASE}`-server-secure.priority=91"
+      - "traefik.http.routers.`tennant${GC_BASE}`-server-secure.entrypoints=https"
+      - "traefik.http.routers.`tennant${GC_BASE}`-server-secure.rule=Host(`${GC_CLIENT_DOMAIN:?GC_CLIENT_DOMAIN environment is required}`) && PathPrefix(`/ec/api`)"
+      - "traefik.http.routers.`tennant${GC_BASE}`-server-secure.tls=true"
+      - "traefik.http.routers.`tennant${GC_BASE}`-server-secure.tls.certresolver=httpresolver"
+      - "traefik.http.routers.`tennant${GC_BASE}`-server-secure.service=`tennant${GC_BASE}`-server"
+      - "traefik.http.services.`tennant${GC_BASE}`-server.loadbalancer.server.port=3000"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`-server.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`-server.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`-server.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`-server.headers.addvaryheader=true"
       - "traefik.http.middlewares.ecapi_prefix_b.StripPrefix.prefixes=/ec/api"
-      - "traefik.http.routers.beta-server.middlewares=ecapi_prefix_b"
+      - "traefik.http.routers.`tennant${GC_BASE}`-server-secure.middlewares=ecapi_prefix_b"
     networks:
-      - traefik_default
-  yasgui:
-    image: erikap/yasgui
-    environment:
-      DEFAULT_SPARQL_ENDPOINT: "http://mbobak.ncsa.illinois.edu:9999/blazegraph/namespace/nabu/sparql"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.sparqlgui.entrypoints=http"
-      - "traefik.http.routers.sparqlgui.priority=92"
-      - "traefik.http.routers.sparqlgui.rule=Host(`${SERVER}.${HOST:?HOST environment varaible is required}`) && PathPrefix(`/sparqlgui`) "
-      #      - "traefik.http.routers.alpha.rule=Host(`${HOST:?HOST environment varaible is required}`) "
-      - "traefik.http.routers.sparqlgui.service=sparqlgui"
-      - "traefik.http.middlewares.sparqlgui-https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.routers.sparqlgui.middlewares=sparqlgui-https-redirect"
-      - "traefik.http.routers.sparqlgui-secure.priority=93"
-      - "traefik.http.routers.sparqlgui-secure.entrypoints=https"
-      - "traefik.http.routers.sparqlgui-secure.rule=Host(`${SERVER}.${HOST:?HOST environment is required}`) && PATH(`/api`)"
-      - "traefik.http.routers.sparqlgui-secure.tls=true"
-      - "traefik.http.routers.sparqlgui-secure.tls.certresolver=http"
-      - "traefik.http.services.sparqlgui.loadbalancer.server.port=80"
-      - "traefik.docker.network=traefik_default"
-      - "traefik.http.middlewares.sparqlgui.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
-      - "traefik.http.middlewares.sparqlgui.headers.accesscontrolalloworigin=*"
-      - "traefik.http.middlewares.sparqlgui.headers.accesscontrolmaxage=100"
-      - "traefik.http.middlewares.sparqlgui.headers.addvaryheader=true"
-      #      - "traefik.http.middlewares.client_prefix.stripprefixregex.regex=/client/[a-z0-9]+/[0-9]+/"
-      - "traefik.http.middlewares.sparqlgui_prefix.StripPrefix.prefixes=/sparqlgui"
-      - "traefik.http.routers.sparqlgui.middlewares=sparqlgui_prefix"
-    networks:
-      - traefik_default
+      - traefik_proxy
+
   vue-client:
     image: nsfearthcube/ec_facets_client:latest
+    #    profiles: ["geocodes"]
+    restart: unless-stopped
     #build: ./client
     environment:
-      - NODE_ENV=production
-      - DOMAIN=https://${SERVER}.${HOST:?HOST environment varaible is required}/
+      - NODE_ENV=geocodestest
+      - DOMAIN=https://${GC_CLIENT_DOMAIN:?GC_CLIENT_DOMAIN environment variable is required}/
     configs:
-      - source:   facets_config
+      # the config facets_config_named (defined above) has the name facets_config_${GC_BASE}
+      - source:     facets_config_named
+        target: /usr/src/app/dist/public/config/config.yaml
+      - source:    facets_config_named
         target: /usr/src/app/dist/config/config.yaml
+
+    #      uid: '103'
+    #      gid: '103'
+    #      mode: 0440
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.beta.entrypoints=http"
-      - "traefik.http.routers.beta.priority=10"
-      - "traefik.http.routers.beta.rule=Host(`${SERVER}.${HOST:?HOST environment varaible is required}`)"
-      - "traefik.http.middlewares.beta-https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.routers.beta.middlewares=beta-https-redirect"
-      - "traefik.http.routers.beta-secure.entrypoints=https"
-      - "traefik.http.routers.beta-secure.priority=11"
-      - "traefik.http.routers.beta-secure.rule=Host(`${SERVER}.${HOST:?HOST environment is required}`)"
-      - "traefik.http.routers.beta-secure.tls=true"
-      - "traefik.http.routers.beta-secure.tls.certresolver=http"
-      - "traefik.http.routers.beta-secure.service=beta"
-      - "traefik.http.services.beta.loadbalancer.server.port=8080"
-      - "traefik.docker.network=traefik_default"
-      - "traefik.http.middlewares.beta.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
-      - "traefik.http.middlewares.beta.headers.accesscontrolalloworigin=*"
-      - "traefik.http.middlewares.beta.headers.accesscontrolmaxage=100"
-      - "traefik.http.middlewares.beta.headers.addvaryheader=true"
+      - "traefik.http.routers.`tennant${GC_BASE}`.entrypoints=http"
+      - "traefik.http.routers.`tennant${GC_BASE}`.priority=13"
+      - "traefik.http.routers.`tennant${GC_BASE}`.rule=Host(`${GC_CLIENT_DOMAIN:?GC_CLIENT_DOMAIN environment variable is required}`)"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.`tennant${GC_BASE}`.middlewares=`tennant${GC_BASE}`-https-redirect"
+      - "traefik.http.routers.`tennant${GC_BASE}`-secure.entrypoints=https"
+      - "traefik.http.routers.`tennant${GC_BASE}`-secure.priority=12"
+      - "traefik.http.routers.`tennant${GC_BASE}`-secure.rule=Host(`${GC_CLIENT_DOMAIN:?GC_CLIENT_DOMAIN environment variable is required}`)"
+      - "traefik.http.routers.`tennant${GC_BASE}`-secure.tls=true"
+      - "traefik.http.routers.`tennant${GC_BASE}`-secure.tls.certresolver=httpresolver"
+      - "traefik.http.routers.`tennant${GC_BASE}`-secure.service=`tennant${GC_BASE}`"
+      - "traefik.http.services.`tennant${GC_BASE}`.loadbalancer.server.port=8080"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`.headers.addvaryheader=true"
     networks:
-      - traefik_default
+      - traefik_proxy
+  notebook-proxy:
+    image: nsfearthcube/mknb:latest
+    #    profiles: ["geocodes"]
+    restart: unless-stopped
+    #build: ./client
+    environment:
+      - AUTH_MODE=${GC_NB_AUTH_MODE}
+      - GITHUB_SECRET=${GC_GITHUB_SECRET}
+      - GITHUB_CLIENTID=${GC_GITHUB_CLIENTID}
+      - GITHUB_USER==${GC_GITHUB_USER}
+      - GITHUB_TOKEN=${GC_GITHUB_GITHUB_TOKEN}
+      #GC_NB_AUTH_MODE=apikey
+      - DOMAIN=https://${GC_CLIENT_DOMAIN:?GC_CLIENT_DOMAIN environment variable is required}/
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.`tennant${GC_BASE}`nb.entrypoints=http"
+      - "traefik.http.routers.`tennant${GC_BASE}`nb.priority=90"
+      - "traefik.http.routers.`tennant${GC_BASE}`nb.rule=Host(`${GC_CLIENT_DOMAIN:?GC_CLIENT_DOMAIN environment variable is required}`) && PathPrefix(`/notebook`)"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`nb-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.`tennant${GC_BASE}`nb.middlewares=`tennant${GC_BASE}`nb-https-redirect"
+      - "traefik.http.routers.`tennant${GC_BASE}`nb-secure.entrypoints=https"
+      - "traefik.http.routers.`tennant${GC_BASE}`nb-secure.priority=90"
+      - "traefik.http.routers.`tennant${GC_BASE}`nb-secure.rule=Host(`${GC_CLIENT_DOMAIN:?GC_CLIENT_DOMAIN environment variable is required}`) && PathPrefix(`/notebook`)"
+      - "traefik.http.routers.`tennant${GC_BASE}`nb-secure.tls=true"
+      - "traefik.http.routers.`tennant${GC_BASE}`nb-secure.tls.certresolver=httpresolver"
+      - "traefik.http.routers.`tennant${GC_BASE}`nb-secure.service=`tennant${GC_BASE}`nb"
+      - "traefik.http.services.`tennant${GC_BASE}`nb.loadbalancer.server.port=3031"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`nb.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`nb.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`nb.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`nb.headers.addvaryheader=true"
+      - "traefik.http.middlewares.`tennant${GC_BASE}`nb_prefix.StripPrefix.prefixes=/notebook"
+      - "traefik.http.routers.`tennant${GC_BASE}`nb-secure.middlewares=`tennant${GC_BASE}`nb_prefix"
+    networks:
+      - traefik_proxy
+
