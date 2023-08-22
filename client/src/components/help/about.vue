@@ -117,7 +117,7 @@ export default {
         repositories: [
             {
                 title: 'Environmental Data Initiative',
-                website: 'http://environmentaldatainitiative.org',
+                website: 'https://edirepository.org/',
                 image: 'edi.png',
                 description: "The Environmental Data Initiative is an NSF-funded project meant to accelerate curation and  archive of environmental data, emphasizing data from projects funded by the NSF Division of Environmental Biology. Aside from hosting the LTER data repository and collaborating with the LTER Information Managers, EDI serves the ecological research community including but not limited to research funded by the Long TermResearch in Environmental Biology (LTREB), Organization for Biological Field Stations (OBFS), and Macrosystems Biology (MSB). The Environmental Data Initiative maintains and develops the PASTA infrastructure for its data repositories, and has recently become DataONE’s 40th member node.",
                 record_count: 28248
