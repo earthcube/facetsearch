@@ -35,12 +35,11 @@ WHERE
 
 
     SERVICE <http://132.249.238.169:8080/fuseki/ecrr/query> {
-        GRAPH <http://earthcube.org/gleaner-summoned>
-        {
+
             ?rrs schema:supportingData ?df.
             ?df schema:encodingFormat  ?label ;
             schema:position "input".
             ?rrs schema:name ?name.
-        }
+
     }
 }

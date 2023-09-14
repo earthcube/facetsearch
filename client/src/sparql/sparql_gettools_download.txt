@@ -17,13 +17,12 @@ WHERE                    {
      }
      BIND (str(?type) as ?label)
      SERVICE <${ecrr_service}> {
-      GRAPH <${ecrr_graph}>
-       {
+
           ?rrs schema:supportingData ?df.
               ?df schema:encodingFormat  ?label ;
                   schema:position "input".
               ?rrs schema:name ?name.
                ?rrs schema:subjectOf/schema:url ?landingPage
-       }
+
    }
 }

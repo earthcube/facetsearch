@@ -11,9 +11,7 @@ prefix schema: <https://schema.org/>
      }
      BIND (str(?type) as ?label)
     SERVICE <${ecrr_service}> {
-      GRAPH <${ecrr_graph}>
 
-            {
 
               ?rrs a schema:SoftwareApplication ;
                    schema:name ?appname ;
@@ -28,5 +26,5 @@ prefix schema: <https://schema.org/>
               filter contains(?turl,"{contentURL}")
               OPTIONAL{ ?rrs schema:alternateName ?altName }
        }
-    }
+
    }

@@ -17,12 +17,11 @@ PREFIX schema:  <https://schema.org/>
 		 }
 		 BIND (str(?type) as ?label)
 		 SERVICE <${ecrr_service}> {
-		  GRAPH <${ecrr_graph}>
-		   {
+
 			  ?rrs schema:supportingData ?df.
 				  ?df schema:encodingFormat  ?label ;
 					  schema:position "input".
 				  ?rrs schema:name ?name.
-		   }
+
 	   }
 	}

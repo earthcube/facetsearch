@@ -18,8 +18,7 @@ WHERE                    {
      }
      BIND (str(?type) as ?label)
      SERVICE <${ecrr_service}> {
-      GRAPH <${ecrr_graph}>
-       {
+
          { ?rrs a schema:SoftwareApplication .
          ?rrs schema:supportingData ?df.
               ?df schema:encodingFormat  ?label ;
@@ -35,7 +34,7 @@ WHERE                    {
                 optional{?rrs schema:subjectOf/schema:name ?landingName1 }
       }
 
-   }
+
   }
 }
  GROUP BY ?rrs ?name   ?description ?swversion  ?identifier
