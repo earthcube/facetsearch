@@ -33,10 +33,13 @@ in case more intro paragraph text is needed
             <h2>Council of Data Facilities (<a href="https://www.earthcube.org/council-of-data-facilities" target="_blank">CDF</a>)</h2>
             <h5>Repositories crawled and indexed</h5>
         </b-container>
+        <div id="app">
+        {{ info }}
+        </div>
 
         <b-card-group columns class="mt-4">
             <b-card no-body class="text-center"
-                v-for="(item, index) in repositories"
+                v-for="(item, index) in info"
                 v-bind:key="index"
             >
                 <b-card-body>
@@ -110,6 +113,9 @@ in case more intro paragraph text is needed
 </template>
 
 <script>
+
+import axios from "axios";
+
 export default {
   name: "about.vue",
   data() {
@@ -234,9 +240,16 @@ export default {
                 description: "The EarthCube Resource Registry (ECRR) is intended to provide immediate access to a list of EC capabilities to understand what EC is, and what it isn’t. To support this goal, the ECRR project has developed several persistent resources available for wider EarthCube use.",
                 record_count: 274
             }
-        ]
+        ],
+        info: null
     }
   },
+    mounted () {
+    axios
+      .get('https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/iris/latest/report_stats.json')
+      .then(response => (
+          this.info = response.data))
+  }
 }
 </script>
 
