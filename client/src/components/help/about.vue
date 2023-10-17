@@ -33,9 +33,6 @@ in case more intro paragraph text is needed
             <h2>Council of Data Facilities (<a href="https://www.earthcube.org/council-of-data-facilities" target="_blank">CDF</a>)</h2>
             <h5>Repositories crawled and indexed</h5>
         </b-container>
-        <div id="app">
-        {{ info }}
-        </div>
 
         <b-card-group columns class="mt-4">
             <b-card no-body class="text-center"
@@ -246,7 +243,7 @@ export default {
   },
     mounted () {
     axios
-      .get('https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/iris/latest/report_stats.json')
+      .get('https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/all/latest/report_stats.json')
       .then(response => (
           this.info = response.data))
   }
