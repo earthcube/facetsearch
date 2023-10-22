@@ -128,7 +128,7 @@ export default {
             {
                 title: 'Biological and Chemical Oceanography Data Management Office',
                 website: 'http://www.bco-dmo.org',
-                image: 'bco-dmo.png',
+                image: 'bcodmo.png',
                 description: "The Biological and Chemical Oceanography Data Management Office (BCO-DMO) was created in late 2006 to serve PIs funded by the NSF Geosciences Directorate (GEO) Division of Ocean Sciences (OCE) Biological and Chemical Oceanography Programs and Office of Polar Programs (OPP) Antarctic Sciences (ANT) Organisms & Ecosystems Program. The BCO-DMO is a combination the Data Management Offices formerly created to support the US JGOFS and US GLOBEC programs. The BCO-DMO staff members are the curators of the legacy data collections created by those respective programs, as well as many other more recent research efforts including those of individual investigators.",
                 record_count: 5018
             },
@@ -163,7 +163,7 @@ export default {
             {
                 title: 'IODP Site Survey Databank',
                 website: 'https://ssdb.iodp.org',
-                image: 'ssdb.iodp.png',
+                image: 'ssdbiodp.png',
                 description: "The Site Survey Data Bank (SSDB) is a repository for site survey data submitted in support of International Ocean Discovery Program (IODP) proposals and expeditions. SSDB serves different roles for different sets of users.",
                 record_count: 5344
             },
@@ -177,7 +177,7 @@ export default {
             {
                 title: 'Linked Earth',
                 website: 'http://wiki.linked.earth',
-                image: 'linked.earth.png',
+                image: 'linkedearth.png',
                 description: "The LinkedEarth wiki is an EarthCube-funded platform that: enables the curation of publicly-accessible database by paleoclimate experts, and, fosters the development of standards, so paleoclimate data are easier to analyze, share, and re-use.",
                 record_count: 17964
             },
