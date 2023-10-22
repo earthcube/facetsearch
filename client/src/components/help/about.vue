@@ -39,6 +39,7 @@ in case more intro paragraph text is needed
                 v-for="(item, index) in info"
                 v-bind:key="index"
             >
+
                 <b-card-body>
                     <b-card-title>
                         <b-link target="_blank" class="d-flex flex-column align-items-center"
@@ -58,7 +59,22 @@ in case more intro paragraph text is needed
                         <i v-if="item.record_count > 0">{{item.record_count}} record{{(item.record_count == 1) ? '' : 's'}}</i>
 
                         <div class="mt-3 small text-left" v-html="item.description"></div>
+
+                        <div class="d-flex justify-content-end" >
+                          <b-dropdown class="customDropdown" text="Reports" variant="None">
+                              <v-list>
+                                <v-list-item
+                                  v-for="(item, index) in items"
+                                  :key="index"
+                                >
+                                    <b-dropdown-item :href="item.url">{{ item.title }}</b-dropdown-item>
+                                </v-list-item>
+                              </v-list>
+                          </b-dropdown>
+                        </div>
+
                     </b-card-text>
+
 <!--
 //left this here in case the description was too much to be shown all the time (use collapse). problem is, sometimes expanding forces an item to move to a different column (feels like it disappears)
 //could use accordian option to only allow a single card to be expanded at a time...but still doesn't solve the issue completely and why this was moved to show the description by default
@@ -79,6 +95,7 @@ in case more intro paragraph text is needed
                         </div>
                     </b-card-text>
 -->
+
                 </b-card-body>
             </b-card>
         </b-card-group>
@@ -117,7 +134,12 @@ export default {
   name: "about.vue",
   data() {
     return {
-        info: null
+        info: null,
+        items: [
+            {"title":"graph report", "url":"https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/all/latest/graph_report.json"},
+            {"title":"bucketutil stats", "url":"https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/all/latest/bucketutil_stats.json"},
+            {"title":"missing report", "url":"https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/all/latest/bucketutil_dupliactes.csv"},
+        ]
     }
   },
     mounted () {
@@ -125,8 +147,18 @@ export default {
       .get('https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/all/latest/report_stats.json')
       .then(response => (
           this.info = response.data))
-  }
+  },
+    methods: {
+      hoverHandler(isHovered) {
+        if (isHovered) {
+          // Do something
+        } else {
+          // Do something else
+        }
+      }
+    }
 }
+
 </script>
 
 <style scoped lang="scss">
@@ -146,6 +178,10 @@ export default {
     &.not-collapsed .when_open {
         display: none;
     }
+}
+
+.customDropdown {
+    background-color: white;
 }
 
 </style>
