@@ -7,7 +7,7 @@ var s3Port =  parseInt(process.env.S3PORT, 443) || 443
 var bucket = process.env.BUCKET || 'gleaner'
 var bucketpath = process.env.BUCKETPATH || 'summoned'
 // options for path: bucket, bucketpath, reponame, sha
-var pathtemplate = process.env.PATHTEMPLATE || '{{bucketpath}}/{{reponame}}/{{sha}}.jsonld'
+var pathtemplate = process.env.PATHTEMPLATE || '/{{bucketpath}}/{{reponame}}/{{sha}}.jsonld'
 
 // options for tool: bucket, bucketpath, reponame, ref (aka ark, or maybe a sha in the future)
 var tooltemplate = process.env.TOOLTEMPLATE || '{{bucketpath}}/{{reponame}}/{{ref}}.json'

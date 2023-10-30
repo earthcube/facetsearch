@@ -1,7 +1,8 @@
 ---
 API_URL: http://localhost:3000
-TRIPLESTORE_URL: https://graph.geocodes.earthcube.org/blazegraph/namespace/earthcube/sparql
-ECRR_TRIPLESTORE_URL: https://graph.geocodes.earthcube.org/blazegraph/namespace/ecrr/sparql
+TRIPLESTORE_URL: https://graph.geocodes-aws-dev.earthcube.org/blazegraph/namespace/earthcube/sparql
+SUMMARYSTORE_URL: https://graph.geocodes-aws-dev.earthcube.org/blazegraph/namespace/earthcube_summary/sparql
+ECRR_TRIPLESTORE_URL: https://graph.geocodes-aws-dev.earthcube.org/blazegraph/namespace/ecrr/sparql
 # timeout for blazgraph queries
 BLAZEGRAPH_TIMEOUT: 20
 ECRR_GRAPH: http://earthcube.org/gleaner-summoned

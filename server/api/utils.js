@@ -1,18 +1,17 @@
 const _ = require("lodash");
 
-exports.uri3S3Path= function(datsetUrn){
-     if ( global.gConfig.config.datastore.uriversion ==="v1") {
-         repolocation = 2
-     } else {
-         repolocation = 3
+exports.uri3S3Path= function(datasetUrn){
+    let  repolocation = 3
+    if ( global.gConfig.config.datastore.uriversion ==="v1") {
+        repolocation = 2
      }
     if (datasetUrn === undefined) {
-        reject ({status:404, error:"empty datasetUrn"})
+       // reject ({status:404, error:"empty datasetUrn"})
         return;
     }
     var part = datasetUrn.split(':');
     if (part.length <3) {
-        reject ({status:404, error:"improper datasetUrn. Missing parts. At minimum: urn:repo:sha"})
+      //  reject ({status:404, error:"improper datasetUrn. Missing parts. At minimum: urn:repo:sha"})
         return;
     }
 
