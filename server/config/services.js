@@ -15,6 +15,8 @@ var toolbucket = process.env.TOOLBUCKET || 'ecrr'
 var toolpath = process.env.TOOLPATH || 'summoned'
 var toolrepo = process.env.TOOLREPO ||'ecrr_form'
 
+var uriVersion = process.env.URIVERSION ||'v1'
+
 exports.config = {
     jsonldStore: {
         "type": "minio",
@@ -33,7 +35,8 @@ exports.config = {
         tooltemplate: tooltemplate,
         toolpath: toolpath,
         toolrepo: toolrepo,
-        toolbucket: toolbucket
+        toolbucket: toolbucket,
+        uriVersion: uriVersion
     },
 
 
