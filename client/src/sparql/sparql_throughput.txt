@@ -27,14 +27,14 @@ WHERE
     BIND (str(?type) as ?label)
 
 
- SERVICE <https://graph.geodex.org/blazegraph/namespace/nabuprov/sparql> {
+ SERVICE <${prov_service} {
                 ?s <http://www.w3.org/ns/prov#value> ?weburl .
                 ?s <http://www.w3.org/ns/prov#wasAttributedTo> ?org .
                 ?org rdfs:seeAlso ?pid
     }
 
 
-    SERVICE <http://132.249.238.169:8080/fuseki/ecrr/query> {
+    SERVICE <${ecrr_service}> {
 
             ?rrs schema:supportingData ?df.
             ?df schema:encodingFormat  ?label ;
