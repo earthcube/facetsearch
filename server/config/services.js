@@ -1,10 +1,10 @@
 
-var endPoint = process.env.S3ADDRESS || "oss.geodex.org"
-var accessKey = process.env.S3KEY || 'AKIAIOSFODNN7EXAMPLE'
-var secretKey = process.env.S3SECRET || 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+var endPoint = process.env.S3ADDRESS || "oss.geocodes-aws-dev.earthcube.org"
+var accessKey = process.env.S3KEY || 'worldsbestaccesskey'
+var secretKey = process.env.S3SECRET || 'worldsbestsecretkey'
 var useSSL = (process.env.S3SSL === 'true') || true
 var s3Port =  parseInt(process.env.S3PORT, 443) || 443
-var bucket = process.env.BUCKET || 'gleaner'
+var bucket = process.env.BUCKET || 'test'
 var bucketpath = process.env.BUCKETPATH || 'summoned'
 // options for path: bucket, bucketpath, reponame, sha
 var pathtemplate = process.env.PATHTEMPLATE || '{{bucketpath}}/{{reponame}}/{{sha}}.jsonld'

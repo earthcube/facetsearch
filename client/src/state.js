@@ -608,7 +608,7 @@ export const store = new Vuex.Store({
                 // items = _.uniq(items, false, function(item, key, subj){
                 //     return item.subj
                 // })
-                context.commit('setMicroCache', {'key':queryObject.uuid, 'value': items})
+               // context.commit('setMicroCache', {'key':queryObject.uuid, 'value': items})
                 context.commit('setResults', items)
 
                         // self.initFacetCounts();//items,facets, facetStore,  facetSortOption
