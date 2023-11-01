@@ -40,7 +40,7 @@ in case more intro paragraph text is needed
                 v-bind:key="index"
             >
 
-                <b-card-body>
+                <b-card-body v-if="item.source!='geocodes_demo_datasets'">
                     <b-card-title>
                         <b-link target="_blank" class="d-flex flex-column align-items-center"
                             :href="item.website"
@@ -61,16 +61,161 @@ in case more intro paragraph text is needed
                         <div class="mt-3 small text-left" v-html="item.description"></div>
 
                         <div class="d-flex justify-content-end" >
-                          <b-dropdown class="customDropdown" text="Reports" variant="None">
-                              <v-list>
-                                <v-list-item
-                                  v-for="(item, index) in items"
-                                  :key="index"
-                                >
-                                    <b-dropdown-item :href="item.url">{{ item.title }}</b-dropdown-item>
-                                </v-list-item>
-                              </v-list>
-                          </b-dropdown>
+                            <b-button size="x-small" class="button-file" id="show-btn" @click="$bvModal.show(item.source)">
+                                Reports
+                            </b-button>
+
+                            <b-modal size="lg" :id="item.source" hide-footer>
+                              <template #modal-title>
+                                {{ item.title }}
+                              </template>
+                              <div>
+                                  <h5>Missing Report</h5>
+                                  <a href="https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/iris/latest/graph_stats.json">Download Full Report</a>
+                                  <p>Report Date: {{ item.report.missing_report.date }}</p>
+                                  <ul>
+                                      <li>Sitemap count: {{ item.report.missing_report.sitemap_count }}</li>
+                                      <li>Summoned count: {{ item.report.missing_report.summoned_count }}</li>
+                                      <li>Missing summoned count: {{ item.report.missing_report.missing_sitemap_summon_count }}</li>
+                                      <li>Graph URN count: {{ item.report.missing_report.graph_urn_count }}</li>
+                                      <li>Missing graph URN count: {{ item.report.missing_report.missing_summon_graph_count }}</li>
+                                  </ul>
+                                  <h5>Graph Stats</h5>
+                                  <a href="https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/iris/latest/missing_report.json">Download Full Report</a>
+                                  <p>Report Date: {{ item.report.graph_stats.date }}</p>
+                                  <ul>
+                                  <v-list>
+                                    <v-list-item
+                                      v-for="(item, index) in item.report.graph_stats.reports"
+                                      :key="index"
+                                    >
+                                        <li v-if="item.report=='dataset_count'">{{ item.report }} :
+                                            <v-list>
+                                                <v-list-item
+                                                  v-for="(report, report_index) in item.data"
+                                                  :key="report_index"
+                                                >
+                                                    {{ report.datasetcount }}
+                                                </v-list-item>
+                                            </v-list>
+                                        </li>
+                                        <li v-if="item.report=='triple_count'">{{ item.report }} :
+                                            <v-list>
+                                                <v-list-item
+                                                  v-for="(report, report_index) in item.data"
+                                                  :key="report_index"
+                                                >
+                                                    {{ report.tripelcount }}
+                                                </v-list-item>
+                                            </v-list>
+                                        </li>
+                                        <li v-if="item.report=='kw_count'">{{ item.report }} :
+                                            <v-list>
+                                                <v-list-item
+                                                  v-for="(report, report_index) in item.data"
+                                                  :key="report_index"
+                                                >
+                                                    {{ report.kwcount }}
+                                                </v-list-item>
+                                            </v-list>
+                                        </li>
+                                        <li v-if="item.report=='type_count'">{{ item.report }} :
+                                            <table class="customTable">
+                                                <thead>
+                                                <tr>
+                                                    <th>type</th>
+                                                    <th>scount</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr
+                                                  v-for="(report, report_index) in item.data"
+                                                  :key="report_index"
+                                                >
+                                                    <td>{{ report.type }}</td>
+                                                    <td>{{ report.scount }}</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </li>
+                                        <li v-if="item.report=='version_count'">{{ item.report }} :
+                                            <v-list>
+                                                <v-list-item
+                                                  v-for="(report, report_index) in item.data"
+                                                  :key="report_index"
+                                                >
+                                                    {{ report.versioncount }}
+                                                </v-list-item>
+                                            </v-list>
+                                        </li>
+                                        <li v-if="item.report=='variablename_count'">{{ item.report }} :
+                                            <v-list>
+                                                <v-list-item
+                                                  v-for="(report, report_index) in item.data"
+                                                  :key="report_index"
+                                                >
+                                                    {{ report.variablenamecount }}
+                                                </v-list-item>
+                                            </v-list>
+                                        </li>
+                                        <li v-if="item.report=='graph_sizes_count'">{{ item.report }} :
+                                            <table class="customTable">
+                                                <thead>
+                                                <tr>
+                                                    <th>triple_per_jsonld</th>
+                                                    <th>count</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr
+                                                  v-for="(report, report_index) in item.data"
+                                                  :key="report_index"
+                                                >
+                                                    <td>{{ report.triple_per_jsonld }}</td>
+                                                    <td>{{ report.count }}</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </li>
+                                        <li v-if="item.report=='triple_count_by_graph'">{{ item.report }} :
+                                            <table class="customTable">
+                                                <thead>
+                                                <tr>
+                                                    <th>g</th>
+                                                    <th>count</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr
+                                                  v-for="(report, report_index) in item.data"
+                                                  :key="report_index"
+                                                >
+                                                    <td>{{ report.g }}</td>
+                                                    <td>{{ report.count }}</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </li>
+                                    </v-list-item>
+                                  </v-list>
+                                  </ul>
+
+                              </div>
+                                <b-dropdown class="customDropdown" text="Download Full Reports" variant="None">
+                                  <v-list>
+                                    <v-list-item
+                                      v-for="(item, index) in download"
+                                      :key="index"
+                                    >
+                                        <b-dropdown-item :href="item.url">
+                                            {{ item.title }}
+                                        </b-dropdown-item>
+                                    </v-list-item>
+                                  </v-list>
+                                </b-dropdown>
+
+                            </b-modal>
+
                         </div>
 
                     </b-card-text>
@@ -129,16 +274,16 @@ in case more intro paragraph text is needed
 <script>
 
 import axios from "axios";
+import $ from "jquery";
 
 export default {
   name: "about.vue",
   data() {
     return {
         info: null,
-        items: [
-            {"title":"graph report", "url":"https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/all/latest/graph_report.json"},
-            {"title":"bucketutil stats", "url":"https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/all/latest/bucketutil_stats.json"},
-            {"title":"missing report", "url":"https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/all/latest/bucketutil_dupliactes.csv"},
+        download: [
+            {"title":"graph stats", "url":"https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/iris/latest/graph_stats.json"},
+            {"title":"missing report", "url":"https://oss.geocodes.ncsa.illinois.edu/yybucket/reports/iris/latest/missing_report.json"},
         ]
     }
   },
@@ -149,13 +294,10 @@ export default {
           this.info = response.data))
   },
     methods: {
-      hoverHandler(isHovered) {
-        if (isHovered) {
-          // Do something
-        } else {
-          // Do something else
+        showModal(t) {
+            console.log(t)
+            $('#'+t).modal('show')
         }
-      }
     }
 }
 
@@ -182,6 +324,24 @@ export default {
 
 .customDropdown {
     background-color: white;
+}
+
+.button-file {
+    border:0;
+    background:transparent;
+    color: gray;
+}
+
+.customTable {
+    background: #F8F9F9;
+}
+
+th {
+  display: table-cell;
+  vertical-align: inherit;
+  text-align: center;
+    background: #18598b;
+    color: white;
 }
 
 </style>
