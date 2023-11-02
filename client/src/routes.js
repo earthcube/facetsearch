@@ -36,7 +36,7 @@ export default  new Router({
         // {path:'/dataset/:o',name:'dataset',component:dataset,props:true},
         //{path:'/tool/:o',name:'tool',component:tool,props:true},
         {path:'/about',name:'about',component:about,},
-        {path:'/report',name:'report',component:report,props:true},
+        {path:'/report/:source',name:'report',component:report,props:true},
         {path:'/collection',name:'collection',component:collection,},
 
         {path:'/config',name:'configuration', component:configuration},

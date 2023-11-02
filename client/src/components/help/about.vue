@@ -136,6 +136,8 @@ export default {
           this.info = response.data))
   },
     methods: {
+    // try to avoid jquery hacks.
+      // do as a bootstrap modal. https://bootstrap-vue.org/docs/components/modal
         showModal(t) {
             console.log(t)
             $('#'+t).modal('show')
