@@ -61,7 +61,7 @@ in case more intro paragraph text is needed
                         <div class="mt-3 small text-left" v-html="item.description"></div>
 
                         <div class="d-flex justify-content-end" >
-                            <router-link :to="{ name: 'report', params: { repo: item.source, title: item.title }}">Reports</router-link>
+                            <router-link :to="{ name: 'report', params: { repo: item.source }}">Reports</router-link>
                         </div>
 
                     </b-card-text>
