@@ -61,7 +61,7 @@ in case more intro paragraph text is needed
                         <div class="mt-3 small text-left" v-html="item.description"></div>
 
                         <div class="d-flex justify-content-end" >
-                            <router-link :to="{ name: 'report', params: { repo: item.source }}">Reports</router-link>
+                            <router-link :to="{ name: 'report', params: { source: item.source }}">Reports</router-link>
                         </div>
 
                     </b-card-text>
@@ -136,6 +136,8 @@ export default {
           this.info = response.data))
   },
     methods: {
+    // try to avoid jquery hacks.
+      // do as a bootstrap modal. https://bootstrap-vue.org/docs/components/modal
         showModal(t) {
             console.log(t)
             $('#'+t).modal('show')
