@@ -1,6 +1,10 @@
 <template>
     <b-container fluid="md" class="mt-5">
         <div>
+            <h2>{{ this.source}}</h2>
+          <div  v-if="missing">
+              <h5>Missing Report</h5>
+              <a :href="missing_url">Download Full Report</a>
             <b-card header="Missing Report">
           <div  v-if="missing">
               <a :href="missing_url">Download Full Report</a>
@@ -100,24 +104,24 @@
                     </li>
                     <li v-if="item.report=='version_count'">{{ item.report }} :
                     <li v-if="item.report=='version_count'">{{ item.report }} :
-                        <v-list>
-                            <v-list-item
+                        <b-list-group>
+                            <b-list-group-item
                               v-for="(report, report_index) in item.data"
                               :key="report_index"
                             >
                                 {{ report.versioncount }}
-                            </v-list-item>
-                        </v-list>
+                            </b-list-group-item>
+                        </b-list-group>
                     </li>
                     <li v-if="item.report=='variablename_count'">{{ item.report }} :
-                        <v-list>
-                            <v-list-item
+                        <b-list-group>
+                            <b-list-group-item
                               v-for="(report, report_index) in item.data"
                               :key="report_index"
                             >
                                 {{ report.variablenamecount }}
-                            </v-list-item>
-                        </v-list>
+                            </b-list-group-item>
+                        </b-list-group>
                     </li>
                     <li v-if="item.report=='types_count_by_repo'">{{ item.report }} :
                         <table class="customTable">
