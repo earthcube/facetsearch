@@ -1,4 +1,5 @@
 var jsonLdObj = require("./jsonldObject");
+var utils = require("./utils")
 var _ = require('lodash')
 var jsonld = require('jsonld')
 var axios = require('axios')
@@ -16,21 +17,22 @@ const getJson =async function(datasetUrn) {
            reject ({status:404, error:"empty datasetUrn"})
             return;
         }
-        var part = datasetUrn.split(':');
-        if (part.length <3) {
-            reject ({status:404, error:"improper datasetUrn. Missing parts. At minimum: urn:repo:sha"})
-            return;
-        }
-
-        //var s3Path = `summoned/${part[3]}/${part[4]}.jsonld`
-        _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
-        var s3pathtemplate = _.template(global.gConfig.config.datastore.pathtemplate)
-        var s3Path = s3pathtemplate({
-            bucket: global.gConfig.config.datastore.bucket,
-            bucketpath: global.gConfig.config.datastore.bucketpath,
-            reponame: part[part.length - 2], // zero based
-            sha: part[part.length -1 ] // zero based
-        })
+        // var part = datasetUrn.split(':');
+        // if (part.length <3) {
+        //     reject ({status:404, error:"improper datasetUrn. Missing parts. At minimum: urn:repo:sha"})
+        //     return;
+        // }
+        //
+        // //var s3Path = `summoned/${part[3]}/${part[4]}.jsonld`
+        // _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
+        // var s3pathtemplate = _.template(global.gConfig.config.datastore.pathtemplate)
+        // var s3Path = s3pathtemplate({
+        //     bucket: global.gConfig.config.datastore.bucket,
+        //     bucketpath: global.gConfig.config.datastore.bucketpath,
+        //     reponame: part[part.length - 2], // zero based
+        //     sha: part[part.length -1 ] // zero based
+        // })
+        const s3Path= utils.uri3S3Path(datasetUrn)
         g('config'+global.gConfig)
         const mc = new minio.Client(global.gConfig.config.jsonldStore)
         //https://gleaner.oss.geodex.org/summoned/opentopo/0281f678daa333bdc4d9b6bbdf6c07974244e0a4.jsonld
