@@ -121,6 +121,7 @@ in case more intro paragraph text is needed
 
 import axios from "axios";
 import $ from "jquery";
+import {mapState} from "vuex";
 
 export default {
   name: "about.vue",
@@ -129,9 +130,13 @@ export default {
         info: null
     }
   },
+  computed: {
+    ...mapState(['FacetsConfig'])
+
+  },
     mounted () {
     axios
-      .get('https://oss.geocodes-aws.earthcube.org/earthcube/reports/all/latest/report_stats.json')
+      .get(`${this.FacetsConfig.S3_REPORTS_URL}all/latest/report_stats.json`)
       .then(response => (
           this.info = response.data))
   },

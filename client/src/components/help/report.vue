@@ -1,13 +1,13 @@
 <template>
     <b-container fluid="md" class="mt-5">
         <div>
-            <h2>{{ this.source}}</h2>
+            <h2>Source: {{ this.source}}</h2>
           <div  v-if="missing">
-              <h5>Missing Report</h5>
-              <a :href="missing_url">Download Full Report</a>
+
             <b-card header="Missing Report">
           <div  v-if="missing">
-              <a :href="missing_url">Download Full Report</a>
+            <b-link :href="missing_url" class="card-link">Download Original Report (JSON)</b-link>
+
               <p>Report Date: {{ missing.date }}</p>
               <ul>
                   <li>Sitemap count: {{ missing.sitemap_count }}</li>
@@ -21,7 +21,7 @@
             </b-card>
           <div  v-if="graphinfo">
               <b-card header="Graph Stats">
-              <a :href="graph_url">Download Full Report</a>
+                <b-link :href="graph_url" class="card-link">Download Original Report (JSON )</b-link>
               <p>Report Date: {{ graphinfo.date }}</p>
               <ul>
                   <b-list-group>
@@ -35,6 +35,44 @@
                             {{ item.report }} : {{ report.datasetcount }}
                         </p>
                     </li>
+                  <li v-if="item.report=='types_count'">{{ item.report }} :
+                    <table class="customTable">
+                      <thead>
+                      <tr>
+                        <th>type</th>
+                        <th>scount</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr
+                          v-for="(report, report_index) in item.data"
+                          :key="report_index"
+                      >
+                        <td>{{ report.type }}</td>
+                        <td>{{ report.scount }}</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </li>
+                  <li v-if="item.report=='type_count'">{{ item.report }} :
+                    <table class="customTable">
+                      <thead>
+                      <tr>
+                        <th>type</th>
+                        <th>scount</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr
+                          v-for="(report, report_index) in item.data"
+                          :key="report_index"
+                      >
+                        <td>{{ report.type }}</td>
+                        <td>{{ report.scount }}</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </li>
                     <li v-if="item.report=='triple_count'">
                         <p v-for="(report, report_index) in item.data" :key="report_index">
                             {{ item.report }} : {{ report.tripelcount }}
@@ -45,12 +83,31 @@
                             {{ item.report }} : {{ report.kwcount }}
                         </p>
                     </li>
+                  <li v-if="item.report=='kw_count'">{{ item.report }} :
+                    <table class="customTable">
+                      <thead>
+                      <tr>
+                        <th>keyword</th>
+                        <th>counts</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr
+                          v-for="(report, report_index) in item.data"
+                          :key="report_index"
+                      >
+                        <td>{{ report.keyword }}</td>
+                        <td>{{ report.scount }}</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </li>
                     <li v-if="item.report=='graph_count_by_repo'">{{ item.report }} :
                         <table class="customTable">
                             <thead>
                             <tr>
-                                <th>graphs</th>
-                                <th>triples</th>
+                                <th>keyword</th>
+                                <th>scount</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -58,8 +115,8 @@
                               v-for="(report, report_index) in item.data"
                               :key="report_index"
                             >
-                                <td>{{ report.graphs }}</td>
-                                <td>{{ report.triples }}</td>
+                                <td>{{ report.keyword }}</td>
+                                <td>{{ report.scount }}</td>
                             </tr>
                             </tbody>
                         </table>
@@ -83,26 +140,8 @@
                             </tbody>
                         </table>
                     </li>
-                    <li v-if="item.report=='types_count'">{{ item.report }} :
-                        <table class="customTable">
-                            <thead>
-                            <tr>
-                                <th>type</th>
-                                <th>scount</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr
-                              v-for="(report, report_index) in item.data"
-                              :key="report_index"
-                            >
-                                <td>{{ report.type }}</td>
-                                <td>{{ report.scount }}</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </li>
-                    <li v-if="item.report=='version_count'">{{ item.report }} :
+
+
                     <li v-if="item.report=='version_count'">{{ item.report }} :
                         <b-list-group>
                             <b-list-group-item
@@ -147,11 +186,26 @@
                             {{ item.report }} : {{ report.versioncount }}
                         </p>
                     </li>
-                    <li v-if="item.report=='variablename_count'">
-                        <p v-for="(report, report_index) in item.data" :key="report_index">
-                            {{ item.report }} : {{ report.variablenamecount }}
-                        </p>
-                    </li>
+
+                  <li v-if="item.report=='graph_sizes_count'">{{ item.report }} :
+                    <table class="customTable">
+                      <thead>
+                      <tr>
+                        <th>triples_per_jsonld</th>
+                        <th>count</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr
+                          v-for="(report, report_index) in item.data"
+                          :key="report_index"
+                      >
+                        <td>{{ report.triple_per_jsonld }}</td>
+                        <td>{{ report.count }}</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </li>
                 </b-list-group-item>
               </b-list-group>
 
@@ -159,6 +213,7 @@
               </b-card>
             </div>
           </div>
+        </div>
     </b-container>
 </template>
 
@@ -166,6 +221,8 @@
 
 import axios from "axios";
 import JSON5 from 'json5'
+
+import {mapState} from "vuex";
 
 
 export default {
@@ -181,10 +238,14 @@ export default {
       graph_url: ""
     }
   },
+  computed: {
+    ...mapState(['FacetsConfig'])
+
+  },
     mounted () {
      // const source = this.$route.params.repo;
       console.log(this.source);
-      const s3base = "https://oss.geocodes-aws.earthcube.org/earthcube/reports/";
+      const s3base = this.FacetsConfig.S3_REPORTS_URL;
       this.missing_url = `${s3base}${ this.source}/latest/missing_report_graph.json`;
       this.graph_url =`${s3base}${ this.source}/latest/graph_stats.json`;
 
@@ -202,8 +263,14 @@ export default {
           axios
               .get(this.graph_url)
               .then(response => {
-                  this.graphinfo = JSON5.parse(response.data );
-                  console.log(this.graphinfo);
+                    try{
+                      this.graphinfo = response.data ;
+                      console.log(this.graphinfo);
+                    } catch (error ){
+                      this.graphinfo = JSON5.parse(response.data );
+                      console.log(this.graphinfo);
+                    }
+
                  }
               )
       }
