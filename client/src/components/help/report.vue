@@ -3,7 +3,7 @@
         <div>
             <b-card header="Missing Report">
           <div  v-if="missing">
-              <a :href="missing_url">Download Full Report</a>
+              <b-link :href="missing_url" class="card-link">Download Original Report (JSON)</b-link>
               <p>Report Date: {{ missing.date }}</p>
               <ul>
                   <li>Sitemap count: {{ missing.sitemap_count }}</li>
@@ -12,12 +12,11 @@
                   <li>Graph URN count: {{ missing.graph_urn_count }}</li>
                   <li>Missing graph URN count: {{ missing.missing_summon_graph_count }}</li>
               </ul>
-
             </div>
             </b-card>
           <div  v-if="graphinfo">
               <b-card header="Graph Stats">
-              <a :href="graph_url">Download Full Report</a>
+              <b-link :href="graph_url" class="card-link">Download Original Report (JSON )</b-link>
               <p>Report Date: {{ graphinfo.date }}</p>
               <ul>
                   <b-list-group>
@@ -99,25 +98,24 @@
                         </table>
                     </li>
                     <li v-if="item.report=='version_count'">{{ item.report }} :
-                    <li v-if="item.report=='version_count'">{{ item.report }} :
-                        <v-list>
-                            <v-list-item
+                        <b-list-group>
+                            <b-list-group-item
                               v-for="(report, report_index) in item.data"
                               :key="report_index"
                             >
                                 {{ report.versioncount }}
-                            </v-list-item>
-                        </v-list>
+                            </b-list-group-item>
+                        </b-list-group>
                     </li>
                     <li v-if="item.report=='variablename_count'">{{ item.report }} :
-                        <v-list>
-                            <v-list-item
+                        <b-list-group>
+                            <b-list-group-item
                               v-for="(report, report_index) in item.data"
                               :key="report_index"
                             >
                                 {{ report.variablenamecount }}
-                            </v-list-item>
-                        </v-list>
+                            </b-list-group-item>
+                        </b-list-group>
                     </li>
                     <li v-if="item.report=='types_count_by_repo'">{{ item.report }} :
                         <table class="customTable">
