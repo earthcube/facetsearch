@@ -2,6 +2,7 @@
 
 #API_URL: http://localhost:3000
 API_URL: https://geocodes.wifire-data.sdsc.edu/ec/api
+S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/
 #API_URL: https://geocodes.earthcube.org/ec/api
 TRIPLESTORE_URL: "https://graph.geocodes-dev.earthcube.org/blazegraph/namespace/wifire/sparql"
 #SUMMARYSTORE_URL: https://graph.geocodes-1.earthcube.org/blazegraph/namespace/summary/sparql
