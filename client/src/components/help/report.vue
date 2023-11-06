@@ -211,6 +211,7 @@
               </b-card>
             </div>
           </div>
+        </div>
     </b-container>
 </template>
 
@@ -261,10 +262,10 @@ export default {
               .get(this.graph_url)
               .then(response => {
                     try{
-                      this.graphinfo = response.data ;
+                      this.graphinfo = JSON5.parse(response.data );
                       console.log(this.graphinfo);
                     } catch (error ){
-                      this.graphinfo = JSON5.parse(response.data );
+                      this.graphinfo = response.data ;
                       console.log(this.graphinfo);
                     }
 
