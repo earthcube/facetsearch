@@ -1,5 +1,6 @@
 ---
 API_URL: `${window.location.origin}/ec/api`
+S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/
 TRIPLESTORE_URL: https://graph.geodex.org/blazegraph/namespace/earthcube/sparql
 ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
 # timeout for blazgraph queries
@@ -11,12 +12,12 @@ SPARQL_HASTOOLS: queries/sparql_hastools.txt
 SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
 SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
 JSONLD_PROXY: "${window.location.origin}/ec/api/${o}"
-SPARQL_NB: https://beta.geocodes.earthcube.org/notebook/mkQ?q=${q}
+SPARQL_NB: https://geocodes.earthcube.org/notebook/mkQ?q=${q}
 SPARQL_YASGUI: https://geocodes.earthcube.org/sparqlgui?
 COLLECTION_FACETS:
   - field: unassigned
     title: All Items
-    sort: acs\
+    sort: acs
     open: false
     type: unassigned
     collections:
