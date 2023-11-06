@@ -1,13 +1,9 @@
 <template>
     <b-container fluid="md" class="mt-5">
         <div>
-            <h2>{{ this.source}}</h2>
-          <div  v-if="missing">
-              <h5>Missing Report</h5>
-              <a :href="missing_url">Download Full Report</a>
             <b-card header="Missing Report">
           <div  v-if="missing">
-              <a :href="missing_url">Download Full Report</a>
+              <b-link :href="missing_url" class="card-link">Download Original Report (JSON)</b-link>
               <p>Report Date: {{ missing.date }}</p>
               <ul>
                   <li>Sitemap count: {{ missing.sitemap_count }}</li>
@@ -16,12 +12,11 @@
                   <li>Graph URN count: {{ missing.graph_urn_count }}</li>
                   <li>Missing graph URN count: {{ missing.missing_summon_graph_count }}</li>
               </ul>
-
             </div>
             </b-card>
           <div  v-if="graphinfo">
               <b-card header="Graph Stats">
-              <a :href="graph_url">Download Full Report</a>
+              <b-link :href="graph_url" class="card-link">Download Original Report (JSON )</b-link>
               <p>Report Date: {{ graphinfo.date }}</p>
               <ul>
                   <b-list-group>
@@ -102,7 +97,6 @@
                             </tbody>
                         </table>
                     </li>
-                    <li v-if="item.report=='version_count'">{{ item.report }} :
                     <li v-if="item.report=='version_count'">{{ item.report }} :
                         <b-list-group>
                             <b-list-group-item
