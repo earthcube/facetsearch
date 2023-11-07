@@ -1,4 +1,7 @@
 ---
+LOGO: images/GeoCODES.png
+TITLE: Earthcube Geocodes
+ORG_LINK: https://www.earthcube.org/geocodes
 API_URL: https://geocodes.earthcube.org/ec/api
 S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/
 TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube/sparql

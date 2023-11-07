@@ -27,7 +27,7 @@ export default {
 
   },
   mounted() {
-    this.NODE_ENV = this.FacetsConfig.NODE_ENV
+    this.NODE_ENV = process.env.NODE_ENV
 
   },
   components: {
