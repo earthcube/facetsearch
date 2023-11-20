@@ -36,7 +36,7 @@ in case more intro paragraph text is needed
 
         <b-card-group columns class="mt-4">
             <b-card no-body class="text-center"
-                v-for="(item, index) in info"
+                v-for="(item, index) in reports"
                 v-bind:key="index"
             >
 
@@ -127,7 +127,7 @@ export default {
   name: "about.vue",
   data() {
     return {
-        info: null
+        reports: null
     }
   },
   computed: {
@@ -136,13 +136,10 @@ export default {
   },
     mounted () {
       const s3base = this.FacetsConfig.S3_REPORTS_URL;
-      const community = this.FacetsConfig.COMMUNITY;
-      this.reports = `${s3base}all/latest/report_stats.json`;
-      if (community === "all" || community === undefined || community === null) {
-          this.fetchAllReports();
-      } else {
-          this.fetchCommunityReports(community);
-      }
+      let community = this.FacetsConfig.COMMUNITY;
+      if (community === undefined || community === null || community.trim().length===0) community = 'all';
+      this.reportsJson = `${s3base}all/latest/report_${community}_stats.json`;
+      this.fetchAllReports();
   },
     methods: {
     // try to avoid jquery hacks.
@@ -153,15 +150,9 @@ export default {
         },
         fetchAllReports() {
             axios
-              .get(this.reports)
+              .get(this.reportsJson)
               .then(response => (
-                  this.info = response.data))
-        },
-        fetchCommunityReports(community) {
-            axios
-              .get(this.reports)
-              .then(response => (
-                  this.info = response.data.filter(item => item.community === community)))
+                  this.reports = response.data))
         }
     }
 }
