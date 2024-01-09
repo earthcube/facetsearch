@@ -14,7 +14,7 @@
                 <FacetTextItem
                     v-for='(info, term) in facetItems'
                     v-bind:key="info.id"
-                    v-on:click.native="_handleClick"
+                    v-on:click="_handleClick"
                     v-bind:id="facetStore[facetSetting.field][term].id"
                     :term="term"
                     :count="info.count"

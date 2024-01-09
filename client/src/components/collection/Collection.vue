@@ -42,7 +42,7 @@
                     <div v-if="facetSetting.names.length">
                     <b-list-group flush>
                       <CollectionMenuItem
-                          v-on:click.native="_handleClick(item, facetSetting.field, name)"
+                          v-on:click="_handleClick(item, facetSetting.field, name)"
                           :term="name"
                       ></CollectionMenuItem>
                     </b-list-group>
