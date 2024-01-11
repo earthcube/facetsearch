@@ -140,12 +140,14 @@ export default {
               }
             } else if (Array.isArray(ident)) {
               var doi = _.find(ident, (i) => _.includes(doiPropertyValues, i["https://schema.org/propertyID"]))
+              if (doi !== undefined) {
               var doi_url = doi["https://schema.org/url"]
               self.getDoiService(doi_url).then((data) => {
                 this.citation = data
                 this.hasCitation = true
-              }).catch(err => console.log(err))
-            }
+              }
+              ).catch(err => console.log(err))
+            }}
             var propertyType = schemaItem('propertyID', ident)
             if (propertyType !== undefined && propertyType === 'DOI') {
               let value = schemaItem('value', ident)
