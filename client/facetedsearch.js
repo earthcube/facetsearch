@@ -1,4 +1,4 @@
-;(function(){
+(function(){
 
 /**
  * Please note that when passing in custom templates for
@@ -82,12 +82,12 @@ function initFacetCount() {
     _.each(settings.facets, function(facettitle, facet) {
       if ($.isArray(item[facet])) {
         _.each(item[facet], function(facetitem) {
-          if (_.isEmpty(facetitem)) {return;};
+          if (_.isEmpty(facetitem)) {return;}
           settings.facetStore[facet][facetitem] = settings.facetStore[facet][facetitem] || {count: 0, id: _.uniqueId("facet_")}
         });
       } else {
         if (item[facet] !== undefined) {
-          if (_.isEmpty(item[facet] )) {return;};
+          if (_.isEmpty(item[facet] )) {return;}
           settings.facetStore[facet][item[facet]] = settings.facetStore[facet][item[facet]] || {count: 0, id: _.uniqueId("facet_")}
         }
       }
@@ -149,12 +149,12 @@ function filter() {
     _.each(settings.currentResults, function(item) {
       if ($.isArray(item[facet])) {
         _.each(item[facet], function(facetitem) {
-          if (_.isEmpty(facetitem )) {return;};
+          if (_.isEmpty(facetitem )) {return;}
           settings.facetStore[facet][facetitem].count += 1;
         });
       } else {
         if (item[facet] !== undefined) {
-          if (_.isEmpty(item[facet] )) {return;};
+          if (_.isEmpty(item[facet] )) {return;}
           settings.facetStore[facet][item[facet]].count += 1;
         }
       }

@@ -80,7 +80,11 @@
     "parserOptions": {
       "parser": "@babel/eslint-parser"
     },
-    "rules": {}
+    "rules": {
+      "vue/multi-word-component-names": "off",
+      "vue/no-v-text-v-html-on-component": "warn",
+      "vue/no-mutating-props": "warn"
+    }
   },
   "browserslist": [
     "> 1%",

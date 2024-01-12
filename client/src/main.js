@@ -71,7 +71,7 @@ app.config.devtools = true
 //export const bus = new Vue(); // https://blog.logrocket.com/using-event-bus-in-vue-js-to-pass-data-between-components/
 export const bus =  createApp({});
 
-const store = createStore()
+const store = await createStore()
 
 app.use(store)
 

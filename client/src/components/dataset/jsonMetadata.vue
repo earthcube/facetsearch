@@ -99,7 +99,7 @@ import {mapState} from "vuex";
 import {JSONView} from "vue-json-component";
 
 export default {
-  name: "metadata",
+  name: "jsonMetadata",
   components: {
     "json-view": JSONView
   },
