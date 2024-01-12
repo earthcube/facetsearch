@@ -40,7 +40,7 @@ import {
  // LMap,
   //LTileLayer,
   // LMarker,
-} from 'vue2-leaflet';
+} from "@vue-leaflet/vue-leaflet";
 import {mapState} from "vuex";
 import {schemaItem, getGeoCoordinates, geoplacename, getFirstGeoShape, frameJsonLD} from '../../api/jsonldObject'
 import { Icon } from 'leaflet';

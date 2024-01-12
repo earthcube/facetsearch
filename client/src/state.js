@@ -1,7 +1,7 @@
 import Vue from 'vue'
-import Vuex from 'vuex'
-
-Vue.use(Vuex)
+//import Vuex from 'vuex'
+import { createStore as _createStore } from 'vuex'
+//Vue.use(Vuex)
 
 import axios from "axios"
 import jsonld from "jsonld";
@@ -20,8 +20,8 @@ let esTemplateOptions = {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g}
 //let TRIPLESTORE_URL = FacetsConfig.TRIPLESTORE_URL
 
 //let TRIPLESTORE_URL=FacetsConfigValue.TRIPLESTORE_URL
-export const storeRemoteConfig =  async (remoteConfig="config/config.yaml")=>{
-    let statestore=  fetch(process.env.BASE_URL + remoteConfig)
+export async function storeRemoteConfig   (remoteConfig="config/config.yaml") {
+    return await  fetch(process.env.BASE_URL + remoteConfig)
         .then((response) => response.text())
         .then((config) => {
             let y =   yaml.load(config)
@@ -33,11 +33,11 @@ export const storeRemoteConfig =  async (remoteConfig="config/config.yaml")=>{
                 console.log(err)
             }
         )
-    return await statestore
+
 
 }
 
-export const store = new Vuex.Store({
+export const store = _createStore({
     state: {
         packageVersion: process.env.PACKAGE_VERSION || '0',
         date: process.env.DATE || '2021-Unknown',

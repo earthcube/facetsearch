@@ -3,7 +3,7 @@
     <navHeader></navHeader>
 
     <router-view></router-view>
-    <div  class="fixed-bottom float-right font-weight-lighter" > Version: {{$store.getters.appVersion}} Date: {{$store.getters.appDate}} {{NODE_ENV}} </div>
+    <div  class="fixed-bottom float-right font-weight-lighter" > Version: {{appVersion}} Date: {{appDate}} {{NODE_ENV}} </div>
   </div>
 </template>
 
@@ -13,9 +13,17 @@
 import navHeader  from './components/navHeader.vue'
 
 import {mapState} from "vuex";
-
+import { useStore } from 'vuex'
+import { computed } from 'vue'
 export default {
   name: 'App',
+  setup () {
+    const store = useStore()
+    return {
+      appVersion: computed(() => store.getters.appVersion),
+      appDate: computed(() => store.getters.appDate )
+    }
+  },
   data() {
     return {
       NODE_ENV:  ""
