@@ -2,6 +2,8 @@ update to vue3:
 * need to deal with breakign change for https://v3-migration.vuejs.org/breaking-changes/events-api.html
   in /src/components/facetsearch/FacetText.vue other places
 
+https://bootstrap-vue-next.github.io/bootstrap-vue-next/
+
 config changes not showing up in developement.
 you will need to build, or just copy the file into dist/config
 

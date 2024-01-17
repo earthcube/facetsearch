@@ -1,8 +1,8 @@
-import Vue from 'vue'
+//import Vue from 'vue'
 //import Vuex from 'vuex'
 import { createStore as _createStore } from 'vuex'
 //Vue.use(Vuex)
-
+import { event } from 'vue-gtag'
 import axios from "axios"
 import jsonld from "jsonld";
 import _, {isArray} from "underscore";
@@ -283,7 +283,7 @@ export const store = _createStore({
 
         },
         async fetchJsonLd(context, o) {
-            Vue.$gtag.event('view_item', {
+           event('view_item', {
                     items: [{
                         id: o,
                         category : 'dataset',
@@ -293,7 +293,7 @@ export const store = _createStore({
                 }
 
             )
-            Vue.$gtag.event('view_dataset', {
+            event('view_dataset', {
                         id: o,
                         category : 'dataset'
                 }
@@ -363,7 +363,8 @@ export const store = _createStore({
                     }
                 }
             ).catch( (exception) => {
-                Vue.$gtag.event('exception', {
+               // Vue.$gtag.event('exception', {
+                event('exception', {
                     description: `${o} ${exception}`,
                     fatal: false,
                     items: [{
@@ -372,7 +373,8 @@ export const store = _createStore({
                         }]
                     }
                 )
-                Vue.$gtag.event('exception_datasetld', {
+                //Vue.$gtag.event('exception_datasetld', {
+                    event('exception_datasetld', {
                         description: exception,
                         error_datasetid: o,
                             category : 'dataset'
@@ -407,7 +409,7 @@ export const store = _createStore({
 
         },
         async fetchToolJsonLd(context, toolArk) {
-            Vue.$gtag.event('view_tool', {
+            event('view_tool', {
                     toolid: toolArk,
                      category : 'tool'
                 }
@@ -453,13 +455,13 @@ export const store = _createStore({
                         }
 
             ).catch( (exception) => {
-                    Vue.$gtag.event('exception_toolld', {
+                   event('exception_toolld', {
                             description: exception,
                             error_toolid: toolArk,
                                 category : 'tool'
                         }
                     )
-                Vue.$gtag.event('exception', {
+                event('exception', {
                         description: `${toolArk} ${exception}`,
                         fatal: false,
                         items: [{
@@ -521,7 +523,7 @@ export const store = _createStore({
                 rt = this.state.resourceTypeList.get(resourceType)
             }
 
-            Vue.$gtag.event('search', {
+            event('search', {
                     //'event_category': 'query',
                     search_term: q,
                     //'event_value': number...
@@ -552,7 +554,7 @@ export const store = _createStore({
             //
             //     //let lastItems = this.lastQueryResults.get(sparql)
             //
-            //     Vue.$gtag.event('search_count', {
+            //     event('search_count', {
             //             //'event_category': 'query',
             //             search_term: q,
             //             //'event_value': number...
@@ -587,7 +589,7 @@ export const store = _createStore({
                 var items = [];
 // add querytime, sometime.
                 if (response.data.results.bindings) {
-                    Vue.$gtag.event('search_count', {
+                    event('search_count', {
                             //'event_category': 'query',
                             search_term: q,
                             //'event_value': number...
@@ -616,7 +618,7 @@ export const store = _createStore({
                 //  bus.$emit('facetupdate'); // using emit meant two events trying: https://stackoverflow.com/questions/41879836/vue-js-method-called-multiple-times-using-emit-and-on-when-it-should-only-be-c
                 //Promise.resolve();
             }).catch( (exception) => {
-                    Vue.$gtag.event('exception', {
+                   event('exception', {
                             description: exception,
                             fatal: false,
                             search_term: q,

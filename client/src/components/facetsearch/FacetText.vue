@@ -28,10 +28,11 @@
 
 <script>
 //import Vue from 'vue'
+import { event as gtagevent } from 'vue-gtag'
 import _ from "underscore";
 import FacetTextItem from "./FacetTextItem";
-import {bus} from "../../main.js"
-import Vue from "vue";
+//import {bus} from "../../main.js"
+
 export default {
   name: "FacetText",
   components: {FacetTextItem},
@@ -52,12 +53,13 @@ export default {
     }
   },
   mounted(){
-    var self = this;
-      bus.$on('facetupdate', () => {
-        console.log("facetupdate event");
-        self.facetItems = self.facetStore[self.facetSetting.field];
-        self.updateFacetItems()
-      })
+    /**** vue3 off **/
+    // var self = this;
+    //   bus.$on('facetupdate', () => {
+    //     console.log("facetupdate event");
+    //     self.facetItems = self.facetStore[self.facetSetting.field];
+    //     self.updateFacetItems()
+    //   })
     }
   ,
 
@@ -121,14 +123,16 @@ export default {
           //self.$nextTick(() =>  self.toggleFilter(filter.facetname, filter.filtername) )
           self.toggleFilter(filter.field, filter.title);
          // $(this.facetSelector).trigger("facetedsearchfacetclick", filter);
-          bus.$emit("facetedsearchfacetclick", filter)
-
-          Vue.$gtag.event('select_content', {
+          /**** vue3 off **/
+         // bus.$emit("facetedsearchfacetclick", filter)
+       //   Vue.$gtag.event('select_content', {
+          gtagevent('select_content', {
             content_type:filter.field,
             item_id: filter.title
               }
           )
-          Vue.$gtag.event('select_facet', {
+          //Vue.$gtag.event('select_facet', {
+          gtagevent('select_facet', {
                 // content_type:filter.field,
                 // item_id: filter.title,
            'event_category': 'engagement',

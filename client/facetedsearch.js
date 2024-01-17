@@ -1,3 +1,7 @@
+/* eslint-disable */
+/** this was the original jquery code that the facetsearch vue app was built upon
+ *
+ */
 (function(){
 
 /**

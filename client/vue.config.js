@@ -4,7 +4,7 @@ const packageJson = fs.readFileSync('./package.json')
 const version = JSON.parse(packageJson).version || 0
 var now = new Date();
 var isoString = now.toISOString().substr(0,10);
-
+const path = require('path')
 module.exports = {
     publicPath: '/',
 
@@ -27,11 +27,11 @@ module.exports = {
         configureWebpack: {
             plugins: [
                 new webpack.DefinePlugin({
-                    'process.env': {
-                        PACKAGE_VERSION: '"' + version + '"',
-                        DATE: '"' + isoString+ '"',
 
-                    }
+                        "process.env.PACKAGE_VERSION": '"' + version + '"',
+                        "process.env.DATE": '"' + isoString+ '"',
+
+                    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true'
                 })
             ],
             performance: {
@@ -59,6 +59,13 @@ module.exports = {
         },
     chainWebpack: (config) => {
         config.resolve.alias.set('vue', '@vue/compat')
+        // config.resolve.alias.set(
+        //     'vue$',
+        //     // If using the runtime only build
+        //     //path.resolve(__dirname, 'node_modules/vue/dist/vue.runtime.esm.js')
+        //     // Or if using full build of Vue (runtime + compiler)
+        //      path.resolve(__dirname, 'node_modules/vue/dist/vue.esm.js')
+        // )
 
         config.module
             .rule('vue')
