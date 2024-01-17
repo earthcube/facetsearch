@@ -60,7 +60,7 @@
 <script>
 //import FacetsConfig from '../../config.js'
 import {mapState} from "vuex";
-import {bus} from "@/main";
+//import {bus} from "@/main"; //vue3
 import localforage from "localforage";
 //import {mapState} from "vuex";
 
@@ -116,7 +116,8 @@ export default {
     deselect() {
 
       this.clearFilters()
-      bus.$emit('facetupdate');
+      //vue3
+      //bus.$emit('facetupdate');
     },
     orderByChanged() {
       this.order(this.orderByOptions.find(o => o.field = this.orderBy))

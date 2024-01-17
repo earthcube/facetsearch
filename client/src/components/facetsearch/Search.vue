@@ -45,7 +45,7 @@
 
 <script>
 
-import Vue from 'vue'
+//import Vue from 'vue'
 import Results from "./Results";
 import Facets from "./Facets";
 //import _, { DatasetLocation } from 'underscore';
@@ -53,7 +53,7 @@ import _ from 'underscore';
 //import axios from "axios";
 //import FacetsConfig from '../../config.js'
 
-import {bus} from "../../main.js"
+//import {bus} from "../../main.js"
 import ResultHeader from "./ResultHeader";
 import {
   mapActions, mapGetters,
@@ -238,7 +238,8 @@ export default {
      // this.items = this.getResults(this.getQueryObj()) // just in case it's not the last query
       this.initFacetCounts();//items,facets, facetStore,  facetSortOption
       this.filter();
-      bus.$emit('facetupdate');
+      //vue3
+      //bus.$emit('facetupdate');
     },
     setResultLimit(n) {
       this.n = n
@@ -301,7 +302,8 @@ export default {
               sortedstore[el] = facetStore[facettitle][el];
             });
             //settings.facetStore[facet.field] = sortedstore;
-            Vue.set(facetStore, facettitle, sortedstore)
+            //Vue.set(facetStore, facettitle, sortedstore) //vue2
+            facetStore[facettitle]= sortedstore // vue3
           });
 
 
