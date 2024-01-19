@@ -12,7 +12,7 @@
                     <Facets
                         v-bind:facets="facets"
                         v-bind:facetStore="facetStore"
-                        v-bind:state="state"
+
                     ></Facets>
                   <feedback subject = 'Search' :name="textQuery" :urn="feedBackItemId"> </feedback>
 
@@ -27,13 +27,13 @@
                     <ResultHeader
                         :current-count="currentResults.length"
                         :total-count="items.length"
-                        :filters="state.filters"
+                        :filters="filtersState.filters"
 
                                             ></ResultHeader>
 
                     <Results
                         v-bind:currentResults="currentResults"
-                        :state="state"
+                        :state="filtersState"
                     ></Results>
 
 <!--                    <b-button variant="outline-primary" class="mt-5">Load More</b-button>-->
@@ -46,6 +46,7 @@
 <script>
 
 //import Vue from 'vue'
+//import { provide, reactive } from 'vue'
 import Results from "./Results";
 import Facets from "./Facets";
 //import _, { DatasetLocation } from 'underscore';
@@ -76,9 +77,27 @@ export default {
       clearFilters: this.clearFilters,
       setResultLimit: this.setResultLimit,
       setSearchExactmatch: this.setSearchExactmatch,
+      facetStore: this.facetStore,
+      filtersState: this.filtersState
+
+
 
     }
   },
+  // setup() {
+  //
+  //   const facetStore = reactive({})
+  //   const filtersState = reactive(     {
+  //     orderBy: 'score',
+  //         filters: {}
+  //   })
+  //
+  //   provide("facetStore", facetStore)
+  //   provide("filtersState", filtersState)
+  //   provide('toggleFilter', this.toggleFilter)
+  //
+  //
+  // },
   computed: {
     ...mapState(['results','searchExactMatch', 'microCache','FacetsConfig','esTemplateOptions']),
     //...mapGetters(['q',])
@@ -110,6 +129,7 @@ export default {
     feedback,
 
   },
+
   data() {
     return {
       value: 1,
@@ -120,13 +140,13 @@ export default {
 
       esTemplateOptions: this.esTemplateOptions,
       queryTemplates: {},
-      state: {
+      filtersState: {
         orderBy: 'score',
         filters: {}
       },
       items: [],
       currentResults: [],
-      facetStore: {},
+     facetStore: {},  ///  now defined using a provide
       //---- ok to edit facets
       facets: [],
 
@@ -194,7 +214,7 @@ export default {
     ...mapActions([
       'getResults', 'getQueryTemplate', 'addtoMicroCache']),
      getQueryObj : function() {
-      //let activeFilters = this.state.filters|| []; // filters needs to be moved into actual state in the future
+      //let activeFilters = this.filtersState.filters|| []; // filters needs to be moved into actual filtersState in the future
        let activeFilters =  [];
        let queryObj = {
          textQuery: this.textQuery,
@@ -313,7 +333,7 @@ export default {
       _.each(self.facetStore, function (items, facetname) {
         _.each(items, function (value, itemname) {
           self.facetStore[facetname][itemname].count = 0;
-          if (_.indexOf(self.state.filters[facetname], itemname) == -1) {
+          if (_.indexOf(self.filtersState.filters[facetname], itemname) == -1) {
             self.facetStore[facetname][itemname].isActive = false;
           } else {
             self.facetStore[facetname][itemname].isActive = true;
@@ -335,7 +355,7 @@ export default {
       // self.currentResults = _.select(this.items, function (item) {
       let newResults = _.select(this.items, function (item) {
         let filtersApply = true;
-        _.each(self.state.filters, function (filter, facet) {
+        _.each(self.filtersState.filters, function (filter, facet) {
           if (_.isArray(item[facet])) {
             var inters = _.intersection(item[facet], filter);
             if (inters.length == 0) {
@@ -385,12 +405,12 @@ export default {
         });
       });
       // remove confusing 0 from facets where a filter has been set
-      _.each(self.state.filters, function (filters, facettitle) {
+      _.each(self.filtersState.filters, function (filters, facettitle) {
         _.each(self.facetStore[facettitle], function (facet) {
-          if (facet.count == 0 && self.state.filters[facettitle].length) facet.count = "+";
+          if (facet.count == 0 && self.filtersState.filters[facettitle].length) facet.count = "+";
         });
       });
-      self.state.shownResults = 0;
+      self.filtersState.shownResults = 0;
     },
     toggleFilter: function (key, value, skipfilterUrl=false) {
       console.log( window.location.href );
@@ -406,22 +426,22 @@ export default {
       }
       console.log( window.location.href );
       console.log('toggleFilter')
-      var state = this.state;
-      this.$set(state.filters, key, state.filters[key] || [])
-      if (_.indexOf(state.filters[key], value) == -1) {
-        state.filters[key].push(value);
-        this.$set(state.filters, key, state.filters[key])
+      var s_state = this.filtersState;
+      this.$set(s_state.filters, key, s_state.filters[key] || [])
+      if (_.indexOf(s_state.filters[key], value) == -1) {
+        s_state.filters[key].push(value);
+        this.$set(s_state.filters, key, s_state.filters[key])
         // don't do isActive here. resetFacetCount is called later
       } else {
-        var indx = _.indexOf(state.filters[key], value)
-        console.log('delete filter: ' + state.filters[key][indx] + " from the key: " + key)
-        this.$set(state.filters, key, _.without(state.filters[key], value))
-        if (state.filters[key].length == 0) {
+        var indx = _.indexOf(s_state.filters[key], value)
+        console.log('delete filter: ' + s_state.filters[key][indx] + " from the key: " + key)
+        this.$set(s_state.filters, key, _.without(s_state.filters[key], value))
+        if (s_state.filters[key].length == 0) {
           console.log('empty filter kw: ' + key)
-          delete state.filters[key];
-          // this.$set(state.filters, key,  undefined)
+          delete s_state.filters[key];
+          // this.$set(s_state.filters, key,  undefined)
           // just setting to undefined does not work, and just delete does not work, so
-          state.filters = Object.assign({}, state.filters)
+          s_state.filters = Object.assign({}, s_state.filters)
           // don't do isActive here. resetFacetCount is called later
         }
       }
@@ -430,7 +450,7 @@ export default {
     clearFilters: function () {
       console.log( window.location.href );
       var href = window.location.href;
-      for (const [key, value] of Object.entries(this.state.filters)) {
+      for (const [key, value] of Object.entries(this.filtersState.filters)) {
         console.log(key, value);
         for (let s of value) {
           href = href.replace(encodeURI("&"+key+"="+s), '');
@@ -438,24 +458,24 @@ export default {
         }
       }
       history.pushState("", "", href);
-      this.state.filters = {}
+      this.filtersState.filters = {}
       this.filter()
       this.$root.$emit('refresh slider range', 'clear')
     },
     order: function (orderBy) {
       let self = this;
-      self.state.orderBy = orderBy.field
-      if (this.state.orderBy) {
+      self.filtersState.orderBy = orderBy.field
+      if (this.filtersState.orderBy) {
         //$(".activeorderby").removeClass("activeorderby");
-        //$('#orderby_'+self.state.orderBy).addClass("activeorderby");
+        //$('#orderby_'+self.filtersState.orderBy).addClass("activeorderby");
         self.currentResults = _.sortBy(self.currentResults, function (item) {
-          if (self.state.orderBy == 'RANDOM') {
+          if (self.filtersState.orderBy == 'RANDOM') {
             return Math.random() * 10000;
           } else {
-            return item[self.state.orderBy];
+            return item[self.filtersState.orderBy];
           }
         });
-        //if (this.orderByOptionsSort[self.state.orderBy] === 'desc')
+        //if (this.orderByOptionsSort[self.filtersState.orderBy] === 'desc')
         if (orderBy.sort === 'desc') // nice to be passing around objects
         {
           self.currentResults = self.currentResults.reverse();

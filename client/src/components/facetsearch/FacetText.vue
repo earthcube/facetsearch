@@ -14,12 +14,13 @@
                 <FacetTextItem
                     v-for='(info, term) in facetItems'
                     v-bind:key="info.id"
-                    v-on:click="_handleClick"
+
                     v-bind:id="facetStore[facetSetting.field][term].id"
                     :term="term"
                     :count="info.count"
                     :facetSetting="facetSetting"
                     :isActive="info.isActive"
+                    :fieldname="fieldname"
                 ></FacetTextItem>
             </b-list-group>
         </b-collapse>
@@ -32,15 +33,22 @@ import { event as gtagevent } from 'vue-gtag'
 import _ from "underscore";
 import FacetTextItem from "./FacetTextItem";
 //import {bus} from "../../main.js"
-
+//import { inject } from 'vue'
 export default {
   name: "FacetText",
   components: {FacetTextItem},
-  inject: ["toggleFilter"],
+ inject: ["toggleFilter",  "filtersState"],
+  // setup(){
+  //   // eslint-disable-next-line
+  //   const toggleFilter = inject("toggleFilter")
+  //   // eslint-disable-next-line
+  //   const facetStore = inject('facetStore')
+  // },
   props: {
     "facetSetting":Object,
     "facetStore":Object,
-    "state":Object,
+    "fieldname": String,
+ //   "state":Object,
  //   "currentResults": Array
   },
   data () {
@@ -121,10 +129,13 @@ export default {
           // use $nextTick to delay an processing until after the entire dom has been updated.
           // otherwise we get a an error about a null key
           //self.$nextTick(() =>  self.toggleFilter(filter.facetname, filter.filtername) )
-          self.toggleFilter(filter.field, filter.title);
+        //  self.toggleFilter(filter.field, filter.title); //vue2
+          this.toggleFilter(filter.field, filter.title) // vue3
+
          // $(this.facetSelector).trigger("facetedsearchfacetclick", filter);
           /**** vue3 off **/
          // bus.$emit("facetedsearchfacetclick", filter)
+
        //   Vue.$gtag.event('select_content', {
           gtagevent('select_content', {
             content_type:filter.field,

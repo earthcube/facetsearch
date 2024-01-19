@@ -8,6 +8,7 @@
     <node-interpreter value="project" />
     <envs>
       <env name="FACETS_CONFIG_FILE" value="config/config_dev.yaml" />
+      <env name="__VUE_PROD_DEVTOOLS__" value="true" />
     </envs>
     <method v="2" />
   </configuration>

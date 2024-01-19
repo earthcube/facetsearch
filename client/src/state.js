@@ -227,7 +227,10 @@ export const store = _createStore({
         // },
     },
     actions: {
-
+        // eslint-disable-next-line
+        async facetClick(context, facetFilter){
+           //  var filter = self.getFilterById(event.target.id);
+        },
         async getItemsForCollection  (context,CollName)  {
             var collection = {
                 description: {
@@ -610,7 +613,7 @@ export const store = _createStore({
                 // items = _.uniq(items, false, function(item, key, subj){
                 //     return item.subj
                 // })
-                context.commit('setMicroCache', {'key':queryObject.uuid, 'value': items})
+                context.commit('setLastQueryResults', {'key':queryObject.uuid, 'value': items})
                 context.commit('setResults', items)
 
                         // self.initFacetCounts();//items,facets, facetStore,  facetSortOption

@@ -4,7 +4,8 @@
           <FacetText v-if="facetSetting.type=='text'"
                      :facetSetting="facetSetting"
                      :facetStore="facetStore"
-                     :state="state"
+                     :fieldname="facetSetting.field"
+
 
           >
           </FacetText>
@@ -18,7 +19,7 @@
                                    :field-name="facetSetting.field"
                      :facetSetting="facetSetting"
                      :facetStore="facetStore"
-                     :state="state"
+
           >
           </FacetNumericRangeSlider>
     </div>
@@ -28,9 +29,16 @@
 <script>
 import FacetText from "./FacetText";
 import FacetNumericRangeSlider from "./FacetNumericRangeSlider";
-
+//import { inject } from 'vue'
 export default {
   name: "Facets",
+  inject: ["toggleFilter",  "filtersState"],
+  // setup(){
+  //   // eslint-disable-next-line
+  //   const toggleFilter = inject("toggleFilter")
+  //   // eslint-disable-next-line
+  //   const facetStore = inject('facetStore')
+  // },
   components: {
     FacetText,
     FacetNumericRangeSlider
@@ -38,7 +46,7 @@ export default {
   props: {
     "facetStore": Object,
     "facets": Array,
-    "state": Object,
+  //  "state": Object,
 //   "currentResults": Array
   },
   data: function () {

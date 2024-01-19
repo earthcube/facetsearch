@@ -31,7 +31,8 @@ module.exports = {
                         "process.env.PACKAGE_VERSION": '"' + version + '"',
                         "process.env.DATE": '"' + isoString+ '"',
 
-                    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true'
+                    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true',
+                    "__VUE_PROD_DEVTOOLS__": 'true',
                 })
             ],
             performance: {

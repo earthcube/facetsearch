@@ -88,6 +88,7 @@ import {bus} from "../../main";
 
 export default {
   name: "FacetRange",
+  inject: ["toggleFilter",  "filtersState"],
   props: {
     fieldName: {
       type: String
@@ -128,8 +129,8 @@ export default {
       type: Number
     },
     "facetSetting": Object,
-    "facetStore": Object,
-    "state": Object,
+     "facetStore": Object,
+    // "state": Object,
   },
   data() {
     return {

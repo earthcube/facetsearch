@@ -7,7 +7,7 @@ import {createRouter} from "./routes"
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import { BootstrapVue } from 'bootstrap-vue';
-//import {  IconsPlugin, BootstrapVueIcons } from 'bootstrap-vue'
+import {  IconsPlugin, BootstrapVueIcons } from 'bootstrap-vue'
 
 // Import Bootstrap an BootstrapVue CSS files (order is important)
 import 'bootstrap/dist/css/bootstrap.css'
@@ -27,7 +27,7 @@ configureCompat({
 
 app.use(BootstrapVue)
 // Optionally install the BootstrapVue icon components plugin
-//app.use(IconsPlugin, BootstrapVueIcons) // breaking in vue3
+app.use(IconsPlugin, BootstrapVueIcons) // breaking in vue3
 // see https://stackblitz.com/edit/bootstrap-vue-with-compat?file=main.js
 app.use(VueAxios, axios)
 const router = createRouter()

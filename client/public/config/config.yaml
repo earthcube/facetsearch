@@ -123,7 +123,7 @@ ORDER_BY_OPTIONS:
   - field: score
     title: Relevance
     sort: asc
-LIMIT_DEFAULT: 100
+LIMIT_DEFAULT: 10
 LIMIT_OPTIONS:
   - 10
   - 50

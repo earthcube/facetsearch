@@ -24,7 +24,7 @@
       <b-badge variant="data" class="mr-1"><b-icon class="mr-1" icon="server"></b-icon>{{item.resourceType}}</b-badge>
 
       <b-badge variant="tool" class="mr-1" v-if="connectedTools"><b-icon class="mr-1" icon="tools"></b-icon>Connected Tools </b-badge>
-      <Spinner v-if="!(connectedTools)" size="small" />
+      <b-spinner v-if="connectedTools === undefined" size="small" />
 
 
       <span v-if="item.disurl"> <!-- array created in state.js/flatten... -->
@@ -55,7 +55,7 @@ export default {
   data () {
     return {
       filters : this.state.filters,
-      connectedTools: false,
+      connectedTools: undefined,
       clickToAddCollection: false,
     }
   }, computed: {

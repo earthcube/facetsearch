@@ -42,7 +42,7 @@
     "vue-range-component-fixed": "^1.0.3",
     "vue-router": "^4.2.5",
     "vue-scrollbox": "^1.0.1",
-    "vue-select": "^3.16.0",
+    "vue-select": "^4.0.0-beta.6",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "vuex": "^4.1.0"
   },

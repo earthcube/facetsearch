@@ -1,5 +1,5 @@
 <template>
-    <b-list-group-item v-bind:class="{active: isActive}">
+    <b-list-group-item v-bind:class="{active: isActive}" v-on:click="_handleClick">
         {{term}}
         <b-badge>{{count}}</b-badge>
     </b-list-group-item>
@@ -8,16 +8,68 @@
 <script>
 
 
+import {event as gtagevent} from "vue-gtag";
+//import _ from "underscore";
+
 export default {
   name: "FacetTextItem",
-  props: ['facetSetting',"term", "count", "isActive"],
-
+  props: ['facetSetting',"term", "count", "isActive", "fieldname"],
+  inject: ["toggleFilter"],
 computed:{
 
 
 },
   methods: {
+    _handleClick: function(event){
+     // const self = this;
+      console.log(event)
+      //var filter = this.getFilterById(this.id);
+     // var filter = self.getFilterById(event.target.id);
+      //var filter = this.facetSetting
+      // use $nextTick to delay an processing until after the entire dom has been updated.
+      // otherwise we get a an error about a null key
+      //self.$nextTick(() =>  self.toggleFilter(filter.facetname, filter.filtername) )
+      //  self.toggleFilter(filter.field, filter.title); //vue2
+      this.toggleFilter(this.fieldname, this.term) // vue3
 
+      // $(this.facetSelector).trigger("facetedsearchfacetclick", filter);
+      /**** vue3 off **/
+      // bus.$emit("facetedsearchfacetclick", filter)
+
+      //   Vue.$gtag.event('select_content', {
+      gtagevent('select_content', {
+            content_type:this.fieldname,
+            item_id: this.term
+          }
+      )
+      //Vue.$gtag.event('select_facet', {
+      gtagevent('select_facet', {
+            // content_type:filter.field,
+            // item_id: filter.title,
+            'event_category': 'engagement',
+            'event_label': 'facet_clicked',
+            'value': `${this.fieldname}:${this.term}`
+          }
+      )
+      //order();
+      // updateFacetUI();
+      // updateResults();
+    },
+
+    /**
+     * get a facetname and filtername by the unique id that is created in the beginning
+     */
+    // getFilterById: function (id) {
+    //   var result = false;
+    //   _.each(this.facetStore, function(facet, facetname) {
+    //     _.each(facet, function(filter, filtername){
+    //       if (filter.id == id) {
+    //         result =  {'field': facetname, 'title': filtername};
+    //       }
+    //     });
+    //   });
+    //   return result;
+    // },
 }
 }
 </script>
