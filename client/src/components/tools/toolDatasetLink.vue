@@ -94,7 +94,8 @@ export default {
     }
   },
   mounted() {
-    this.$store.dispatch('fetchJsonLd', this.d)
+   // this.$store.dispatch('fetchJsonLd', this.d)
+    this.fetchJsonLd( this.d)
   },
   computed: {
     ...mapState(['jsonLdObj', 'jsonLdCompact'])

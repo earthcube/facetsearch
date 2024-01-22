@@ -31,7 +31,7 @@
                     <b-form-select
                         v-model="limit"
                         :options="limitOptions"
-                        value-field="value"
+                        value-field="modelValue"
                         text-field="title"
                         disabled-field="notEnabled"
                     ></b-form-select>
@@ -58,6 +58,19 @@
 </template>
 
 <script>
+/* NOTE HACK
+https://github.com/bootstrap-vue/bootstrap-vue/issues/7182#issuecomment-1811521156
+ <b-input-group prepend="Result Limit:" size="sm" class="text-nowrap">
+                    <b-form-select
+                        v-model="limit"
+                        :options="limitOptions"
+                        value-field="modelValue"
+                        text-field="title"
+                        disabled-field="notEnabled"
+                    ></b-form-select>
+                </b-input-group>
+
+ */
 //import FacetsConfig from '../../config.js'
 import {mapState} from "vuex";
 //import {bus} from "@/main"; //vue3
@@ -65,12 +78,16 @@ import localforage from "localforage";
 //import {mapState} from "vuex";
 
 export default {
+  // compatConfig: {
+  //   MODE: 3, // opt-in to Vue 3 behavior for this component only
+  //
+  // },
   name: "ResultHeader",
   inject: ["clearFilters", "order", "setResultLimit"
  //   , "setSearchExactmatch"
   ],
   computed: {
-    ...mapState(['searchExactMatch','FacetsConfig']),
+    ...mapState(['searchExactMatch','FacetsConfig','searchExactMatch','q']),
   },
   props: {
     "totalCount": Number,
@@ -127,7 +144,8 @@ export default {
     },
     searchExactChanged() {
      // this.setSearchExactmatch(this.searchExact)
-      this.$store.state.searchExactMatch = this.searchExact
+     // this.$store.state.searchExactMatch = this.searchExact
+      this.searchExactMatch = this.searchExact
     },
 //   $('.orderbyitem').each(function(){
 //   var id = this.id.substr(8);
@@ -155,10 +173,12 @@ export default {
       //     break
       //   }
       // }
-      if (!this.$store.state.q || this.$store.state.q.length === 0 ) {
+    //  if (!this.$store.state.q || this.$store.state.q.length === 0 ) {
+        if (!this.q || this.q.length === 0 ) {
         return
       }
-      let query = self.$store.state.q
+      //let query = self.$store.state.q
+      let query = self.q
       localforage.getItem(window.location.href, function (err, value) {
         var desp = {}
         let paramString = window.location.href.split('?')[1];

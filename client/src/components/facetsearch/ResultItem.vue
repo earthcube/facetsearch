@@ -48,6 +48,7 @@
 import _ from 'lodash'
 import {mapActions, mapGetters, mapState} from "vuex";
 import localforage from 'localforage';
+import { isProxy, toRaw } from 'vue';
 
 export default {
   name: "ResultItem",
@@ -73,6 +74,10 @@ export default {
     addToCollection(type) {
       var self = this
       self.clickToAddCollection = true
+      let item = this.item
+      if (isProxy(this.item)){
+        item = toRaw(this.item)
+      }
       // var toAdd = true
       // for(var i = 0; i < this.collections.length; i++) {
       //   var item = this.collections[i]
@@ -81,11 +86,12 @@ export default {
       //     break
       //   }
       // }
-      localforage.getItem(this.item.g, function (err, value) {
+      localforage.getItem(item.g, function (err, value) {
         if (value === null) {
+
           localforage.setItem(
-              self.item.g,
-              {'type': type, 'collection': 'unassigned', 'value': self.item}
+              item.g,
+              {'type': type, 'collection': 'unassigned', 'value': item}
           ).then((value) => {
             console.log("store " + value.g + " to localstorage");
           }).catch((err) => {

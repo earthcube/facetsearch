@@ -2,7 +2,7 @@
   <b-nav-item
       v-bind:to="to"
       v-bind:href="href"
-      v-bind:class="{ active: isActive($root.currentRoute) }"
+      v-bind:class="{ active: isActive($root.currentRoute.value) }"
       v-on:click="go"
   >
     <slot></slot>
@@ -29,7 +29,7 @@ export default {
   // },
   methods: {
     isActive () {
-      return this.to === this.$root.currentRoute
+      return this.to === this.$root.currentRoute.value
     },
     go (event) {
       event.preventDefault()

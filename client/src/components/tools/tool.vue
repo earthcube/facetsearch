@@ -177,6 +177,7 @@ export default {
   async mounted() {
 
     this.$store.dispatch('fetchToolJsonLd', this.t)
+   // store.dispatch('fetchToolJsonLd', this.t)
     console.log(this.t);
     console.log(this.d);
 

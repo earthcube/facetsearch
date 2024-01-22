@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-3">
+  <div class="mt-3" >
     <!-- list of results -->
      <ResultItem
         v-for="item in currentResults"

@@ -99,7 +99,7 @@ export default {
   //
   // },
   computed: {
-    ...mapState(['results','searchExactMatch', 'microCache','FacetsConfig','esTemplateOptions']),
+    ...mapState(['results','searchExactMatch', 'microCache','FacetsConfig','esTemplateOptions', 'q']),
     //...mapGetters(['q',])
     ...mapGetters (['hasMicroCache', 'getMicroCache'])
   },
@@ -160,6 +160,12 @@ export default {
   created() {
     this.n= this.FacetsConfig.LIMIT_DEFAULT
     this.facets =  this.FacetsConfig.FACETS
+    const facetsList = {};
+    _.each(this.facets,
+        function (facet) { //function(facettitle, facet) {
+          facetsList[facet.field] = {};
+        });
+    this.facetStore = facetsList;
   },
   mounted() {
     //const self = this;
@@ -167,7 +173,8 @@ export default {
     console.log( window.location.href );
     this.o= 0;
     this.queryRunning = true;
-    this.$store.state.q = this.textQuery
+   // this.$store.state.q = this.textQuery
+    this.q = this.textQuery
 
 
     let paramString = window.location.href.split('?')[1];
@@ -231,7 +238,8 @@ export default {
     //content.results.bindings
     newTextSearch: function () {
       this.queryRunning = true;
-      this.$store.state.q = this.textQuery
+   //   this.$store.state.q = this.textQuery
+      this.q = this.textQuery
       this.getResults(this.getQueryObj()).then(()=>{
         this.queryRunning = false;
       }).catch((ex)=>{
@@ -275,10 +283,11 @@ export default {
       let facetStore = this.facetStore;
       let facetSortOption = this.facetSortOption;
 
-      _.each(facets,
-          function (facet) { //function(facettitle, facet) {
-            facetStore[facet.field] = {};
-          });
+      // move into mount
+      // _.each(facets,
+      //     function (facet) { //function(facettitle, facet) {
+      //       facetStore[facet.field] = {};
+      //     });
       _.each(items, function (item) {
         // intialize the count to be zero
         _.each(facets,

@@ -96,7 +96,7 @@ in case more intro paragraph text is needed
 
             <p><a href="https://github.com/earthcube/facetsearch/issues" target="_blank">Create an issue</a> and a <a href="mailto:feedback@geocodes.earthcube.org" >email feedback.</a></p>
           <p><a href="https://github.com/earthcube/facetsearch/" target="_blank">Source Code </a> </p>
-          <p> Version: {{$store.getters.appVersion}} Date: {{$store.getters.appDate}} </p>
+          <p> Version: {{appVersion}} Date: {{appDate}} </p>
           <p>Citation: <cite>McHenry K, Bobak M, Coakley K, Fils D, Gatzke L, Zhang B, Kooper R, Richard S, Valentine D, Zaslavsky I, Shepherd, A & Lingerfelt E. (2021). GeoCODES. EarthCube. https://geocodes.earthcube.org. </cite> </p>
         </b-container>
 
@@ -121,7 +121,7 @@ in case more intro paragraph text is needed
 
 import axios from "axios";
 import $ from "jquery";
-import {mapState} from "vuex";
+import {mapState, mapGetters} from "vuex";
 
 export default {
   name: "about.vue",
@@ -131,7 +131,8 @@ export default {
     }
   },
   computed: {
-    ...mapState(['FacetsConfig'])
+    ...mapState(['FacetsConfig']),
+    ...mapGetters(['appVersion','appDate'])
 
   },
     mounted () {
