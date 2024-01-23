@@ -68,8 +68,8 @@
 </template>
 <script>
 
-import FacetTextItem from "./FacetTextItem";
-import RangeSlider from './RangeSlider.vue'
+import FacetTextItem from "@/components/facetsearch/FacetTextItem.vue";
+import RangeSlider from '@/components/facetsearch/RangeSlider.vue'
 
 // import HistogramSlider from "vue3-histogram-slider";
 // import "vue3-histogram-slider/dist/histogram-slider.css";
@@ -245,7 +245,7 @@ export default {
 }
 </script>
 <style scoped lang="scss">
-@import '~/src/assets/bootstrapcss/custom';
+@import '@/assets/bootstrapcss/custom';
 
 
 .filter_card {

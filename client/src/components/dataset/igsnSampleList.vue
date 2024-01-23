@@ -27,9 +27,10 @@
 // https://dev.geocodes.earthcube.org/#/dataset/urn:gleaner:milled:ieda:56bb16a22a82e1af6b0273b712683846bc459d5f
 import {mapState} from "vuex";
 
-//import {schemaItem} from "../../api/jsonldObject";
+//import {schemaItem} from "@/api/jsonldObject";
 //const {JSONPath} = require('jsonpath-plus');
-const jp = require('jsonpath')
+//const jp = require('jsonpath')
+import * as jp from 'jsonpath'
 import _ from 'lodash'
 import {frameJsonLD} from "@/api/jsonldObject";
 
@@ -123,7 +124,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '~/src/assets/bootstrapcss/custom';
+@import '@/assets/bootstrapcss/custom';
 
 .connected_tools {
   @include media-breakpoint-down(md) {

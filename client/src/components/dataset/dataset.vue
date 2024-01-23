@@ -146,14 +146,14 @@
 
 <script>
 //import Metadata from "./metadata.vue";
-import DatasetLocation from "./datasetLocation.vue";
-import ConnectedTools from "./connectedTools.vue";
-import Downloadfiles from "./downloadfiles.vue"
-import relatedData from "./relatedData.vue";
-import sampleInfo from "@/components/dataset/igsnSampleList";
-import annotation from "./annotation.vue";
-import feedback from "../feedback/feedback";
-import citationButton from "@/components/dataset/citationButton";
+import DatasetLocation from "@/components/dataset/datasetLocation.vue";
+import ConnectedTools from "@/components/dataset/connectedTools.vue";
+import Downloadfiles from "@/components/dataset/downloadfiles.vue"
+import relatedData from "@/components/dataset/relatedData.vue";
+import sampleInfo from "@/components/dataset/igsnSampleList.vue";
+import annotation from "@/components/dataset/annotation.vue";
+import feedback from "@/components/feedback/feedback.vue";
+import citationButton from "@/components/dataset/citationButton.vue";
 //import {JSONPath} from "jsonpath-plus";
 
 //import {getJsonLD} from '../../api/jsonldObject.js'
@@ -457,7 +457,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '~/src/assets/bootstrapcss/custom';
+@import '@/assets/bootstrapcss/custom';
 
 
 .card {

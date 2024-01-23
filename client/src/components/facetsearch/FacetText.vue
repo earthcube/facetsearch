@@ -31,7 +31,7 @@
 //import Vue from 'vue'
 import { event as gtagevent } from 'vue-gtag'
 import _ from "underscore";
-import FacetTextItem from "./FacetTextItem";
+import FacetTextItem from "@/components/facetsearch/FacetTextItem.vue";
 //import {bus} from "../../main.js"
 //import { inject } from 'vue'
 export default {
@@ -276,7 +276,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-    @import '~/src/assets/bootstrapcss/custom';
+    @import '@/assets/bootstrapcss/custom';
 
 .filter_card {
     background: {

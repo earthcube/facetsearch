@@ -111,19 +111,19 @@ import localforage from 'localforage';
 // import FacetTextItem from "./FacetTextItem";
 // import _ from "underscore";
 import Vue from "vue";
-import CreateCollection from "./CreateCollection";
+import CreateCollection from "./CreateCollection.vue";
 
-import CollectionMenuItem from "./CollectionMenuItem";
-import sendCollectionToNotebook from "./sendCollectionToNotebook";
-import CollectionCard from "./CollectionCard"
+import CollectionMenuItem from "./CollectionMenuItem.vue";
+import sendCollectionToNotebook from "./sendCollectionToNotebook.vue";
+import CollectionCard from "./CollectionCard.vue"
 import {mapGetters, mapState} from "vuex";
 import vSelect from "vue-select";
-import VueScrollbox from 'vue-scrollbox';
+import VueScrollbox  from 'vue-scrollbox';
 import "vue-select/dist/vue-select.css";
 // import ConfirmDialogue from './ConfirmDialogue.vue'
 
-Vue.component("v-select", vSelect);
-Vue.component('vue-scrollbox', VueScrollbox);
+// Vue.component("v-select", vSelect);
+// Vue.component('vue-scrollbox', VueScrollbox);
 
 export default {
   name: "Collection.vue",
@@ -133,7 +133,9 @@ export default {
     CollectionMenuItem,
     // ConfirmDialogue,
     sendCollectionToNotebook,
-    CollectionCard
+    CollectionCard,
+    vSelect,
+    VueScrollbox
   },
   data () {
     return {
@@ -428,7 +430,7 @@ export default {
 </style>
 
 <style scoped lang="scss">
-@import '~/src/assets/bootstrapcss/custom';
+@import '@/assets/bootstrapcss/custom';
 
 .filter_card {
   background: {

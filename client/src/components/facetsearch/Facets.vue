@@ -27,8 +27,8 @@
 </template>
 
 <script>
-import FacetText from "./FacetText";
-import FacetNumericRangeSlider from "./FacetNumericRangeSlider";
+import FacetText from "@/components/facetsearch/FacetText.vue";
+import FacetNumericRangeSlider from "@/components/facetsearch/FacetNumericRangeSlider.vue";
 //import { inject } from 'vue'
 export default {
   name: "Facets",

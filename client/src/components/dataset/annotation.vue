@@ -31,7 +31,7 @@
 
 import {mapState} from "vuex";
 import axios from "axios";
-import {frameJsonLD, schemaItem} from "../../api/jsonldObject";
+import {frameJsonLD, schemaItem} from "@/api/jsonldObject";
 import FacetsConfig from "../../config";
 
 export default {
@@ -111,7 +111,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '~/src/assets/bootstrapcss/custom';
+@import '@/assets/bootstrapcss/custom';
 
 .toggle {
   cursor: pointer;

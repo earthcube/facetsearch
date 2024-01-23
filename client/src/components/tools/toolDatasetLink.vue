@@ -44,7 +44,7 @@ import {
  // geoplacename,
   getDistributions,
  // getGeoCoordinates
-} from '../../api/jsonldObject.js'
+} from '@/api/jsonldObject.js'
 import {mapState} from "vuex";
 //import {JSONView} from "vue-json-component";
 
@@ -163,7 +163,7 @@ export default {
 </style>
 
 <style scoped lang="scss">
-@import '~/src/assets/bootstrapcss/custom';
+@import '@/assets/bootstrapcss/custom';
 
 .connected_tools {
 @include media-breakpoint-down(md) {

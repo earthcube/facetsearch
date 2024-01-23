@@ -58,8 +58,8 @@
 
 <script>
 import {mapState} from "vuex";
-import logoEarthcube from "@/components/logos/logoEarthcube";
-import logoGeoCodes from "@/components/logos/logoGeoCodes";
+import logoEarthcube from "@/components/logos/logoEarthcube.vue";
+import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
 import {stringify} from "query-string"
 import _ from "lodash"
 //import FacetsConfig from "../config";
@@ -149,7 +149,7 @@ name: "navHeader",
 </script>
 
 <style scoped lang="scss">
-    @import '~/src/assets/bootstrapcss/custom';
+    @import '@/assets/bootstrapcss/custom';
 
 .navbar {
     //make flat color

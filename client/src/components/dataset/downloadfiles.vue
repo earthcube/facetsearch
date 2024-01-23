@@ -33,7 +33,7 @@
 
 //import jsonld from "jsonld";
 import _ from 'lodash'
-import {schemaItem, getDistributions, frameJsonLD} from '../../api/jsonldObject.js'
+import {schemaItem, getDistributions, frameJsonLD} from '@/api/jsonldObject.js'
 import {mapState} from "vuex";
 
 export default {
@@ -198,7 +198,7 @@ export default {
 </style>
 
 <style scoped lang="scss">
-    @import '~/src/assets/bootstrapcss/custom';
+    @import '@/assets/bootstrapcss/custom';
 
 .buttons {
     .btn {

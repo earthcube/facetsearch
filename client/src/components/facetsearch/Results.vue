@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import ResultItem from "./ResultItem";
+import ResultItem from "@/components/facetsearch/ResultItem.vue";
 import {mapState} from "vuex";
 
 export default {
@@ -33,6 +33,6 @@ name: "Results",
 </script>
 
 <style scoped lang="scss">
-    @import '~/src/assets/bootstrapcss/custom';
+    @import '@/assets/bootstrapcss/custom';
 
 </style>

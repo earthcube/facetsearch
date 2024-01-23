@@ -93,8 +93,8 @@
 
 <script>
 import {mapActions, mapState} from "vuex";
-import SpaqlToolsDownloadQuery from 'raw-loader!../../sparql_blaze/sparql_gettools_download.txt'
-import SpaqlToolsWebserviceQuery from 'raw-loader!../../sparql_blaze/sparql_gettools_webservice.txt'
+import SpaqlToolsDownloadQuery from '@/sparql_blaze/sparql_gettools_download.txt?raw'
+import SpaqlToolsWebserviceQuery from '@/sparql_blaze/sparql_gettools_webservice.txt?raw'
 import _ from "lodash";
 
 //import FacetsConfig from "../../config";
@@ -213,7 +213,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-    @import '~/src/assets/bootstrapcss/custom';
+    @import '@/assets/bootstrapcss/custom';
 
 .connected_tools {
     @include media-breakpoint-down(md) {

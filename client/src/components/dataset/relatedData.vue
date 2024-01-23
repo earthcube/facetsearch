@@ -40,12 +40,12 @@
 
 import {mapState} from "vuex";
 import axios from "axios";
-//import FacetsConfig from "../../config";
-import SpaqlToolsWebserviceQuery from 'raw-loader!../../sparql_blaze/sparql_relateddatafilename.txt'
+
+import SpaqlToolsWebserviceQuery from '@/sparql_blaze/sparql_relateddatafilename.txt?raw'
 
 
 import _ from "lodash";
-import {frameJsonLD, schemaItem} from "../../api/jsonldObject";
+import {frameJsonLD, schemaItem} from "@/api/jsonldObject";
 
 
 export default {
@@ -155,7 +155,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '~/src/assets/bootstrapcss/custom';
+@import '@/assets/bootstrapcss/custom';
 
 .connected_tools {
   @include media-breakpoint-down(md) {

@@ -94,7 +94,7 @@ import {
   getDistributions,
   getGeoCoordinates,
   frameJsonLD,
-} from '../../api/jsonldObject.js'
+} from '@/api/jsonldObject.js'
 import {mapState} from "vuex";
 import {JSONView} from "vue-json-component";
 

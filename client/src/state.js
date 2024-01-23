@@ -8,9 +8,10 @@ import jsonld from "jsonld";
 import _, {isArray} from "underscore";
 //import FacetsConfig from "./config";
 //import {bus} from "./main";
-import SpaqlQuery from 'raw-loader!./sparql_blaze/sparql_query.txt'
-import SpaqlHasToolsQuery from 'raw-loader!./sparql_blaze/sparql_hastools.txt'
-
+//import SpaqlQuery from 'raw-loader!./src/sparql_blaze/sparql_query.txt'
+//import SpaqlHasToolsQuery from 'raw-loader!./src/sparql_blaze/sparql_hastools.txt'
+import SpaqlQuery from '@/sparql_blaze/sparql_query.txt?raw'
+import SpaqlHasToolsQuery from '@/sparql_blaze/sparql_hastools.txt?raw'
 import LRU from "lru-cache"
 import localforage from "localforage";
 import yaml from "js-yaml";
@@ -21,7 +22,9 @@ let esTemplateOptions = {interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g}
 
 //let TRIPLESTORE_URL=FacetsConfigValue.TRIPLESTORE_URL
 export async function storeRemoteConfig   (remoteConfig="config/config.yaml") {
-    return await  fetch(process.env.BASE_URL + remoteConfig)
+    //return await  fetch(process.env.BASE_URL + remoteConfig)
+    return await  fetch(import.meta.env.BASE_URL + remoteConfig)
+
         .then((response) => response.text())
         .then((config) => {
             let y =   yaml.load(config)
@@ -39,8 +42,10 @@ export async function storeRemoteConfig   (remoteConfig="config/config.yaml") {
 
 export const store = _createStore({
     state: {
-        packageVersion: process.env.PACKAGE_VERSION || '0',
-        date: process.env.DATE || '2021-Unknown',
+       // packageVersion: process.env.PACKAGE_VERSION || '0',
+        packageVersion: import.meta.env.PACKAGE_VERSION || '0',
+     //   date: process.env.DATE || '2021-Unknown',
+        date: import.meta.env.DATE || '2021-Unknown',
         jsonLdObj: {},
         jsonLdCompact: {},
         toolLdObj:{},

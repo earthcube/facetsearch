@@ -16,7 +16,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '~/src/assets/bootstrapcss/custom';
+@import '@/assets/bootstrapcss/custom';
 
 .list-group-item {
   cursor: pointer;

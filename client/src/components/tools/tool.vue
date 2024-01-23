@@ -114,20 +114,21 @@
 
 <script>
 //import ToolMetadata from "./toolMetadata";
-import ToolDatasetLink from "./toolDatasetLink";
+import ToolDatasetLink from "@/components/tools/toolDatasetLink.vue";
 
-//import {getJsonLD} from '../../api/jsonldObject.js'
-//import axios from "axios";
 import {mapState, mapActions} from 'vuex'
 import _ from 'lodash'
 import {
   schemaItem,
 //  hasSchemaProperty,
-} from '../../api/jsonldObject.js'
-//import {JSONView} from "vue-json-component";
+} from '@/api/jsonldObject.js'
+
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
-import feedback from "../feedback/feedback";
+import feedback from "@/components/feedback/feedback.vue";
+//import {JSONView} from "vue-json-component";
+//import {getJsonLD} from '../../api/jsonldObject.js'
+//import axios from "axios";
 
 export default {
   name: "dataset",
@@ -271,7 +272,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '~/src/assets/bootstrapcss/custom';
+@import '@/assets/bootstrapcss/custom';
 
 .row {
   padding: {

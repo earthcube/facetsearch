@@ -47,25 +47,24 @@
 
 //import Vue from 'vue'
 //import { provide, reactive } from 'vue'
-import Results from "./Results";
-import Facets from "./Facets";
-//import _, { DatasetLocation } from 'underscore';
+import Results from "@/components/facetsearch/Results.vue";
+import Facets from "@/components/facetsearch/Facets.vue";
 import _ from 'underscore';
 //import axios from "axios";
 //import FacetsConfig from '../../config.js'
 
 //import {bus} from "../../main.js"
-import ResultHeader from "./ResultHeader";
+import ResultHeader from "@/components/facetsearch/ResultHeader.vue";
 import {
   mapActions, mapGetters,
   mapState,
   // mapGetters
 } from "vuex";
-import feedback from "../feedback/feedback";
+import feedback from "@/components/feedback/feedback.vue";
 import {v5 as uuidv5} from 'uuid'
 
 
-// import HistRangeSlider from "./HistRangeSlider.vue"
+// import HistRangeSlider from "@/components/facetsearch/HistRangeSlider.vue"
 
 export default {
   name: "Search",

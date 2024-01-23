@@ -10,7 +10,7 @@
 <script>
 //import Search from './components/facetsearch/Search.vue'
 //import FacetsConfig from './config'
-import navHeader  from './components/navHeader.vue'
+import navHeader  from '@/components/navHeader.vue'
 
 import {mapState} from "vuex";
 import { useStore } from 'vuex'
@@ -54,9 +54,9 @@ export default {
 @import 'assets/bootstrapcss/_variables.scss';
 
 // Import Bootstrap and BootstrapVue source SCSS files
-@import '~bootstrap/scss/bootstrap.scss';
+@import 'bootstrap/scss/bootstrap.scss';
 //@import 'assets/bootstrapcss/_bootswatch.scss'; // after import bootstrap
-@import '~bootstrap-vue/src/index.scss';
+@import 'bootstrap-vue/src/index.scss';
 
 
 #app {

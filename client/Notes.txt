@@ -11,6 +11,7 @@ https://www.vuemastery.com/blog/migration/
 config changes not showing up in developement.
 you will need to build, or just copy the file into dist/config
 
+the @ symbol is a proxy frr ./src  configured in vite. makes life easier... maybe
 
 https://peachscript.github.io/vue-infinite-loading/guide/#installation
 

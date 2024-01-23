@@ -1,14 +1,14 @@
 //import Router from "vue-router";
 import { createRouter as _createRouter, createWebHashHistory } from 'vue-router'
 
-import landing from "./components/landing/landing";
-import Search from "./components/facetsearch/Search";
-import dataset from "./components/dataset/dataset";
-import tool from "./components/tools/tool"
-import about from "./components/help/about"
-import report from "./components/help/report"
-import collection from "./components/collection/Collection"
-import configuration from "./components/configuration"
+import landing from "@/components/landing/landing.vue";
+import Search from "@/components/facetsearch/Search.vue";
+import dataset from "@/components/dataset/dataset.vue";
+import tool from "@/components/tools/tool.vue"
+import about from "@/components/help/about.vue"
+import report from "@/components/help/report.vue"
+import collection from "@/components/collection/Collection.vue"
+import configuration from "@/components/configuration.vue"
 
 export function createRouter() {
     return _createRouter({

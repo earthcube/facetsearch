@@ -50,7 +50,7 @@
 
 <script>
 //import VueRouter from 'vue-router'
-import logoGeoCodes from "@/components/logos/logoGeoCodes";
+import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
 
 export default {
   name: "landing",
@@ -82,7 +82,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-    @import '~/src/assets/bootstrapcss/custom';
+    @import '@/assets/bootstrapcss/custom';
 
 //use v-deep to style the inner carousel components
 .carousel::v-deep {
@@ -117,7 +117,7 @@ export default {
                     font: {
                         size: 120%;
                     }
-                    
+
                     .text-nowrap {
                         //remove no wrap on small screens
                         white-space: normal !important;
