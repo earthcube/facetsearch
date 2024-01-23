@@ -57,7 +57,7 @@ import _ from 'underscore';
 import ResultHeader from "@/components/facetsearch/ResultHeader.vue";
 import {
   mapActions, mapGetters,
-  mapState,
+  mapState,mapMutations
   // mapGetters
 } from "vuex";
 import feedback from "@/components/feedback/feedback.vue";
@@ -101,6 +101,7 @@ export default {
     ...mapState(['results','searchExactMatch', 'microCache','FacetsConfig','esTemplateOptions', 'q']),
     //...mapGetters(['q',])
     ...mapGetters (['hasMicroCache', 'getMicroCache'])
+
   },
   watch: {
     results: 'search',
@@ -173,7 +174,8 @@ export default {
     this.o= 0;
     this.queryRunning = true;
    // this.$store.state.q = this.textQuery
-    this.q = this.textQuery
+    this.setTextQuery (this.textQuery)
+    this.setResourceTypeQuery('all')
 
 
     let paramString = window.location.href.split('?')[1];
@@ -217,6 +219,7 @@ export default {
   }
   ,
   methods: {
+    ...mapMutations(["setTextQuery", "setResourceTypeQuery"]),
     ...mapActions([
       'getResults', 'getQueryTemplate', 'addtoMicroCache']),
      getQueryObj : function() {
@@ -238,7 +241,7 @@ export default {
     newTextSearch: function () {
       this.queryRunning = true;
    //   this.$store.state.q = this.textQuery
-      this.q = this.textQuery
+      this.setTextQuery(this.textQuery)
       this.getResults(this.getQueryObj()).then(()=>{
         this.queryRunning = false;
       }).catch((ex)=>{

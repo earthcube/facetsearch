@@ -51,6 +51,7 @@
 <script>
 //import VueRouter from 'vue-router'
 import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
+import {mapMutations} from "vuex";
 
 export default {
   name: "landing",
@@ -69,13 +70,14 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(["setTextQuery", "setResourceTypeQuery"]),
     onSubmit() {
       var query = this.q;
       var resourceType = this.toolOptionsSelected
       this.$router.push({name: 'Search', query: {q: query, resourceType: resourceType}})
     },
     onReset() {
-      this.q = ''
+      this.setTextQuery ( '')
     }
   }
 }

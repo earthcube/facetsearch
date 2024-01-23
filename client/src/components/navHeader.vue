@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import {mapState} from "vuex";
+import {mapMutations, mapState} from "vuex";
 import logoEarthcube from "@/components/logos/logoEarthcube.vue";
 import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
 import {stringify} from "query-string"
@@ -66,6 +66,7 @@ import _ from "lodash"
 
 
 export default {
+  configureCompat: { ATTR_FALSE_VALUE: false },
 name: "navHeader",
   components: {logoEarthcube, logoGeoCodes},
   computed: {
@@ -83,6 +84,7 @@ name: "navHeader",
   }
   },
   methods:{
+    ...mapMutations(["setTextQuery", "setResourceTypeQuery"]),
     showBackButton() {
     return false;
 //        return (['dataset', 'tool'].includes(this.$route.name.toLowerCase())) ? true : false;
@@ -96,8 +98,8 @@ name: "navHeader",
     onSubmitNavbar(){
     //  this.$store.state.q = this.textQuery;
     //  this.$store.state.rt = 'all' // for now
-      this.q = this.textQuery;
-      this.rt = 'all' // for now
+      this.setTextQuery(this.textQuery);
+      this.setResourceTypeQuery ( 'all') // for now
       this.$router.push({name: 'Search', query:{q:this.q, resourceType: 'all'} }).catch(err => {console.log('ignore'+err)})
     },
     showSparqlGui(){

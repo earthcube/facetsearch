@@ -12,7 +12,7 @@ import _, {isArray} from "underscore";
 //import SpaqlHasToolsQuery from 'raw-loader!./src/sparql_blaze/sparql_hastools.txt'
 import SpaqlQuery from '@/sparql_blaze/sparql_query.txt?raw'
 import SpaqlHasToolsQuery from '@/sparql_blaze/sparql_hastools.txt?raw'
-import LRU from "lru-cache"
+import { default as LRUCache} from "lru-cache"
 import localforage from "localforage";
 import yaml from "js-yaml";
 
@@ -54,7 +54,7 @@ export const store = _createStore({
         queryTemplates: new Map(),
         lastQueryResults: new Map(), // query, num results
         lastDatasetIds: [],
-        connectedTools: new LRU({
+        connectedTools: new LRUCache({
             max: 100000, // 100k entries.
             // maxAge: 36000 // Important: entries expires after 1 second.
         }), // object id, hasConnectedTools
@@ -74,7 +74,7 @@ export const store = _createStore({
             ['tool', "{ ?subj rdf:type schema:SoftwareApplication . } UNION { ?subj rdf:type sschema:SoftwareApplication . } "],
        //     ['project', "{ ?subj rdf:type schema:ResearchProject . } UNION { ?subj rdf:type sschema:ResearchProject . } "],
         ]),
-        microCache: new LRU({
+        microCache: new LRUCache({
             max: 100000, // 100k entries.
             // maxAge: 36000 // Important: entries expires after 1 second.
         }),
@@ -113,6 +113,9 @@ export const store = _createStore({
         },
 
         hasMicroCache: (state) => (key)  => {
+            //return false;
+            // there is some object proxy issues..
+            // version roll back, and fix error
             return state.microCache.has(key)
         },
         getMicroCache: (state) => (key)  => {
@@ -217,6 +220,9 @@ export const store = _createStore({
         },
         setTextQuery(state, obj){
             state.q = obj
+        },
+        setResourceTypeQuery(state, obj){
+            state.rt = obj
         },
         setSearchExactMatch(state, obj){
             state.searchExactMatch = obj
@@ -618,7 +624,7 @@ export const store = _createStore({
                 // items = _.uniq(items, false, function(item, key, subj){
                 //     return item.subj
                 // })
-                context.commit('setLastQueryResults', {'key':queryObject.uuid, 'value': items})
+                context.commit('setLastQueryResults', {'key':queryObject.uuid, 'items': items})
                 context.commit('setResults', items)
 
                         // self.initFacetCounts();//items,facets, facetStore,  facetSortOption

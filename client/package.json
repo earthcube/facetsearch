@@ -31,7 +31,7 @@
     "localforage": "^1.10.0",
     "localforage-startswith": "^1.4.0",
     "lodash": "^4.17.21",
-    "lru-cache": "^5.1.1",
+    "lru-cache": "~7.18.3",
     "query-string": "^7.0.0",
     "querystring": "^0.2.1",
     "underscore": "^1.13.6",
