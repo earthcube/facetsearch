@@ -177,6 +177,10 @@ import 'vue-json-pretty/lib/styles.css';
 //import toast from 'bootstrap-vue'
 
 export default {
+  compatConfig: {
+    MODE: 2, // opt-in to Vue 3 behavior for this component only
+  },
+
   name: "dataset",
   components: {
     sampleInfo, ConnectedTools, DatasetLocation,

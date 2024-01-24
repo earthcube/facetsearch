@@ -1,5 +1,10 @@
 update to vue3:
+TODO:
+* icons.. need to redo the icons. borked.
+
+Notes:
  set to 3.3.4 to avoid this issue: https://github.com/bootstrap-vue/bootstrap-vue/issues/7181
+
 
 * need to deal with breakign change for https://v3-migration.vuejs.org/breaking-changes/events-api.html
   in /src/components/facetsearch/FacetText.vue other places

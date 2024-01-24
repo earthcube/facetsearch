@@ -1,3 +1,4 @@
+
 const webpack = require('webpack');
 const fs = require('fs')
 const packageJson = fs.readFileSync('./package.json')

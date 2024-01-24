@@ -87,8 +87,8 @@ export default {
     @import '@/assets/bootstrapcss/custom';
 
 //use v-deep to style the inner carousel components
-.carousel::v-deep {
-    .carousel-inner {
+.carousel:deep(.carousel-inner)
+     {
         .carousel-item {
             height: 240px;
 
@@ -128,6 +128,6 @@ export default {
             }
         }
     }
-}
+
 
 </style>
