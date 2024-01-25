@@ -41,20 +41,20 @@ import {
   //LTileLayer,
   // LMarker,
 } from "@vue-leaflet/vue-leaflet";
-import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png?raw'
-import iconUrl from 'leaflet/dist/images/marker-icon.png?raw'
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png?raw'
+// import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png?raw'
+// import iconUrl from 'leaflet/dist/images/marker-icon.png?raw'
+// import shadowUrl from 'leaflet/dist/images/marker-shadow.png?raw'
 import {mapState} from "vuex";
 import {schemaItem, getGeoCoordinates, geoplacename, getFirstGeoShape, frameJsonLD} from '@/api/jsonldObject'
 import { Icon } from 'leaflet';
 //import jsonld from "jsonld";
 
-delete Icon.Default.prototype._getIconUrl;
-Icon.Default.mergeOptions({
-  iconRetinaUrl: iconRetinaUrl ,// require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl:iconUrl, // require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl:shadowUrl, // require('leaflet/dist/images/marker-shadow.png'),
-});
+// delete Icon.Default.prototype._getIconUrl;
+// Icon.Default.mergeOptions({
+//   iconRetinaUrl: 'leaflet/dist/images/marker-icon-2x.png',// iconRetinaUrl ,// require('leaflet/dist/images/marker-icon-2x.png'),
+//   iconUrl:'leaflet/dist/images/marker-icon-2x.png', // require('leaflet/dist/images/marker-icon.png'),
+//   shadowUrl:'leaflet/dist/images/marker-icon-2x.png', // require('leaflet/dist/images/marker-shadow.png'),
+// });
 export default {
   name: 'datasetLocation',
   components: {
