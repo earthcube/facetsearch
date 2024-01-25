@@ -83,12 +83,13 @@ import RangeSlider from '@/components/facetsearch/RangeSlider.vue'
 //import 'vue-histogram-slider/dist/histogram-slider.css';
 import {mapState} from "vuex";
 import _ from 'lodash'
-import {bus} from "../../main";
+//import {bus} from "../../main";
 
 
 export default {
   name: "FacetRange",
   inject: ["toggleFilter",  "filtersState"],
+  emits: ['refresh slider range'],
   props: {
     fieldName: {
       type: String
@@ -164,11 +165,11 @@ export default {
   },
   mounted(){
     var self = this;
-    bus.$on('facetupdate', () => {
-      console.log("facetupdate event");
-      self.facetItems = self.facetStore[self.facetSetting.field];
-      self.updateFacetItems()
-    })
+    // bus.$on('facetupdate', () => {
+    //   console.log("facetupdate event");
+    //   self.facetItems = self.facetStore[self.facetSetting.field];
+    //   self.updateFacetItems()
+    // })
   },
   methods: {
     updateFacetItems: function(){

@@ -77,7 +77,8 @@ app.config.devtools = true
 //export const bus = new Vue(); // https://blog.logrocket.com/using-event-bus-in-vue-js-to-pass-data-between-components/
 export const bus =  createApp({});
 
-const store = await createStore()
+const configfile = import.meta.env.VITE_FACETS_CONFIG_FILE ?import.meta.env.VITE_FACETS_CONFIG_FILE: 'config/config.yaml'
+const store = await createStore(configfile)
 
 app.use(store)
 
