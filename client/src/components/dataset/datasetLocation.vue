@@ -69,7 +69,7 @@ export default {
   data() {
     return {
       hasSpatial: false,
-      mapboxurl: "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
+      mapboxurl: '',
       attribution: `Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>`,
       center: [46.8832566, -114.0870563],
       zoom: 8,
@@ -80,6 +80,7 @@ export default {
   },
   mounted() {
     this.hasSpatial = false;
+    this.mapboxurl = `https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${this.FacetsConfig.MAPBOX_API_KEY}`;
     // this.$nextTick(() => {
     //   //this.$refs.myMap.mapObject.setView(this.center, 13);
     //   this.mymap = L.map(this.$refs.myMap.id).setView(this.center, 13);
@@ -95,7 +96,7 @@ export default {
     // });
   },
   computed: {
-    ...mapState(['jsonLdObj', 'jsonLdCompact'])
+    ...mapState(['jsonLdObj', 'jsonLdCompact','FacetsConfig'])
 
   },
   methods: {
@@ -172,7 +173,8 @@ export default {
 
                 //this.$refs.myMap.mapObject.setView(this.center, 13);
                 this.mymap = L.map(this.$refs.myMap.id).setView(this.center, 8);
-                L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+                let mb_url = this.mapboxurl
+                L.tileLayer(mb_url, {
                   maxZoom: 13,
                   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
                       'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',

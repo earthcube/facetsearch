@@ -1,4 +1,6 @@
+
 ---
+MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
 API_URL: https://geocodes-aws.earthcube.org/ec/api
 S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/
 TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube/sparql
