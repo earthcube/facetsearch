@@ -38,8 +38,8 @@ const router = createRouter()
 app.use(router)
 import VueGtag from "vue-gtag";
 
-
-
+import { default as  VueSelect } from "vue-select";
+app.component("v-select", VueSelect)
 
 
 

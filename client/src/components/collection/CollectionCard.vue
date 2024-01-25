@@ -110,10 +110,15 @@
 import localforage from "localforage";
 import Vue from "vue";
 import {mapState} from "vuex";
-//import FacetsConfig from "../../config";
 
+//import { default as VueSelect } from "vue-select";
+//import  VueSelect  from "vue-select";
 export default {
   name: "CollectionCard",
+
+  // components:[
+  //   "v-select", VueSelect // only word registed in app.components
+  // ],
   props: ["item", "currentClick", ],
   data: () => {
     return {
