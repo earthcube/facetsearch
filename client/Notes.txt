@@ -1,6 +1,8 @@
 update to vue3:
 TODO:
 * icons.. need to redo the icons. borked.
+* back button routing bokred.
+* year published not rendering correctly
 
 Notes:
  set to 3.3.4 to avoid this issue: https://github.com/bootstrap-vue/bootstrap-vue/issues/7181
