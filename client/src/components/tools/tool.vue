@@ -2,7 +2,7 @@
   <b-container fluid="md">
     <b-row class="title_row">
       <b-col md="12">
-        <b-btn variant="outline-primary" v-on:click="$router.back()">
+        <b-btn variant="outline-primary"  v-if="$router.options.history.state.back!=null" v-on:click="$router.back()">
           <b-icon icon="arrow-left"/>
         </b-btn>
         <feedback class='float-right' subject = 'Tool' :name="mapping.s_name" :urn="t"> </feedback>

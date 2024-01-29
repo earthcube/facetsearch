@@ -4,7 +4,7 @@
     <b-overlay :show="obscurePage" rounded="sm">
       <b-row class="title_row">
         <b-col md="12">
-          <b-btn variant="outline-primary" v-on:click="$router.back()">
+          <b-btn variant="outline-primary" v-if="$router.options.history.state.back!=null" v-on:click="$router.back()">
             <b-icon icon="arrow-left"/>
           </b-btn>
           <feedback class='float-right' subject='Dataset' :name="mapping.s_name" :urn="d"></feedback>
