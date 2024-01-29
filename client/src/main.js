@@ -78,9 +78,11 @@ app.config.devtools = true
 export const bus =  createApp({});
 
 const configfile = import.meta.env.VITE_FACETS_CONFIG_FILE ?import.meta.env.VITE_FACETS_CONFIG_FILE: 'config/config.yaml'
-// error building on netlify: op-level await is not available in the configured target environment ("chrome87", "edge88", "es2020", "firefox78", "safari14
-//const store = await createStore(configfile)
-const store =  createStore(configfile)
+const store = await createStore(configfile)
+// error building on netlify:
+//      op-level await is not available in the configured target environment ("chrome87", "edge88", "es2020", "firefox78", "safari14
+// but then it does not work on a browswer
+//const store =  createStore(configfile)
 
 app.use(store)
 
