@@ -36,7 +36,7 @@ exports.config = {
         toolpath: toolpath,
         toolrepo: toolrepo,
         toolbucket: toolbucket,
-        uriVersion: uriVersion
+        uriversion: uriVersion
     },
 
 
