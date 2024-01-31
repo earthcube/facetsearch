@@ -10,8 +10,16 @@
       <div class="toggle text-primary text-link d-flex" role="tab"
            v-b-toggle="'collapse_annotate_data_' + index"
       >
-        <b-icon icon="caret-right-fill" scale=".5" class="when_open"></b-icon>
-        <b-icon icon="caret-down-fill" scale=".5" class="when_closed"></b-icon>
+        <!--          <b-icon icon="caret-down-fill" scale="1" class="when_open"></b-icon>-->
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill when_open" viewBox="0 0 16 16">
+          <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+        </svg>
+
+        <!--          <b-icon icon="caret-up-fill" scale="1" class="when_closed"></b-icon>-->
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-up-fill when_closed" viewBox="0 0 16 16">
+          <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+        </svg>
 
         <span v-html="item.label"></span>
       </div>

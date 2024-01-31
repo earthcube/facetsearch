@@ -4,9 +4,7 @@
     <b-overlay :show="obscurePage" rounded="sm">
       <b-row class="title_row">
         <b-col md="12">
-          <b-btn variant="outline-primary" v-if="$router.options.history.state.back!=null" v-on:click="$router.back()">
-            <b-icon icon="arrow-left"/>
-          </b-btn>
+<back-button/>
           <feedback class='float-right' subject='Dataset' :name="mapping.s_name" :urn="d"></feedback>
 
         </b-col>
@@ -126,8 +124,11 @@
           <b-button v-b-toggle.collapse_json
 
                     variant="outline-secondary">
-            <b-icon icon="code-slash" class="mr-1"
-            ></b-icon>
+<!--            <b-icon icon="code-slash" class="mr-1"-->
+<!--            ></b-icon>-->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-code-slash" viewBox="0 0 16 16">
+              <path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"/>
+            </svg>
             Metadata
           </b-button>
 
@@ -154,6 +155,7 @@ import sampleInfo from "@/components/dataset/igsnSampleList.vue";
 import annotation from "@/components/dataset/annotation.vue";
 import feedback from "@/components/feedback/feedback.vue";
 import citationButton from "@/components/dataset/citationButton.vue";
+import backButton from "@/components/backButton.vue"
 //import {JSONPath} from "jsonpath-plus";
 
 //import {getJsonLD} from '../../api/jsonldObject.js'
@@ -191,7 +193,8 @@ export default {
     relatedData,
     annotation,
     feedback,
-    citationButton
+    citationButton,
+    backButton
   },
   props: {
     d: String,

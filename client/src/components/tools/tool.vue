@@ -2,9 +2,7 @@
   <b-container fluid="md">
     <b-row class="title_row">
       <b-col md="12">
-        <b-btn variant="outline-primary"  v-if="$router.options.history.state.back!=null" v-on:click="$router.back()">
-          <b-icon icon="arrow-left"/>
-        </b-btn>
+<back-button/>
         <feedback class='float-right' subject = 'Tool' :name="mapping.s_name" :urn="t"> </feedback>
 
       </b-col>
@@ -115,7 +113,7 @@
 <script>
 //import ToolMetadata from "./toolMetadata";
 import ToolDatasetLink from "@/components/tools/toolDatasetLink.vue";
-
+import backButton from "@/components/backButton.vue"
 import {mapState, mapActions} from 'vuex'
 import _ from 'lodash'
 import {
@@ -138,6 +136,7 @@ export default {
   //  "json-view": JSONView
     VueJsonPretty,
     feedback,
+    backButton
   },
   props: {
     t: String,
