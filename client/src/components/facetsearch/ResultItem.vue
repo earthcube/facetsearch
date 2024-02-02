@@ -19,7 +19,7 @@
 
       </div>
     </div>
-
+    <div v-if="collectionNames !== undefined">in collections {{collectionNames}}</div>
     <div class="badges mt-2">
       <b-badge variant="data" class="mr-1"><b-icon class="mr-1" icon="server"></b-icon>{{item.resourceType}}</b-badge>
 
@@ -34,10 +34,11 @@
             </b-badge>
           </span>
     </div>
+
     <div class="badges mt-2">
-      <b-button variant="primary" size="sm" class="ml2-auto" v-if="item.resourceType=='data'" v-on:click="addToCollection(item.resourceType)">Save Dataset</b-button>
-      <b-button variant="primary" size="sm" class="ml2-auto" v-else-if="item.resourceType=='tool'" v-on:click="addToCollection(item.resourceType)">Save Tool</b-button>
-      <b-button variant="primary" size="sm" class="ml2-auto" v-else v-on:click="addToCollection(item.resourceType)">Save Other</b-button>
+      <b-button variant="primary" size="sm" class="ml2-auto" v-if="item.resourceType=='data'" v-on:click="saveItems(item.resourceType)">Save Dataset</b-button>
+      <b-button variant="primary" size="sm" class="ml2-auto" v-else-if="item.resourceType=='tool'" v-on:click="saveItems(item.resourceType)">Save Tool</b-button>
+      <b-button variant="primary" size="sm" class="ml2-auto" v-else v-on:click="saveItems(item.resourceType)">Save Other</b-button>
     </div>
   </b-card>
 
@@ -58,6 +59,7 @@ export default {
       filters : this.state.filters,
       connectedTools: undefined,
       clickToAddCollection: false,
+      collectionNames:undefined,
     }
   }, computed: {
     ...mapGetters ([
@@ -66,12 +68,32 @@ export default {
   }
   ,mounted() {
     this.hasTool();
+    this.inCollection()
 
   }
   , methods: {
     ...mapActions([
       'hasConnectedTools']),
-    addToCollection(type) {
+    inCollection () {
+      const self = this
+      localforage.getItem(self.item.g, function (err, value) {
+            console.log(err)
+            console.log(value)
+            if (err != null || value === null) {
+              return false
+            }
+
+            if (value?.assignedCollections) {
+              self.collectionNames = value.assignedCollections
+              return true
+            }
+          }
+      ).catch(
+          (error) => console.log(error)
+      )
+      return false
+    },
+    saveItems(type) {
       var self = this
       self.clickToAddCollection = true
       let item = this.item

@@ -18,10 +18,10 @@
                 <v-select
                     placeholder="Being assigned to"
                     multiple
-                    v-model="item.collections"
+                    :model-value="item.collections"
                     :id="'accordion_text_'+ item.value.name"
                     :options="facetSetting.names"
-                    @input="(name) => updateMovedToCollection(item, name)"
+                    @update:modelValue="(name) => updateItemCollections(item, name)"
                 ></v-select>
               </div>
             </div>
@@ -49,10 +49,11 @@
                   <v-select disabled
                             placeholder="Being removed from"
                             multiple
-                            v-model="item.collections"
+                            :model-value="item.collections"
                             :id="'accordion_text_'+ item.value.name"
                             :options="facetSetting.names"
-                            @input="(name) => updateRemovedCollection(item, name, false)"
+                            @option:deselected="(event) =>optionRemoved(event, item)"
+                            @update:modelValue="(name) => updateItemCollections(item, name, false)"
                   ></v-select>
                 </div>
               </div>
@@ -85,11 +86,12 @@
                   <v-select
                       placeholder="Being removed from"
                       multiple
-                      v-model="item.assignedCollections"
+                      :model-value="item.assignedCollections"
                       :id="'accordion_text_'+ item.value.name"
                       :options="facetSetting.names"
-                      v-on:option:selected="updateRemovedCollection(item, $event, false)"
-                      v-on:option:deselected="optionRemoved($event, item)"
+
+                      @option:selected="(event) => updateItemCollections(item, event)"
+                      @option:deselected="(event) =>optionRemoved(event, item)"
                   ></v-select>
                 </div>
               </div>
@@ -108,9 +110,11 @@
 
 <script>
 import localforage from "localforage";
-import Vue from "vue";
+import {toRaw}from "vue";
 import {mapState} from "vuex";
+import {without} from 'lodash'
 
+// registed in app.components
 //import { default as VueSelect } from "vue-select";
 //import  VueSelect  from "vue-select";
 export default {
@@ -119,7 +123,8 @@ export default {
   // components:[
   //   "v-select", VueSelect // only word registed in app.components
   // ],
-  props: ["item", "currentClick", ],
+  props: ["item", "currentClick","types" ],
+  inject: ["chooseType"],
   data: () => {
     return {
       facets: undefined, //FacetsConfig.COLLECTION_FACETS,
@@ -138,31 +143,34 @@ export default {
       console.log(option + ", " + item)
       this.updateRemovedCollection(item, [option], true)
     },
-    updateRemovedCollection:  function(item, collectionNames, isRemove) {
-      if (collectionNames.length === 0) return
-      var addedCollections = collectionNames
-      if('removeCollection' in item && item.removeCollection.length > 0)
-        addedCollections = collectionNames.filter(collname => (!item.removeCollection.includes(collname)))
-      for(let i = 0; i < collectionNames.length; i++) {
-        if(!item.removeCollection.includes(collectionNames[i])) {
-          item.removeCollection.push(collectionNames[i])
-        }
+    updateRemovedCollection:  function(item, removeCollectionNames, isRemove) {
+      if (removeCollectionNames.length === 0) return
+      var itemCollections = item.assignedCollections
+      // if('removeCollection' in item && item.removeCollection.length > 0)
+      //   itemCollections = itemCollections.filter(collname => (!removeCollectionNames.includes(collname)))
+      for(let i = 0; i < removeCollectionNames.length; i++) {
+        // if(!item.removeCollection.includes(removeCollectionNames[i])) {
+        //   item.removeCollection.push(removeCollectionNames[i])
+        // }
         if(isRemove && 'assignedCollections' in item)
-          if(item.assignedCollections.includes(collectionNames[i])) {
-            item.assignedCollections.remove(collectionNames[i])
+          if(itemCollections.includes(removeCollectionNames[i])) {
+            //item.assignedCollections.remove(removeCollectionNames[i])
+            itemCollections= itemCollections.filter( name => removeCollectionNames[i] != name  )
           }
       }
-      // item.removeCollection = collectionNames
-      if (addedCollections.length > 0) {
-        console.log("updateRemovedCollection: add to coll: " + addedCollections)
-        this.moveToCollection(item)
+      item.assignedCollections = itemCollections
+      // item.removeCollection = removeCollectionNames
+      if (!isRemove) {
+        console.log("updateRemovedCollection: add to coll: " + itemCollections)
+        this.moveToCollectionStorage(item)
       } else {
-        // var removedCollections = item.removeCollection.filter(collname => (!collectionNames.includes(collname)))
-        console.log("updateRemovedCollection: remove from coll: " + collectionNames)
-        this.removeFromCollection(item)
+        // var removedCollections = item.removeCollection.filter(collname => (!removeCollectionNames.includes(collname)))
+        console.log("updateRemovedCollection: remove from coll: " + removeCollectionNames)
+        this.moveToCollectionStorage(item)
+        //this.removeFromCollection(item)
       }
     },
-    updateMovedToCollection:  function(item, collectionNames) {
+    updateItemCollections:  function(item, collectionNames) {
       if (collectionNames.length === 0) return
       console.log(item.collection)
       console.log(collectionNames)
@@ -176,17 +184,18 @@ export default {
       } else {
         item.assignedCollections = collectionNames
       }
-      if('moveCollection' in item && item.moveCollection.length > 0)
-        addedCollections = collectionNames.filter(collname => (!item.moveCollection.includes(collname)))
-      item.moveCollection = collectionNames
-      if (addedCollections.length > 0) {
-        console.log("updateMovedToCollection: add to coll: " + addedCollections)
-        this.moveToCollection(item)
-      } else {
-        var removedCollections = item.moveCollection.filter(collname => (!collectionNames.includes(collname)))
-        console.log("updateMovedToCollection: remove from coll: " + removedCollections)
-        this.removeFromCollection(item)
-      }
+      // if('moveCollection' in item && item.moveCollection.length > 0)
+      //   addedCollections = collectionNames.filter(collname => (!item.moveCollection.includes(collname)))
+      // item.moveCollection = collectionNames
+      // if (addedCollections.length > 0) {
+      //   console.log("updateMovedToCollection: add to coll: " + addedCollections)
+      //   this.moveToCollection(item)
+      // } else {
+      //   var removedCollections = item.moveCollection.filter(collname => (!collectionNames.includes(collname)))
+      //   console.log("updateMovedToCollection: remove from coll: " + removedCollections)
+      //   this.removeFromCollection(item)
+      // }
+      this.moveToCollectionStorage(item)
     },
     async removeFromCollection(item) {
       if (item.removeCollection.length === 0)
@@ -217,7 +226,7 @@ export default {
           item.collections = [...item.assignedCollections]
           localforage.setItem(
               item.value.g,
-              item
+              toRaw( item)
           ).then(() => {
             console.log(item.value.g + " is " + item.collection)
             // update collections
@@ -239,7 +248,8 @@ export default {
             }
             // Vue.set(self.collections, item.type, currentColl)
             console.log("reload collection after remove from collection")
-            Vue.set(self.types, item.type, {'name': item.type, 'content': content})
+            //Vue.set(self.types, item.type, {'name': item.type, 'content': content})
+            self.types[ item.type]= {'name': item.type, 'content': content}
             // self.reloadCollections()
             self.chooseType("unassigned", "")
             // if (item.assignedCollections.length === 0) {
@@ -248,31 +258,37 @@ export default {
             //   self.chooseType("all", "")
             // }
           }).catch((err) => {
-            console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
+            console.log('removeFromCollection updating stored value', err);
           });
         });
       }
     },
-    moveToCollection: function(item) {
-      if (!('moveCollection' in item) || item.moveCollection === 0) {
-        console.log("skip move to empty collections")
-        return
-      }
-      console.log("moveToCollection")
+    moveToCollectionStorage: function(item) {
+      // if (!('moveCollection' in item) || item.moveCollection === 0) {
+      //   console.log("skip move to empty collections")
+      //   return
+      // }
+      console.log("moveToCollectionStorage")
       console.log(item)
       var self = this
-      item.collections = [...item.assignedCollections]
-      item.removeCollection = [...item.collections]
+     // item.collections = [...item.assignedCollections]
+  //    item.removeCollection = [...item.collections]
       // write back to storage.
+
       localforage.getItem(item.value.g, function (err, value) {
         console.log(err)
         console.log(value)
-        item.collection = "assigned"
-        item.moveCollection = []
-        item.assignedCollections = [...item.collections]
+        if (item.assignedCollections.length === 0) {
+          item.collection = "unassigned"
+        } else {
+          item.collection = "assigned"
+        }
+
+      //  item.moveCollection = []
+        //item.assignedCollections = [...item.collections]
         localforage.setItem(
             item.value.g,
-            item
+            toRaw( item)
         ).then(() => {
           console.log(item.value.g + " is " + item.collection)
           // update collections
@@ -283,12 +299,13 @@ export default {
             console.log("delete: " + item.value.name + " type: " + item.type + ", " + content);
           }
           // Vue.set(self.collections, item.type, currentColl)
-          Vue.set(self.types, item.type, {'name': item.type, 'content': content})
+         // Vue.set(self.types, item.type, {'name': item.type, 'content': content})
+          self.types[item.type ] ={'name': item.type, 'content': content}
           console.log("reload collection after move to collections");
           // self.reloadCollections()
           self.chooseType("unassigned", "")
         }).catch((err) => {
-          console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
+          console.log('moveToCollection error updating  storage ', err);
         });
       });
     },
@@ -332,7 +349,8 @@ export default {
         // Vue.set(self.selectedCollectionItems, collname, selectedcoll)
         self.type = collname
         // Vue.set(self.collections, collname, selectedcoll)
-        Vue.set(self.types, type, {'name': type, 'content': selectedcoll})
+        //Vue.set(self.types, type, {'name': type, 'content': selectedcoll})
+        self.types[ type]= {'name': type, 'content': selectedcoll}
       }).catch(function(err) {
         // This code runs if there were any errors
         console.log(err);

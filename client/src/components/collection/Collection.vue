@@ -1,101 +1,99 @@
 <template>
   <article class="media content-section">
     <div class="media-body">
-  <b-container fluid="md" class="mt-3">
-    <b-row>
-        <b-col md="12">
-          <b-btn variant="outline-primary" v-on:click="$router.back()"><b-icon icon="arrow-left" /></b-btn>
-<!--          <CreateCollection> </CreateCollection>-->
-        </b-col>
+      <b-container fluid="md" class="mt-3">
+        <b-row>
+          <back-button/>
 
 
-        <!-- sidebar -->
-        <b-col md="3" class="sidebar">
-          <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
-            <div class="filter_card">
-              <div v-if="facetSetting.field=='unassigned'">
-                <b-button block squared v-b-toggle="'accordion_text_'+ facetSetting.field" @click="chooseType(facetSetting.field)">
-                  {{facetSetting.title}}
-  <!--                <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>-->
-  <!--                <b-icon icon="dash-square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>-->
-  <!--                <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>-->
-                </b-button>
+          <!-- sidebar -->
+          <b-col md="3" class="sidebar">
+            <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
+              <div class="filter_card">
+                <div v-if="facetSetting.field=='unassigned'">
+                  <b-button block squared v-b-toggle="'accordion_text_'+ facetSetting.field"
+                            @click="chooseType(facetSetting.field)">
+                    {{ facetSetting.title }}
+                    <!--                <b-icon icon="square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>-->
+                    <!--                <b-icon icon="dash-square" class="when-open" scale="0.8" aria-hidden="true"></b-icon>-->
+                    <!--                <b-icon icon="plus-square" class="when-closed" scale="0.8" aria-hidden="true"></b-icon>-->
+                  </b-button>
+                </div>
               </div>
+
             </div>
 
-          </div>
+          </b-col>
 
-        </b-col>
-
-        <b-col md="12">
-          <CreateCollection> </CreateCollection>
-        </b-col>
+          <b-col md="12">
+            <CreateCollection></CreateCollection>
+          </b-col>
 
 
-        <b-col md="3" class="sidebar scrollable text-center green flex-grow-1 flex-shrink-0 overflow-auto">
-          <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
+          <b-col md="3" class="sidebar scrollable text-center green flex-grow-1 flex-shrink-0 overflow-auto">
+            <div v-for="facetSetting in facets" v-bind:key="facetSetting.title">
 
               <div class="filter_card">
                 <div v-if="facetSetting.type=='all'">
                   <div v-for='name in facetSetting.names' :key="name">
-<!--                                        {{name}}-->
+                    <!--                                        {{name}}-->
                     <div v-if="facetSetting.names.length">
-                    <b-list-group flush>
-                      <CollectionMenuItem
-                          v-on:click="_handleClick(item, facetSetting.field, name)"
-                          :term="name"
-                      ></CollectionMenuItem>
-                    </b-list-group>
+                      <b-list-group flush>
+                        <CollectionMenuItem
+                            @click="handleCNameClick(facetSetting.field, name )"
+                            :term="name"
+                        ></CollectionMenuItem>
+                      </b-list-group>
                     </div>
                   </div>
                 </div>
               </div>
-          </div>
-
-        </b-col>
-
-        <b-col md="9" class="results">
-          <div class="mb-2 mb-lg-0">
-            <header>
-              <div v-if="($data.collectionTitle).length">
-                <h1 class="article-title mx-auto">{{$data.collectionTitle}} Collection</h1>
-              </div>
-            </header>
-            <sendCollectionToNotebook v-if=" collectionTitle.length > 0 " :collection-name="collectionTitle"> </sendCollectionToNotebook>
-          </div>
-          <div class="mt-3">
-            <div v-for="type in this.types"
-                 v-bind:key="type.row"
-                 :type="type">
-<!--              {{type}}-->
-              <div v-if="(type.content).length">
-                <header>
-                  <hr class="divider"/>
-                  <h2 class="mb-3">{{type.name}}</h2>
-                </header>
-              </div>
-              <div v-if="!(type.content).length">
-                <header>
-                  <h1 class="mb-3">{{type.name}}</h1>
-                  <p class="mb-3">No items</p>
-                </header>
-              </div>
-<!--              {{$data.currentClick }}-->
-              <div v-for="item in type.content"
-                   v-bind:key="item.row"
-                   :item="item">
-
-<CollectionCard :item="item" :current-click="currentClick" ></CollectionCard>
-              </div>
             </div>
 
-          </div>
-        </b-col>
+          </b-col>
+
+          <b-col md="9" class="results">
+            <div class="mb-2 mb-lg-0">
+              <header>
+                <div v-if="($data.collectionTitle).length">
+                  <h1 class="article-title mx-auto">{{ $data.collectionTitle }} Collection</h1>
+                </div>
+              </header>
+              <sendCollectionToNotebook v-if=" collectionTitle.length > 0 "
+                                        :collection-name="collectionTitle"></sendCollectionToNotebook>
+            </div>
+            <div class="mt-3">
+              <div v-for="type in this.types"
+                   v-bind:key="type.row"
+                   :type="type">
+                <!--              {{type}}-->
+                <div v-if="(type.content).length">
+                  <header>
+                    <hr class="divider"/>
+                    <h2 class="mb-3">{{ type.name }}</h2>
+                  </header>
+                </div>
+                <div v-if="!(type.content).length">
+                  <header>
+                    <h1 class="mb-3">{{ type.name }}</h1>
+                    <p class="mb-3">No items</p>
+                  </header>
+                </div>
+                <!--              {{$data.currentClick }}-->
+                <div v-for="item in type.content"
+                     v-bind:key="item.row"
+                     :item="item">
+
+                  <CollectionCard :item="item" :current-click="currentClick" :types="types"></CollectionCard>
+                </div>
+              </div>
+
+            </div>
+          </b-col>
 
 
-
-      </b-row>
-  </b-container>
+        </b-row>
+      </b-container>
 
     </div>
   </article>
@@ -116,9 +114,10 @@ import CreateCollection from "./CreateCollection.vue";
 import CollectionMenuItem from "./CollectionMenuItem.vue";
 import sendCollectionToNotebook from "./sendCollectionToNotebook.vue";
 import CollectionCard from "./CollectionCard.vue"
+import backButton from "@/components/backButton.vue"
 import {mapGetters, mapState} from "vuex";
 import vSelect from "vue-select";
-import VueScrollbox  from 'vue-scrollbox';
+import VueScrollbox from 'vue-scrollbox';
 import "vue-select/dist/vue-select.css";
 // import ConfirmDialogue from './ConfirmDialogue.vue'
 
@@ -127,6 +126,7 @@ import "vue-select/dist/vue-select.css";
 
 export default {
   name: "Collection.vue",
+  emits: ["click"],
   components: {
     // FacetTextItem,
     CreateCollection,
@@ -134,17 +134,18 @@ export default {
     // ConfirmDialogue,
     sendCollectionToNotebook,
     CollectionCard,
+    backButton,
     vSelect,
     VueScrollbox
   },
-  data () {
+  data() {
     return {
       visible: false,
       type: '',
       collections: {},
       assigned_collection_names: [],
       facetStore: {},
-      facets:undefined, //FacetsConfig.COLLECTION_FACETS,
+      facets: undefined, //FacetsConfig.COLLECTION_FACETS,
       selectedCollectionItems: {},
       selectedCollectionName: '',
       datasets: [],
@@ -162,15 +163,16 @@ export default {
   provide: function () {
     return {
       updteAllCollections: this.updteAllCollections,
+      chooseType: this.chooseType
     }
   },
   computed: {
-    ...mapGetters (['getCollections' ]),
-    ...mapState ([ 'FacetsConfig'])
+    ...mapGetters(['getCollections']),
+    ...mapState(['FacetsConfig'])
   },
   // computed: { ...mapState ([ 'collections'])},
   created() {
-    this.facets= this.FacetsConfig.COLLECTION_FACETS
+    this.facets = this.FacetsConfig.COLLECTION_FACETS
   },
   async mounted() {
     let self = this
@@ -179,18 +181,18 @@ export default {
     this.chooseType('unassigned')
 
   },
-  methods:{
+  methods: {
 
-     reloadCollections: async function() {
+    reloadCollections: async function () {
       var self = this
       var colls = []
       this.selectedCollectionItems = {}
       this.selectedCollectionName = ""
-      await localforage.iterate(function(value, key) {
+      await localforage.iterate(function (value, key) {
         console.log([key, value]);
         colls.push(value)
         // Vue.set(self.collections, self.collections.length, value)
-      }).then(function() {
+      }).then(function () {
         console.log('Iteration has completed');
         // self.collections['data'] = colls
         var assgined = {}
@@ -198,21 +200,21 @@ export default {
         var query_collections = []
         var tool_collections = []
         var assigned_collection_names = []
-        for(let i = 0; i < colls.length; i++) {
+        for (let i = 0; i < colls.length; i++) {
           var item = colls[i]
-          if( item['collection'] == 'unassigned'){
+          if (item['collection'] == 'unassigned') {
             if (item['type'] == 'query') {
               query_collections.push(item)
               // query_collections.push({name: item.value})
-            } else if(item['type'] == 'data') {
+            } else if (item['type'] == 'data') {
               data_collections.push(item)
-            } else if(item['type'] == 'tool') {
+            } else if (item['type'] == 'tool') {
               tool_collections.push(item)
             }
-          } else if(item['collection'] == 'collection name') {
+          } else if (item['collection'] == 'collection name') {
             assigned_collection_names.push(item.value)
-          } else if(item['collection'] == 'assigned') {
-            if('collections' in item && item['collections'] !== undefined) {
+          } else if (item['collection'] == 'assigned') {
+            if ('collections' in item && item['collections'] !== undefined) {
               for (let j = 0; j < item.collections.length; j++) {
                 var name = item.collections[j]
                 if (!(name in assgined)) {
@@ -224,79 +226,87 @@ export default {
           }
         }
 
-        Vue.set(self.collections, 'data', data_collections)
-        Vue.set(self.collections, 'query', query_collections)
-        Vue.set(self.collections, 'tool', tool_collections)
+        // Vue.set(self.collections, 'data', data_collections)
+        // Vue.set(self.collections, 'query', query_collections)
+        // Vue.set(self.collections, 'tool', tool_collections)
+       self.collections['data']=data_collections
+        self.collections['query']=query_collections
+        self.collections['tool']= tool_collections
 
-        for(let i = 0; i <  self.FacetsConfig.COLLECTION_FACETS.length; i++) {
-          if( self.FacetsConfig.COLLECTION_FACETS[i].field == 'unassigned') {
-            Vue.set(self.facets, i, {
+        for (let i = 0; i < self.FacetsConfig.COLLECTION_FACETS.length; i++) {
+          if (self.FacetsConfig.COLLECTION_FACETS[i].field == 'unassigned') {
+            self.facets[i] ={
               field: self.FacetsConfig.COLLECTION_FACETS[i].field,
-              title:  self.FacetsConfig.COLLECTION_FACETS[i].title,
-              sort:  self.FacetsConfig.COLLECTION_FACETS[i].sort,
-              open:  self.FacetsConfig.COLLECTION_FACETS[i].open,
-              type:  self.FacetsConfig.COLLECTION_FACETS[i].type,
-              collections:  self.FacetsConfig.COLLECTION_FACETS[i].collections,
+              title: self.FacetsConfig.COLLECTION_FACETS[i].title,
+              sort: self.FacetsConfig.COLLECTION_FACETS[i].sort,
+              open: self.FacetsConfig.COLLECTION_FACETS[i].open,
+              type: self.FacetsConfig.COLLECTION_FACETS[i].type,
+              collections: self.FacetsConfig.COLLECTION_FACETS[i].collections,
               items: [{id: "data", count: data_collections.length, isActive: false, name: "data"},
                 {id: "query", count: query_collections.length, isActive: false, name: "query"},
                 {id: "tool", count: 0, isActive: false, name: "tool"}]
-            })
-          }else if( self.FacetsConfig.COLLECTION_FACETS[i].field == 'all') {
+            }
+          } else if (self.FacetsConfig.COLLECTION_FACETS[i].field == 'all') {
             var items = {}
-            for(let i = 0; i < assigned_collection_names.length; i++) {
-              if(assigned_collection_names[i] in assgined) {
+            for (let i = 0; i < assigned_collection_names.length; i++) {
+              if (assigned_collection_names[i] in assgined) {
                 var assgin = assgined[assigned_collection_names[i]]
                 // items.push([{id: "data", count: assgin['data'], isActive: false, name: "data"},
                 //   {id: "query", count: assgin['query'], isActive: false, name: "query"},
                 //   {id: "tool", count: assgin['tool'], isActive: false, name: "tool"}])
-                items[assigned_collection_names[i]] = [{id: "data", count: assgin['data'], isActive: false, name: "data"},
+                items[assigned_collection_names[i]] = [{
+                  id: "data",
+                  count: assgin['data'],
+                  isActive: false,
+                  name: "data"
+                },
                   {id: "query", count: assgin['query'], isActive: false, name: "query"},
                   {id: "tool", count: assgin['tool'], isActive: false, name: "tool"}]
-              }else {
+              } else {
                 items[assigned_collection_names[i]] = [{id: "data", count: 0, isActive: false, name: "data"},
                   {id: "query", count: 0, isActive: false, name: "query"},
                   {id: "tool", count: 0, isActive: false, name: "tool"}]
               }
             }
 
-            Vue.set(self.facets, i, {
-              field:  self.FacetsConfig.COLLECTION_FACETS[i].field,
-              title:  self.FacetsConfig.COLLECTION_FACETS[i].title,
-              sort:  self.FacetsConfig.COLLECTION_FACETS[i].sort,
-              open:  self.FacetsConfig.COLLECTION_FACETS[i].open,
-              type:  self.FacetsConfig.COLLECTION_FACETS[i].type,
-              collections:  self.FacetsConfig.COLLECTION_FACETS[i].collections,
+            self.facets[i] ={
+              field: self.FacetsConfig.COLLECTION_FACETS[i].field,
+              title: self.FacetsConfig.COLLECTION_FACETS[i].title,
+              sort: self.FacetsConfig.COLLECTION_FACETS[i].sort,
+              open: self.FacetsConfig.COLLECTION_FACETS[i].open,
+              type: self.FacetsConfig.COLLECTION_FACETS[i].type,
+              collections: self.FacetsConfig.COLLECTION_FACETS[i].collections,
               items: items,
               names: assigned_collection_names,
-            })
+            }
           }
         }
 
-      }).catch(function(err) {
+      }).catch(function (err) {
         // This code runs if there were any errors
         console.log(err);
       });
     },
 
-    updteAllCollections: function(colls) {
+    updteAllCollections: function (colls) {
       // this.allCollections = colls
       console.log(this.allCollections)
-      for(let i = 0; i <  this.FacetsConfig.COLLECTION_FACETS.length; i++) {
-        if( this.FacetsConfig.COLLECTION_FACETS[i].field == 'all') {
-          Vue.set(this.facets, i, {
-            field:  this.FacetsConfig.COLLECTION_FACETS[i].field,
-            title:  this.FacetsConfig.COLLECTION_FACETS[i].title,
-            sort:  this.FacetsConfig.COLLECTION_FACETS[i].sort,
-            open:  this.FacetsConfig.COLLECTION_FACETS[i].open,
-            type:  this.FacetsConfig.COLLECTION_FACETS[i].type,
-            collections:  this.FacetsConfig.COLLECTION_FACETS[i].collections,
+      for (let i = 0; i < this.FacetsConfig.COLLECTION_FACETS.length; i++) {
+        if (this.FacetsConfig.COLLECTION_FACETS[i].field == 'all') {
+          this.facet[i] = {
+            field: this.FacetsConfig.COLLECTION_FACETS[i].field,
+            title: this.FacetsConfig.COLLECTION_FACETS[i].title,
+            sort: this.FacetsConfig.COLLECTION_FACETS[i].sort,
+            open: this.FacetsConfig.COLLECTION_FACETS[i].open,
+            type: this.FacetsConfig.COLLECTION_FACETS[i].type,
+            collections: this.FacetsConfig.COLLECTION_FACETS[i].collections,
             names: colls,
-          })
+          }
         }
       }
       this.reloadCollections()
     },
-    populateAssignedCollection: function(type, collname) {
+    populateAssignedCollection: function (type, collname) {
       const self = this;
       this.type = 'all'
       //collection name;
@@ -304,30 +314,30 @@ export default {
       console.log(collname)
       this.selectedCollectionName = collname
       var colls = []
-      localforage.iterate(function(value, key) {
+      localforage.iterate(function (value, key) {
         console.log([key, value]);
-        if(value.type === type && (value.collections === collname || (Array.isArray(value.collections) && value.collections.includes(collname))))
+        if (value.type === type && (value.collections === collname || (Array.isArray(value.collections) && value.collections.includes(collname))))
           colls.push(value)
         // Vue.set(self.collections, self.collections.length, value)
-      }).then(function() {
+      }).then(function () {
         console.log('Iteration has completed');
-        if(!(self.selectedCollectionName in self.selectedCollectionItems)) {
+        if (!(self.selectedCollectionName in self.selectedCollectionItems)) {
           self.selectedCollectionItems[self.selectedCollectionName] = []
         }
         var set = new Set()
         // var selectedcoll = self.selectedCollectionItems[collname]
         var selectedcoll = self.selectedCollectionItems[collname].filter(item => item.type === type);
-        for(let i = 0; i < self.selectedCollectionItems[self.selectedCollectionName].length; i++) {
+        for (let i = 0; i < self.selectedCollectionItems[self.selectedCollectionName].length; i++) {
           var item = self.selectedCollectionItems[self.selectedCollectionName][i];
           if (type === item.type) {
             set.add(item.value.name)
           }
         }
-        for(let i = 0; i < colls.length; i++) {
+        for (let i = 0; i < colls.length; i++) {
           // if(!self.selectedCollectionItems[self.selectedCollectionName].includes(colls[i])) {
           //   self.selectedCollectionItems[self.selectedCollectionName].push(colls[i])
           // }
-          if(!set.has(colls[i].value.name)) {
+          if (!set.has(colls[i].value.name)) {
             set.add(colls[i].value.name)
             // self.selectedCollectionItems[self.selectedCollectionName].push(colls[i])
             selectedcoll.push(colls[i])
@@ -336,30 +346,31 @@ export default {
         // Vue.set(self.selectedCollectionItems, collname, selectedcoll)
         self.type = collname
         // Vue.set(self.collections, collname, selectedcoll)
-        Vue.set(self.types, type, {'name': type, 'content': selectedcoll})
-      }).catch(function(err) {
+        //Vue.set(self.types, type, {'name': type, 'content': selectedcoll})
+        self.types[type]={'name': type, 'content': selectedcoll}
+      }).catch(function (err) {
         // This code runs if there were any errors
         console.log(err);
       });
     },
-    _handleClick: function(item, type, collname) {
+    handleCNameClick: function (type, collname) {
       // console.log(item + type)
-      if(type == "unassigned") {
-        if (item.id === 'data') {
-          this.type = 'data'
-        } else if (item.id === 'tool') {
-          this.type = 'tool'
-        } else if (item.id === 'query') {
-          this.type = 'query'
-        }
-      } else {
+      // if (type == "unassigned") {
+      //   if (item.id === 'data') {
+      //     this.type = 'data'
+      //   } else if (item.id === 'tool') {
+      //     this.type = 'tool'
+      //   } else if (item.id === 'query') {
+      //     this.type = 'query'
+      //   }
+      // } else {
         this.collectionTitle = collname
         this.currentClick = "assigned"
         this.populateAssignedCollection('data', collname)
         this.populateAssignedCollection('query', collname)
         this.populateAssignedCollection('tool', collname)
 
-      }
+      //}
     },
     showDetails() {
       console.log("clicl on item");
@@ -378,16 +389,17 @@ export default {
       // }
       var self = this
       var data = []
-      localforage.iterate(function(value, key) {
+      localforage.iterate(function (value, key) {
         console.log([key, value]);
         // if(value.type === name && value.collection == "unassigned")
-        if(value.type === name)
+        if (value.type === name)
           data.push(value)
         // Vue.set(self.collections, self.collections.length, value)
-      }).then(function() {
+      }).then(function () {
         console.log(data)
-        Vue.set(self.types, name, {'name': name, 'content': data})
-      }).catch(function(err) {
+        //Vue.set(self.types, name, {'name': name, 'content': data})
+        self.types[name]={'name': name, 'content': data}
+      }).catch(function (err) {
         // This code runs if there were any errors
         console.log(err);
       });
@@ -398,25 +410,25 @@ export default {
       this.currentClick = field
       console.log("field: " + field);
       console.log("chooseType: " + type);
-      if(field === 'dataType') {
+      if (field === 'dataType') {
         this.type = 'data'
-      } else if(field === 'toolType') {
+      } else if (field === 'toolType') {
         this.type = 'tool'
-      } else if(field === 'queryType') {
+      } else if (field === 'queryType') {
         this.type = 'query'
-      } else if(field == 'all') {
+      } else if (field == 'all') {
         this.reloadCollections()
-      } else if(field == 'unassigned') {
+      } else if (field == 'unassigned') {
         // this.type = 'data'
         // this.field = 'unassigned'
         this.collectionTitle = ""
-        if('data' in this.collections) {
+        if ('data' in this.collections) {
           this.populate('data')
         }
-        if('query' in this.collections) {
+        if ('query' in this.collections) {
           this.populate('query')
         }
-        if('tool' in this.collections) {
+        if ('tool' in this.collections) {
           this.populate('tool')
         }
       }
@@ -437,7 +449,7 @@ export default {
     color: #f5f5f5;
   }
 
-  border: 1px solid rgba(0,0,0, .125);
+  border: 1px solid rgba(0, 0, 0, .125);
 
   & + .filter_card {
     margin: {

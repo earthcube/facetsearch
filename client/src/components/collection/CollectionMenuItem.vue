@@ -1,5 +1,5 @@
 <template>
-  <b-list-group-item v-bind:class="{active: isActive}">
+  <b-list-group-item v-bind:class="{active: isActive}" @click="$emit('click')">
     {{term}}
   </b-list-group-item>
 </template>
