@@ -135,8 +135,9 @@ export default {
               let placename = geoplacename(s_spatialCoverage)
               let box = getFirstGeoShape(s_spatialCoverage, 'box')
               let poly = getFirstGeoShape(s_spatialCoverage, 'polygon')
+              let line = getFirstGeoShape(s_spatialCoverage, 'line')
               let points = getGeoCoordinates(s_spatialCoverage)
-              console.info(`placename:${placename} box:${box} poly:${poly} points:${points}`)
+              console.info(`placename:${placename} box:${box} poly:${poly} line:${line} points:${points}`)
               //this.s_identifier_doi= ""
 
               // let detail = {
@@ -149,24 +150,34 @@ export default {
 
               // this.$refs.myMap.mapObject.ANY_LEAFLET_MAP_METHOD();
               self.center = [46.8832566, -114.0870563]; // original centerpoint hell, montanta
-              if (!(box || points || poly)) {
+              if (!(box || points || poly || line)) {
                 return;
               }
-              if (points && points.length > 0) {
-
-                self.center = points[0] // first one
-                console.log(`firstpoint will be center ${self.center}`)
-              } else if (box) {
-                // calc centerpoint of box
-                //var points = e.detail.box.split(" ")
-
-                var northing = (box[0][0] + box[1][0]) / 2
-                var easting = (box[0][1] + box[1][1]) / 2
-                console.log(`box center: ${northing} ${easting}`)
-                self.center = [northing, easting]
-              } else {
-                // do polygon here
-              }
+              // this needs to be cleaned up, and probably set a
+              // standard geomentry objects and simplify the adding
+              // of the objects to leaflet.
+              // if (points && points.length > 0) {
+              //
+              //   self.center = points[0] // first one
+              //   console.log(`firstpoint will be center ${self.center}`)
+              // } else if (box) {
+              //   // calc centerpoint of box
+              //   //var points = e.detail.box.split(" ")
+              //
+              //   var northing = (box[0][0] + box[1][0]) / 2
+              //   var easting = (box[0][1] + box[1][1]) / 2
+              //   console.log(`box center: ${northing} ${easting}`)
+              //   self.center = [northing, easting]
+              // } else if (line) {
+              //   self.center(L.polyline(line).getCenter())
+              //   // do polygon here
+              // } else if (poly){
+              //   self.center(L.polygon(poly).getCenter())
+              // } else {
+              //   // can do anything, so let's turn off
+              //   console.log("unrecognized spatial object. Disabling location")
+              //   this.hasSpatial = false
+              // }
 
               // move all the caluations out of nextTick
               this.$nextTick(() => {
@@ -184,33 +195,49 @@ export default {
                 }).addTo(this.mymap);
                 // reactive... set
                 // var mymap = L.map('mapid').setView(centerpoint, 13);
-                if (name) {
-                  L.marker(self.center).addTo(this.mymap)
-                      .bindPopup(name).openPopup();
-                } else {
-                  L.marker(self.center).addTo(this.mymap);
-                }
 
-                if (points && points.length > 1) {
 
-                  for (var p = 1; p < points.length; p++) {
-                    L.marker(points[p]).addTo(this.mymap);
+                if (points) {
+                  if ( points.length > 1) {
+                      self.center = points[0] // first one
+                      console.log(`firstpoint will be center ${self.center}`)
+                      for (var p = 1; p < points.length; p++) {
+                        L.marker(points[p]).addTo(this.mymap);
+                      }
+                  }  else {
+                    self.center = points[0]
+                    L.marker(points[0]).addTo(this.mymap);
                   }
                 }
-                if (poly) {
-                  L.polygon(poly).addTo(this.mymap);
+                 else if (poly) {
+                  const newgeo = L.polygon(poly).addTo(this.mymap);
+                  self.center=newgeo.getCenter()
                   //     L.polygon(e.detail.poly).addTo(mymap)
                 }
-
-                if (box) {
+                else if (line) {
+                  const newgeo = L.polyline(line).addTo(this.mymap);
+                  self.center=newgeo.getCenter()
+                  //     L.polygon(e.detail.poly).addTo(mymap)
+                }
+                else  if (box) {
                   let bounds = L.latLngBounds(box[0], box[1]);
                   console.log('bounds valid ' + bounds.isValid())
                   // not always correct order.
                   let padding = Math.abs(box[0][0] - box[0][1]) / 2
                   this.mymap.fitBounds(bounds, {padding: [padding, padding], maxZoom: 12});
-                  L.rectangle(bounds, {color: "#ff7800", weight: 1}).addTo(this.mymap);
+                  const newgeo =  L.rectangle(bounds, {color: "#ff7800", weight: 1}).addTo(this.mymap);
+                  self.center=newgeo.getCenter()
                   //      L.rectangle(e.detail.box).addTo(mymap)
 
+                } else {
+                  console.log("unrecognized spatial object. Disabling location")
+                  this.hasSpatial = false
+                }
+                if (name) {
+                  L.marker(self.center).addTo(this.mymap)
+                      .bindPopup(name).openPopup();
+                } else {
+                  L.marker(self.center).addTo(this.mymap);
                 }
 // v-show... causing issues, solution https://stackoverflow.com/questions/36246815/data-toggle-tab-does-not-download-leaflet-map/36257493#36257493
                 setTimeout(() => {
