@@ -1,7 +1,11 @@
 <template>
-  <b-container class="tools" v-if="related.length >0">
+  <b-container class="tools" >
     <h6 class="mt-4">Related Data</h6>
 
+    <div v-if="related.length ==0 && !running">
+      <span>None</span>
+    </div>
+ <div v-if="related.length >0">
     <div class="tool border rounded"
          v-for="i in related"
          v-bind:key="i.index"
@@ -45,6 +49,7 @@
         <b-button variant="outline-primary" v-on:click.stop="toRelatedData(i.g.value)">Open</b-button>
       </div>
     </div>
+ </div>
   </b-container>
 </template>
 
@@ -64,7 +69,8 @@ export default {
   name: "relatedData",
   data() {
     return {
-      related: []
+      related: [],
+      running: false
     }
   },
   mounted() {
@@ -87,6 +93,7 @@ export default {
   },
   methods: {
     showRelatedData() {
+      this.running = true
       var self = this
       console.log('related: ' + self.related)
      // let jp = self.jsonLdCompact // just short name
@@ -127,7 +134,7 @@ export default {
               self.related = bindings
             })
           }
-      )
+      ).finally(() => this.running = false)
     },
     // toRelatedData: function (d) {
     //   // console.log(index)

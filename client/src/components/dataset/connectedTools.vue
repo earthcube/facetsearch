@@ -1,6 +1,6 @@
 <template>
-    <b-row class="connected_tools" v-if="hasTools">
-        <b-col md="12">
+    <b-row class="connected_tools" >
+        <b-col md="12" v-if="hasTools">
             <h4>Connected Tools</h4>
           <!-- web service tools -->
           <b-container class="tools" v-if="webserviceTools.length > 0 > 0">
