@@ -316,7 +316,7 @@ export default {
       var colls = []
       localforage.iterate(function (value, key) {
         console.log([key, value]);
-        if (value.type === type && (value.collections === collname || (Array.isArray(value.collections) && value.collections.includes(collname))))
+        if (value.type === type && (value.assignedCollections === collname || (Array.isArray(value.assignedCollections) && value.assignedCollections.includes(collname))))
           colls.push(value)
         // Vue.set(self.collections, self.collections.length, value)
       }).then(function () {

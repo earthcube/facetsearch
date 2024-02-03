@@ -18,7 +18,7 @@
                 <v-select
                     placeholder="Being assigned to"
                     multiple
-                    :model-value="item.collections"
+                    :model-value="item.assignedCollections"
                     :id="'accordion_text_'+ item.value.name"
                     :options="facetSetting.names"
                     @update:modelValue="(name) => updateItemCollections(item, name)"
@@ -49,7 +49,7 @@
                   <v-select disabled
                             placeholder="Being removed from"
                             multiple
-                            :model-value="item.collections"
+                            :model-value="item.assignedCollections"
                             :id="'accordion_text_'+ item.value.name"
                             :options="facetSetting.names"
                             @option:deselected="(event) =>optionRemoved(event, item)"
@@ -219,11 +219,11 @@ export default {
           console.log(value)
           if (item.assignedCollections.length === 0) {
             item.collection = "unassigned"
-            item.collections = []
+           // item.collections = []
           }
           item.removeCollection = [...item.assignedCollections]
           item.moveCollection = []
-          item.collections = [...item.assignedCollections]
+         // item.collections = [...item.assignedCollections]
           localforage.setItem(
               item.value.g,
               toRaw( item)
@@ -319,7 +319,7 @@ export default {
       var colls = []
       localforage.iterate(function(value, key) {
         console.log([key, value]);
-        if(value.type === type && (value.collections === collname || (Array.isArray(value.collections) && value.collections.includes(collname))))
+        if(value.type === type && (value.assignedCollections === collname || (Array.isArray(value.assignedCollections) && value.assignedCollections.includes(collname))))
           colls.push(value)
         // Vue.set(self.collections, self.collections.length, value)
       }).then(function() {
