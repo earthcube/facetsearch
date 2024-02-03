@@ -5,7 +5,7 @@
           {{ currentCount }} &nbsp; selected of &nbsp; {{ totalCount }} results
         </b-col>
         <b-col >
-          <b-button class="ml2-auto badges mt-2" variant="primary" size="sm"  v-on:click="addQueryToCollection">Save Query</b-button>
+          <b-button class="ml2-auto badges mt-2" variant="primary" size="sm"  @click="addQueryToCollection">Save Query</b-button>
         </b-col>
       </b-row>
         <b-row align-v="center">
@@ -181,37 +181,42 @@ export default {
       let query = self.q
       localforage.getItem(window.location.href, function (err, value) {
         var desp = {}
+        let description = ""
         let paramString = window.location.href.split('?')[1];
         let queryString = new URLSearchParams(paramString);
+        // need to say this are the query facets,
+        // here is a query description
         for(let pair of queryString.entries()) {
-          if(pair[0] === 'q') continue
-          if(pair[0] === 'resourceType' && pair[1] == 'all') continue
+          // if(pair[0] === 'q') continue
+          // if(pair[0] === 'resourceType' && pair[1] == 'all') continue
           if(!(pair[0] in desp)) {
             desp[pair[0]] = new Set()
           }
           desp[pair[0]].add(pair[1])
+          description = description + ` ${pair[0]}:${pair[1]} `
         }
-        for (const [key, value] of Object.entries(desp)) {
-          desp[key] = [...value]
+        for (const [key, dvalue] of Object.entries(desp)) {
+          desp[key] = [...dvalue]
         }
         if (value === null) {
           localforage.setItem(
               window.location.href,
               {'type': 'query', 'collection': 'unassigned', 'value': {'name': query, 'g': window.location.href, 'url': window.location.href , 'description': desp}}
           ).then((value) => {
-            console.log("store: " + "unassigned query "+ query + value.g + " to localstorage");
+            console.log("store: " + `unassigned query ${value.value.name}  ${value.value.g}   to localstorage`);
           }).catch((err) => {
             console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
           });
           console.log("add to collection");
         } else {
-          value['value']['description'] = desp
+          value['value']['description'] = description
+          value['value']['query_facets'] = desp
           value['value']['url'] = window.location.href
           value['value']['g'] = window.location.href
           localforage.setItem(
               window.location.href, value
           ).then((value) => {
-            console.log("store: " + "unassigned query "+ query + value.g + " to localstorage");
+            console.log("store: " + `existing query ${value.value.name}  ${value.value.g}   to localstorage`);
           }).catch((err) => {
             console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
           });

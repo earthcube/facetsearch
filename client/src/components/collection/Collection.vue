@@ -75,7 +75,8 @@
                 </div>
                 <div v-if="!(type.content).length">
                   <header>
-                    <h1 class="mb-3">{{ type.name }}</h1>
+                    <hr class="divider"/>
+                    <h2 class="mb-3e">{{ type.name }}</h2>
                     <p class="mb-3">No items</p>
                   </header>
                 </div>
@@ -443,6 +444,28 @@ export default {
 
 <style scoped lang="scss">
 @import '@/assets/bootstrapcss/custom';
+
+header > h2{
+
+  text-transform: capitalize;
+}
+hr.divider {
+  overflow: visible; /* For IE */
+  padding: 0;
+  border: none;
+  border-top: medium double #333;
+  color: #333;
+  text-align: center;
+}
+hr.divider:after {
+  content: "§";
+  display: inline-block;
+  position: relative;
+  top: -0.7em;
+  font-size: 1.5em;
+  padding: 0 0.25em;
+  background: white;
+}
 
 .filter_card {
   background: {

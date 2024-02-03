@@ -20,7 +20,7 @@ export default {
 
 .list-group-item {
   cursor: pointer;
-
+  text-transform: capitalize;
   display: flex;
   justify-content: space-between;
   align-items: center;

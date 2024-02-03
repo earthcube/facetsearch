@@ -361,5 +361,9 @@ export default {
 </script>
 
 <style scoped>
-
+article {
+  box-shadow: 0 0 10px 1px black;
+  cursor: pointer;
+  margin-top: 0.5em;
+}
 </style>

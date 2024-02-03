@@ -235,11 +235,13 @@ export default {
 
 article {
   cursor: pointer;
+  margin-top: 0.5em;
 
   border: {
     right: 0px;
     left: 0px;
   }
+  box-shadow: 0 0 10px 1px black;
 
   &:hover {
     background: {
