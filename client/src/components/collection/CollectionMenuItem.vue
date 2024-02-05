@@ -1,22 +1,18 @@
 <template>
-  <b-list-group-item v-bind:class="{active: isActive}" @click="$emit('click')">
-    {{term}}
+  <b-list-group-item :class="{ active: isActive }" @click="$emit('click')">
+    {{ term }}
   </b-list-group-item>
 </template>
 
 <script>
-
-
 export default {
   name: "CollectionMenuItem",
-  props: ['facetSetting',"term", "isActive"],
-
-
-}
+  props: ["facetSetting", "term", "isActive"],
+};
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/bootstrapcss/custom';
+@import "@/assets/bootstrapcss/custom";
 
 .list-group-item {
   cursor: pointer;
@@ -25,7 +21,7 @@ export default {
   justify-content: space-between;
   align-items: center;
 
-  padding: ($spacer * .4) ($spacer * .75);
+  padding: ($spacer * 0.4) ($spacer * 0.75);
 
   font: {
     size: 85%;
@@ -75,5 +71,4 @@ export default {
     }
   }
 }
-
 </style>

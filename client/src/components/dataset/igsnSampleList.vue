@@ -1,112 +1,72 @@
 <template>
-  <b-container class="tools" v-if="partOf.length >0">
+  <b-container v-if="partOf.length > 0" class="tools">
     <h6 class="mt-4">IGSN Samples</h6>
 
-    <div class="tool border rounded"
-         v-for="i in partOf"
-         v-bind:key="i.value"
-
-         v-b-toggle="'collapse_' + i.value"
+    <div
+      v-for="i in partOf"
+      :key="i.value"
+      v-b-toggle="'collapse_' + i.value"
+      class="tool border rounded"
     >
       <div class="tool_info pr-3">
-        <b-link class="small metadata_link" :href="i.url"  target="_top">
-<!--          <b-icon class="mr-1" icon="bucket" variant="data"></b-icon>-->
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bucket" viewBox="0 0 16 16">
-            <path d="M2.522 5H2a.5.5 0 0 0-.494.574l1.372 9.149A1.5 1.5 0 0 0 4.36 16h7.278a1.5 1.5 0 0 0 1.483-1.277l1.373-9.149A.5.5 0 0 0 14 5h-.522A5.5 5.5 0 0 0 2.522 5m1.005 0a4.5 4.5 0 0 1 8.945 0zm9.892 1-1.286 8.574a.5.5 0 0 1-.494.426H4.36a.5.5 0 0 1-.494-.426L2.58 6h10.838z"/>
+        <b-link class="small metadata_link" :href="i.url" target="_top">
+          <!--          <b-icon class="mr-1" icon="bucket" variant="data"></b-icon>-->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            class="bi bi-bucket"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M2.522 5H2a.5.5 0 0 0-.494.574l1.372 9.149A1.5 1.5 0 0 0 4.36 16h7.278a1.5 1.5 0 0 0 1.483-1.277l1.373-9.149A.5.5 0 0 0 14 5h-.522A5.5 5.5 0 0 0 2.522 5m1.005 0a4.5 4.5 0 0 1 8.945 0zm9.892 1-1.286 8.574a.5.5 0 0 1-.494.426H4.36a.5.5 0 0 1-.494-.426L2.58 6h10.838z"
+            />
           </svg>
           Sample
         </b-link>
 
-        <h6 class="tool_title text-primary" v-html=" i.value">
-
-        </h6>
-
-    </div>
+        <h6 class="tool_title text-primary" v-html="i.value"></h6>
+      </div>
     </div>
   </b-container>
 </template>
 
 <script>
 // https://dev.geocodes.earthcube.org/#/dataset/urn:gleaner:milled:ieda:56bb16a22a82e1af6b0273b712683846bc459d5f
-import {mapState} from "vuex";
+import { mapState } from "vuex";
 
 //import {schemaItem} from "@/api/jsonldObject";
 //const {JSONPath} = require('jsonpath-plus');
 //const jp = require('jsonpath')
-import * as jp from 'jsonpath'
-import _ from 'lodash'
-import {frameJsonLD} from "@/api/jsonldObject";
+import * as jp from "jsonpath";
+import _ from "lodash";
+import { frameJsonLD } from "@/api/jsonldObject";
 
 export default {
-  name: "sampleInfo",
-  data() {
-    return {
-      partOf: []
-    }
-  },
-  mounted() {
-   // this.showRelatedData()
-  },
-  watch: {
-    jsonLdObj: 'showPartOfData'
-  },
+  name: "SampleInfo",
   props: {
-
-    d: {type:String}
+    d: { type: String },
     // list: {
     //     type: Array,
     //     default: null
     // }
   },
-  computed: {
-    ...mapState(['jsonLdObj', 'jsonLdCompact'])
-
+  data() {
+    return {
+      partOf: [],
+    };
   },
-  methods: {
-    showPartOfData() {
-      var self = this
-
-      let jsonLdObj = self.jsonLdObj // just short name
-      //let realtedTextFields = schemaItem('description', jp) + schemaItem('name', jp);
-     // let partOfFields = jp.query(jsonLdCompact, '$.hasPart[?(@."@type"=="https://schema.org/CreativeWork")]');
-      //let partOfFields = jp.query(jsonLdObj, '$..hasPart[*]');
-     //  let partOfFields = jp.query(jsonLdObj, '$..hasPart[ ?(@.additionalType=="http://schema.geolink.org/1.0/base/main#PhysicalSample") ]');
-     // let partOfFields = JSONPath.query(jsonLdObj, "$..['hasPart'][?(['@type']=='CreativeWork')] ");
-      // works below
-    // let partOfFields = jp.query(jsonLdObj, "$..hasPart[?(@.additionalType=='http://schema.geolink.org/1.0/base/main#PhysicalSample')]")
-      //let partOfFields = jp.query(jsonLdObj, "$..hasPart[?(@.@type=='CreativeWork')]")
-      frameJsonLD(jsonLdObj, 'Dataset').then(
-          (jsonLdObj) => {
-            let partOfFields = jp.query(jsonLdObj,
-                //"$..hasPart[?(@.additionalType=='http://schema.geolink.org/1.0/base/main#PhysicalSample')].identifier")
-                "$..hasPart[?(@.additionalType=='http://schema.geolink.org/1.0/base/main#PhysicalSample')].identifier")
-            partOfFields = jp.query(partOfFields, '$[?(@.propertyID == "IGSN")]')
-            partOfFields = _.uniqWith(partOfFields, (a, b) => a.value === b.value)
-            console.log('partOf: ' + partOfFields.length)
-            console.log(partOfFields)
-            this.partOf = partOfFields
-          })
-    },
-    // toRelatedData: function (d) {
-    //   // console.log(index)
-    //   // console.log(item)
-    //   console.log('show details of related data')
-    //   this.$router.push({
-    //     name: 'dataset',
-    //     params: {
-    //       d: d
-    //     }
-    //   }).catch(failure => {
-    //       console.log(failure)
-    //   });
-    //  // this.$forceUpdate()
-    // }
-
-
-
+  watch: {
+    jsonLdObj: "showPartOfData",
+  },
+  mounted() {
+    // this.showRelatedData()
+  },
+  computed: {
+    ...mapState(["jsonLdObj", "jsonLdCompact"]),
   },
   created() {
-
     //TODO replace fake data with real data
     // this.list = [
     //         {
@@ -122,12 +82,53 @@ export default {
     //             description: "As part of the reef-composition survey of Palau (7°30' N, 134°30' E) and Yap (9°32' N, 138°7' E), 10-meter long, 2 to 5-meter depth transects were conducted. Coral species along the transect were recorded along with substrate types and other organisms present. Surveys in Palau were conducted from June 2nd to June 24th, 2017, and from June 25th to July 6th, 2017 in Yap. In Pohnpei (6.2°N, 158.2°E)"
     //         }
     //     ];
-  }
-}
+  },
+  methods: {
+    showPartOfData() {
+      var self = this;
+
+      let jsonLdObj = self.jsonLdObj; // just short name
+      //let realtedTextFields = schemaItem('description', jp) + schemaItem('name', jp);
+      // let partOfFields = jp.query(jsonLdCompact, '$.hasPart[?(@."@type"=="https://schema.org/CreativeWork")]');
+      //let partOfFields = jp.query(jsonLdObj, '$..hasPart[*]');
+      //  let partOfFields = jp.query(jsonLdObj, '$..hasPart[ ?(@.additionalType=="http://schema.geolink.org/1.0/base/main#PhysicalSample") ]');
+      // let partOfFields = JSONPath.query(jsonLdObj, "$..['hasPart'][?(['@type']=='CreativeWork')] ");
+      // works below
+      // let partOfFields = jp.query(jsonLdObj, "$..hasPart[?(@.additionalType=='http://schema.geolink.org/1.0/base/main#PhysicalSample')]")
+      //let partOfFields = jp.query(jsonLdObj, "$..hasPart[?(@.@type=='CreativeWork')]")
+      frameJsonLD(jsonLdObj, "Dataset").then((jsonLdObj) => {
+        let partOfFields = jp.query(
+          jsonLdObj,
+          //"$..hasPart[?(@.additionalType=='http://schema.geolink.org/1.0/base/main#PhysicalSample')].identifier")
+          "$..hasPart[?(@.additionalType=='http://schema.geolink.org/1.0/base/main#PhysicalSample')].identifier"
+        );
+        partOfFields = jp.query(partOfFields, '$[?(@.propertyID == "IGSN")]');
+        partOfFields = _.uniqWith(partOfFields, (a, b) => a.value === b.value);
+        console.log("partOf: " + partOfFields.length);
+        console.log(partOfFields);
+        this.partOf = partOfFields;
+      });
+    },
+    // toRelatedData: function (d) {
+    //   // console.log(index)
+    //   // console.log(item)
+    //   console.log('show details of related data')
+    //   this.$router.push({
+    //     name: 'dataset',
+    //     params: {
+    //       d: d
+    //     }
+    //   }).catch(failure => {
+    //       console.log(failure)
+    //   });
+    //  // this.$forceUpdate()
+    // }
+  },
+};
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/bootstrapcss/custom';
+@import "@/assets/bootstrapcss/custom";
 
 .connected_tools {
   @include media-breakpoint-down(md) {
@@ -223,10 +224,9 @@ export default {
         display: block;
         width: 100%;
 
-        padding: ($spacer * .75) $spacer;
+        padding: ($spacer * 0.75) $spacer;
       }
     }
   }
 }
-
 </style>

@@ -1,104 +1,145 @@
 <template>
-  <b-card tag="article" class="rounded-0"
-          v-on:click="showDetails"
-          v-bind:class="['type_' + item.resourceType.toLowerCase()]"
+  <b-card
+    tag="article"
+    class="rounded-0"
+    :class="['type_' + item.resourceType.toLowerCase()]"
+    @click="showDetails"
   >
-    <router-link  :to="linkTo()">
-      <b-card-title class="name" v-html="item.name">
-
-      </b-card-title>
+    <router-link :to="linkTo()">
+      <b-card-title class="name" v-html="item.name"> </b-card-title>
     </router-link>
-    <b-card-title class="publisher" v-if="item.pubname" v-html="item.pubname"></b-card-title>
+    <b-card-title
+      v-if="item.pubname"
+      class="publisher"
+      v-html="item.pubname"
+    ></b-card-title>
 
-    <b-card-text class="description small mb-2" v-if="item.description" v-html="item.description"></b-card-text>
+    <b-card-text
+      v-if="item.description"
+      class="description small mb-2"
+      v-html="item.description"
+    ></b-card-text>
 
-    <div class="keywords" v-if="item.kw">
+    <div v-if="item.kw" class="keywords">
       <div class="label">Keywords</div>
-      <div class="values "  >
-        <span class="keyword mx-2 text-secondary" v-for="kw in highlightKw(filters, item.kw)" v-bind:key="kw" v-html="kw"></span>
-
+      <div class="values">
+        <span
+          v-for="kw in highlightKw(filters, item.kw)"
+          :key="kw"
+          class="keyword mx-2 text-secondary"
+          v-html="kw"
+        ></span>
       </div>
     </div>
-    <div v-if="collectionNames !== undefined">in collections {{collectionNames}}</div>
+    <div v-if="collectionNames !== undefined">
+      in collections {{ collectionNames }}
+    </div>
     <div class="badges mt-2">
-      <b-badge variant="data" class="mr-1"><b-icon class="mr-1" icon="server"></b-icon>{{item.resourceType}}</b-badge>
+      <b-badge variant="data" class="mr-1"
+        ><b-icon class="mr-1" icon="server"></b-icon
+        >{{ item.resourceType }}</b-badge
+      >
 
-      <b-badge variant="tool" class="mr-1" v-if="connectedTools"><b-icon class="mr-1" icon="tools"></b-icon>Connected Tools </b-badge>
+      <b-badge v-if="connectedTools" variant="tool" class="mr-1"
+        ><b-icon class="mr-1" icon="tools"></b-icon>Connected Tools
+      </b-badge>
       <b-spinner v-if="connectedTools === undefined" size="small" />
 
-
-      <span v-if="item.disurl"> <!-- array created in state.js/flatten... -->
-            <b-badge variant="light" class="mr-1" :href="i"  v-for="i in item.disurl" v-bind:key="i">
-
-                <a class="card-link" target="_blank" v-if="i.length >0" >{{ i}}</a>
-            </b-badge>
-          </span>
+      <span v-if="item.disurl">
+        <!-- array created in state.js/flatten... -->
+        <b-badge
+          v-for="i in item.disurl"
+          :key="i"
+          variant="light"
+          class="mr-1"
+          :href="i"
+        >
+          <a v-if="i.length > 0" class="card-link" target="_blank">{{ i }}</a>
+        </b-badge>
+      </span>
     </div>
 
     <div class="badges mt-2">
-      <b-button variant="primary" size="sm" class="ml2-auto" v-if="item.resourceType=='data'" v-on:click="saveItems(item.resourceType)">Save Dataset</b-button>
-      <b-button variant="primary" size="sm" class="ml2-auto" v-else-if="item.resourceType=='tool'" v-on:click="saveItems(item.resourceType)">Save Tool</b-button>
-      <b-button variant="primary" size="sm" class="ml2-auto" v-else v-on:click="saveItems(item.resourceType)">Save Other</b-button>
+      <b-button
+        v-if="item.resourceType == 'data'"
+        variant="primary"
+        size="sm"
+        class="ml2-auto"
+        @click="saveItems(item.resourceType)"
+        >Save Dataset</b-button
+      >
+      <b-button
+        v-else-if="item.resourceType == 'tool'"
+        variant="primary"
+        size="sm"
+        class="ml2-auto"
+        @click="saveItems(item.resourceType)"
+        >Save Tool</b-button
+      >
+      <b-button
+        v-else
+        variant="primary"
+        size="sm"
+        class="ml2-auto"
+        @click="saveItems(item.resourceType)"
+        >Save Other</b-button
+      >
     </div>
   </b-card>
-
 </template>
 
 <script>
 // import Vue from 'vue'
-import _ from 'lodash'
-import {mapActions, mapGetters, mapState} from "vuex";
-import localforage from 'localforage';
-import { isProxy, toRaw } from 'vue';
+import _ from "lodash";
+import { mapActions, mapGetters, mapState } from "vuex";
+import localforage from "localforage";
+import { isProxy, toRaw } from "vue";
 
 export default {
   name: "ResultItem",
   props: ["item", "state"],
-  data () {
+  data() {
     return {
-      filters : this.state.filters,
+      filters: this.state.filters,
       connectedTools: undefined,
       clickToAddCollection: false,
-      collectionNames:undefined,
-    }
-  }, computed: {
-    ...mapGetters ([
-      'getConnectedTool']),
-    ...mapState ([ 'collections'])
-  }
-  ,mounted() {
+      collectionNames: undefined,
+    };
+  },
+  computed: {
+    ...mapGetters(["getConnectedTool"]),
+    ...mapState(["collections"]),
+  },
+  mounted() {
     this.hasTool();
-    this.inCollection()
-
-  }
-  , methods: {
-    ...mapActions([
-      'hasConnectedTools']),
-    inCollection () {
-      const self = this
-      localforage.getItem(self.item.g, function (err, value) {
-            console.log(err)
-            console.log(value)
-            if (err != null || value === null) {
-              return false
-            }
-
-            if (value?.assignedCollections) {
-              self.collectionNames = value.assignedCollections
-              return true
-            }
+    this.inCollection();
+  },
+  methods: {
+    ...mapActions(["hasConnectedTools"]),
+    inCollection() {
+      const self = this;
+      localforage
+        .getItem(self.item.g, function (err, value) {
+          console.log(err);
+          console.log(value);
+          if (err != null || value === null) {
+            return false;
           }
-      ).catch(
-          (error) => console.log(error)
-      )
-      return false
+
+          if (value?.assignedCollections) {
+            self.collectionNames = value.assignedCollections;
+            return true;
+          }
+        })
+        .catch((error) => console.log(error));
+      return false;
     },
     saveItems(type) {
-      var self = this
-      self.clickToAddCollection = true
-      let item = this.item
-      if (isProxy(this.item)){
-        item = toRaw(this.item)
+      var self = this;
+      self.clickToAddCollection = true;
+      let item = this.item;
+      if (isProxy(this.item)) {
+        item = toRaw(this.item);
       }
       // var toAdd = true
       // for(var i = 0; i < this.collections.length; i++) {
@@ -110,21 +151,27 @@ export default {
       // }
       localforage.getItem(item.g, function (err, value) {
         if (value === null) {
-
-          localforage.setItem(
-              item.g,
-              {'type': type, 'collection': 'unassigned', 'value': item}
-          ).then((value) => {
-            console.log("store " + value.g + " to localstorage");
-          }).catch((err) => {
-            console.log('oops! the account was too far gone, there was nothing we could do to save him ', err);
-          });
+          localforage
+            .setItem(item.g, {
+              type: type,
+              collection: "unassigned",
+              value: item,
+            })
+            .then((value) => {
+              console.log("store " + value.g + " to localstorage");
+            })
+            .catch((err) => {
+              console.log(
+                "oops! the account was too far gone, there was nothing we could do to save him ",
+                err
+              );
+            });
           console.log("add to collection");
         } else {
           // localforage.setItem(newFilename, value, function () {
           //   localforage.removeItem(filename, function () { return callback(); });
           // });
-          console.log(value)
+          console.log(value);
         }
       });
       // if(toAdd) {
@@ -132,106 +179,101 @@ export default {
       // }
     },
     linkTo() {
-      if (this.item.resourceType === 'tool') {
+      if (this.item.resourceType === "tool") {
         return {
-          name: 'tool',
+          name: "tool",
           params: {
-            t: this.item.subj
-          }
+            t: this.item.subj,
+          },
         };
-
-      } else if (this.item.resourceType === 'data') {
+      } else if (this.item.resourceType === "data") {
         return {
-          name: 'dataset',
+          name: "dataset",
           params: {
-            d: this.item.g
-          }
+            d: this.item.g,
+          },
         };
-
       }
     },
     showDetails() {
-      if(this.clickToAddCollection) {
+      if (this.clickToAddCollection) {
         this.clickToAddCollection = false;
         //
-        return
+        return;
       }
-      if (this.item.resourceType==='tool'){
+      if (this.item.resourceType === "tool") {
         this.$router.push({
-          name: 'tool',
+          name: "tool",
           params: {
-            t: this.item.subj
-          }
+            t: this.item.subj,
+          },
         });
-      } else  if (this.item.resourceType==='data'){
+      } else if (this.item.resourceType === "data") {
         this.$router.push({
-          name: 'dataset',
+          name: "dataset",
           params: {
-            d: this.item.g
-          }
+            d: this.item.g,
+          },
         });
       } else {
         // needs to be a dialog saying, borked.. no url to go to.
-        this.makeToast(this.item.subj)
-        return
+        this.makeToast(this.item.subj);
+        return;
       }
-
-    }
-    ,highlightKw(filters, keywords) {
+    },
+    highlightKw(filters, keywords) {
       if (keywords) {
         let kwList = [];
         if (_.isArray(keywords)) {
           kwList = keywords.map(function (kw) {
-            if (_.includes(filters['kw'], kw)) {
+            if (_.includes(filters["kw"], kw)) {
               return `<b>${kw}</b>`;
             } else {
-              return kw
+              return kw;
             }
-          })
+          });
         } else {
           if (_.includes(filters, keywords)) {
             return [`<b>${keywords}<b/>`];
           } else {
-            kwList = [keywords]
+            kwList = [keywords];
           }
         }
         return kwList;
       }
-
-    }
-    ,hasTool() {
+    },
+    hasTool() {
       var self = this;
       self.connectToolsIsLoading = true;
-      let gg = self.item.g ;
+      let gg = self.item.g;
       if (self.getConnectedTool(gg)) {
-        self.connectedTools=self.getConnectedTool(gg);
+        self.connectedTools = self.getConnectedTool(gg);
       } else {
-        self.hasConnectedTools(gg).then(
-            function(o){
-              self.connectedTools=o;
-            }
-        ).catch((err) => {
-          self.connectedTools=false;
-          console.info(err);
-        })
+        self
+          .hasConnectedTools(gg)
+          .then(function (o) {
+            self.connectedTools = o;
+          })
+          .catch((err) => {
+            self.connectedTools = false;
+            console.info(err);
+          });
       }
-
-    }
+    },
   },
-  makeToast(mesg="Error") {
-    let message = `Unknown type. Send us this identifier ${mesg}`
+  makeToast(mesg = "Error") {
+    let message = `Unknown type. Send us this identifier ${mesg}`;
     this.$bvToast.toast(message, {
-      title: 'Cannot locate item',
+      title: "Cannot locate item",
       autoHideDelay: 5000,
-      appendToast: false
-    })
-  }
-}
-
+      appendToast: false,
+    });
+  },
+};
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/bootstrapcss/custom';
+@import "@/assets/bootstrapcss/custom";
 
 article {
   cursor: pointer;
@@ -290,11 +332,10 @@ article {
 
   .values {
     display: flex;
-    white-space:nowrap;
+    white-space: nowrap;
     flex-wrap: wrap;
 
     .keyword {
-
       padding: {
         left: $spacer / 2;
       }
@@ -318,7 +359,7 @@ article {
   color: $gray-500;
 
   margin: {
-    top: -($spacer * .4);
+    top: -($spacer * 0.4);
   }
 
   font: {
@@ -330,5 +371,4 @@ article {
 .description {
   color: $gray-500;
 }
-
 </style>
