@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "preview": "vite preview",
-    "build": "npm run lint && vue-tsc --noEmit && vite build",
+    "fullbuild": "npm run lint && vue-tsc --noEmit && vite build",
+    "build": "vite build",
     "build:ci": "vite build",
     "start:ci": "serve -s ./dist",
     "production": "vite build",
