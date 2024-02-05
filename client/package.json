@@ -5,14 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
     "preview": "vite preview",
-    "serve": "vue-cli-service serve --host 0.0.0.0",
-
-    "staging": "vue-cli-service build --mode staging",
-    "servestaging": "vue-cli-service serve --host 0.0.0.0 --mode staging",
-    "production": "vue-cli-service build --mode production",
-    "lint": "vue-cli-service lint"
+    "build": "npm run lint && vue-tsc --noEmit && vite build",
+    "build:ci": "vite build",
+    "start:ci": "serve -s ./dist",
+    "production": "vite build",
+    "lint": "eslint --fix \"./src/**/*.{ts,js,vue}\""
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.35",
