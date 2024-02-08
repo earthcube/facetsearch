@@ -1,4 +1,5 @@
 ---
+# confg_dev
 API_URL: http://localhost:3000
 S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/
 TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube/sparql
@@ -14,7 +15,7 @@ SPARQL_HASTOOLS: queries/sparql_hastools.txt
 SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
 SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
 JSONLD_PROXY: http://localhost:3000/${o}
-SPARQL_NB: https://beta.geocodes.earthcube.org/notebook/mkQ?q=${q}
+SPARQL_NB: https://geocodes-aws.earthcube.org/notebook/mkQ?q=${q}
 SPARQL_YASGUI: https://geocodes.earthcube.org/sparqlgui?
 COLLECTION_FACETS:
   - field: unassigned
