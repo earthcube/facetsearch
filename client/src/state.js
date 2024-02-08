@@ -40,9 +40,9 @@ export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
 export const store = _createStore({
   state: {
     // packageVersion: process.env.PACKAGE_VERSION || '0',
-    packageVersion: import.meta.env.PACKAGE_VERSION || "0",
+    packageVersion: import.meta.env.VITE_APP_PACKAGE_VERSION || "0",
     //   date: process.env.DATE || '2021-Unknown',
-    date: import.meta.env.DATE || "2021-Unknown",
+    date: import.meta.env.VITE_APP_DATE|| "2021-Unknown",
     jsonLdObj: {},
     jsonLdCompact: {},
     toolLdObj: {},

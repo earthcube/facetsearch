@@ -20,8 +20,8 @@ const facetConfigFunction = () => {
   // we really cannot use a process.env value for file name, because that gets embedded in webpack,
   // aka would need a new container for every file
   //fetch(process.env.BASE_URL + "config/config.yaml") // vuec
-  const configfile = import.meta.env.VITE_FACETS_CONFIG_FILE
-    ? import.meta.env.VITE_FACETS_CONFIG_FILE
+  const configfile = import.meta.env.VITE_APP_FACETS_CONFIG_FILE
+    ? import.meta.env.VITE_APP_FACETS_CONFIG_FILE
     : "config/config.yaml";
   const configurl = import.meta.env.BASE_URL + configfile;
   fetch(configurl) //vite
