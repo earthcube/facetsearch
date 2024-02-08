@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-      - 117_master_fixuri
+      - vue3
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
 defaults:
@@ -22,7 +22,7 @@ jobs:
           NODE_ENV:
             production
         with:
-          node-version: '14'
+          node-version: '20'
       - run: npm install -g  yarn
       - run: yarn install
       - run: yarn build:ci

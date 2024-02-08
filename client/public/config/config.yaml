@@ -17,7 +17,7 @@ SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
 SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
 JSONLD_PROXY: https://geocodes-aws.earthcube.org/ec/api${o}
 SPARQL_NB: https://geocodes-aws.earthcube.org/notebook/mkQ?q=${q}
-SPARQL_YASGUI: https://geocodes-aws.earthcube.org/sparqlgui?
+SPARQL_YASGUI: https://sparqlgui.geocodes-aws.earthcube.org/?
 
 #
 #API_URL: https://geocodes.wifire-data.sdsc.edu/ec/api
