@@ -33,10 +33,18 @@
 <script>
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import // LMap,
-//LTileLayer,
-// LMarker,
-"@vue-leaflet/vue-leaflet";
+import {
+  LMap,
+  LIcon,
+  LTileLayer,
+  LMarker,
+  LControlLayers,
+  LTooltip,
+  LPopup,
+  LPolyline,
+  LPolygon,
+  LRectangle,
+} from "@vue-leaflet/vue-leaflet";
 // import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png?raw'
 // import iconUrl from 'leaflet/dist/images/marker-icon.png?raw'
 // import shadowUrl from 'leaflet/dist/images/marker-shadow.png?raw'
@@ -60,9 +68,16 @@ import { Icon } from "leaflet";
 export default {
   name: "DatasetLocation",
   components: {
-    // LMap,
-    //   LTileLayer,
-    //    LMarker,
+    LMap,
+    LIcon,
+    LTileLayer,
+    LMarker,
+    LControlLayers,
+    LTooltip,
+    LPopup,
+    LPolyline,
+    LPolygon,
+    LRectangle,
   },
   props: { m: Object },
   data() {
@@ -256,4 +271,6 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>
