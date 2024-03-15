@@ -10,10 +10,10 @@ var bucketpath = process.env.BUCKETPATH || 'summoned'
 var pathtemplate = process.env.PATHTEMPLATE || '/{{bucketpath}}/{{reponame}}/{{sha}}.jsonld'
 
 // options for tool: bucket, bucketpath, reponame, ref (aka ark, or maybe a sha in the future)
-var tooltemplate = process.env.TOOLTEMPLATE || '{{bucketpath}}/{{reponame}}/{{ref}}.json'
+var tooltemplate = process.env.TOOLTEMPLATE || '{{bucketpath}}/{{reponame}}/{{ref}}.jsonld'
 var toolbucket = process.env.TOOLBUCKET || 'ecrr'
 var toolpath = process.env.TOOLPATH || 'summoned'
-var toolrepo = process.env.TOOLREPO ||'ecrr_form'
+var toolrepo = process.env.TOOLREPO ||'ecrr_submitted'
 
 var uriVersion = process.env.URIVERSION ||'v1'
 
@@ -36,7 +36,7 @@ exports.config = {
         toolpath: toolpath,
         toolrepo: toolrepo,
         toolbucket: toolbucket,
-        uriVersion: uriVersion
+        uriversion: uriVersion
     },
 
 
