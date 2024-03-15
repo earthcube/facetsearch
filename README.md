@@ -10,7 +10,7 @@ There are two portions, a node server for services, and a vue client.
 
 ports:
 node: 3000
-vue: 8080
+vue: 5413
 
 Generally,
 run server,
@@ -32,7 +32,7 @@ cd client
 ```
 cd client
 yarn install
-yarn serve
+yarn dev
 ```
 
 ## Project setup
@@ -42,7 +42,7 @@ yarn install
 
 ### Compiles and hot-reloads for development
 ```
-yarn serve
+yarn dev
 ```
 
 ### Compiles and minifies for production
@@ -84,7 +84,7 @@ yarn build
 ```
 ## run for production
 ```
-yarn start
+yarn build
 ```
 
 ### Lints and fixes files

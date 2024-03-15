@@ -1,6 +1,20 @@
-config changes not showing up in developement.
-you will need to build, or just copy the file into dist/config
+update to vue3:
+TODO:
 
+* year published not rendering correctly
+
+Notes:
+ set to 3.3.4 to avoid this issue: https://github.com/bootstrap-vue/bootstrap-vue/issues/7181
+
+
+* need to deal with breakign change for https://v3-migration.vuejs.org/breaking-changes/events-api.html
+  in /src/components/facetsearch/FacetText.vue other places
+
+https://bootstrap-vue-next.github.io/bootstrap-vue-next/
+
+https://www.vuemastery.com/blog/migration/
+
+the @ symbol is a proxy frr ./src  configured in vite. makes life easier... maybe
 
 https://peachscript.github.io/vue-infinite-loading/guide/#installation
 

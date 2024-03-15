@@ -1,6 +1,6 @@
 <template>
   <transition name="fade">
-    <div class="popup-modal" v-if="isVisible">
+    <div v-if="isVisible" class="popup-modal">
       <div class="window">
         <slot></slot>
       </div>
@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: 'PopupModal',
+  name: "PopupModal",
 
   data: () => ({
     isVisible: false,
@@ -18,14 +18,14 @@ export default {
 
   methods: {
     open() {
-      this.isVisible = true
+      this.isVisible = true;
     },
 
     close() {
-      this.isVisible = false
+      this.isVisible = false;
     },
   },
-}
+};
 </script>
 
 <style scoped>
