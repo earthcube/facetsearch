@@ -1,9 +1,13 @@
+
 ---
-API_URL: https://geocodes.earthcube.org/ec/api
-S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/
+MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
+API_URL: https://geocodes-aws.earthcube.org/ec/api
+
 TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube/sparql
 ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
-SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/summary2/sparql
+SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube_summary/sparql
+# reports
+S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/
 COMMUNTY: all
 # timeout for blazgraph queries
 BLAZEGRAPH_TIMEOUT: 20
@@ -13,9 +17,9 @@ SPARQL_QUERY: queries/sparql_query.txt
 SPARQL_HASTOOLS: queries/sparql_hastools.txt
 SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
 SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
-JSONLD_PROXY: https://geocodes.earthcube.org/ec/api${o}
-SPARQL_NB: https://.geocodes.earthcube.org/notebook/mkQ?q=${q}
-SPARQL_YASGUI: https://geocodes.earthcube.org/sparqlgui?
+JSONLD_PROXY: https://geocodes-aws.earthcube.org/ec/api${o}
+SPARQL_NB: https://geocodes-aws.earthcube.org/notebook/mkQ?q=${q}
+SPARQL_YASGUI: https://sparqlgui.geocodes-aws.earthcube.org/?
 
 #
 #API_URL: https://geocodes.wifire-data.sdsc.edu/ec/api
@@ -123,7 +127,7 @@ ORDER_BY_OPTIONS:
   - field: score
     title: Relevance
     sort: asc
-LIMIT_DEFAULT: 100
+LIMIT_DEFAULT: 10
 LIMIT_OPTIONS:
   - 10
   - 50
@@ -145,7 +149,7 @@ NOTEBOOKS:
       - text/tab-separated-values
       - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
   - name: Collab-Developer
-    badge: https://camo.githubusercontent.com/84f0493939e0c4de4e6dbe113251b4bfb5353e57134ffd9fcab6b8714514d4d1/68747470733a2f2f636f6c61622e72657365617263682e676f6f676c652e636f6d2f6173736574732f636f6c61622d62616467652e737667
+    badge: https://upload.wikimedia.org/wikipedia/commons/d/d0/Google_Colaboratory_SVG_Logo.svg
     baseurl: http://141.142.218.86:3031/mknb
     binderEncodeParameters: false
     contentQuery: url=${contentUrl}&ext=${format}&urn=${urn}&encoding=${format}
@@ -153,7 +157,7 @@ NOTEBOOKS:
     formats:
       - "*"
   - name: Collab-Service
-    badge: https://camo.githubusercontent.com/84f0493939e0c4de4e6dbe113251b4bfb5353e57134ffd9fcab6b8714514d4d1/68747470733a2f2f636f6c61622e72657365617263682e676f6f676c652e636f6d2f6173736574732f636f6c61622d62616467652e737667
+    badge: https://upload.wikimedia.org/wikipedia/commons/d/d0/Google_Colaboratory_SVG_Logo.svg
     baseurl: https://geocodes.earthcube.org/notebook/mknb
     binderEncodeParameters: false
     contentQuery: url=${contentUrl}&ext=${format}&urn=${urn}&encoding=${format}
