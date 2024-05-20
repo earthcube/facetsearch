@@ -8,16 +8,16 @@ PREFIX bds: <http://www.bigdata.com/rdf/search#>
             ?lit bds:search "${q}" .
             ?lit bds:matchAllTerms false .
             ?lit bds:relevance ?score1 .
-            ?lit bds:minRelevance 0.18 .
+            ${minRelevance}
             ?g ?p ?lit .
         ?g schema:name ?name .
         ?g schema:description ?description .
 
- BIND (IF (exists {?g a schema:Dataset .}  , "data", "tool") AS ?resourceType).
- OPTIONAL {?g schema:date ?datep .}
- OPTIONAL {?g schema:publisher ?pubname .}
- OPTIONAL {?g schema:place ?placenames .}
- OPTIONAL {?g schema:keywords ?kw .}
+         BIND (IF (exists {?g a schema:Dataset .}  , "data", "tool") AS ?resourceType).
+         OPTIONAL {?g schema:date ?datep .}
+         OPTIONAL {?g schema:publisher ?pubname .}
+         OPTIONAL {?g schema:place ?placenames .}
+         OPTIONAL {?g schema:keywords ?kw .}
 
          }
  GROUP BY ?g ?pubname ?placenames ?kw ?datep ?disurl ?score ?name ?description  ?resourceType

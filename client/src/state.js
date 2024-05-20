@@ -556,6 +556,7 @@ export const store = _createStore({
       let o = query.offset;
       let n = query.limit;
       let exact = query.searchExactMatch;
+      let minRelevance = ""; // for now none. could be: ?lit bds:minRelevance 0.14 .
       let resourceType = query.resourceType;
       let rt = Array.from(this.state.resourceTypeList.values()).join(" UNION ");
       if (resourceType !== undefined && resourceType !== "all") {
@@ -575,7 +576,7 @@ export const store = _createStore({
       // })
       const resultsTemplate = _.template(SpaqlQuery, esTemplateOptions);
       //var sparql = self.state.queryTemplates[template_name]({'n': n, 'o': o, 'q': q})
-      var sparql = resultsTemplate({ n: n, o: o, q: q, rt: rt, exact: exact });
+      var sparql = resultsTemplate({ n: n, o: o, q: q, rt: rt, exact: exact, minRelevance: minRelevance });
       //var url = "https://graph.geodex.org/blazegraph/namespace/nabu/sparql";
       var url = this.state.FacetsConfig.SUMMARYSTORE_URL;
       var blazetimeout = this.state.FacetsConfig.BLAZEGRAPH_TIMEOUT || 60;
