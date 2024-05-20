@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-      - vue3
+      - dv_minrelevance
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
 defaults:
