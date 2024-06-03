@@ -72,7 +72,7 @@
             </div>
           </div>
 
-          <div v-if="mapping.s_downloads" class="metadata">
+          <div v-if="mapping.s_downloads || mapping.s_url" class="metadata">
             <div class="label">Links</div>
             <div class="value">
               <!--                        <div style="font-weight:600;">Object URL text/plain; application=magic-tsv</div>-->
@@ -81,7 +81,7 @@
               <!--                        <div><a href="#">https://earthref.org/MagIC/download/3484/magic_contribution_348415032.txt</a></div>-->
               <!--                        <div><a href="#">https://earthref.org/MagIC/download/9843/magic_contribution_176534821.txt</a></div>-->
               <div v-if="mapping.s_url">
-                <div style="font-weight: 600">Object URL</div>
+                <div style="font-weight: 600">URL from JSON-LD</div>
                 <div>
                   <a :href="mapping.s_url" target="_blank">
                     {{ mapping.s_url }}
@@ -90,7 +90,7 @@
               </div>
 
               <div v-for="i in mapping.s_downloads" :key="i.name">
-                <div style="font-weight: 600">{{ i.name }}</div>
+                <div style="font-weight: 600">Distribution: {{ i.name }}</div>
                 <!-- do we want this? -->
                 <div
                   v-if="i.encodingFormat && i.name !== i.encodingFormat"
