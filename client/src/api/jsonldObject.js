@@ -58,6 +58,7 @@ const schemaItem = function (name, json_compacted, noSchemaMessage = "") {
   return s_name;
 };
 const hasSchemaProperty = function (name, jsonObj) {
+  if (jsonObj === undefined) return false;
   // eslint-disable-next-line no-prototype-builtins
   if (
     jsonObj.hasOwnProperty("https://schema.org/" + name) ||

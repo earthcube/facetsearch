@@ -366,6 +366,7 @@ export default {
       // }` )
       // jsonld.frame(jp, datasetFrame).then(
       frameJsonLD(jp, "Dataset").then((jp) => {
+        if  (jp === undefined) return;
         mapping.raw_json = jp;
         //mapping.s_identifier_doi = schemaItem('identifier', jp);//self.getDOIUrl()
         // ------
