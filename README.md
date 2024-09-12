@@ -1,9 +1,8 @@
 # facetsearch
 
-this repo currently supports https://alpha.geocodes.earthcube.org/
-this will become beta...
+Deployed as: https://geocodes.earthcube.org
 
-master branch here  is deployed as https://dev.geocodes.earthcube.org/
+master branch here  is deployed as https://geocodes.geocodes-aws-dev.earthcube.org/
 
 ## Overall
 There are two portions, a node server for services, and a vue client.
@@ -16,7 +15,25 @@ Generally,
 run server,
 run client.
 
+
 ## Quick Instructions:
+### client configuration
+in client/public/config there are configuration files. If you add one, it need to be added to client/public/config.yaml
+
+To select a config file, you use the environment variable:
+
+`VITE_APP_FACETS_CONFIG_FILE=config/config_dev.yaml`
+
+### server configuration
+in server/config/services.js environment variables set the configuration.
+these need to be set: [env.minimal.example](server/env.minimal.example)
+S3ADDRESS="oss.geocodes-aws.earthcube.org"
+S3KEY=
+S3SECRET=
+BUCKET='test'
+
+The others have basic defaults. [env.full.example](server/env.full.example)
+
 ### Terminal 1 server:
 ```
 cd server
@@ -55,13 +72,7 @@ yarn build
 yarn lint
 ```
 
-### configuration
-in client/src/config there are configurationfiles
-If you add one, it need to be added to client/src/config.json
 
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
 
 # server
 ```cd server
@@ -93,7 +104,5 @@ yarn lint
 ```
 
 # Docker
-If all you want to do is test, then a 'dockerized' component is available in docker.
-docker-compose up -d -f docker-compose_dev.yaml
-
-For using with a stack and traefik, docker-compose_prod_example.yaml
+A docker-compose file is included [docker-compose_dev.yaml](docker/docker-compose_dev.yaml)
+The geocodes repository has the latest  [docker-compose file](https://github.com/earthcube/geocodes/blob/main/deployment/geocodes-compose-local.yaml)

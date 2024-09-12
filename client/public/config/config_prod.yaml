@@ -1,9 +1,9 @@
 ---
-API_URL: https://geocodes-aws.earthcube.org/ec/api
-S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/
-TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube/sparql
+API_URL: https://dv.geocodes-aws-dev.earthcube.org/ec/api
+S3_REPORTS_URL: https://oss.geocodes.ncsa.illinois.edu/earthcube/reports/
+TRIPLESTORE_URL: https://graph.geocodes.ncsa.illinois.edu/blazegraph/namespace/geocodes/sparql
 ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
-SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube_summary/sparql
+SUMMARYSTORE_URL: https://graph.geocodes.ncsa.illinois.edu/blazegraph/namespace/geocodes_summary/sparql
 COMMUNTY: all
 # timeout for blazgraph queries
 BLAZEGRAPH_TIMEOUT: 20

@@ -1,5 +1,5 @@
 ---
-
+MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
 #API_URL: http://localhost:3000
 API_URL: https://geocodes.wifire-data.sdsc.edu/ec/api
 S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/

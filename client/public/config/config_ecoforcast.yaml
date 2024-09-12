@@ -1,26 +1,39 @@
----
-# confg_dev
-API_URL: http://localhost:3000
-S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/test/reports/
-TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/test/sparql
-SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/test_summary/sparql
-ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
-COMMUNITY: all
-# timeout for blazgraph queries
+COMMUNITY: ecoforecast
+# https://geocodes.earthcube.org
+API_URL: https://ecoforecast.geocodes-aws.earthcube.org/ec/api
+MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
+# local development
+#API_URL: "${window_location_origin}/ec/api"
+S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/
+TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/ecoforecast/sparql
+SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/ecoforecast_summary/sparql
 BLAZEGRAPH_TIMEOUT: 20
+# JSONLD_PROXY needs qoutes... since it has a $
+JSONLD_PROXY: "https://ecoforecast.geocodes-aws.earthcube.org/ec/api/${o}"
+# oauth issues. need to add another auth app for additional 'proxies'
+# This is the one that will work: SPARQL_NB: https://geocodes.earthcube.org/notebook/mkQ?q=${q}
+SPARQL_NB: https://geocodes.geocodes-aws.earthcube.org/notebook/mkQ?q=${q}
+SPARQL_YASGUI: https://sparqlui.geocodes-aws.earthcube.org/?
+
+## ECRR need to use fuseki source, for now.
+ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
 ECRR_GRAPH: http://earthcube.org/gleaner-summoned
+######
+# Less common modifications needed
+######
 THROUGHPUTDB_URL: https://throughputdb.com/api/ccdrs/annotations
 SPARQL_QUERY: queries/sparql_query.txt
 SPARQL_HASTOOLS: queries/sparql_hastools.txt
 SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
 SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
-JSONLD_PROXY: http://localhost:3000/${o}
-SPARQL_NB: https://geocodes-aws.earthcube.org/notebook/mkQ?q=${q}
-SPARQL_YASGUI: https://geocodes.earthcube.org/sparqlgui?
+#####
+# Not common to need to edit below
+###
+
 COLLECTION_FACETS:
   - field: unassigned
     title: All Items
-    sort: acs\
+    sort: acs
     open: false
     type: unassigned
     collections:
@@ -104,7 +117,7 @@ ORDER_BY_OPTIONS:
   - field: score
     title: Relevance
     sort: asc
-LIMIT_DEFAULT: 10
+LIMIT_DEFAULT: 1000
 LIMIT_OPTIONS:
   - 10
   - 50
@@ -125,28 +138,21 @@ NOTEBOOKS:
       - text/tsv
       - text/tab-separated-values
       - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-  - name: Collab-Developer
-    badge: https://camo.githubusercontent.com/84f0493939e0c4de4e6dbe113251b4bfb5353e57134ffd9fcab6b8714514d4d1/68747470733a2f2f636f6c61622e72657365617263682e676f6f676c652e636f6d2f6173736574732f636f6c61622d62616467652e737667
-    baseurl: http://141.142.218.86:3031/mknb
-    binderEncodeParameters: false
-    contentQuery: url=${contentUrl}&ext=${format}&urn=${urn}&encoding=${format}
-    pageTemplate: ''
-    formats:
-      - "*"
   - name: Collab-Service
     badge: https://camo.githubusercontent.com/84f0493939e0c4de4e6dbe113251b4bfb5353e57134ffd9fcab6b8714514d4d1/68747470733a2f2f636f6c61622e72657365617263682e676f6f676c652e636f6d2f6173736574732f636f6c61622d62616467652e737667
-    baseurl: https://beta.geocodes.earthcube.org/notebook/mknb
+    baseurl: https://geocodes-aws.earthcube.org/notebook/mknb
     binderEncodeParameters: false
     contentQuery: url=${contentUrl}&ext=${format}&urn=${urn}&encoding=${format}
     pageTemplate: ''
     formats:
       - "*"
-  - name: Collab-NoLogin
-    badge: ''
-    baseurl: https://beta.geocodes.earthcube.org/notebook2/mknb
-    binderEncodeParameters: false
-    contentQuery: url=${contentUrl}&ext=${format}&urn=${urn}&encoding=${format}
-    pageTemplate: ''
-    formats:
-      - "*"
+## No notebook 2 container presently configured
+#  - name: Collab-NoLogin
+#    badge: ''
+#    baseurl: https://beta.geocodes.earthcube.org/notebook2/mknb
+#    binderEncodeParameters: false
+#    contentQuery: url=${contentUrl}&ext=${format}&urn=${urn}&encoding=${format}
+#    pageTemplate: ''
+#    formats:
+#      - "*"
 
