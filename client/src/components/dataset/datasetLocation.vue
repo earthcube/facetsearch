@@ -198,8 +198,8 @@ export default {
           // move all the caluations out of nextTick
           this.$nextTick(() => {
             //this.$refs.myMap.mapObject.setView(this.center, 13);
-            this.mymap = L.map(this.$refs.myMap.id).setView(this.center, 8);
-            let mb_url = this.mapboxurl;
+            this.mymap = L.map(self.$refs.myMap.id).setView(self.center, 8);
+            let mb_url = self.mapboxurl;
             L.tileLayer(mb_url, {
               maxZoom: 13,
               attribution:
@@ -208,7 +208,7 @@ export default {
               id: "mapbox/streets-v11",
               tileSize: 512,
               zoomOffset: -1,
-            }).addTo(this.mymap);
+            }).addTo(self.mymap);
             // reactive... set
             // var mymap = L.map('mapid').setView(centerpoint, 13);
 
@@ -217,18 +217,18 @@ export default {
                 self.center = points[0]; // first one
                 console.log(`firstpoint will be center ${self.center}`);
                 for (var p = 1; p < points.length; p++) {
-                  L.marker(points[p]).addTo(this.mymap);
+                  L.marker(points[p]).addTo(self.mymap);
                 }
               } else {
                 self.center = points[0];
-                L.marker(points[0]).addTo(this.mymap);
+                L.marker(points[0]).addTo(self.mymap);
               }
             } else if (poly) {
-              const newgeo = L.polygon(poly).addTo(this.mymap);
+              const newgeo = L.polygon(poly).addTo(self.mymap);
               self.center = newgeo.getCenter();
               //     L.polygon(e.detail.poly).addTo(mymap)
             } else if (line) {
-              const newgeo = L.polyline(line).addTo(this.mymap);
+              const newgeo = L.polyline(line).addTo(self.mymap);
               self.center = newgeo.getCenter();
               //     L.polygon(e.detail.poly).addTo(mymap)
             } else if (box) {
@@ -252,11 +252,11 @@ export default {
             }
             if (name) {
               L.marker(self.center)
-                .addTo(this.mymap)
+                .addTo(self.mymap)
                 .bindPopup(name)
                 .openPopup();
             } else {
-              L.marker(self.center).addTo(this.mymap);
+              L.marker(self.center).addTo(self.mymap);
             }
             // v-show... causing issues, solution https://stackoverflow.com/questions/36246815/data-toggle-tab-does-not-download-leaflet-map/36257493#36257493
             setTimeout(() => {
