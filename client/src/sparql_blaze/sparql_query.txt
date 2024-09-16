@@ -4,6 +4,7 @@ PREFIX bds: <http://www.bigdata.com/rdf/search#>
  prefix schema: <https://schema.org/>
  SELECT distinct ?g ?pubname ?placenames ?kw  ?datep
  	(MAX(?score1) as ?score)  ?name ?description ?resourceType
+ 	?minDepth ?maxDepth
           WHERE {
             ?lit bds:search "${q}" .
             ?lit bds:matchAllTerms false .
@@ -18,9 +19,11 @@ PREFIX bds: <http://www.bigdata.com/rdf/search#>
          OPTIONAL {?g schema:publisher ?pubname .}
          OPTIONAL {?g schema:place ?placenames .}
          OPTIONAL {?g schema:keywords ?kw .}
+         OPTIONAL {?g schema:minDepth ?minDepth .}
+         OPTIONAL {?g schema:maxDepth ?maxDepth .}
 
          }
- GROUP BY ?g ?pubname ?placenames ?kw ?datep ?disurl ?score ?name ?description  ?resourceType
+ GROUP BY ?g ?pubname ?placenames ?kw ?datep ?disurl ?score ?name ?description  ?resourceType ?minDepth ?maxDepth
          ORDER BY DESC(?score)
  LIMIT ${n}
 

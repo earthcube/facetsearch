@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - dv_minrelevance
+      - 143_master_depth
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
 defaults:
