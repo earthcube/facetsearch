@@ -215,6 +215,7 @@ export default {
       let activeFilters = [];
       let queryObj = {
         textQuery: this.textQuery,
+        textMatchAll: this.textMatchAllButton,
         limit: this.n,
         offset: this.o,
         searchExactMatch: this.searchExactMatch,

@@ -58,6 +58,7 @@ export const store = _createStore({
     toolsMap: new Map(), // object id, hasConnectedTools
     q: "",
     rt: "all", // resourceType all
+    textMatchAll: false,
     searchExactMatch: false,
     // add them to simplify changes
     // should I just dump the facet config object in here/?
@@ -214,6 +215,9 @@ export const store = _createStore({
       let name = payload.name;
       let obj = payload.obj;
       state.queryTemplates[name] = obj;
+    },
+    setTextMatchAll(state, obj) {
+      state.textMatchAll = obj;
     },
     setResults(state, obj) {
       state.results = obj;
@@ -562,6 +566,9 @@ export const store = _createStore({
       if (resourceType !== undefined && resourceType !== "all") {
         rt = this.state.resourceTypeList.get(resourceType);
       }
+      let match = query.textMatchAll;
+      if (match == undefined)
+        match = this.state.textMatchAll;
 
       event("search", {
         //'event_category': 'query',
@@ -576,7 +583,7 @@ export const store = _createStore({
       // })
       const resultsTemplate = _.template(SpaqlQuery, esTemplateOptions);
       //var sparql = self.state.queryTemplates[template_name]({'n': n, 'o': o, 'q': q})
-      var sparql = resultsTemplate({ n: n, o: o, q: q, rt: rt, exact: exact, minRelevance: minRelevance });
+      var sparql = resultsTemplate({ n: n, o: o, q: q, textMatchAll: match, rt: rt, exact: exact, minRelevance: minRelevance });
       //var url = "https://graph.geodex.org/blazegraph/namespace/nabu/sparql";
       var url = this.state.FacetsConfig.SUMMARYSTORE_URL;
       var blazetimeout = this.state.FacetsConfig.BLAZEGRAPH_TIMEOUT || 60;

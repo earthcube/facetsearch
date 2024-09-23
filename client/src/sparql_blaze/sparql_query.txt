@@ -6,7 +6,7 @@ PREFIX bds: <http://www.bigdata.com/rdf/search#>
  	(MAX(?score1) as ?score)  ?name ?description ?resourceType
           WHERE {
             ?lit bds:search "${q}" .
-            ?lit bds:matchAllTerms false .
+            ?lit bds:matchAllTerms "${textMatchAll}" .
             ?lit bds:relevance ?score1 .
             ${minRelevance}
             ?g ?p ?lit .

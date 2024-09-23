@@ -30,10 +30,12 @@
                   d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"
                 /></svg
             ></b-button>
+            <b-form-checkbox v-model="textMatchAllButton"></b-form-checkbox>
           </b-input-group-append>
         </b-input-group>
 
-        <b-form-group class="mt-2">
+        <!--TODO: work on the radio buttons and show them -->
+        <b-form-group class="mt-2" v-show="false">
           <b-form-radio-group
             id="resourceType"
             v-model="toolOptionsSelected"
@@ -94,7 +96,7 @@ export default {
       var resourceType = this.toolOptionsSelected;
       this.$router.push({
         name: "Search",
-        query: { q: query, resourceType: resourceType },
+        query: { q: query, textMatchAll: this.textMatchAllButton, resourceType: resourceType },
       });
     },
     onReset() {

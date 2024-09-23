@@ -46,6 +46,8 @@
                 placeholder="Search"
                 @keydown.enter.exact.prevent="onSubmitNavbar"
               ></b-form-input>
+              <b-form-checkbox v-model="textMatchAllButton"></b-form-checkbox>
+
               <b-input-group-append>
                 <b-button type="submit" variant="secondary"
                   ><svg
@@ -113,16 +115,17 @@ export default {
   },
   watch: {
     q: "qUpdated",
-    rt: "rtUpdated",
+    rt: "rtUpdated"
   },
   data() {
     return {
       textQuery: "",
+      textMatchAllButton: false,
       resourceType: "All",
     };
   },
   methods: {
-    ...mapMutations(["setTextQuery", "setResourceTypeQuery"]),
+    ...mapMutations(["setTextQuery", "setResourceTypeQuery", "setTextMatchAll"]),
     showBackButton() {
       return false;
       //        return (['dataset', 'tool'].includes(this.$route.name.toLowerCase())) ? true : false;
@@ -138,8 +141,9 @@ export default {
       //  this.$store.state.rt = 'all' // for now
       this.setTextQuery(this.textQuery);
       this.setResourceTypeQuery("all"); // for now
+      this.setTextMatchAll(this.textMatchAllButton);
       this.$router
-        .push({ name: "Search", query: { q: this.q, resourceType: "all" } })
+        .push({ name: "Search", query: { q: this.q, textMatchAll: this.textMatchAllButton, resourceType: "all" } })
         .catch((err) => {
           console.log("ignore" + err);
         });
