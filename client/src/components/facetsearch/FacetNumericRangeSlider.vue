@@ -32,9 +32,9 @@
     >
       <div class="mx-2 clearfix">
         <RangeSlider
-          :filter-dates="mydata"
-          :start-date="rangeStartDate"
-          :end-date="rangeEndDate"
+          :filter-dates="toRaw(mydata)"
+          :start-date="toRaw(rangeStartDate)"
+          :end-date="toRaw(rangeEndDate)"
         ></RangeSlider>
       </div>
 
@@ -96,6 +96,7 @@ import RangeSlider from "@/components/facetsearch/RangeSlider.vue";
 //import 'vue-histogram-slider/dist/histogram-slider.css';
 import { mapState } from "vuex";
 import _ from "lodash";
+import {toRaw} from "vue";
 //import {bus} from "../../main";
 
 export default {
@@ -184,6 +185,7 @@ export default {
     // })
   },
   methods: {
+    toRaw,
     updateFacetItems: function () {
       console.log("facetupdateitems methtod called event");
       this.$forceUpdate();
