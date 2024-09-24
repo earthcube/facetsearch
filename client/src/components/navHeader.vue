@@ -46,10 +46,10 @@
                 placeholder="Search"
                 @keydown.enter.exact.prevent="onSubmitNavbar"
               ></b-form-input>
-              <b-form-checkbox v-model="textMatchAllButton"></b-form-checkbox>
+
 
               <b-input-group-append>
-                <b-button type="submit" variant="secondary"
+                <b-button type="submit" variant="secondary" class="mr-2"
                   ><svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -63,6 +63,12 @@
                     /></svg
                 ></b-button>
               </b-input-group-append>
+              <b-form-checkbox v-model="searchExactMatchBUtton" id="checkbox" class="d-flex align-items-center">
+                {{ searchExactMatchBUtton ? 'AND' : 'OR' }}
+              </b-form-checkbox>
+              <b-tooltip target="checkbox" placement="right" triggers="hover">
+                  {{ this.searchExactMatchBUtton ? 'Unselect to match any of the search terms' : 'Select to match all of the search terms' }}
+              </b-tooltip>
             </b-input-group>
           </b-nav-form>
           <!--                <div class="badges mt-2">-->
@@ -120,12 +126,12 @@ export default {
   data() {
     return {
       textQuery: "",
-      textMatchAllButton: false,
+      searchExactMatchBUtton: false,
       resourceType: "All",
     };
   },
   methods: {
-    ...mapMutations(["setTextQuery", "setResourceTypeQuery", "setTextMatchAll"]),
+    ...mapMutations(["setTextQuery", "setResourceTypeQuery", "setSearchExactMatch"]),
     showBackButton() {
       return false;
       //        return (['dataset', 'tool'].includes(this.$route.name.toLowerCase())) ? true : false;
@@ -141,9 +147,9 @@ export default {
       //  this.$store.state.rt = 'all' // for now
       this.setTextQuery(this.textQuery);
       this.setResourceTypeQuery("all"); // for now
-      this.setTextMatchAll(this.textMatchAllButton);
+      this.setSearchExactMatch(this.searchExactMatchBUtton);
       this.$router
-        .push({ name: "Search", query: { q: this.q, textMatchAll: this.textMatchAllButton, resourceType: "all" } })
+        .push({ name: "Search", query: { q: this.q, searchExactMatch: this.searchExactMatchBUtton, resourceType: "all" } })
         .catch((err) => {
           console.log("ignore" + err);
         });

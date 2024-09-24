@@ -17,7 +17,7 @@
           ></b-form-input>
 
           <b-input-group-append>
-            <b-button variant="primary" type="submit"
+            <b-button variant="primary" type="submit" class="mr-2"
               ><svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -30,7 +30,12 @@
                   d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"
                 /></svg
             ></b-button>
-            <b-form-checkbox v-model="textMatchAllButton"></b-form-checkbox>
+            <b-form-checkbox v-model="searchExactMatchBUtton" id="checkbox1" class="d-flex align-items-center">
+                {{ searchExactMatchBUtton ? 'AND' : 'OR' }}
+            </b-form-checkbox>
+              <b-tooltip target="checkbox1" placement="right" triggers="hover">
+                  {{ this.searchExactMatchBUtton ? 'Unselect to match any of the search terms' : 'Select to match all of the search terms' }}
+              </b-tooltip>
           </b-input-group-append>
         </b-input-group>
 
@@ -96,7 +101,7 @@ export default {
       var resourceType = this.toolOptionsSelected;
       this.$router.push({
         name: "Search",
-        query: { q: query, textMatchAll: this.textMatchAllButton, resourceType: resourceType },
+        query: { q: query, searchExactMatch: this.searchExactMatchBUtton, resourceType: resourceType },
       });
     },
     onReset() {
