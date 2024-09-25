@@ -63,7 +63,7 @@
                     /></svg
                 ></b-button>
               </b-input-group-append>
-              <b-form-checkbox v-model="searchExactMatchBUtton" id="checkbox" class="d-flex align-items-center">
+              <b-form-checkbox v-model="searchExactMatchBUtton" id="checkbox" class="match-checkbox">
                 {{ searchExactMatchBUtton ? 'AND' : 'OR' }}
               </b-form-checkbox>
               <b-tooltip target="checkbox" placement="right" triggers="hover">
@@ -225,7 +225,14 @@ export default {
       image: none;
     }
   }
-
+  .match-checkbox {
+    display: flex;
+    justify-content: left;
+    text-align: right;
+    color: white;
+    width: 4em;
+  border-width: 2px;
+  background: #005cbf }
   //on smaller screens, force search box full width
   @include media-breakpoint-down(md) {
     .menu_nav {
