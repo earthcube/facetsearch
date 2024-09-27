@@ -63,11 +63,12 @@
                     /></svg
                 ></b-button>
               </b-input-group-append>
-              <b-form-checkbox v-model="searchExactMatchBUtton" id="checkbox" class="match-checkbox">
-                {{ searchExactMatchBUtton ? 'AND' : 'OR' }}
-              </b-form-checkbox>
+
+              <VueToggles v-model="searchExactMatch" />
               <b-tooltip target="checkbox" placement="right" triggers="hover">
-                  {{ this.searchExactMatchBUtton ? 'Unselect to match any of the search terms' : 'Select to match all of the search terms' }}
+                {{
+                  this.searchExactMatch ? 'Unselect to match any of the search terms' : 'Select to match all of the search terms'
+                }}
               </b-tooltip>
             </b-input-group>
           </b-nav-form>
@@ -101,11 +102,11 @@ import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
 import { stringify } from "query-string";
 import _ from "lodash";
 //import FacetsConfig from "../config";
-
+import { VueToggles } from "vue-toggles";
 export default {
   configureCompat: { ATTR_FALSE_VALUE: false },
   name: "NavHeader",
-  components: { logoEarthcube, logoGeoCodes },
+  components: { logoEarthcube, logoGeoCodes , VueToggles},
   computed: {
     ...mapState([
       "results",
@@ -126,7 +127,7 @@ export default {
   data() {
     return {
       textQuery: "",
-      searchExactMatchBUtton: false,
+      searchExactMatch: false,
       resourceType: "All",
     };
   },
@@ -147,9 +148,12 @@ export default {
       //  this.$store.state.rt = 'all' // for now
       this.setTextQuery(this.textQuery);
       this.setResourceTypeQuery("all"); // for now
-      this.setSearchExactMatch(this.searchExactMatchBUtton);
+      this.setSearchExactMatch(this.searchExactMatch);
       this.$router
-        .push({ name: "Search", query: { q: this.q, searchExactMatch: this.searchExactMatchBUtton, resourceType: "all" } })
+        .push({ name: "Search", query: {
+          q: this.q,
+            searchExactMatch: this.searchExactMatch,
+            resourceType: "all" } })
         .catch((err) => {
           console.log("ignore" + err);
         });

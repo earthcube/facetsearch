@@ -8270,6 +8270,11 @@ vue-template-es2015-compiler@^1.9.0:
   resolved "https://registry.npmjs.org/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz"
   integrity sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==
 
+vue-toggles@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/vue-toggles/-/vue-toggles-2.1.0.tgz#a9ac99915f5619aa807ba7587c5efa8c4b26274c"
+  integrity sha512-pvn/0YxRyP+BR/7nfm7t20RX6G5bv2BuC4so+bZn5bs4846Ar/Gv90mJxMsxBsVVZZzuXZblShpfs/i3uS1QJA==
+
 vue-tsc@^0.35.0:
   version "0.35.2"
   resolved "https://registry.yarnpkg.com/vue-tsc/-/vue-tsc-0.35.2.tgz#85b94027bebc0c6834e0c20b337900468d83b28d"
