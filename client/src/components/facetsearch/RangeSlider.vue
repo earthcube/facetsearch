@@ -1,16 +1,19 @@
 <template>
   <div>
     <div>
-      <vue-range-slider
+      <VueSlider
         ref="slider"
         v-model="value"
-        class="mx-2"
-        :tooltip="false"
+        size="medium"
+        thumb-size="large"
+        class="w-full py1"
+
+        :tooltips="false"
         :min="parseInt(startDate)"
         :max="parseInt(endDate)"
         :disabled="disableDrag"
-        @drag-end="updateRange"
-      ></vue-range-slider>
+        @dragEnd="updateRange"
+      ></VueSlider>
     </div>
     <div>
       <span
@@ -38,12 +41,13 @@
     </div>
   </div>
 </template>
+
 <script>
-import "vue-range-component/dist/vue-range-slider.css";
-import VueRangeSlider from "vue-range-component-fixed";
+
+import VueSlider from "vue-3-slider-component";
 export default {
   components: {
-    VueRangeSlider,
+    VueSlider,
   },
   // provide: function () {
   //   return {
@@ -88,20 +92,22 @@ export default {
       if (action === "clear") {
         newRangeStartDate = this.startDate;
         newRangeEndDate = this.endDate;
-        this.value = [newRangeStartDate, newRangeEndDate];
+        this.value[0] = newRangeStartDate
+        this.value[1] =newRangeEndDate;
         this.olderFilters = [];
         return;
       } else if (action == "init") {
         this.sliderInit = true;
         newRangeStartDate = start;
         newRangeEndDate = end;
-        this.value = [newRangeStartDate, newRangeEndDate];
+        this.value[0] = newRangeStartDate
+        this.value[1] =newRangeEndDate;
         if (start === 0 && end === 0) {
           this.disableDrag = true;
         } else {
           this.disableDrag = false;
         }
-        this.myfilterDates = [];
+        this.myfilterDates = new Array(0,0)
         console.log(mydata);
       } else {
         this.myfilterDates = this.filterDates;

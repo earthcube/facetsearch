@@ -8137,6 +8137,11 @@ vite@^5.0.12:
   optionalDependencies:
     fsevents "~2.3.3"
 
+vue-3-slider-component@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/vue-3-slider-component/-/vue-3-slider-component-1.0.1.tgz#b755a272b131025518dfab26e70071338cd30187"
+  integrity sha512-00ekFqXuOJQXrIw1gWgsZzKHKgwR9yUMD99Pvc/01ILzpzFmR/LbE7VoeT9N6N9OrMm6//lfpgB4nt0P8WzaXA==
+
 vue-axios@^3.5.2:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/vue-axios/-/vue-axios-3.5.2.tgz#28637524cca550a9e97197e85a41930ec63604d5"
@@ -8219,16 +8224,6 @@ vue-loader@^17.0.0, vue-loader@^17.4.2:
     chalk "^4.1.0"
     hash-sum "^2.0.0"
     watchpack "^2.4.0"
-
-vue-range-component-fixed@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.npmjs.org/vue-range-component-fixed/-/vue-range-component-fixed-1.0.3.tgz"
-  integrity sha512-nvK74pILljmCKAUb5N8ywnSWKolILdMLz/9v/HKHo+6LdH3D4M9tAQ5keftX9bYvtMceIZ/t28pPcVUPnBHoPA==
-
-vue-range-component@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.npmjs.org/vue-range-component/-/vue-range-component-1.0.3.tgz"
-  integrity sha512-J/rE7KJa61XsLXREvSw0Ia+dSTaLoP5Ou7NfOy5pm/1FMgYn7E14iQj7baA8H4ZxoIuKuCfrhjWglPHtWUPGmg==
 
 vue-router@^4.2.5:
   version "4.2.5"
