@@ -47,7 +47,6 @@
                 @keydown.enter.exact.prevent="onSubmitNavbar"
               ></b-form-input>
 
-
               <b-input-group-append>
                 <b-button type="submit" variant="secondary" class="mr-2"
                   ><svg
@@ -63,11 +62,22 @@
                     /></svg
                 ></b-button>
               </b-input-group-append>
-              <b-form-checkbox v-model="searchExactMatchBUtton" id="checkbox" class="match-checkbox">
-                {{ searchExactMatchBUtton ? 'AND' : 'OR' }}
-              </b-form-checkbox>
+              <VueToggles
+                :value="searchExactMatchBUtton"
+                :height="30"
+                :width="75"
+                checked-text="AND"
+                unchecked-text="OR"
+                checked-bg="#777"
+                :disabled="false"
+                @click="searchExactMatchBUtton = !searchExactMatchBUtton"
+              />
               <b-tooltip target="checkbox" placement="right" triggers="hover">
-                  {{ this.searchExactMatchBUtton ? 'Unselect to match any of the search terms' : 'Select to match all of the search terms' }}
+                {{
+                  searchExactMatchBUtton
+                    ? "Unselect to match any of the search terms"
+                    : "Select to match all of the search terms"
+                }}
               </b-tooltip>
             </b-input-group>
           </b-nav-form>
@@ -100,12 +110,13 @@ import logoEarthcube from "@/components/logos/logoEarthcube.vue";
 import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
 import { stringify } from "query-string";
 import _ from "lodash";
+import VueToggles from "vue-toggles";
 //import FacetsConfig from "../config";
 
 export default {
   configureCompat: { ATTR_FALSE_VALUE: false },
   name: "NavHeader",
-  components: { logoEarthcube, logoGeoCodes },
+  components: { logoEarthcube, logoGeoCodes, VueToggles },
   computed: {
     ...mapState([
       "results",
@@ -121,7 +132,7 @@ export default {
   },
   watch: {
     q: "qUpdated",
-    rt: "rtUpdated"
+    rt: "rtUpdated",
   },
   data() {
     return {
@@ -131,7 +142,11 @@ export default {
     };
   },
   methods: {
-    ...mapMutations(["setTextQuery", "setResourceTypeQuery", "setSearchExactMatch"]),
+    ...mapMutations([
+      "setTextQuery",
+      "setResourceTypeQuery",
+      "setSearchExactMatch",
+    ]),
     showBackButton() {
       return false;
       //        return (['dataset', 'tool'].includes(this.$route.name.toLowerCase())) ? true : false;
@@ -149,7 +164,14 @@ export default {
       this.setResourceTypeQuery("all"); // for now
       this.setSearchExactMatch(this.searchExactMatchBUtton);
       this.$router
-        .push({ name: "Search", query: { q: this.q, searchExactMatch: this.searchExactMatchBUtton, resourceType: "all" } })
+        .push({
+          name: "Search",
+          query: {
+            q: this.q,
+            searchExactMatch: this.searchExactMatchBUtton,
+            resourceType: "all",
+          },
+        })
         .catch((err) => {
           console.log("ignore" + err);
         });
@@ -231,8 +253,9 @@ export default {
     text-align: right;
     color: white;
     width: 4em;
-  border-width: 2px;
-  background: #005cbf }
+    border-width: 2px;
+    background: #005cbf;
+  }
   //on smaller screens, force search box full width
   @include media-breakpoint-down(md) {
     .menu_nav {

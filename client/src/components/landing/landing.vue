@@ -30,17 +30,29 @@
                   d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"
                 /></svg
             ></b-button>
-            <b-form-checkbox v-model="searchExactMatchBUtton" id="checkbox1" class="d-flex align-items-center">
-                {{ searchExactMatchBUtton ? 'AND' : 'OR' }}
-            </b-form-checkbox>
-              <b-tooltip target="checkbox1" placement="right" triggers="hover">
-                  {{ this.searchExactMatchBUtton ? 'Unselect to match any of the search terms' : 'Select to match all of the search terms' }}
-              </b-tooltip>
+            <VueToggles
+              id="checkbox"
+              :value="searchExactMatchBUtton"
+              :height="35"
+              :width="75"
+              checked-text="AND"
+              unchecked-text="OR"
+              checked-bg="#777"
+              :disabled="false"
+              @click="searchExactMatchBUtton = !searchExactMatchBUtton"
+            />
+            <b-tooltip target="checkbox1" placement="right" triggers="hover">
+              {{
+                searchExactMatchBUtton
+                  ? "Unselect to match any of the search terms"
+                  : "Select to match all of the search terms"
+              }}
+            </b-tooltip>
           </b-input-group-append>
         </b-input-group>
 
         <!--TODO: work on the radio buttons and show them -->
-        <b-form-group class="mt-2" v-show="false">
+        <b-form-group v-show="false" class="mt-2">
           <b-form-radio-group
             id="resourceType"
             v-model="toolOptionsSelected"
@@ -78,13 +90,16 @@
 //import VueRouter from 'vue-router'
 import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
 import { mapMutations } from "vuex";
+import VueToggles from "vue-toggles";
+
 
 export default {
   name: "Landing",
-  components: { logoGeoCodes },
+  components: { logoGeoCodes, VueToggles },
   data() {
     return {
       q: "",
+      searchExactMatchBUtton: false,
       toolOptionsSelected: "all",
       toolOptions: [
         { value: "all", text: "All" },
@@ -101,7 +116,11 @@ export default {
       var resourceType = this.toolOptionsSelected;
       this.$router.push({
         name: "Search",
-        query: { q: query, searchExactMatch: this.searchExactMatchBUtton, resourceType: resourceType },
+        query: {
+          q: query,
+          searchExactMatch: this.searchExactMatchBUtton,
+          resourceType: resourceType,
+        },
       });
     },
     onReset() {
