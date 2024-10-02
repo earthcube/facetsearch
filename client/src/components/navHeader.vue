@@ -135,7 +135,7 @@ export default {
   data() {
     return {
       textQuery: "",
-     exact: false,
+      exact: false,
       resourceType: "All",
     };
   },
