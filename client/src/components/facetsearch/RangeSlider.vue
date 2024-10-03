@@ -3,7 +3,7 @@
     <div>
       <VueSlider
         ref="slider"
-        v-model="value"
+        :model-value="value"
         size="medium"
         thumb-size="large"
         class="w-full py1"
