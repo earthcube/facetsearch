@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - dv_minrelevance
+      - 140-add-andor-option
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
 defaults:
