@@ -63,18 +63,18 @@
                 ></b-button>
               </b-input-group-append>
               <VueToggles
-                :value="searchExactMatchBUtton"
+                :value="exact"
                 :height="30"
                 :width="75"
                 checked-text="AND"
                 unchecked-text="OR"
                 checked-bg="#777"
                 :disabled="false"
-                @click="searchExactMatchBUtton = !searchExactMatchBUtton"
+                @click="exact = !exact"
               />
               <b-tooltip target="checkbox" placement="right" triggers="hover">
                 {{
-                  searchExactMatchBUtton
+                  this.searchExactMatch
                     ? "Unselect to match any of the search terms"
                     : "Select to match all of the search terms"
                 }}
@@ -133,11 +133,12 @@ export default {
   watch: {
     q: "qUpdated",
     rt: "rtUpdated",
+    searchExactMatch: "exactUpdated"
   },
   data() {
     return {
       textQuery: "",
-      searchExactMatchBUtton: false,
+      exact: false,
       resourceType: "All",
     };
   },
@@ -157,18 +158,21 @@ export default {
     rtUpdated() {
       this.resourceType = this.rt;
     },
+    exactUpdated() {
+      this.exact = this.searchExactMatch;
+    },
     onSubmitNavbar() {
       //  this.$store.state.q = this.textQuery;
       //  this.$store.state.rt = 'all' // for now
       this.setTextQuery(this.textQuery);
       this.setResourceTypeQuery("all"); // for now
-      this.setSearchExactMatch(this.searchExactMatchBUtton);
+      this.setSearchExactMatch(this.exact);
       this.$router
         .push({
           name: "Search",
           query: {
             q: this.q,
-            searchExactMatch: this.searchExactMatchBUtton,
+            searchExactMatch: this.searchExactMatch,
             resourceType: "all",
           },
         })

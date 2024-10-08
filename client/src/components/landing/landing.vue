@@ -32,18 +32,18 @@
             ></b-button>
             <VueToggles
               id="checkbox"
-              :value="searchExactMatchBUtton"
+              :value="searchExactMatch"
               :height="35"
               :width="75"
               checked-text="AND"
               unchecked-text="OR"
               checked-bg="#777"
               :disabled="false"
-              @click="searchExactMatchBUtton = !searchExactMatchBUtton"
+              @click="searchExactMatch = !searchExactMatch"
             />
             <b-tooltip target="checkbox1" placement="right" triggers="hover">
               {{
-                searchExactMatchBUtton
+                searchExactMatch
                   ? "Unselect to match any of the search terms"
                   : "Select to match all of the search terms"
               }}
@@ -99,7 +99,7 @@ export default {
   data() {
     return {
       q: "",
-      searchExactMatchBUtton: false,
+      searchExactMatch: false,
       toolOptionsSelected: "all",
       toolOptions: [
         { value: "all", text: "All" },
@@ -114,11 +114,12 @@ export default {
     onSubmit() {
       var query = this.q;
       var resourceType = this.toolOptionsSelected;
+      var exact =  this.searchExactMatch
       this.$router.push({
         name: "Search",
         query: {
           q: query,
-          searchExactMatch: this.searchExactMatchBUtton,
+          searchExactMatch: exact,
           resourceType: resourceType,
         },
       });

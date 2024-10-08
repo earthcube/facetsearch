@@ -32,6 +32,7 @@ export function createRouter() {
         props: (route) => ({
           textQuery: route.query.q,
           resourceType: route.query.resourceType,
+          exact: route.query.searchExactMatch
         }),
       },
       { path: "/dataset/:d", name: "dataset", component: dataset, props: true },

@@ -116,6 +116,7 @@ export default {
     title: String,
     textQuery: String, // this needs to be here route passes as a prop
     resourceType: String,
+    exact: String
     // results:[]
   },
 
@@ -172,12 +173,14 @@ export default {
     // this.$store.state.q = this.textQuery
     this.setTextQuery(this.textQuery);
     this.setResourceTypeQuery("all");
-
+    this.setSearchExactMatch(this.exact);
+    // for some reason, the set are in here, and the nav bar header,
     let paramString = window.location.href.split("?")[1];
     let queryString = new URLSearchParams(paramString);
     for (let pair of queryString.entries()) {
       if (pair[0] === "q") continue;
       if (pair[0] === "resourceType" && pair[1] == "all") continue;
+      if (pair[0] === "searchExactMatch") continue;
       // console.log("Key is:" + pair[0]);
       // console.log("Value is:" + pair[1]);
       this.toggleFilter(pair[0], pair[1], true);
@@ -208,14 +211,14 @@ export default {
     // }
   },
   methods: {
-    ...mapMutations(["setTextQuery", "setResourceTypeQuery"]),
+    ...mapMutations(["setTextQuery", "setResourceTypeQuery", "setSearchExactMatch"]),
     ...mapActions(["getResults", "getQueryTemplate", "addtoMicroCache"]),
     getQueryObj: function () {
       //let activeFilters = this.filtersState.filters|| []; // filters needs to be moved into actual filtersState in the future
       let activeFilters = [];
       let queryObj = {
         textQuery: this.textQuery,
-        textMatchAll: this.textMatchAllButton,
+        //textMatchAll: this.textMatchAllButton,
         limit: this.n,
         offset: this.o,
         searchExactMatch: this.searchExactMatch,
