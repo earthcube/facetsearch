@@ -562,6 +562,8 @@ export const store = _createStore({
       if (resourceType !== undefined && resourceType !== "all") {
         rt = this.state.resourceTypeList.get(resourceType);
       }
+      if (exact == undefined)
+        exact = this.state.searchExactMatch;
 
       event("search", {
         //'event_category': 'query',
