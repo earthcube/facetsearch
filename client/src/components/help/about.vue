@@ -228,7 +228,7 @@ export default {
       community.trim().length === 0
     )
       community = "all";
-    this.reportsJson = `${s3base}all/latest/report_${community}_stats.json`;
+    this.reportsJson = `${s3base}tenant/${community}/latest/report_stats.json`;
     this.fetchAllReports();
   },
   methods: {
