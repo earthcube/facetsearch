@@ -1,9 +1,8 @@
 # facetsearch
+This is the Vue2 codebase for Earthcube Gocodes UI.
+vue2 is unsupported as of December 2023
 
-this repo currently supports https://alpha.geocodes.earthcube.org/
-this will become beta...
-
-master branch here  is deployed as https://dev.geocodes.earthcube.org/
+The master branch has been update to vue3.
 
 ## Overall
 There are two portions, a node server for services, and a vue client.
