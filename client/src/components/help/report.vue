@@ -3,7 +3,7 @@
     <div>
       <h2>Source: {{ source }}</h2>
       <div v-if="missing">
-        <b-card header="Missing Report">
+        <b-card header="Dataset Report">
           <div v-if="missing">
             <b-link :href="missing_url" class="card-link"
               >Download Original Report (JSON)</b-link
@@ -270,7 +270,7 @@ export default {
     // const source = this.$route.params.repo;
     console.log(this.source);
     const s3base = this.FacetsConfig.S3_REPORTS_URL;
-    this.missing_url = `${s3base}${this.source}/latest/missing_report_graph.json`;
+    this.missing_url = `${s3base}${this.source}/latest/load_report_s3.json`;
     this.graph_url = `${s3base}${this.source}/latest/graph_stats.json`;
 
     this.fetchMissingReport();
