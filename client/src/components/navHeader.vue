@@ -46,8 +46,9 @@
                 placeholder="Search"
                 @keydown.enter.exact.prevent="onSubmitNavbar"
               ></b-form-input>
+
               <b-input-group-append>
-                <b-button type="submit" variant="secondary"
+                <b-button type="submit" variant="secondary" class="mr-2"
                   ><svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -61,6 +62,23 @@
                     /></svg
                 ></b-button>
               </b-input-group-append>
+              <VueToggles
+                :value="exact"
+                :height="30"
+                :width="75"
+                checked-text="AND"
+                unchecked-text="OR"
+                checked-bg="#777"
+                :disabled="false"
+                @click="exact = !exact"
+              />
+              <b-tooltip target="checkbox" placement="right" triggers="hover">
+                {{
+                  this.searchExactMatch
+                    ? "Unselect to match any of the search terms"
+                    : "Select to match all of the search terms"
+                }}
+              </b-tooltip>
             </b-input-group>
           </b-nav-form>
           <!--                <div class="badges mt-2">-->
@@ -92,12 +110,13 @@ import logoEarthcube from "@/components/logos/logoEarthcube.vue";
 import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
 import { stringify } from "query-string";
 import _ from "lodash";
+import VueToggles from "vue-toggles";
 //import FacetsConfig from "../config";
 
 export default {
   configureCompat: { ATTR_FALSE_VALUE: false },
   name: "NavHeader",
-  components: { logoEarthcube, logoGeoCodes },
+  components: { logoEarthcube, logoGeoCodes, VueToggles },
   computed: {
     ...mapState([
       "results",
@@ -114,15 +133,21 @@ export default {
   watch: {
     q: "qUpdated",
     rt: "rtUpdated",
+    searchExactMatch: "exactUpdated"
   },
   data() {
     return {
       textQuery: "",
+      exact: false,
       resourceType: "All",
     };
   },
   methods: {
-    ...mapMutations(["setTextQuery", "setResourceTypeQuery"]),
+    ...mapMutations([
+      "setTextQuery",
+      "setResourceTypeQuery",
+      "setSearchExactMatch",
+    ]),
     showBackButton() {
       return false;
       //        return (['dataset', 'tool'].includes(this.$route.name.toLowerCase())) ? true : false;
@@ -133,13 +158,24 @@ export default {
     rtUpdated() {
       this.resourceType = this.rt;
     },
+    exactUpdated() {
+      this.exact = this.searchExactMatch;
+    },
     onSubmitNavbar() {
       //  this.$store.state.q = this.textQuery;
       //  this.$store.state.rt = 'all' // for now
       this.setTextQuery(this.textQuery);
       this.setResourceTypeQuery("all"); // for now
+      this.setSearchExactMatch(this.exact);
       this.$router
-        .push({ name: "Search", query: { q: this.q, resourceType: "all" } })
+        .push({
+          name: "Search",
+          query: {
+            q: this.q,
+            searchExactMatch: this.searchExactMatch,
+            resourceType: "all",
+          },
+        })
         .catch((err) => {
           console.log("ignore" + err);
         });
@@ -215,7 +251,15 @@ export default {
       image: none;
     }
   }
-
+  .match-checkbox {
+    display: flex;
+    justify-content: left;
+    text-align: right;
+    color: white;
+    width: 4em;
+    border-width: 2px;
+    background: #005cbf;
+  }
   //on smaller screens, force search box full width
   @include media-breakpoint-down(md) {
     .menu_nav {
