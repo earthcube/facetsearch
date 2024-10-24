@@ -212,26 +212,25 @@ export default {
             // reactive... set
             // var mymap = L.map('mapid').setView(centerpoint, 13);
 
-            if (points) {
-              if (points.length > 1) {
-                self.center = points[0]; // first one
-                console.log(`firstpoint will be center ${self.center}`);
-                for (var p = 1; p < points.length; p++) {
-                  L.marker(points[p]).addTo(self.mymap);
-                }
-              } else {
-                self.center = points[0];
-                L.marker(points[0]).addTo(self.mymap);
+            if (points && points.length > 0) {
+              self.center = points[0]; // first one
+              // console.log(`first point will be center ${self.center}`);
+              for (var p = 0; p < points.length; p++) {
+                L.marker(points[p]).addTo(self.mymap);
               }
-            } else if (poly) {
+            }
+
+            if (poly) {
               const newgeo = L.polygon(poly).addTo(self.mymap);
               self.center = newgeo.getCenter();
-              //     L.polygon(e.detail.poly).addTo(mymap)
-            } else if (line) {
+            }
+
+            if (line) {
               const newgeo = L.polyline(line).addTo(self.mymap);
               self.center = newgeo.getCenter();
-              //     L.polygon(e.detail.poly).addTo(mymap)
-            } else if (box) {
+            }
+
+            if (box) {
               let bounds = L.latLngBounds(box[0], box[1]);
               console.log("bounds valid " + bounds.isValid());
               // not always correct order.
@@ -245,11 +244,14 @@ export default {
                 weight: 1,
               }).addTo(this.mymap);
               self.center = newgeo.getCenter();
-              //      L.rectangle(e.detail.box).addTo(mymap)
-            } else {
+            }
+
+            // If none of the objects exist, disable spatial features
+            if (!points && !poly && !line && !box) {
               console.log("unrecognized spatial object. Disabling location");
               this.hasSpatial = false;
             }
+
             if (name) {
               L.marker(self.center)
                 .addTo(self.mymap)
