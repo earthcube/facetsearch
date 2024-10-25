@@ -91,7 +91,7 @@ export default {
         this.value = [newRangeStartDate, newRangeEndDate];
         this.olderFilters = [];
         return;
-      } else if (action == "init") {
+      } else if (action === "init") {
         this.sliderInit = true;
         newRangeStartDate = start;
         newRangeEndDate = end;
