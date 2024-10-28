@@ -4,7 +4,9 @@ on:
     branches:
       - master
       - dv_minrelevance
+      - 140-add-andor-option
       - 148-year-published-range-bar-is-not-working-1
+
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
 defaults:
