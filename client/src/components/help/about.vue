@@ -181,7 +181,7 @@ in case more intro paragraph text is needed
 
       <div>
         <img
-          src="https://new.nsf.gov/themes/custom/nsf_theme/components/images/logo/logo-desktop.svg"
+          src="https://new.nsf.gov/themes/custom/nsf_theme/components/sdc-components/molecules/logo/logo-desktop.svg"
           width="150"
           alt="NSF"
         />
