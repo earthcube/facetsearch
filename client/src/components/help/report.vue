@@ -2,25 +2,25 @@
   <b-container fluid="md" class="mt-5">
     <div>
       <h2>Source: {{ source }}</h2>
-      <div v-if="missing">
-        <b-card header="Missing Report">
-          <div v-if="missing">
-            <b-link :href="missing_url" class="card-link"
+      <div v-if="loadinfo">
+        <b-card header="Load Report">
+          <div v-if="loadinfo">
+            <b-link :href="load_url" class="card-link"
               >Download Original Report (JSON)</b-link
             >
 
-            <p>Report Date: {{ missing.date }}</p>
+            <p>Report Date: {{ loadinfo.date }}</p>
             <ul>
-              <li>Sitemap count: {{ missing.sitemap_count }}</li>
-              <li>Summoned count: {{ missing.summoned_count }}</li>
+              <li>Sitemap count: {{ loadinfo.sitemap_count }}</li>
+              <li>Summoned count: {{ loadinfo.summoned_count }}</li>
               <li>
                 Missing summoned count:
-                {{ missing.missing_sitemap_summon_count }}
+                {{ loadinfo.missing_sitemap_summon_count }}
               </li>
-              <li>Graph URN count: {{ missing.graph_urn_count }}</li>
+              <li>Graph URN count: {{ loadinfo.graph_urn_count }}</li>
               <li>
                 Missing graph URN count:
-                {{ missing.missing_summon_graph_count }}
+                {{ loadinfo.missing_summon_graph_count }}
               </li>
             </ul>
           </div>
@@ -257,9 +257,9 @@ export default {
   },
   data() {
     return {
-      missing: null,
+      loadinfo: null,
       graphinfo: null,
-      missing_url: "",
+      load_url: "",
       graph_url: "",
     };
   },
@@ -270,15 +270,15 @@ export default {
     // const source = this.$route.params.repo;
     console.log(this.source);
     const s3base = this.FacetsConfig.S3_REPORTS_URL;
-    this.missing_url = `${s3base}${this.source}/latest/missing_report_graph.json`;
+    this.load_url = `${s3base}${this.source}/latest/load_report_s3.json`;
     this.graph_url = `${s3base}${this.source}/latest/graph_stats.json`;
 
-    this.fetchMissingReport();
+    this.fetchLoadReport();
     this.fetchGraphStats();
   },
   methods: {
-    fetchMissingReport() {
-      axios.get(this.missing_url).then((miss) => (this.missing = miss.data));
+    fetchLoadReport() {
+      axios.get(this.load_url).then((load) => (this.loadinfo = load.data));
     },
     fetchGraphStats() {
       axios.get(this.graph_url).then((response) => {
