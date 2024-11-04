@@ -41,7 +41,8 @@ const frameJsonLD = async function (jsonldObj, schemaType) {
         "schema": "https://schema.org/",
         "xsd": "http://www.w3.org/2001/XMLSchema#"
   },
-  "@type": "schema:${schemaType}"
+  "@type": "schema:${schemaType}",
+  "@omitGraph": false
 }`);
 
   return jsonld.frame(jsonldObj, frame);
