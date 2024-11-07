@@ -38,7 +38,7 @@
         ></RangeSlider>
       </div>
 
-      <b-list-group flush>
+      <b-list-group flush :style="{ pointerEvents: 'none' }">
         <FacetTextItem
           v-for="(info, term) in facetItems"
           :id="facetStore[facetSetting.field][term].id"
