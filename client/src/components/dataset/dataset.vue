@@ -366,12 +366,26 @@ export default {
       // }` )
       // jsonld.frame(jp, datasetFrame).then(
       frameJsonLD(jp, "Dataset").then((jp) => {
-        if  (jp === undefined) return;
+        if (jp === undefined) return;
+        if (jp["@graph"] !== undefined) {
+          // Filter for elements with "@type": "Dataset"
+          const datasets = jp["@graph"].filter(item => item["@type"] === "Dataset");
+          // Assign only the first "Dataset" element, if it exists
+          if (datasets.length > 0) {
+            mapping.raw_json = datasets[0];
+            jp = datasets[0];
+          } else {
+            // No "Dataset" element found; handle accordingly
+            mapping.raw_json = null;
+          }
+        }
         mapping.raw_json = jp;
+
         //mapping.s_identifier_doi = schemaItem('identifier', jp);//self.getDOIUrl()
         // ------
         // address retrieval in the  schemItem class, rather than do 20 changes here.
         // ---
+
         mapping.s_identifier = jp.identifier; // schemaItem('identifier', jp);// just the identifier... do not know if it is a DOI
 
         mapping.s_name = jp.name; // schemaItem('name', jp);
