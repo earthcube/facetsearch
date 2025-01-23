@@ -107,7 +107,7 @@
                     class="data-access-button"
                     @click="copyAndOpenWindow(i.description)"
                   >
-                    Data Access Codes
+                    View Access Code
                   </button>
                 </div>
                 <!-- Dialog -->
@@ -338,7 +338,7 @@ export default {
           return code; // Optionally highlight the code here
         }
       });
-    
+
       try {
         // Open a new window with the rendered content
         const newWindow = window.open("", "_blank", "width=800,height=600,left=200");
@@ -346,7 +346,7 @@ export default {
           newWindow.document.write(`
             <html>
               <head>
-                <title>Data Access Code</title>
+                <title>View Access Code</title>
                 <style>
                   /* General Styles */
                   body {
