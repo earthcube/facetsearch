@@ -341,7 +341,7 @@ export default {
 
       try {
         // Open a new window with the rendered content
-        const newWindow = window.open("", "_blank", "width=800,height=600,left=200");
+        const newWindow = window.open("", "_blank", "width=800,height=600,left=350");
         if (newWindow) {
           newWindow.document.write(`
             <html>
