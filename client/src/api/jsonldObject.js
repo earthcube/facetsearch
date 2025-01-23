@@ -257,6 +257,7 @@ const makeLinkObj = function (obj_dist) {
   let name = "";
   let linkName = "";
   let encodingFormats = "";
+  let description = "";
   if (hasSchemaProperty("url", obj_dist)) {
     url = schemaItem("url", obj_dist);
   } else if (hasSchemaProperty("contentUrl", obj_dist)) {
@@ -272,6 +273,7 @@ const makeLinkObj = function (obj_dist) {
     }
   }
   encodingFormats = schemaItem("encodingFormat", obj_dist);
+  description = schemaItem("description", obj_dist);
 
   if (Array.isArray(encodingFormats)) {
     // for (let e=0 ; e < encodingFormats.length; e++ )
@@ -300,6 +302,7 @@ const makeLinkObj = function (obj_dist) {
       encodingFormat: encodingFormatString,
       name: name,
       linkName: linkName,
+      description: description
     });
   } else {
     name = hasSchemaProperty("name", obj_dist)
@@ -320,6 +323,7 @@ const makeLinkObj = function (obj_dist) {
       encodingFormat: encodingFormats,
       name: name,
       linkName: linkName,
+      description: description
     });
   }
   return downloads;
