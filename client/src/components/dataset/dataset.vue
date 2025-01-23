@@ -56,6 +56,21 @@
             <div class="value">{{ mapping.s_datePublished }}</div>
           </div>
 
+          <div v-if="mapping.updated" class="metadata">
+            <div class="label">Last Updated</div>
+            <div class="value">{{ mapping.updated }}</div>
+          </div>
+
+          <div v-if="mapping.start_datetime" class="metadata">
+            <div class="label">Start Date</div>
+            <div class="value">{{ mapping.start_datetime }}</div>
+          </div>
+
+          <div v-if="mapping.end_datetime" class="metadata">
+            <div class="label">End Date</div>
+            <div class="value">{{ mapping.end_datetime }}</div>
+          </div>
+
           <div v-if="mapping.has_citation" class="metadata">
             <div class="label">Citation</div>
             <div class="value">{{ mapping.s_citation }}</div>
@@ -187,7 +202,6 @@
 </template>
 
 <script>
-//import Metadata from "./metadata.vue";
 import DatasetLocation from "@/components/dataset/datasetLocation.vue";
 import ConnectedTools from "@/components/dataset/connectedTools.vue";
 import Downloadfiles from "@/components/dataset/downloadfiles.vue";
@@ -197,11 +211,6 @@ import annotation from "@/components/dataset/annotation.vue";
 import feedback from "@/components/feedback/feedback.vue";
 import citationButton from "@/components/dataset/citationButton.vue";
 import backButton from "@/components/backButton.vue";
-//import {JSONPath} from "jsonpath-plus";
-
-//import {getJsonLD} from '../../api/jsonldObject.js'
-//import jsonld from "jsonld";
-//import axios from "axios";
 import { mapState, mapActions } from "vuex";
 import _ from "lodash";
 import {
@@ -212,13 +221,11 @@ import {
   hasSchemaProperty,
   schemaItem,
   frameJsonLD,
+  formatDateToYYYYMMDD
 } from "../../api/jsonldObject";
-//import {JSONView} from "vue-json-component";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { marked } from "marked";
-//import axios from "axios";
-//import toast from 'bootstrap-vue'
 
 export default {
   compatConfig: {
@@ -279,9 +286,10 @@ export default {
         box: "",
         poly: "",
         points: [],
+        updated: "",
+        start_datetime: "",
+        end_datetime: ""
       },
-      //jsonLdobj: {},
-      //jsonLoaded: true,
     };
   },
   watch: {
@@ -493,7 +501,6 @@ export default {
           }
         }
         mapping.raw_json = jp;
-
         //mapping.s_identifier_doi = schemaItem('identifier', jp);//self.getDOIUrl()
         // ------
         // address retrieval in the  schemItem class, rather than do 20 changes here.
@@ -567,6 +574,9 @@ export default {
         }
         mapping.s_keywords = schemaItem("keywords", jp);
         mapping.s_landingpage = schemaItem("description", jp);
+        mapping.updated = schemaItem("updated", jp);
+        mapping.start_datetime = formatDateToYYYYMMDD(schemaItem("start_datetime", jp));
+        mapping.end_datetime = formatDateToYYYYMMDD(schemaItem("end_datetime", jp));
         //var s_distribution = schemaItem('distribution', jp); // moved up
         // var dist_type = s_distribution['@type'];
         // var encodingFormat = schemaItem('encodingFormat', s_distribution);
