@@ -3,16 +3,20 @@
     <!-- intro paragraph -->
     <b-jumbotron text-variant="white" bg-variant="primary">
       <template #header
-        ><span class="text-white">What is GeoCODES?</span></template
+        ><span class="text-white">About</span></template
       >
 
-      <template #lead
-        ><span class="p-5">
+      <template #lead>
+        <span class="p-5" v-if="this.tenantData">
+        {{this.tenantData.tenant[0].description}}
+        </span>
+        <span class="p-5" v-if="!this.tenantData">
           GeoCODES is an NSF Earthcube program effort to better enable
           cross-domain discovery of and access to geoscience data and research
           tools. GeoCODES is made up of three components respectively.
-        </span></template
-      >
+        </span>
+
+      </template>
     </b-jumbotron>
 
     <b-card-group deck>
@@ -29,16 +33,14 @@
             rel="noopener"
             class="text-nowrap"
             >science on schema</a
-          ></b-card-text
-        >
+          ></b-card-text>
       </b-card>
 
       <b-card bg-variant="light" class="text-center" title="A set of tools">
         <b-card-text
           >to index relevant data from partners within the Council of Data
           Facilities who have adopted science on schema, plus a prototype portal
-          to query that data</b-card-text
-        >
+          to query that data</b-card-text>
       </b-card>
 
       <b-card
@@ -205,8 +207,9 @@ in case more intro paragraph text is needed
 
 <script>
 import axios from "axios";
+import yaml from 'js-yaml';
 import $ from "jquery";
-import { mapState, mapGetters } from "vuex";
+import {mapState, mapGetters, mapActions} from "vuex";
 
 export default {
   name: "about.vue",
@@ -217,21 +220,23 @@ export default {
   },
   computed: {
     ...mapState(["FacetsConfig"]),
-    ...mapGetters(["appVersion", "appDate"]),
+    ...mapGetters(["appVersion", "appDate", "getTenantData"]),
+    tenantData() {
+      return this.$store.getters.getTenantData;
+    }
   },
-  mounted() {
+  async mounted() {
     const s3base = this.FacetsConfig.S3_REPORTS_URL;
     let community = this.FacetsConfig.COMMUNITY;
     if (
-      community === undefined ||
-      community === null ||
-      community.trim().length === 0
+        community === undefined ||
+        community === null ||
+        community.trim().length === 0
     )
       community = "all";
     this.reportsJson = `${s3base}tenant/${community}/latest/report_stats.json`;
     this.fetchAllReports();
   },
-  methods: {
     // try to avoid jquery hacks.
     // do as a bootstrap modal. https://bootstrap-vue.org/docs/components/modal
     showModal(t) {
@@ -242,8 +247,7 @@ export default {
       axios
         .get(this.reportsJson)
         .then((response) => (this.reports = response.data));
-    },
-  },
+    }
 };
 </script>
 

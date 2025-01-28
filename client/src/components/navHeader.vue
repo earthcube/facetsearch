@@ -20,8 +20,10 @@
         :to="{ name: 'landing' }"
         class="border-left border-light pl-2 ml-2 mr-auto"
         :disabled="showBackButton()"
-        ><logoGeoCodes width="100px"
-      /></b-navbar-brand>
+        >
+        <logoGeoCodes v-if="!this.tenantData" width="100px"/>
+        <img v-if="this.tenantData" :src="this.tenantData.tenant[0].logo" alt="this.tenantData.tenant[0].community" class="logo" />
+      </b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -128,7 +130,11 @@ export default {
       "TRIPLESTORE_URL",
       "FacetsConfig",
       "resourceTypeList",
+      "tenantData"
     ]),
+    tenantData() {
+      return this.$store.getters.getTenantData;
+    }
   },
   watch: {
     q: "qUpdated",
@@ -243,6 +249,13 @@ export default {
       color: #0c3c60 !important;
       image: none;
     }
+  }
+  .logo {
+    max-width: 50px;     /* Maximum width */
+    max-height: 30px;    /* Maximum height */
+    width: auto;          /* Maintain aspect ratio */
+    height: auto;         /* Maintain aspect ratio */
+    display: block;       /* Block display for layout control */
   }
 
   .btn-secondary,
