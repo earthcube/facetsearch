@@ -122,7 +122,7 @@
                     class="data-access-button"
                     @click="copyAndOpenWindow(i.description)"
                   >
-                    View Access Code
+                    View Access Instructions
                   </button>
                 </div>
                 <!-- Dialog -->
@@ -341,11 +341,8 @@ export default {
   methods: {
     ...mapActions(["fetchJsonLd"]),
     async copyAndOpenWindow(content) {
-      content = marked(content, {
-        highlight: function (code, language) {
-          return code; // Optionally highlight the code here
-        }
-      });
+      // Process content to preserve formatting for code blocks
+      content = marked(content);
 
       try {
         // Open a new window with the rendered content
@@ -354,7 +351,7 @@ export default {
           newWindow.document.write(`
             <html>
               <head>
-                <title>View Access Code</title>
+                <title>View Access Instructions</title>
                 <style>
                   /* General Styles */
                   body {
