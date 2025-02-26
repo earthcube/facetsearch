@@ -37,8 +37,8 @@
           :href="nbBinderUrl(nb, dl.contentUrl, dl.encodingFormat, d)"
           target="_blank"
         >
-          <span v-if="nb.badge === ''" width="64">{{ nb.name }}</span>
-          <b-img v-else :src="nb.badge" width="64" :alt="nb.name"></b-img>
+          <span width="64">{{ nb.name }}</span>
+<!--          <b-img v-else :src="nb.badge" width="64" :alt="nb.name"></b-img>-->
         </b-button>
       </b-button-group>
     </b-button-group>
