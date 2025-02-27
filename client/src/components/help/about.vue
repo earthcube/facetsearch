@@ -76,10 +76,10 @@ in case more intro paragraph text is needed
 
     <b-container fluid="md" class="mt-5">
       <h2>
-        Council of Data Facilities (<a
-          href="https://www.earthcube.org/council-of-data-facilities"
+        {{title}} (<a
+          href="{{community_url}}"
           target="_blank"
-          >CDF</a
+          >{{ community }}</a
         >)
       </h2>
       <h5>Repositories crawled and indexed</h5>
@@ -216,6 +216,9 @@ export default {
   data() {
     return {
       reports: null,
+      title: 'Not Set',
+      community: 'Not Set',
+      community_url: None,
     };
   },
   computed: {
@@ -223,17 +226,20 @@ export default {
     ...mapGetters(["appVersion", "appDate", "getTenantData"]),
     tenantData() {
       return this.$store.getters.getTenantData;
+      //  use community then get title, url
     }
   },
   async mounted() {
     const s3base = this.FacetsConfig.S3_REPORTS_URL;
-    let community = this.FacetsConfig.COMMUNITY;
+    this.community = this.FacetsConfig.COMMUNITY;
+    //  use community then get title, url
+    this.title = 'Get From Tennant ' // tenant.yaml[communitti].title
+    this.community_url = 'http://example.com' // tenant.yaml[communitti].url
     if (
-        community === undefined ||
-        community === null ||
-        community.trim().length === 0
-    )
-      community = "all";
+        this.community === undefined ||
+        this.community === null ||
+        this.community.trim().length === 0
+    ) this.community = "all";
     this.reportsJson = `${s3base}tenant/${community}/latest/report_stats.json`;
     this.fetchAllReports();
   },
@@ -243,11 +249,13 @@ export default {
       console.log(t);
       $("#" + t).modal("show");
     },
+  methods: {
     fetchAllReports() {
       axios
-        .get(this.reportsJson)
-        .then((response) => (this.reports = response.data));
+          .get(this.reportsJson)
+          .then((response) => (this.reports = response.data));
     }
+  }
 };
 </script>
 
