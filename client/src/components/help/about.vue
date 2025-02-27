@@ -220,7 +220,7 @@ export default {
       reports: null,
       title: 'Not Set',
       community: 'Not Set',
-      community_url: None,
+      community_url: null,
     };
   },
   computed: {
