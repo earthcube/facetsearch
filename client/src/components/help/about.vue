@@ -242,7 +242,7 @@ export default {
         this.community === null ||
         this.community.trim().length === 0
     ) this.community = "all";
-    this.reportsJson = `${s3base}tenant/${this.community}/latest/report_stats.json`;
+    this.reports = `${s3base}tenant/${this.community}/latest/report_stats.json`;
     this.fetchAllReports();
   },
 
