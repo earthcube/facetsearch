@@ -3,63 +3,66 @@
     <!-- intro paragraph -->
     <b-jumbotron text-variant="white" bg-variant="primary">
       <template #header
-        ><span class="text-white">What is GeoCODES?</span></template
+      ><span class="text-white">About</span></template
       >
 
-      <template #lead
-        ><span class="p-5">
+      <template #lead>
+        <span class="p-5" v-if="this.tenantData">
+        {{ this.tenantData.tenant[0].description }}
+        </span>
+        <span class="p-5" v-if="!this.tenantData">
           GeoCODES is an NSF Earthcube program effort to better enable
           cross-domain discovery of and access to geoscience data and research
           tools. GeoCODES is made up of three components respectively.
-        </span></template
-      >
+        </span>
+
+      </template>
     </b-jumbotron>
 
     <b-card-group deck>
       <b-card
-        bg-variant="light"
-        class="text-center"
-        title="An evolving standard"
+          bg-variant="light"
+          class="text-center"
+          title="An evolving standard"
       >
         <b-card-text
-          >for exposing data called
+        >for exposing data called
           <a
-            href="https://github.com/ESIPFed/science-on-schema.org"
-            target="_blank"
-            rel="noopener"
-            class="text-nowrap"
-            >science on schema</a
-          ></b-card-text
-        >
+              href="https://github.com/ESIPFed/science-on-schema.org"
+              target="_blank"
+              rel="noopener"
+              class="text-nowrap"
+          >science on schema</a
+          ></b-card-text>
       </b-card>
 
       <b-card bg-variant="light" class="text-center" title="A set of tools">
         <b-card-text
-          >to index relevant data from partners within the Council of Data
+        >to index relevant data from partners within the Council of Data
           Facilities who have adopted science on schema, plus a prototype portal
-          to query that data</b-card-text
-        >
+          to query that data
+        </b-card-text>
       </b-card>
 
       <b-card
-        bg-variant="light"
-        class="text-center"
-        title="A Resource Registry"
+          bg-variant="light"
+          class="text-center"
+          title="A Resource Registry"
       >
         <b-card-text
-          >by which to
+        >by which to
           <a
-            href="http://tinyurl.com/2register-ecrr"
-            target="_blank"
-            rel="noopener"
-            >register</a
+              href="http://tinyurl.com/2register-ecrr"
+              target="_blank"
+              rel="noopener"
+          >register</a
           >
           and
           <a
-            href="http://www.earthcube.org/resourceregistry/"
-            target="_blank"
-            rel="noopener"
-            >discover</a
+              href="http://www.earthcube.org/resourceregistry/"
+              target="_blank"
+              rel="noopener"
+          >discover</a
           >
           <span class="text-nowrap">relevant tools</span></b-card-text
         >
@@ -74,31 +77,31 @@ in case more intro paragraph text is needed
 
     <b-container fluid="md" class="mt-5">
       <h2>
-        Council of Data Facilities (<a
-          href="https://www.earthcube.org/council-of-data-facilities"
+        {{ title }} (<a
+          href="{{community_url}}"
           target="_blank"
-          >CDF</a
-        >)
+      >{{ community }}</a
+      >)
       </h2>
       <h5>Repositories crawled and indexed</h5>
     </b-container>
 
     <b-card-group columns class="mt-4">
       <b-card
-        v-for="(item, index) in reports"
-        :key="index"
-        no-body
-        class="text-center"
+          v-for="(item, index) in reports"
+          :key="index"
+          no-body
+          class="text-center"
       >
         <b-card-body v-if="item.source != 'geocodes_demo_datasets'">
           <b-card-title>
             <b-link
-              target="_blank"
-              class="d-flex flex-column align-items-center"
-              :href="item.website"
+                target="_blank"
+                class="d-flex flex-column align-items-center"
+                :href="item.website"
             >
               <div
-                class="logo d-flex justify-content-center align-items-center"
+                  class="logo d-flex justify-content-center align-items-center"
               >
                 <b-img fluid :src="'/images/repo/' + item.image"></b-img>
               </div>
@@ -109,15 +112,16 @@ in case more intro paragraph text is needed
 
           <b-card-text>
             <i v-if="item.records > 0"
-              >{{ item.records }} record{{ item.records == 1 ? "" : "s" }}</i
+            >{{ item.records }} record{{ item.records == 1 ? "" : "s" }}</i
             >
 
             <div class="mt-3 small text-left" v-html="item.description"></div>
 
             <div class="d-flex justify-content-end">
               <router-link
-                :to="{ name: 'report', params: { source: item.source } }"
-                >Reports</router-link
+                  :to="{ name: 'report', params: { source: item.source } }"
+              >Reports
+              </router-link
               >
             </div>
           </b-card-text>
@@ -151,23 +155,23 @@ in case more intro paragraph text is needed
 
       <p>
         <a
-          href="https://github.com/earthcube/facetsearch/issues"
-          target="_blank"
-          >Create an issue</a
+            href="https://github.com/earthcube/facetsearch/issues"
+            target="_blank"
+        >Create an issue</a
         >
         and a
         <a href="mailto:feedback@geocodes.earthcube.org">email feedback.</a>
       </p>
       <p>
         <a href="https://github.com/earthcube/facetsearch/" target="_blank"
-          >Source Code
+        >Source Code
         </a>
       </p>
       <p>Version: {{ appVersion }} Date: {{ appDate }}</p>
       <p>
         Citation:
         <cite
-          >McHenry K, Bobak M, Coakley K, Fils D, Gatzke L, Zhang B, Kooper R,
+        >McHenry K, Bobak M, Coakley K, Fils D, Gatzke L, Zhang B, Kooper R,
           Richard S, Valentine D, Zaslavsky I, Shepherd, A & Lingerfelt E.
           (2021). GeoCODES. EarthCube. https://geocodes.earthcube.org.
         </cite>
@@ -181,9 +185,9 @@ in case more intro paragraph text is needed
 
       <div>
         <img
-          src="https://new.nsf.gov/themes/custom/nsf_theme/components/sdc-components/molecules/logo/logo-desktop.svg"
-          width="150"
-          alt="NSF"
+            src="https://new.nsf.gov/themes/custom/nsf_theme/components/sdc-components/molecules/logo/logo-desktop.svg"
+            width="150"
+            alt="NSF"
         />
       </div>
       <h5>NSF EarthCube</h5>
@@ -193,7 +197,7 @@ in case more intro paragraph text is needed
         <a href="https://github.com/earthcube" target="_blank">Open source</a>
         under the
         <a href="https://opensource.org/licenses/MIT" target="_blank"
-          >MIT License</a
+        >MIT License</a
         >
       </p>
     </b-container>
@@ -205,45 +209,57 @@ in case more intro paragraph text is needed
 
 <script>
 import axios from "axios";
+import yaml from 'js-yaml';
 import $ from "jquery";
-import { mapState, mapGetters } from "vuex";
+import {mapState, mapGetters, mapActions} from "vuex";
 
 export default {
   name: "about.vue",
   data() {
     return {
       reports: null,
+      title: 'Not Set',
+      community: 'Not Set',
+      community_url: null,
     };
   },
   computed: {
     ...mapState(["FacetsConfig"]),
-    ...mapGetters(["appVersion", "appDate"]),
+    ...mapGetters(["appVersion", "appDate", "getTenantData"]),
+    tenantData() {
+      return this.$store.getters.getTenantData;
+      //  use community then get title, url
+    }
   },
-  mounted() {
+  async mounted() {
     const s3base = this.FacetsConfig.S3_REPORTS_URL;
-    let community = this.FacetsConfig.COMMUNITY;
+    this.community = this.FacetsConfig.COMMUNITY;
+    //  use community then get title, url
+    this.title = 'Get From Tennant ' // tenant.yaml[communitti].title
+    this.community_url = 'http://example.com' // tenant.yaml[communitti].url
     if (
-      community === undefined ||
-      community === null ||
-      community.trim().length === 0
-    )
-      community = "all";
-    this.reportsJson = `${s3base}tenant/${community}/latest/report_stats.json`;
+        this.community === undefined ||
+        this.community === null ||
+        this.community.trim().length === 0
+    ) this.community = "all";
+    this.reports = `${s3base}tenant/${this.community}/latest/report_stats.json`;
     this.fetchAllReports();
   },
+
   methods: {
+    fetchAllReports() {
+      console.log('getting reports from ' + this.reports);
+      axios
+          .get(this.reports)
+          .then((response) => (this.reports = response.data));
+    },
     // try to avoid jquery hacks.
     // do as a bootstrap modal. https://bootstrap-vue.org/docs/components/modal
     showModal(t) {
       console.log(t);
       $("#" + t).modal("show");
     },
-    fetchAllReports() {
-      axios
-        .get(this.reportsJson)
-        .then((response) => (this.reports = response.data));
-    },
-  },
+  }
 };
 </script>
 
