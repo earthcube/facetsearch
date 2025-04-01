@@ -56,6 +56,21 @@
             <div class="value">{{ mapping.s_datePublished }}</div>
           </div>
 
+          <div v-if="mapping.updated" class="metadata">
+            <div class="label">Last Updated</div>
+            <div class="value">{{ mapping.updated }}</div>
+          </div>
+
+          <div v-if="mapping.start_datetime" class="metadata">
+            <div class="label">Start Date</div>
+            <div class="value">{{ mapping.start_datetime }}</div>
+          </div>
+
+          <div v-if="mapping.end_datetime" class="metadata">
+            <div class="label">End Date</div>
+            <div class="value">{{ mapping.end_datetime }}</div>
+          </div>
+
           <div v-if="mapping.has_citation" class="metadata">
             <div class="label">Citation</div>
             <div class="value">{{ mapping.s_citation }}</div>
@@ -99,7 +114,24 @@
                   {{ i.encodingFormat }}
                 </div>
                 <div>
-                  <a target="_blank" :href="i.contentUrl">{{ i.contentUrl }}</a>
+                  <!-- Show the URL if it does NOT start with 's3:' -->
+                  <a v-if="!i.contentUrl.startsWith('s3:')" target="_blank" :href="i.contentUrl">{{ i.contentUrl }}</a>
+                  <!-- Show the button if the URL starts with 's3:' -->
+                  <button
+                    v-else
+                    class="data-access-button"
+                    @click="copyAndOpenWindow(i.description)"
+                  >
+                    View Access Code
+                  </button>
+                </div>
+                <!-- Dialog -->
+                <div v-if="isDialogOpen" class="dialog-backdrop" @click.self="closeDialog">
+                  <div class="dialog-content">
+                    <h3>URL Copied!</h3>
+                    <p>{{ dialogContent }}</p>
+                    <button @click="closeDialog">Close</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -170,7 +202,6 @@
 </template>
 
 <script>
-//import Metadata from "./metadata.vue";
 import DatasetLocation from "@/components/dataset/datasetLocation.vue";
 import ConnectedTools from "@/components/dataset/connectedTools.vue";
 import Downloadfiles from "@/components/dataset/downloadfiles.vue";
@@ -180,11 +211,6 @@ import annotation from "@/components/dataset/annotation.vue";
 import feedback from "@/components/feedback/feedback.vue";
 import citationButton from "@/components/dataset/citationButton.vue";
 import backButton from "@/components/backButton.vue";
-//import {JSONPath} from "jsonpath-plus";
-
-//import {getJsonLD} from '../../api/jsonldObject.js'
-//import jsonld from "jsonld";
-//import axios from "axios";
 import { mapState, mapActions } from "vuex";
 import _ from "lodash";
 import {
@@ -195,12 +221,11 @@ import {
   hasSchemaProperty,
   schemaItem,
   frameJsonLD,
+  formatDateToYYYYMMDD
 } from "../../api/jsonldObject";
-//import {JSONView} from "vue-json-component";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
-//import axios from "axios";
-//import toast from 'bootstrap-vue'
+import { marked } from "marked";
 
 export default {
   compatConfig: {
@@ -261,9 +286,10 @@ export default {
         box: "",
         poly: "",
         points: [],
+        updated: "",
+        start_datetime: "",
+        end_datetime: ""
       },
-      //jsonLdobj: {},
-      //jsonLoaded: true,
     };
   },
   watch: {
@@ -314,6 +340,101 @@ export default {
   },
   methods: {
     ...mapActions(["fetchJsonLd"]),
+    async copyAndOpenWindow(content) {
+      content = marked(content, {
+        highlight: function (code, language) {
+          return code; // Optionally highlight the code here
+        }
+      });
+
+      try {
+        // Open a new window with the rendered content
+        const newWindow = window.open("", "_blank", "width=800,height=600,left=350");
+        if (newWindow) {
+          newWindow.document.write(`
+            <html>
+              <head>
+                <title>View Access Code</title>
+                <style>
+                  /* General Styles */
+                  body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f7f7f7;
+                    color: #333;
+                    margin: 0;
+                    padding: 20px;
+                  }
+
+                  h1, h2 {
+                    color: #2a659c;
+                    margin-bottom: 10px;
+                  }
+
+                  p {
+                    margin: 10px 0;
+                    line-height: 1.6;
+                  }
+
+                  /* Code Block Styles */
+                  pre {
+                    position: relative;
+                    background-color: #f0f0f0;
+                    border: 1px solid #dcdcdc;
+                    border-radius: 5px;
+                    padding: 15px;
+                    overflow-x: auto;
+                    font-size: 14px;
+                    margin-bottom: 20px;
+                  }
+
+                  /* Copy Button Styles */
+                  .copy-button {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    padding: 5px 10px;
+                    font-size: 12px;
+                    background-color: #007bff;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                  }
+
+                  .copy-button:hover {
+                    background-color: #0056b3;
+                  }
+                </style>
+              </head>
+              <body>
+                <div id="content">${content}</div>
+                <button style="position: absolute; left: 50%;" onclick="window.close()">Close</button>
+                <script>
+                  // Add "Copy" button to each code block
+                  document.querySelectorAll('pre').forEach(pre => {
+                    const copyButton = document.createElement('button');
+                    copyButton.textContent = 'Copy';
+                    copyButton.classList.add('copy-button');
+                    copyButton.onclick = () => {
+                      const code = pre.textContent;
+                      navigator.clipboard.writeText(code).then(() => {
+                        copyButton.textContent = 'Copied!';
+                        setTimeout(() => (copyButton.textContent = 'Copy'), 2000);
+                      });
+                    };
+                    pre.appendChild(copyButton);
+                  });
+                <\/script>
+              </body>
+            </html>
+          `);
+        } else {
+          alert("Popup blocked. Please allow popups for this website.");
+        }
+      } catch (error) {
+        console.error("Error in copyAndOpenWindow:", error);
+      }
+    },
     scrollToMetadata() {
       const element = this.$refs.metadataview;
 
@@ -380,7 +501,6 @@ export default {
           }
         }
         mapping.raw_json = jp;
-
         //mapping.s_identifier_doi = schemaItem('identifier', jp);//self.getDOIUrl()
         // ------
         // address retrieval in the  schemItem class, rather than do 20 changes here.
@@ -454,6 +574,9 @@ export default {
         }
         mapping.s_keywords = schemaItem("keywords", jp);
         mapping.s_landingpage = schemaItem("description", jp);
+        mapping.updated = schemaItem("updated", jp);
+        mapping.start_datetime = formatDateToYYYYMMDD(schemaItem("start_datetime", jp));
+        mapping.end_datetime = formatDateToYYYYMMDD(schemaItem("end_datetime", jp));
         //var s_distribution = schemaItem('distribution', jp); // moved up
         // var dist_type = s_distribution['@type'];
         // var encodingFormat = schemaItem('encodingFormat', s_distribution);
@@ -779,4 +902,29 @@ i {
     weight: 300;
   }
 }
+
+.data-access-button {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #ffffff;
+    background-color: #007bff; /* Primary blue color */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, transform 0.2s;
+  }
+
+  .data-access-button:hover {
+    background-color: #0056b3; /* Slightly darker blue on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+  }
+
+  .data-access-button:active {
+    background-color: #003f8a; /* Even darker blue when clicked */
+    transform: translateY(0); /* Reset the lift */
+  }
 </style>

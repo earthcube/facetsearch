@@ -251,12 +251,21 @@ const getDistributions = function (s_distribution) {
   return downloads;
 };
 
+const formatDateToYYYYMMDD = function (dateString) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Month is 0-based
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const makeLinkObj = function (obj_dist) {
   var downloads = [];
   let url = "";
   let name = "";
   let linkName = "";
   let encodingFormats = "";
+  let description = "";
   if (hasSchemaProperty("url", obj_dist)) {
     url = schemaItem("url", obj_dist);
   } else if (hasSchemaProperty("contentUrl", obj_dist)) {
@@ -272,6 +281,7 @@ const makeLinkObj = function (obj_dist) {
     }
   }
   encodingFormats = schemaItem("encodingFormat", obj_dist);
+  description = schemaItem("description", obj_dist);
 
   if (Array.isArray(encodingFormats)) {
     // for (let e=0 ; e < encodingFormats.length; e++ )
@@ -300,6 +310,7 @@ const makeLinkObj = function (obj_dist) {
       encodingFormat: encodingFormatString,
       name: name,
       linkName: linkName,
+      description: description
     });
   } else {
     name = hasSchemaProperty("name", obj_dist)
@@ -320,6 +331,7 @@ const makeLinkObj = function (obj_dist) {
       encodingFormat: encodingFormats,
       name: name,
       linkName: linkName,
+      description: description
     });
   }
   return downloads;
@@ -345,4 +357,5 @@ export {
   getDistributions,
   makeLinkObj,
   matchDistributions,
+  formatDateToYYYYMMDD
 };
