@@ -83,6 +83,22 @@
             "open": true,
             "type":"range"
 
+        },
+        {
+            "field": "minDepth",
+            "title": "Min Depth Range",
+            "sort": "acs",
+            "open": true,
+            "type":"range"
+
+        },
+        {
+            "field": "maxDepth",
+            "title": "Max Depth Range",
+            "sort": "acs",
+            "open": true,
+            "type":"range"
+
         }
 
     ],
