@@ -1,19 +1,39 @@
 <template>
   <b-container fluid="md" class="mt-5">
     <!-- intro paragraph -->
-    <b-jumbotron text-variant="white" bg-variant="primary">
-      <template #header
-        ><span class="text-white">What is GeoCODES?</span></template
-      >
+    <b-row class="align-items-stretch">
+      <b-col cols="6" class="d-flex">
+        <b-jumbotron text-variant="white" bg-variant="primary" class="w-100 d-flex flex-column">
+          <template #header>
+            <span class="text-white">What is GeoCODES?</span>
+          </template>
 
-      <template #lead
-        ><span class="p-5">
-          GeoCODES is an NSF Earthcube program effort to better enable
-          cross-domain discovery of and access to geoscience data and research
-          tools. GeoCODES is made up of three components respectively.
-        </span></template
-      >
-    </b-jumbotron>
+          <template #lead>
+            <span class="p-5 flex-grow-1">
+              GeoCODES is an NSF Earthcube program effort to better enable
+              cross-domain discovery of and access to geoscience data and research
+              tools. GeoCODES is made up of three components respectively.
+            </span>
+          </template>
+        </b-jumbotron>
+      </b-col>
+
+      <b-col cols="6" class="d-flex">
+        <b-jumbotron text-variant="white" :style="{ backgroundColor: tenantData.tenant[0].color || secondary }" class="w-100 d-flex flex-column">
+          <template #header>
+<!--            <span class="text-white">You are on {{ this.tenantData.tenant[0].community }}</span>-->
+            <span class="text-white">You are on {{ this.tenantData.tenant[0].community }}</span>
+          </template>
+
+          <template #lead>
+            <span class="p-5 flex-grow-1">
+              {{ this.tenantData.tenant[0].description }}
+            </span>
+          </template>
+        </b-jumbotron>
+      </b-col>
+    </b-row>
+
 
     <b-card-group deck>
       <b-card
@@ -74,11 +94,11 @@ in case more intro paragraph text is needed
 
     <b-container fluid="md" class="mt-5">
       <h2>
-        Council of Data Facilities (<a
-          href="https://www.earthcube.org/council-of-data-facilities"
+         <a
+          :href="tenantData.tenant[0].url"
           target="_blank"
-          >CDF</a
-        >)
+          >{{ this.tenantData.tenant[0].community }}</a
+        >
       </h2>
       <h5>Repositories crawled and indexed</h5>
     </b-container>
@@ -88,35 +108,36 @@ in case more intro paragraph text is needed
         v-for="(item, index) in reports"
         :key="index"
         no-body
-        class="text-center"
+        class="text-center card-equal d-flex flex-column"
       >
-        <b-card-body v-if="item.source != 'geocodes_demo_datasets'">
+        <b-card-body v-if="item.source != 'geocodes_demo_datasets'" class = "d-flex flex-column">
           <b-card-title>
             <b-link
               target="_blank"
               class="d-flex flex-column align-items-center"
               :href="item.website"
             >
-              <div
+              <div v-if="visibleImages[index]"
                 class="logo d-flex justify-content-center align-items-center"
               >
-                <b-img fluid :src="'/images/repo/' + item.image"></b-img>
+                <b-img fluid :src="'/images/repo/' + item.image"
+                @error="visibleImages[index] = false"></b-img>
               </div>
 
               <div class="mt-3">{{ item.title }}</div>
             </b-link>
           </b-card-title>
 
-          <b-card-text>
+          <b-card-text class="card-equal">
             <i v-if="item.records > 0"
               >{{ item.records }} record{{ item.records == 1 ? "" : "s" }}</i
             >
 
-            <div class="mt-3 small text-left" v-html="item.description"></div>
+            <div class="mt-3 small text-left description-container" v-html="item.description"></div>
 
-            <div class="d-flex justify-content-end">
+            <div class="d-flex justify-content-start">
               <router-link
-                :to="{ name: 'report', params: { source: item.source } }"
+                :to="{ name: 'report', params: { source: item.source}, query: { description: item.description } }"
                 >Reports</router-link
               >
             </div>
@@ -206,28 +227,42 @@ in case more intro paragraph text is needed
 <script>
 import axios from "axios";
 import $ from "jquery";
-import { mapState, mapGetters } from "vuex";
+import { mapState, mapGetters, mapActions} from "vuex";
+import yaml from 'js-yaml';
 
 export default {
   name: "about.vue",
   data() {
     return {
       reports: null,
+      title: 'Not Set',
+      community: 'Not Set',
+      community_url: null,
+      visibleImages : []
     };
   },
   computed: {
     ...mapState(["FacetsConfig"]),
-    ...mapGetters(["appVersion", "appDate"]),
+    ...mapGetters(["appVersion", "appDate", "getTenantData"]),
+    tenantData() {
+      return this.$store.getters.getTenantData;
+      //  use community then get title, url
+    },
+    bgColor() {
+      return this.generateColorFromTitle("Geochemistry");
+    }
   },
-  mounted() {
+  async mounted() {
     const s3base = this.FacetsConfig.S3_REPORTS_URL;
     let community = this.FacetsConfig.COMMUNITY;
-    if (
-      community === undefined ||
-      community === null ||
-      community.trim().length === 0
-    )
-      community = "all";
+    // this.title = 'Get From Tennant ' // tenant.yaml[communitti].title
+    // this.community_url = 'http://example.com' // tenant.yaml[communitti].url
+    // if (
+    //   community === undefined ||
+    //   community === null ||
+    //   community.trim().length === 0
+    // )
+    //   community = "all";
     this.reportsJson = `${s3base}tenant/${community}/latest/report_stats.json`;
     this.fetchAllReports();
   },
@@ -239,9 +274,20 @@ export default {
       $("#" + t).modal("show");
     },
     fetchAllReports() {
-      axios
-        .get(this.reportsJson)
-        .then((response) => (this.reports = response.data));
+      axios.get(this.reportsJson).then((response) => {
+        this.reports = response.data;
+        this.visibleImages = this.reports.map(() => true);
+      });
+    },
+    // Function to generate a color from the title using a hash
+    generateColorFromTitle(title) {
+      let hash = 0;
+      for (let i = 0; i < title.length; i++) {
+        hash = title.charCodeAt(i) + ((hash << 5) - hash);  // Hashing formula
+      }
+      // Generate a color from the hash
+      const color = `#${((hash >> 8) & 0xFF).toString(16).padStart(2, '0')}${((hash >> 16) & 0xFF).toString(16).padStart(2, '0')}${((hash >> 24) & 0xFF).toString(16).padStart(2, '0')}`;
+      return color;
     },
   },
 };
@@ -252,9 +298,9 @@ export default {
 
 .logo {
   max: {
-    width: 50%;
+    width: 100px;
   }
-  min: {
+  max: {
     height: 100px;
   }
 }
@@ -264,6 +310,22 @@ export default {
   &.not-collapsed .when_open {
     display: none;
   }
+}
+
+.card-equal {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 300px; /* Adjust width as needed */
+  height: 400px; /* Adjust height as needed */
+}
+
+.description-container {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* Adjust number of lines before truncation */
+  -webkit-box-orient: vertical;
 }
 
 .customDropdown {

@@ -2,7 +2,8 @@
   <b-container fluid="md" class="mt-5">
     <!-- allow logo to size according to container. fill with primary color from bootstrap variables -->
     <b-container class="col-md-5 pt-5">
-      <logoGeoCodes fill="#18598b" width="100%" />
+      <logoGeoCodes v-if="!this.tenantData" fill="#18598b" width="100%" />
+      <span v-if="this.tenantData" class="logo">{{this.tenantData.tenant[0].community}}</span>
     </b-container>
 
     <b-container class="col-md-5 mt-4">
@@ -63,7 +64,7 @@
       </b-form>
     </b-container>
 
-    <b-container fluid="md" class="mt-5">
+    <b-container v-if="this.tenantData" fluid="md" class="mt-5">
       <b-carousel
         id="carousel-landing"
         v-model="slide"
@@ -72,16 +73,89 @@
         indicators
       >
         <b-carousel-slide>
-          an interdisciplinary geoscience data
-          <span class="text-nowrap">and tool search engine</span>
+          {{ this.tenantData.tenant[0].landing_introduction }}
+<!--          <span class="text-nowrap">and tool search engine</span>-->
         </b-carousel-slide>
-        <b-carousel-slide> a schema.org/Dataset search </b-carousel-slide>
-        <b-carousel-slide>
-          Geoscience Cyberinfrastructure
-          <span class="text-nowrap">for Open Discovery</span>
-          <span class="text-nowrap">in the Earth Sciences</span>
-        </b-carousel-slide>
+<!--        <b-carousel-slide> a schema.org/Dataset search </b-carousel-slide>-->
+<!--        <b-carousel-slide>-->
+<!--          Geoscience Cyberinfrastructure-->
+<!--          <span class="text-nowrap">for Open Discovery</span>-->
+<!--          <span class="text-nowrap">in the Earth Sciences</span>-->
+<!--        </b-carousel-slide>-->
       </b-carousel>
+      <b-container fluid="md" class="mt-5">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Top Repositories crawled and indexed</h5>
+          <span class="text-muted d-flex align-items-center gap-1">
+            See all repositories in our
+            <b-link :to="{ name: 'about' }" class="px-1">About</b-link>
+            page
+          </span>
+        </div>
+      </b-container>
+
+    <b-card-group columns class="mt-4">
+      <b-card
+        v-for="(item, index) in reports"
+        :key="index"
+        no-body
+        class="text-center card-equal d-flex flex-column"
+      >
+        <b-card-body v-if="item.source != 'geocodes_demo_datasets'" class = "d-flex flex-column">
+          <b-card-title>
+            <b-link
+              target="_blank"
+              class="d-flex flex-column align-items-center"
+              :href="item.website"
+            >
+              <div v-if="visibleImages[index]"
+                class="logo d-flex justify-content-center align-items-center"
+              >
+                <b-img fluid :src="'/images/repo/' + item.image" class="card-logo"
+                @error="visibleImages[index] = false"></b-img>
+              </div>
+
+              <div class="mt-3">{{ item.title }}</div>
+            </b-link>
+          </b-card-title>
+
+          <b-card-text class="card-equal">
+            <i v-if="item.records > 0"
+              >{{ item.records }} record{{ item.records == 1 ? "" : "s" }}</i
+            >
+
+            <div class="mt-3 small text-left description-container" v-html="item.description"></div>
+
+            <div class="d-flex justify-content-start">
+              <router-link
+                :to="{ name: 'report', params: { source: item.source}, query: { description: item.description }}"
+                >Reports</router-link>
+            </div>
+          </b-card-text>
+
+          <!--
+//left this here in case the description was too much to be shown all the time (use collapse). problem is, sometimes expanding forces an item to move to a different column (feels like it disappears)
+//could use accordian option to only allow a single card to be expanded at a time...but still doesn't solve the issue completely and why this was moved to show the description by default
+                    <b-card-text
+                        v-b-toggle="'collapse_repository_' + index"
+                    >
+                        <i v-if="item.record_count > 0">{{item.record_count}} record{{(item.record_count == 1) ? '' : 's'}}</i>
+
+                        <b-collapse class="text-left small"
+                            :id="'collapse_repository_' + index"
+                        >
+                            <div class="mt-3" v-html="item.description"></div>
+                        </b-collapse>
+
+                        <div class="mt-3">
+                            <b-icon icon="caret-down-fill" scale="1" class="when_open"></b-icon>
+                            <b-icon icon="caret-up-fill" scale="1" class="when_closed"></b-icon>
+                        </div>
+                    </b-card-text>
+-->
+        </b-card-body>
+      </b-card>
+    </b-card-group>
     </b-container>
   </b-container>
 </template>
@@ -89,8 +163,10 @@
 <script>
 //import VueRouter from 'vue-router'
 import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
-import { mapMutations } from "vuex";
+import {mapGetters, mapMutations, mapState} from "vuex";
 import VueToggles from "vue-toggles";
+import axios from "axios";
+import yaml from "js-yaml";
 
 
 export default {
@@ -107,7 +183,27 @@ export default {
         { value: "data", text: "Data" },
       ],
       slide: 0,
+      reports: null,
+      visibleImages: []
     };
+  },
+  computed: {
+    ...mapState(["FacetsConfig"]),
+    tenantData() {
+      return this.$store.getters.getTenantData;
+    }
+  },
+  mounted() {
+    const s3base = this.FacetsConfig.S3_REPORTS_URL;
+    let community = this.FacetsConfig.COMMUNITY;
+    if (
+      community === undefined ||
+      community === null ||
+      community.trim().length === 0
+    )
+      community = "all";
+    this.reportsJson = `${s3base}tenant/${community}/latest/report_stats.json`;
+    this.fetchAllReports();
   },
   methods: {
     ...mapMutations(["setTextQuery", "setResourceTypeQuery"]),
@@ -127,6 +223,16 @@ export default {
     onReset() {
       this.setTextQuery("");
     },
+    fetchAllReports() {
+      axios
+        .get(this.reportsJson)
+        .then((response) => {
+          this.reports = response.data
+            .sort((a, b) => b.records - a.records) // Sort in descending order
+            .slice(0, 3)
+          this.visibleImages = this.reports.map(() => true);
+        });
+    }
   },
 };
 </script>
@@ -173,6 +279,40 @@ export default {
         }
       }
     }
+  }
+}
+
+.card-equal {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 300px; /* Adjust width as needed */
+  height: 400px; /* Adjust height as needed */
+}
+
+.description-container {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* Adjust number of lines before truncation */
+  -webkit-box-orient: vertical;
+}
+
+.logo {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 72px;
+    color: #2A5279;
+    letter-spacing: 2px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.card-logo{
+  max: {
+    width: 100px;
+  }
+  max: {
+    height: 100px;
   }
 }
 </style>
