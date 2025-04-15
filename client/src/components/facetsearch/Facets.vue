@@ -20,6 +20,14 @@
         :facet-store="facetStore"
       >
       </FacetNumericRangeSlider>
+
+      <RangeSliderDepth
+        v-if="facetSetting.type == 'range-depth'"
+        :field-name="facetSetting.field"
+        :facet-setting="facetSetting"
+        :facet-store="facetStore"
+      >
+      </RangeSliderDepth>
     </div>
   </div>
 </template>
@@ -27,6 +35,7 @@
 <script>
 import FacetText from "@/components/facetsearch/FacetText.vue";
 import FacetNumericRangeSlider from "@/components/facetsearch/FacetNumericRangeSlider.vue";
+import RangeSliderDepth from "@/components/facetsearch/RangeSliderDepth.vue";
 //import { inject } from 'vue'
 export default {
   name: "Facets",
@@ -39,6 +48,7 @@ export default {
   components: {
     FacetText,
     FacetNumericRangeSlider,
+    RangeSliderDepth
   },
   inject: ["toggleFilter", "filtersState"],
   props: {
