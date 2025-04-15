@@ -117,7 +117,7 @@ FACETS:
     title: Depth Range
     sort: acs
     open: true
-    type: range-depth
+    type: rangedepth
 ORDER_BY_DEFAULT: score
 ORDER_BY_OPTIONS:
   - field: name
