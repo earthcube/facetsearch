@@ -1,9 +1,9 @@
 {
 
     "API_URL": "http://localhost:3000",
-    "TRIPLESTORE_URL":"https://graph.geocodes.earthcube.org/blazegraph/namespace/earthcube/sparql",
+    "TRIPLESTORE_URL":"https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/obisdepth/sparql",
 
-    "ECRR_TRIPLESTORE_URL":"https://graph.geocodes.earthcube.org/blazegraph/namespace/ecrr/sparql",
+    "ECRR_TRIPLESTORE_URL":"https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/ecrr/sparql",
 
     "ECRR_GRAPH": "http://earthcube.org/gleaner-summoned",
 
@@ -13,8 +13,8 @@
     "SPARQL_TOOLS_WEBSERVICE":"queries/sparql_gettools_webservice.txt",
     "SPARQL_TOOLS_DOWNLOAD":"queries/sparql_gettools_download.txt",
     "JSONLD_PROXY": "http://localhost:3000/${o}",
-    "SPARQL_NB": "https://beta.geocodes.earthcube.org/notebook/mkQ?q=${q}",
-    "SPARQL_YASGUI": "https://geocodes.earthcube.org/sparqlgui?",
+    "SPARQL_NB": "https://beta.geocodes-aws.earthcube.org/notebook/mkQ?q=${q}",
+    "SPARQL_YASGUI": "https://geocodes-aws.earthcube.org/sparqlgui?",
 
     "COLLECTION_FACETS": [
         {
@@ -85,20 +85,11 @@
 
         },
         {
-            "field": "minDepth",
-            "title": "Min Depth Range",
+            "field": "Depth",
+            "title": "Depth Range",
             "sort": "acs",
             "open": true,
-            "type":"range"
-
-        },
-        {
-            "field": "maxDepth",
-            "title": "Max Depth Range",
-            "sort": "acs",
-            "open": true,
-            "type":"range"
-
+            "type":"range-depth"
         }
 
     ],
