@@ -26,6 +26,7 @@
       :min="parseInt(minDepth)"
       :max="parseInt(maxDepth)"
       :disabled="disableDrag"
+      @drag-end="filtered"
     ></vue-range-slider>
     <div v-if="value.length === 2">
       <span class="text-h2 font-weight-light">{{ value[0] }}</span>
@@ -45,6 +46,7 @@ export default {
   components: {
     VueRangeSlider,
   },
+  inject: ["toggleFilter", "filtersState"],
   props: {
     facetSetting: {
       type: Object,
@@ -84,11 +86,16 @@ export default {
         this.minDepth = min;
         this.maxDepth = max;
         this.value = [min, max];
-
-        console.log("Min:", min);
-        console.log("Max:", max);
       },
       immediate: true // <-- run immediately if `results` already exists
+    }
+  },
+  methods: {
+    filtered() {
+      const [selectedMin, selectedMax] = this.value;
+      // pass values to toggleFilter
+      this.toggleFilter("minDepth", selectedMin, true);
+      this.toggleFilter("maxDepth", selectedMax, true);
     }
   }
 

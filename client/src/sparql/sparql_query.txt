@@ -34,7 +34,6 @@ SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", "
             OPTIONAL {?g schema:maxDepth ?maxDepth .}
             BIND ( IF ( BOUND(?date_p), ?date_p, "No datePublished") as ?datep ) .
             BIND ( IF ( BOUND(?pub_name), ?pub_name, "No Publisher") as ?pubname ) .
-            BIND ( IF ( BOUND(?place_name), ?place_name, "No spatialCoverage") as ?placename ) .
         }
         GROUP BY ?subj ?pubname ?placename ?kwu ?datep ?url  ?name ?description  ?resourceType ?g  ?minlat ?maxlat ?minlon ?maxlon ?minDepth ?maxDepth
         ORDER BY DESC(?score)
