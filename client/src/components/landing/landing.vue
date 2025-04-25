@@ -94,14 +94,15 @@
         </div>
       </b-container>
 
-    <b-card-group columns class="mt-4">
+    <b-card-group columns class="d-flex flex-wrap justify-content-start mt-4">
       <b-card
         v-for="(item, index) in reports"
         :key="index"
         no-body
         class="text-center card-equal d-flex flex-column"
+        style="flex: 0 1 340px;"
       >
-        <b-card-body v-if="item.source != 'geocodes_demo_datasets'" class = "d-flex flex-column">
+        <b-card-body v-if="item.source != 'geocodes_demo_datasets'" class = "d-flex flex-column flex-grow-1">
           <b-card-title>
             <b-link
               target="_blank"
@@ -119,14 +120,14 @@
             </b-link>
           </b-card-title>
 
-          <b-card-text class="card-equal">
+          <b-card-text class="d-flex flex-column flex-grow-1 justify-content-between">
             <i v-if="item.records > 0"
               >{{ item.records }} record{{ item.records == 1 ? "" : "s" }}</i
             >
 
             <div class="mt-3 small text-left description-container" v-html="item.description"></div>
 
-            <div class="d-flex justify-content-start">
+            <div class="mt-auto pt-3 text-left">
               <router-link
                 :to="{ name: 'report', params: { source: item.source}, query: { description: item.description }}"
                 >Reports</router-link>
@@ -287,7 +288,6 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   width: 300px; /* Adjust width as needed */
-  height: 400px; /* Adjust height as needed */
 }
 
 .description-container {
