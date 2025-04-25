@@ -8,6 +8,7 @@ on:
       - 148-year-published-range-bar-is-not-working-1
       - 163-geochemistry-dataset-not-rendering-correctly
       - 167-ecoforecast-s3-url
+      - 173-landing-page-and-about-page-specification-from-user-testing
 
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
