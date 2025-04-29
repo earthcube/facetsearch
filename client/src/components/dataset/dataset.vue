@@ -147,12 +147,12 @@
           <!--   <Metadata style="display: none;"></Metadata> -->
         </b-col>
 
-        <b-col md="4">
-          <DatasetLocation :m="mapping"></DatasetLocation>
+        <b-col v-if="hasDownloads" md="4">
+          <DatasetLocation :m="mapping" />
 
           <b-card>
             <b-card-title>Downloads</b-card-title>
-            <downloadfiles :d="d" :m="mapping"></downloadfiles>
+            <downloadfiles :d="d" :m="mapping" />
           </b-card>
         </b-col>
       </b-row>
@@ -337,6 +337,10 @@ export default {
   // },
   computed: {
     ...mapState(["jsonLdObj", "jsonLdCompact"]),
+    hasDownloads () {
+      // true only when d is an Array **and** has at least 1 element
+      return Array.isArray(this.d) && this.d.length > 0
+    }
   },
   methods: {
     ...mapActions(["fetchJsonLd"]),
