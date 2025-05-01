@@ -143,7 +143,12 @@ export default {
       frameJsonLD(obj, "Dataset").then((obj) => {
         let name = schemaItem("name", obj);
         let s_spatialCoverage = schemaItem("spatialCoverage", obj);
-        if (s_spatialCoverage) {
+
+        if (
+          s_spatialCoverage &&
+          typeof s_spatialCoverage === 'object' &&
+          s_spatialCoverage.geo
+        ) {
           this.hasSpatial = true;
 
           let placename = geoplacename(s_spatialCoverage);
@@ -151,9 +156,7 @@ export default {
           let poly = getFirstGeoShape(s_spatialCoverage, "polygon");
           let line = getFirstGeoShape(s_spatialCoverage, "line");
           let points = getGeoCoordinates(s_spatialCoverage);
-          console.info(
-            `placename:${placename} box:${box} poly:${poly} line:${line} points:${points}`
-          );
+
           //this.s_identifier_doi= ""
 
           // let detail = {

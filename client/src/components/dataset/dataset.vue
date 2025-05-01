@@ -161,7 +161,7 @@
         </b-col>
 
         <b-col md="4">
-          <div v-if="hasGeoBox">
+          <div>
               <DatasetLocation :m="mapping" />
           </div>
 
@@ -342,13 +342,7 @@ export default {
       });
   },
   computed: {
-    ...mapState(["jsonLdObj", "jsonLdCompact"]),
-    hasGeoBox() {
-      const sc  = this.mapping.s_spatialCoverage;
-      const geo = sc?.geo;
-      // only show if geo.box is a non-empty string
-      return typeof geo?.box === 'string' && geo.box.trim().length > 0;
-    }
+    ...mapState(["jsonLdObj", "jsonLdCompact"])
   },
   methods: {
     ...mapActions(["fetchJsonLd"]),
