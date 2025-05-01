@@ -46,7 +46,7 @@
             </div>
           </div>
 
-          <div v-if="mapping.s_publisher" class="metadata">
+          <div v-if="mapping.publisher" class="metadata">
             <div class="label">Publisher</div>
             <div class="value">{{ mapping.publisher }}</div>
           </div>
@@ -75,6 +75,14 @@
             <div class="label">Citation</div>
             <div class="value">{{ mapping.s_citation }}</div>
           </div>
+
+          <div v-if="mapping.s_keywords?.length" class="metadata">
+            <div class="label">Keywords</div>
+            <div class="value">
+              {{ mapping.s_keywords.join(', ') }}
+            </div>
+          </div>
+
           <div
             v-if="mapping.s_variableMeasuredNames.length > 0"
             class="varaibles"
@@ -527,8 +535,8 @@ export default {
         mapping.s_keywords = schemaItem("keywords", jp);
         mapping.s_landingpage = schemaItem("description", jp);
         mapping.updated = schemaItem("updated", jp);
-        mapping.start_datetime = formatDateToYYYYMMDD(schemaItem("start_datetime", jp));
-        mapping.end_datetime = formatDateToYYYYMMDD(schemaItem("end_datetime", jp));
+        mapping.start_datetime = schemaItem("start_datetime", jp) ? formatDateToYYYYMMDD(schemaItem("start_datetime", jp)) : null;
+        mapping.end_datetime   = schemaItem("end_datetime", jp)   ? formatDateToYYYYMMDD(schemaItem("end_datetime", jp))   : null;
         mapping.s_downloads = getDistributions(
           mapping.s_distribution,
           this.s_url
