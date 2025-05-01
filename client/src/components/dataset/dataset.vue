@@ -51,6 +51,11 @@
             <div class="value">{{ mapping.publisher }}</div>
           </div>
 
+          <div v-if="mapping.s_provider" class="metadata">
+            <div class="label">Provider</div>
+            <div class="value">{{ mapping.s_provider }}</div>
+          </div>
+
           <div v-if="mapping.s_datePublished" class="metadata">
             <div class="label">Date</div>
             <div class="value">{{ mapping.s_datePublished }}</div>
@@ -285,6 +290,7 @@ export default {
         publisher: "",
         description: "",
         s_publisher: "",
+        s_provider: "",
         s_publishedDate: "",
         has_s_url: false,
         downloads: [],
@@ -525,6 +531,19 @@ export default {
             console.log("contributor" + mapping.s_contributor);
           } else {
             mapping.s_contributor = schemaItem("name", cr);
+          }
+        }
+        if (hasSchemaProperty("provider", jp)) {
+          var pr = schemaItem("provider", jp);
+          if (Array.isArray(pr)) {
+            mapping.s_provider = pr.map(function (obj) {
+              if (hasSchemaProperty("name", obj)) {
+                return schemaItem("name", obj) + ", ";
+              }
+            });
+            console.log("provider" + mapping.s_provider);
+          } else {
+            mapping.s_provider = schemaItem("name", cr);
           }
         }
 
