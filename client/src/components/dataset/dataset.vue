@@ -46,9 +46,14 @@
             </div>
           </div>
 
-          <div v-if="mapping.s_publisher" class="metadata">
+          <div v-if="mapping.publisher" class="metadata">
             <div class="label">Publisher</div>
             <div class="value">{{ mapping.publisher }}</div>
+          </div>
+
+          <div v-if="mapping.s_provider" class="metadata">
+            <div class="label">Provider</div>
+            <div class="value">{{ mapping.s_provider }}</div>
           </div>
 
           <div v-if="mapping.s_datePublished" class="metadata">
@@ -75,6 +80,14 @@
             <div class="label">Citation</div>
             <div class="value">{{ mapping.s_citation }}</div>
           </div>
+
+          <div v-if="mapping.s_keywords?.length" class="metadata">
+            <div class="label">Keywords</div>
+            <div class="value">
+              {{ mapping.s_keywords.join(', ') }}
+            </div>
+          </div>
+
           <div
             v-if="mapping.s_variableMeasuredNames.length > 0"
             class="varaibles"
@@ -148,12 +161,16 @@
         </b-col>
 
         <b-col md="4">
-          <DatasetLocation :m="mapping"></DatasetLocation>
+          <div>
+              <DatasetLocation :m="mapping" />
+          </div>
 
-          <b-card>
-            <b-card-title>Downloads</b-card-title>
-            <downloadfiles :d="d" :m="mapping"></downloadfiles>
-          </b-card>
+          <div v-if="mapping.s_downloads && mapping.s_downloads.length">
+            <b-card>
+              <b-card-title>Downloads</b-card-title>
+              <downloadfiles :d="d" :m="mapping" />
+            </b-card>
+          </div>
         </b-col>
       </b-row>
 
@@ -273,6 +290,7 @@ export default {
         publisher: "",
         description: "",
         s_publisher: "",
+        s_provider: "",
         s_publishedDate: "",
         has_s_url: false,
         downloads: [],
@@ -322,21 +340,9 @@ export default {
           }
         );
       });
-    // this.$nextTick(() => this.$store.dispatch('fetchJsonLd', this.d) )
   },
-  // async beforeUpdate(){
-  //   this.$store.commit('setJsonLd', {})
-  //   this.$store.commit('setJsonLdCompact', {})
-  // },
-  // async updated(){
-  //   this.$store.dispatch('fetchJsonLd', this.d)
-  // },
-  // watch: {
-  //   // call again the method if the route changes
-  //   '$route': 'fetchJsonLD'
-  // },
   computed: {
-    ...mapState(["jsonLdObj", "jsonLdCompact"]),
+    ...mapState(["jsonLdObj", "jsonLdCompact"])
   },
   methods: {
     ...mapActions(["fetchJsonLd"]),
@@ -439,8 +445,6 @@ export default {
       const element = this.$refs.metadataview;
 
       if (element) {
-        // Use el.scrollIntoView() to instantly scroll to the element
-        // el.scrollIntoView({behavior: 'smooth'});
         var top = element.$el.offsetHeight;
 
         window.scrollTo(0, top);
@@ -449,43 +453,9 @@ export default {
     toMetadata() {
       var self = this;
       var mapping = this.mapping;
-      //console.log(self.jsonLdObj)
-      //const context = {};
-      // const compacted = jsonld.compact(obj, context).then(sC, fC);
-      // const compacted = jsonld.compact(content, context).then((providers) => {
-      //  jsonld.compact(self.jsonLdObj, context).then((providers) => {
-      //    var j = JSON.stringify(providers, null, 2);
-      // var j = JSON.stringify(self.jsonLdCompact, null, 2);
-      //var jp = JSON.parse(j);
       var jp = self.jsonLdObj; // framed dataset
       if (JSON.stringify(jp) === "{}") return;
 
-      // console.log(j.toString());
-      // if ( jp['@graph'] ){
-      //  // jp = JSONPath({path: "$.'@graph'.[?(@type === 'dataset')]", json:jp});
-      //   jp = jp['@graph'].filter(a => {
-      //     if (a['@type']) {
-      //      return _.includes(a['@type'], 'https://schema.org/Dataset')
-      //     }
-      //   })
-      //   if (jp.length > 0) {
-      //     jp = jp[0]
-      //   }
-      //
-      // }
-
-      //       let datasetFrame = JSON.parse(`
-      // {
-      //   "@context": {
-      //     "@vocab": "https://schema.org/",
-      //         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-      //         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-      //         "schema": "https://schema.org/",
-      //         "xsd": "http://www.w3.org/2001/XMLSchema#"
-      //   },
-      //   "@type": "schema:Dataset"
-      // }` )
-      // jsonld.frame(jp, datasetFrame).then(
       frameJsonLD(jp, "Dataset").then((jp) => {
         if (jp === undefined) return;
         if (jp["@graph"] !== undefined) {
@@ -501,17 +471,10 @@ export default {
           }
         }
         mapping.raw_json = jp;
-        //mapping.s_identifier_doi = schemaItem('identifier', jp);//self.getDOIUrl()
-        // ------
-        // address retrieval in the  schemItem class, rather than do 20 changes here.
-        // ---
-
         mapping.s_identifier = jp.identifier; // schemaItem('identifier', jp);// just the identifier... do not know if it is a DOI
-
         mapping.s_name = jp.name; // schemaItem('name', jp);
         mapping.s_url = jp.url; // schemaItem('url', jp);
         mapping.s_description = jp.description; // schemaItem('description', jp);
-
         mapping.s_distribution = jp.distribution; // schemaItem('distribution', jp);
 
         if (hasSchemaProperty("datePublished", jp)) {
@@ -564,9 +527,19 @@ export default {
             mapping.s_contributor = schemaItem("name", cr);
           }
         }
-        // else {
-        //     this.s_contributor = schemaItem('contributor', jp);
-        // }
+        if (hasSchemaProperty("provider", jp)) {
+          var pr = schemaItem("provider", jp);
+          if (Array.isArray(pr)) {
+            mapping.s_provider = pr.map(function (obj) {
+              if (hasSchemaProperty("name", obj)) {
+                return schemaItem("name", obj) + ", ";
+              }
+            });
+            console.log("provider" + mapping.s_provider);
+          } else {
+            mapping.s_provider = schemaItem("name", cr);
+          }
+        }
 
         if (hasSchemaProperty("citation", jp)) {
           mapping.s_citation = schemaItem("citation", jp);
@@ -575,23 +548,12 @@ export default {
         mapping.s_keywords = schemaItem("keywords", jp);
         mapping.s_landingpage = schemaItem("description", jp);
         mapping.updated = schemaItem("updated", jp);
-        mapping.start_datetime = formatDateToYYYYMMDD(schemaItem("start_datetime", jp));
-        mapping.end_datetime = formatDateToYYYYMMDD(schemaItem("end_datetime", jp));
-        //var s_distribution = schemaItem('distribution', jp); // moved up
-        // var dist_type = s_distribution['@type'];
-        // var encodingFormat = schemaItem('encodingFormat', s_distribution);
-        // var contentUrl = schemaItem('contentUrl', s_distribution);
-        // var distUrl = schemaItem('url', s_distribution);
+        mapping.start_datetime = schemaItem("start_datetime", jp) ? formatDateToYYYYMMDD(schemaItem("start_datetime", jp)) : null;
+        mapping.end_datetime   = schemaItem("end_datetime", jp)   ? formatDateToYYYYMMDD(schemaItem("end_datetime", jp))   : null;
         mapping.s_downloads = getDistributions(
           mapping.s_distribution,
           this.s_url
         );
-        // let downloadsurl = contentUrl ? contentUrl : distUrl;
-        // this.s_downloads = [{
-        //     distType: dist_type,
-        //     contentUrl: downloadsurl,
-        //     encodingFormat: encodingFormat
-        // }]
         mapping.s_spatialCoverage = schemaItem("spatialCoverage", jp);
         mapping.placename = geoplacename(mapping.s_spatialCoverage);
         mapping.box = getFirstGeoShape(mapping.s_spatialCoverage, "box");
