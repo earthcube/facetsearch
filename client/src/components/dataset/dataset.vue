@@ -147,13 +147,15 @@
           <!--   <Metadata style="display: none;"></Metadata> -->
         </b-col>
 
-        <b-col v-if="hasDownloads" md="4">
+        <b-col md="4">
           <DatasetLocation :m="mapping" />
 
-          <b-card>
-            <b-card-title>Downloads</b-card-title>
-            <downloadfiles :d="d" :m="mapping" />
-          </b-card>
+          <div v-if="mapping.s_downloads && mapping.s_downloads.length">
+            <b-card>
+              <b-card-title>Downloads</b-card-title>
+              <downloadfiles :d="d" :m="mapping" />
+            </b-card>
+          </div>
         </b-col>
       </b-row>
 
@@ -336,11 +338,7 @@ export default {
   //   '$route': 'fetchJsonLD'
   // },
   computed: {
-    ...mapState(["jsonLdObj", "jsonLdCompact"]),
-    hasDownloads () {
-      // true only when d is an Array **and** has at least 1 element
-      return Array.isArray(this.d) && this.d.length > 0
-    }
+    ...mapState(["jsonLdObj", "jsonLdCompact"])
   },
   methods: {
     ...mapActions(["fetchJsonLd"]),
