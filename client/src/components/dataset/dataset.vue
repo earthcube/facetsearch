@@ -148,7 +148,9 @@
         </b-col>
 
         <b-col md="4">
-          <DatasetLocation :m="mapping" />
+          <div v-if="hasGeoBox">
+              <DatasetLocation :m="mapping" />
+          </div>
 
           <div v-if="mapping.s_downloads && mapping.s_downloads.length">
             <b-card>
@@ -326,7 +328,13 @@ export default {
       });
   },
   computed: {
-    ...mapState(["jsonLdObj", "jsonLdCompact"])
+    ...mapState(["jsonLdObj", "jsonLdCompact"]),
+    hasGeoBox() {
+      const sc  = this.mapping.s_spatialCoverage;
+      const geo = sc?.geo;
+      // only show if geo.box is a non-empty string
+      return typeof geo?.box === 'string' && geo.box.trim().length > 0;
+    }
   },
   methods: {
     ...mapActions(["fetchJsonLd"]),
