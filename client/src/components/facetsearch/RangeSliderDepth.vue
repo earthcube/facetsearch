@@ -19,21 +19,25 @@
         aria-hidden="true"
       ></b-icon>
     </b-button>
-    <vue-range-slider
-      v-model="value"
-      class="mx-2"
-      :tooltip="false"
-      :min="parseInt(minDepth)"
-      :max="parseInt(maxDepth)"
-      :disabled="disableDrag"
-      @drag-end="filtered"
-    ></vue-range-slider>
-    <div v-if="value.length === 2">
-      <span class="text-h2 font-weight-light">{{ value[0] }}</span>
-      <span class="subheading font-weight-light mx-1">to</span>
-      <span class="text-h2 font-weight-light">{{ value[1] }}</span>
-      <span class="subheading font-weight-light ml-1">m</span>
-    </div>
+    <b-collapse :id="'accordion_range_' + facetSetting.field" @shown="onCollapseShown">
+      <vue-range-slider
+        v-model="value"
+        ref="rangeSlider"
+        :key="sliderKey"
+        class="mx-2 py-2"
+        :tooltip="false"
+        :min="parseInt(minDepth)"
+        :max="parseInt(maxDepth)"
+        :disabled="disableDrag"
+        @drag-end="filtered"
+      ></vue-range-slider>
+      <div v-if="value.length === 2" class="mt-0 px-2 py-0">
+        <span class="text-h2 font-weight-light">{{ value[0] }}</span>
+        <span class="subheading font-weight-light mx-1">to</span>
+        <span class="text-h2 font-weight-light">{{ value[1] }}</span>
+        <span class="subheading font-weight-light ml-1">m</span>
+      </div>
+    </b-collapse>
   </div>
 </template>
 
@@ -63,6 +67,7 @@ export default {
       minDepth: null,
       maxDepth: null,
       value: [0, 0],
+      sliderKey: 0,
       disableDrag: false,
     };
   },
@@ -96,9 +101,61 @@ export default {
       // pass values to toggleFilter
       this.toggleFilter("minDepth", selectedMin, true);
       this.toggleFilter("maxDepth", selectedMax, true);
-    }
+    },
+    onCollapseShown() {
+      // Option A: if the slider instance has a .refresh() API
+      if (this.$refs.rangeSlider && this.$refs.rangeSlider.refresh) {
+        this.$nextTick(() => this.$refs.rangeSlider.refresh());
+        return;
+      }
+      // Option B: force a remount via key
+      this.sliderKey++;
+   }
   }
 
 
 };
 </script>
+<style scoped lang="scss">
+@import "@/assets/bootstrapcss/custom";  // your custom Bootstrap overrides
+
+.filter_card {
+  background-color: #f5f5f5;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+
+  & + .filter_card {
+    margin-top: $spacer / 2;
+  }
+
+  /* this targets the b-button inside filter_card */
+  & > .btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: none;
+
+    &:not(:hover) {
+      color: $gray-700;
+      background-color: $gray-300;
+    }
+  }
+
+  .list-group {
+    overflow-y: auto;
+    max-height: 170px;
+  }
+}
+
+/* hide/show icons based on collapsed state */
+.collapsed > .when-open,
+.not-collapsed > .when-closed {
+  display: none;
+}
+
+/* if you need flat secondary buttons everywhere */
+.btn-secondary,
+.btn-secondary:hover {
+  background-image: none !important;
+}
+</style>
+
