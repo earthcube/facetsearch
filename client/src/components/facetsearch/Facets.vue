@@ -28,6 +28,22 @@
         :facet-store="facetStore"
       >
       </RangeSliderDepth>
+
+      <RangeSliderYear
+        v-if="facetSetting.type == 'depthyear'"
+        :field-name="facetSetting.field"
+        :facet-setting="facetSetting"
+        :facet-store="facetStore"
+      >
+      </RangeSliderYear>
+
+      <GeoBoundingBoxPicker
+        v-if="facetSetting.type == 'geo'"
+        :field-name="facetSetting.field"
+        :facet-setting="facetSetting"
+        :facet-store="facetStore"
+      >
+      </GeoBoundingBoxPicker>
     </div>
   </div>
 </template>
@@ -36,6 +52,8 @@
 import FacetText from "@/components/facetsearch/FacetText.vue";
 import FacetNumericRangeSlider from "@/components/facetsearch/FacetNumericRangeSlider.vue";
 import RangeSliderDepth from "@/components/facetsearch/RangeSliderDepth.vue";
+import RangeSliderYear from "@/components/facetsearch/RangeSliderYear.vue";
+import GeoBoundingBoxPicker from "@/components/facetsearch/GeoBoundingBoxPicker.vue";
 //import { inject } from 'vue'
 export default {
   name: "Facets",
@@ -48,7 +66,9 @@ export default {
   components: {
     FacetText,
     FacetNumericRangeSlider,
-    RangeSliderDepth
+    RangeSliderDepth,
+    RangeSliderYear,
+    GeoBoundingBoxPicker
   },
   inject: ["toggleFilter", "filtersState"],
   props: {
