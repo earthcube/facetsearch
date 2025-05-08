@@ -35,7 +35,7 @@
         <span class="text-h2 font-weight-light">{{ value[0] }}</span>
         <span class="subheading font-weight-light mx-1">to</span>
         <span class="text-h2 font-weight-light">{{ value[1] }}</span>
-        <span class="subheading font-weight-light ml-1">m</span>
+        <span class="subheading font-weight-light ml-1">year</span>
       </div>
     </b-collapse>
   </div>
