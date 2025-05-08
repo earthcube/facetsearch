@@ -22,7 +22,7 @@
       </FacetNumericRangeSlider>
 
       <RangeSliderDepth
-        v-if="facetSetting.type == 'rangedepth'"
+        v-if="facetSetting.type == 'depthrange'"
         :field-name="facetSetting.field"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
