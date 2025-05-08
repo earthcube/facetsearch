@@ -28,6 +28,7 @@
     "jsonpath": "^1.1.1",
     "jsonpath-plus": "^7.2.0",
     "leaflet": "^1.9.4",
+    "leaflet-draw": "^1.0.4",
     "localforage": "^1.10.0",
     "localforage-startswith": "^1.4.0",
     "lodash": "^4.17.21",
