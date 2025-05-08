@@ -357,10 +357,31 @@ export default {
 
       // this.currentResults = [] // triggers reactive event and we are resetting it in the next lines, anyway
       let self = this;
-      // self.currentResults = _.select(this.items, function (item) {
+
+      let minDepthFilter = Array.isArray(self.filtersState.filters.minDepth)
+        ? self.filtersState.filters.minDepth.slice(-1)[0]
+        : undefined;
+
+      let maxDepthFilter = Array.isArray(self.filtersState.filters.maxDepth)
+        ? self.filtersState.filters.maxDepth.slice(-1)[0]
+        : undefined;
+
       let newResults = _.select(this.items, function (item) {
+        const itemMin = parseFloat(item.minDepth);
+        const itemMax = parseFloat(item.maxDepth);
+
+        if (isNaN(itemMin) || isNaN(itemMax)) return false;
+
+        const overlapsRange =
+          (minDepthFilter === undefined || itemMax >= minDepthFilter) &&
+          (maxDepthFilter === undefined || itemMin <= maxDepthFilter);
+
+        if (!overlapsRange) return false;
+
         let filtersApply = true;
         _.each(self.filtersState.filters, function (filter, facet) {
+          if (facet === "minDepth" || facet === "maxDepth") return; // already handled
+
           if (_.isArray(item[facet])) {
             var inters = _.intersection(item[facet], filter);
             if (inters.length == 0) {
@@ -382,8 +403,6 @@ export default {
       self.currentResults.splice(0, len);
       newResults.forEach((i) => self.currentResults.push(i));
 
-      /// console.log(data)
-      // console.log(data.map(d => new Date(d).valueOf()))
       this.resetFacetCount();
       // then reduce the items to get the current count for each facet
       _.each(self.facets, function (facet) {
@@ -438,6 +457,14 @@ export default {
       console.log(window.location.href);
       console.log("toggleFilter");
       var s_state = this.filtersState;
+
+      // Special case for range filters: overwrite instead of push
+      if (key === "minDepth" || key === "maxDepth") {
+        this.$set(s_state.filters, key, [value]); // replace with single-element array
+        this.filter();
+        return;
+      }
+
       this.$set(s_state.filters, key, s_state.filters[key] || []);
       if (_.indexOf(s_state.filters[key], value) == -1) {
         s_state.filters[key].push(value);
