@@ -1,7 +1,7 @@
 
 ---
 MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
-API_URL: https://geocodes-aws.earthcube.org/ec/api
+API_URL: https://deepoceans.geocodes-aws.earthcube.org/ec/api
 
 TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/obisdepth/sparql
 ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
@@ -108,16 +108,26 @@ FACETS:
     sort: acs
     open: false
     type: text
-  - field: datep
-    title: Year Published Range
-    sort: acs
-    open: true
-    type: range
+#  - field: datep
+#    title: Year Published Range
+#    sort: acs
+#    open: true
+#    type: range
   - field: depth
     title: Depth Range
     sort: acs
     open: true
-    type: rangedepth
+    type: depthrange
+  - field: temporalCoverage
+    title: Publish Year
+    sort: acs
+    open: true
+    type: depthyear
+  - field: spatialCoverage
+    title: Spatial Filter
+    sort: acs
+    open: true
+    type: geo
 ORDER_BY_DEFAULT: score
 ORDER_BY_OPTIONS:
   - field: name
