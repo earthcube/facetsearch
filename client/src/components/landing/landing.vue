@@ -2,8 +2,7 @@
   <b-container fluid="md" class="mt-5">
     <!-- allow logo to size according to container. fill with primary color from bootstrap variables -->
     <b-container class="col-md-5 pt-5">
-      <logoGeoCodes v-if="!this.tenantData" fill="#18598b" width="100%" />
-      <span v-if="this.tenantData">{{this.tenantData.tenant[0].community}}</span>
+      <logoGeoCodes fill="#18598b" width="100%" />
     </b-container>
 
     <b-container class="col-md-5 mt-4">
@@ -64,7 +63,7 @@
       </b-form>
     </b-container>
 
-    <b-container v-if="this.tenantData" fluid="md" class="mt-5">
+    <b-container fluid="md" class="mt-5">
       <b-carousel
         id="carousel-landing"
         v-model="slide"
@@ -72,20 +71,16 @@
         fade
         indicators
       >
-<!--        <b-carousel-slide>-->
-<!--          an interdisciplinary geoscience data-->
-<!--          <span class="text-nowrap">and tool search engine</span>-->
-<!--        </b-carousel-slide>-->
-<!--        <b-carousel-slide> a schema.org/Dataset search </b-carousel-slide>-->
-<!--        <b-carousel-slide>-->
-<!--          Geoscience Cyberinfrastructure-->
-<!--          <span class="text-nowrap">for Open Discovery</span>-->
-<!--          <span class="text-nowrap">in the Earth Sciences</span>-->
-<!--        </b-carousel-slide>-->
-        <b-carousel-slide  v-for="(slide, index) in this.tenantData.tenant[0].landing_introduction" :key="index">
-        {{ slide }}
-        <span class="text-nowrap" v-if="index === 0">and tool search engine</span>
-      </b-carousel-slide>
+        <b-carousel-slide>
+          an interdisciplinary geoscience data
+          <span class="text-nowrap">and tool search engine</span>
+        </b-carousel-slide>
+        <b-carousel-slide> a schema.org/Dataset search </b-carousel-slide>
+        <b-carousel-slide>
+          Geoscience Cyberinfrastructure
+          <span class="text-nowrap">for Open Discovery</span>
+          <span class="text-nowrap">in the Earth Sciences</span>
+        </b-carousel-slide>
       </b-carousel>
     </b-container>
   </b-container>
@@ -96,18 +91,11 @@
 import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
 import { mapMutations } from "vuex";
 import VueToggles from "vue-toggles";
-import axios from "axios";
-import yaml from "js-yaml";
 
 
 export default {
   name: "Landing",
   components: { logoGeoCodes, VueToggles },
-  computed: {
-    tenantData() {
-      return this.$store.getters.getTenantData;
-    }
-  },
   data() {
     return {
       q: "",
