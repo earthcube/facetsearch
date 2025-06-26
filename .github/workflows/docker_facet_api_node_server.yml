@@ -16,14 +16,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+      - name: Enable Corepack
+        run: corepack enable
       - name: Create Node Environment
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         env:
           NODE_ENV:
             production
         with:
           node-version: '22'
+          cache: 'yarn'
       - run: npm install
       #- run: npm install -g  yarn
       #- run: yarn install
