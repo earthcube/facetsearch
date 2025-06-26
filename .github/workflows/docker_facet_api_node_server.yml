@@ -17,6 +17,7 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+      - run: npm install -g corepack
       - name: Enable Corepack
         run: corepack enable
       - name: Create Node Environment
