@@ -197,8 +197,8 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import SpaqlToolsDownloadQuery from "@/sparql_blaze/sparql_gettools_download.txt?raw";
-import SpaqlToolsWebserviceQuery from "@/sparql_blaze/sparql_gettools_webservice.txt?raw";
+import SpaqlToolsDownloadQuery from "@/sparql_qlever/sparql_gettools_download.rq?raw";
+import SpaqlToolsWebserviceQuery from "@/sparql_qlever/sparql_gettools_webservice.rq?raw";
 import _ from "lodash";
 
 //import FacetsConfig from "../../config";

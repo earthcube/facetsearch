@@ -93,7 +93,7 @@
 import { mapState } from "vuex";
 import axios from "axios";
 
-import SpaqlToolsWebserviceQuery from "@/sparql_blaze/sparql_relateddatafilename.txt?raw";
+import SpaqlToolsWebserviceQuery from "@/sparql_qlever/sparql_relateddatafilename.rq?raw";
 
 import _ from "lodash";
 import { frameJsonLD, schemaItem } from "@/api/jsonldObject";
