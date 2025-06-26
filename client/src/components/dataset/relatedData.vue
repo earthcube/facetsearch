@@ -148,7 +148,7 @@ export default {
       frameJsonLD(self.jsonLdObj, "Dataset")
         .then((jp) => {
           let realtedTextFields =
-            schemaItem("description", jp) + schemaItem("name", jp);
+              schemaItem("keywords", jp) + schemaItem("name", jp) + schemaItem("description", jp)  ;
           realtedTextFields = realtedTextFields
             .replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi, "")
             .replace(/<[^>]+?>/g, "")
@@ -156,6 +156,7 @@ export default {
             .replace(/ /g, " ")
             .replace(/>/g, " ");
           realtedTextFields = realtedTextFields.replace(/"/g, "");
+          realtedTextFields = realtedTextFields.split(' ', 60).join(' ');
           console.log(realtedTextFields);
           if (realtedTextFields == "") return;
 
