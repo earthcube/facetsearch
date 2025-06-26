@@ -22,7 +22,6 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-      - run: npm install -g corepack
       - name: Enable Corepack
         run: corepack enable
       - name: Create Node Environment
@@ -31,11 +30,10 @@ jobs:
           NODE_ENV:
             production
         with:
-          node-version: '22'
-          cache: 'yarn'
+          node-version: '20'
+      #    cache: 'yarn'
       - run: npm install -g  yarn
       - run: yarn install --immutable
-      #- run: npm install -g  yarn
       - run: yarn build:ci
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
