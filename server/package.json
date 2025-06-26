@@ -3,19 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "node  --max-old-space-size=4096 ./bin/www",
     "dev": "nodemon ./bin/www"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "1.8.2",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
-    "esm": "^3.2.25",
-    "express": "~4.16.1",
+    "express": "4.18.2",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
-    "jsonld": "^5.0.0",
+    "jsonld": "^8.3.3",
     "lodash": "^4.17.21",
     "minio": "^7.0.18",
     "morgan": "~1.9.1",
@@ -25,5 +24,5 @@
     "nodemon": "^2.0.7",
     "oas-tools": "^2.1.8"
   },
-  "packageManager": "yarn@4.9.2+sha512.1fc009bc09d13cfd0e19efa44cbfc2b9cf6ca61482725eb35bbc5e257e093ebf4130db6dfe15d604ff4b79efd8e1e8e99b25fa7d0a6197c9f9826358d4d65c3c"
+  "packageManager": "yarn@4.0.0+sha512.955259c0370ab8c06d013faa7d5e7addb6914251029695675f54e04c917ea6b092c379ba8d3521556d90b3874e5037759467072f01d2295341ead43cc259f14b"
 }

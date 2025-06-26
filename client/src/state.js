@@ -8,10 +8,10 @@ import jsonld from "jsonld";
 import _, { isArray } from "underscore";
 //import FacetsConfig from "./config";
 //import {bus} from "./main";
-//import SpaqlQuery from 'raw-loader!./src/sparql_blaze/sparql_query.txt'
-//import SpaqlHasToolsQuery from 'raw-loader!./src/sparql_blaze/sparql_hastools.txt'
-import SpaqlQuery from "@/sparql_blaze/sparql_query.txt?raw";
-import SpaqlHasToolsQuery from "@/sparql_blaze/sparql_hastools.txt?raw";
+//import SpaqlQuery from 'raw-loader!./src/sparql_qlever/sparql_query.rq'
+//import SpaqlHasToolsQuery from 'raw-loader!./src/sparql_qlever/sparql_hastools.rq'
+import SpaqlQuery from "@/sparql_qlever/sparql_query.rq?raw";
+import SpaqlHasToolsQuery from "@/sparql_qlever/sparql_hastools.rq?raw";
 import { default as LRUCache } from "lru-cache";
 import localforage from "localforage";
 import yaml from "js-yaml";
