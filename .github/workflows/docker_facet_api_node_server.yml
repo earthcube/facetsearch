@@ -5,7 +5,7 @@ on:
       - master
       - feature/*
       - fix/*
-      - qlever
+      - qleverstable
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
 defaults:
