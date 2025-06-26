@@ -32,6 +32,9 @@ jobs:
             production
         with:
           node-version: '22'
+          cache: 'yarn'
+      - run: npm install -g  yarn
+      - run: yarn install --immutable
       #- run: npm install -g  yarn
       - run: yarn install
       - run: yarn build:ci
