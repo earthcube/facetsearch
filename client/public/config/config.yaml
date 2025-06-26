@@ -119,7 +119,7 @@ FACETS:
     open: true
     type: depthrange
   - field: temporalCoverage
-    title: Publish Year
+    title: Temporal Coverage
     sort: acs
     open: true
     type: depthyear

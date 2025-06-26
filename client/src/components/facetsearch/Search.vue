@@ -72,22 +72,9 @@ export default {
       setSearchExactmatch: this.setSearchExactmatch,
       facetStore: this.facetStore,
       filtersState: this.filtersState,
+      filter: this.filter,
     };
   },
-  // setup() {
-  //
-  //   const facetStore = reactive({})
-  //   const filtersState = reactive(     {
-  //     orderBy: 'score',
-  //         filters: {}
-  //   })
-  //
-  //   provide("facetStore", facetStore)
-  //   provide("filtersState", filtersState)
-  //   provide('toggleFilter', this.toggleFilter)
-  //
-  //
-  // },
   computed: {
     ...mapState([
       "results",
@@ -213,6 +200,11 @@ export default {
   methods: {
     ...mapMutations(["setTextQuery", "setResourceTypeQuery", "setSearchExactMatch"]),
     ...mapActions(["getResults", "getQueryTemplate", "addtoMicroCache"]),
+    updateYearRange(start, end) {
+      this.$set(this.filtersState.filters, "startYear", [start]);
+      this.$set(this.filtersState.filters, "endYear", [end]);
+      this.filter();
+    },
     getQueryObj: function () {
       //let activeFilters = this.filtersState.filters|| []; // filters needs to be moved into actual filtersState in the future
       let activeFilters = [];
@@ -366,21 +358,44 @@ export default {
         ? self.filtersState.filters.maxDepth.slice(-1)[0]
         : undefined;
 
+      let startYearFilter = Array.isArray(self.filtersState.filters.startYear)
+        ? self.filtersState.filters.startYear.slice(-1)[0]
+        : undefined;
+
+      let endYearFilter = Array.isArray(self.filtersState.filters.endYear)
+        ? self.filtersState.filters.endYear.slice(-1)[0]
+        : undefined;
+
       let newResults = _.select(this.items, function (item) {
         const itemMin = parseFloat(item.minDepth);
         const itemMax = parseFloat(item.maxDepth);
+        let itemStartYear = undefined;
+        let itemEndYear = undefined;
 
-        if (isNaN(itemMin) || isNaN(itemMax)) return false;
+        if (typeof item.temporalCoverage === "string" && item.temporalCoverage.includes("/")) {
+          const [start, end] = item.temporalCoverage.split("/");
+          itemStartYear = parseInt(start.trim());
+          itemEndYear = parseInt(end.trim());
+        }
 
-        const overlapsRange =
+        const isMatch =
+          !isNaN(itemMin) &&
+          !isNaN(itemMax) &&
           (minDepthFilter === undefined || itemMax >= minDepthFilter) &&
-          (maxDepthFilter === undefined || itemMin <= maxDepthFilter);
+          (maxDepthFilter === undefined || itemMin <= maxDepthFilter) &&
+          (
+            (!isNaN(itemStartYear) || !isNaN(itemEndYear)) &&
+            (
+              (startYearFilter === undefined || (itemEndYear ?? itemStartYear) >= startYearFilter) &&
+              (endYearFilter === undefined || (itemStartYear ?? itemEndYear) <= endYearFilter)
+            )
+          );
 
-        if (!overlapsRange) return false;
+        return isMatch;
 
         let filtersApply = true;
         _.each(self.filtersState.filters, function (filter, facet) {
-          if (facet === "minDepth" || facet === "maxDepth") return; // already handled
+          if (facet === "minDepth" || facet === "maxDepth" || facet === "startYear" || facet === "endYear") return; // already handled
 
           if (_.isArray(item[facet])) {
             var inters = _.intersection(item[facet], filter);
@@ -439,7 +454,6 @@ export default {
       self.filtersState.shownResults = 0;
     },
     toggleFilter: function (key, value, skipfilterUrl = false) {
-      console.log(window.location.href);
       var stateObj = { key: value };
       if (!skipfilterUrl) {
         if (window.location.href.includes(encodeURI("&" + key + "=" + value))) {
@@ -454,8 +468,6 @@ export default {
           );
         }
       }
-      console.log(window.location.href);
-      console.log("toggleFilter");
       var s_state = this.filtersState;
 
       // Special case for range filters: overwrite instead of push
