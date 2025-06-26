@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: '20'
       #    cache: 'yarn'
-      - run: npm install -g  yarn
+      #- run: npm install -g  yarn
       - run: yarn install --immutable
       - run: yarn build:ci
       - name: Set up QEMU
