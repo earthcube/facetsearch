@@ -4,7 +4,7 @@ PREFIX ecrr: <https://qlever.geocodes-aws-dev.earthcube.org/graphspace/ecrr>
    select DISTINCT ?dataname ?appname   ?durl  ?turl ?rrs  ?altName ?description
    WHERE
    {
-       graph <urn:gleaner.io:eco:r2r:data:30d759494ff174f38fe074fc91405d0fd8b427ea> {
+       graph <${g}> {
        ?s schemaold:distribution|schema:distribution ?dist ;
             schemaold:name|schema:name ?dataname  .
        ?dist  schemaold:encodingFormat|schema:encodingFormat ?type .

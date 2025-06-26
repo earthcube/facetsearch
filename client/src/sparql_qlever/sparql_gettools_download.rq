@@ -4,7 +4,7 @@ PREFIX ecrr: <https://qlever.geocodes-aws-dev.earthcube.org/graphspace/ecrr>
 select DISTINCT ?rrs ?name (GROUP_CONCAT(DISTINCT ?curl1; SEPARATOR=", ") AS ?curl)  (GROUP_CONCAT(DISTINCT ?landingPage1; SEPARATOR=", ") AS ?landingPage)
 (GROUP_CONCAT(DISTINCT ?altName1; SEPARATOR=", ") AS ?altName) (GROUP_CONCAT(DISTINCT ?landingName1; SEPARATOR=", ") AS ?landingName) ?swversion ?identifier ?description
 WHERE                    {
-    graph <urn:gleaner.io:eco:ssdbiodp:data:01f777af8e78c3e56a378e4d98337b185d766114>
+    graph <${g}>
       {
         {
           ?s schemaold:distribution|schema:distribution ?dist .

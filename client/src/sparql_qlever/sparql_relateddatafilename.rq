@@ -9,7 +9,7 @@ select ?subj ?name ?g ?description (COUNT(?text) AS ?score) (SAMPLE(?text) AS ?e
     ?subj ?o ?item .
 
     ?text ql:contains-entity ?item .
-    ?text ql:contains-word "water" .
+    ?text ql:contains-word "${relatedData}" .
 
           graph ?g {
             FILTER ( ! isBlank(?subj) )
@@ -20,4 +20,4 @@ select ?subj ?name ?g ?description (COUNT(?text) AS ?score) (SAMPLE(?text) AS ?e
 }
 group by ?subj ?name ?g ?description
 order by DESC(?score )
-LIMIT 10
+LIMIT ${n}
