@@ -3,7 +3,8 @@ on:
   push:
     branches:
       - master
-      - 117_master_fixuri
+      - feature/*
+      - fix/*
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
 defaults:
