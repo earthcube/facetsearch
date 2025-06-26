@@ -77,47 +77,33 @@ export default {
   watch: {
     results: {
       handler(newResults) {
-        // 1. Split each temporalCoverage into [start, end], parse to ints
-      const ranges = newResults
-        .map(item => {
+        const ranges = newResults.map(item => {
           const tc = item.temporalCoverage || "";
+          if (!tc.includes("/")) return null;
+
           const [rawStart, rawEnd] = tc.split("/");
-          const start = parseInt(rawStart, 10);
-          const end   = parseInt(rawEnd,   10);
-          return (!isNaN(start) && !isNaN(end))
-            ? { start, end }
-            : null;
-        })
-        .filter(r => r !== null);
+          const start = parseInt(rawStart.trim(), 10);
+          const end = parseInt(rawEnd.trim(), 10);
 
-        // 2. Collect all starts and ends
+          return (!isNaN(start) && !isNaN(end)) ? { start, end } : null;
+        }).filter(Boolean);
+
         const startYears = ranges.map(r => r.start);
-        const endYears   = ranges.map(r => r.end);
+        const endYears = ranges.map(r => r.end);
 
-        // 3. Compute the overall min/max (falling back if empty)
-        const startYear = startYears.length > 0
-          ? Math.min(...startYears)
-          : new Date().getFullYear();
-        const endYear = endYears.length > 0
-          ? Math.max(...endYears)
-          : new Date().getFullYear();
+        this.startYear = startYears.length ? Math.min(...startYears) : new Date().getFullYear();
+        this.endYear = endYears.length ? Math.max(...endYears) : new Date().getFullYear();
 
-        console.log("Years : "+startYear);
-
-        // 4. Store and drive your slider
-        this.startYear = startYear;
-        this.endYear   = endYear;
-        this.value     = [this.startYear, this.endYear];
+        this.value = [this.startYear, this.endYear];
       },
-      immediate: true // <-- run immediately if `results` already exists
+      immediate: true
     }
   },
   methods: {
     filtered() {
-      const [selectedMin, selectedMax] = this.value;
-      // pass values to toggleFilter
-      this.toggleFilter("startYear", selectedMin, true);
-      this.toggleFilter("endYear", selectedMax, true);
+      const [start, end] = this.value;
+      this.toggleFilter("startYear", start, true);
+      this.toggleFilter("endYear", end, true);
     },
     onCollapseShown() {
       // Option A: if the slider instance has a .refresh() API
@@ -128,9 +114,7 @@ export default {
       // Option B: force a remount via key
       this.sliderKey++;
    }
-  }
-
-
+  },
 };
 </script>
 <style scoped lang="scss">
