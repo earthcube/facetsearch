@@ -345,112 +345,92 @@ export default {
      * The number of items in each filter from each facet is also updated
      */
     filter: function () {
-      // first apply the filters to the items
-
-      // this.currentResults = [] // triggers reactive event and we are resetting it in the next lines, anyway
       let self = this;
 
-      let minDepthFilter = Array.isArray(self.filtersState.filters.minDepth)
-        ? self.filtersState.filters.minDepth.slice(-1)[0]
-        : undefined;
+      const getLatestFilterValue = (key) => {
+        const val = self.filtersState.filters[key];
+        return Array.isArray(val) ? val.slice(-1)[0] : undefined;
+      };
 
-      let maxDepthFilter = Array.isArray(self.filtersState.filters.maxDepth)
-        ? self.filtersState.filters.maxDepth.slice(-1)[0]
-        : undefined;
+      const minDepthFilter = getLatestFilterValue("minDepth");
+      const maxDepthFilter = getLatestFilterValue("maxDepth");
+      const startYearFilter = getLatestFilterValue("startYear");
+      const endYearFilter = getLatestFilterValue("endYear");
 
-      let startYearFilter = Array.isArray(self.filtersState.filters.startYear)
-        ? self.filtersState.filters.startYear.slice(-1)[0]
-        : undefined;
-
-      let endYearFilter = Array.isArray(self.filtersState.filters.endYear)
-        ? self.filtersState.filters.endYear.slice(-1)[0]
-        : undefined;
-
-      let newResults = _.select(this.items, function (item) {
+      let newResults = _.filter(this.items, function (item) {
         const itemMin = parseFloat(item.minDepth);
         const itemMax = parseFloat(item.maxDepth);
+
         let itemStartYear = undefined;
         let itemEndYear = undefined;
-
         if (typeof item.temporalCoverage === "string" && item.temporalCoverage.includes("/")) {
           const [start, end] = item.temporalCoverage.split("/");
-          itemStartYear = parseInt(start.trim());
-          itemEndYear = parseInt(end.trim());
+          itemStartYear = parseInt(start.trim(), 10);
+          itemEndYear = parseInt(end.trim(), 10);
         }
 
-        const isMatch =
-          !isNaN(itemMin) &&
-          !isNaN(itemMax) &&
-          (minDepthFilter === undefined || itemMax >= minDepthFilter) &&
-          (maxDepthFilter === undefined || itemMin <= maxDepthFilter) &&
-          (
-            (!isNaN(itemStartYear) || !isNaN(itemEndYear)) &&
-            (
-              (startYearFilter === undefined || (itemEndYear ?? itemStartYear) >= startYearFilter) &&
-              (endYearFilter === undefined || (itemStartYear ?? itemEndYear) <= endYearFilter)
-            )
-          );
+        const isValid = () => {
+          if (isNaN(itemMin) || isNaN(itemMax)) return false;
 
-        return isMatch;
+          const overlapsDepthRange =
+            (minDepthFilter === undefined || itemMax >= minDepthFilter) &&
+            (maxDepthFilter === undefined || itemMin <= maxDepthFilter);
 
-        let filtersApply = true;
-        _.each(self.filtersState.filters, function (filter, facet) {
-          if (facet === "minDepth" || facet === "maxDepth" || facet === "startYear" || facet === "endYear") return; // already handled
+          if (!overlapsDepthRange) return false;
+
+          if (isNaN(itemStartYear) && isNaN(itemEndYear)) return false;
+          if (isNaN(itemStartYear)) itemStartYear = itemEndYear;
+          if (isNaN(itemEndYear)) itemEndYear = itemStartYear;
+
+          const overlapsYearRange =
+            (startYearFilter === undefined || itemEndYear >= startYearFilter) &&
+            (endYearFilter === undefined || itemStartYear <= endYearFilter);
+
+          return overlapsYearRange;
+        };
+
+        if (!isValid()) return false;
+
+        for (const [facet, filter] of Object.entries(self.filtersState.filters)) {
+          if (["minDepth", "maxDepth", "startYear", "endYear"].includes(facet)) continue;
 
           if (_.isArray(item[facet])) {
-            var inters = _.intersection(item[facet], filter);
-            if (inters.length == 0) {
-              filtersApply = false;
-            }
+            const inters = _.intersection(item[facet], filter);
+            if (inters.length === 0) return false;
           } else {
-            if (filter.length && _.indexOf(filter, item[facet]) == -1) {
-              filtersApply = false;
-            }
+            if (filter.length && !filter.includes(item[facet])) return false;
           }
-        });
-        return filtersApply;
+        }
+
+        return true;
       });
 
-      // the next two lines are needed to make the vue reactivity work.
-      // vue cannot easily detect array length changes, so.
-      //self.currentResults =self.currentResults.splice(0, 0);
-      let len = self.currentResults.length;
+      const len = self.currentResults.length;
       self.currentResults.splice(0, len);
-      newResults.forEach((i) => self.currentResults.push(i));
+      newResults.forEach(i => self.currentResults.push(i));
 
       this.resetFacetCount();
-      // then reduce the items to get the current count for each facet
+
       _.each(self.facets, function (facet) {
         _.each(self.currentResults, function (item) {
-          if (_.isArray(item[facet.field])) {
-            _.each(item[facet.field], function (facetitem) {
-              if (_.isEmpty(facetitem)) {
-                return;
-              }
-              //self.facetStore[facet.field][facetitem].count += 1;
-              let newcount = self.facetStore[facet.field][facetitem].count + 1;
-              self.facetStore[facet.field][facetitem].count = newcount;
+          const val = item[facet.field];
+          if (_.isArray(val)) {
+            val.forEach(facetitem => {
+              if (_.isEmpty(facetitem)) return;
+              self.facetStore[facet.field][facetitem].count += 1;
             });
-          } else {
-            if (item[facet.field] !== undefined) {
-              if (_.isEmpty(item[facet.field])) {
-                return;
-              }
-              //self.facetStore[facet.field][item[facet.field]].count += 1;
-              let newcount =
-                self.facetStore[facet.field][item[facet.field]].count + 1;
-              self.facetStore[facet.field][item[facet.field]].count = newcount;
-            }
+          } else if (val !== undefined && !_.isEmpty(val)) {
+            self.facetStore[facet.field][val].count += 1;
           }
         });
       });
-      // remove confusing 0 from facets where a filter has been set
+
       _.each(self.filtersState.filters, function (filters, facettitle) {
         _.each(self.facetStore[facettitle], function (facet) {
-          if (facet.count == 0 && self.filtersState.filters[facettitle].length)
-            facet.count = "+";
+          if (facet.count === 0 && filters.length) facet.count = "+";
         });
       });
+
       self.filtersState.shownResults = 0;
     },
     toggleFilter: function (key, value, skipfilterUrl = false) {
