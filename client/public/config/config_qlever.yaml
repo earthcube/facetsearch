@@ -1,6 +1,6 @@
 COMMUNITY: qlever-test
 # https://geocodes.earthcube.org
-API_URL: https://depth.geocodes-aws-dev.earthcube.org/ec/api
+API_URL: https://qlever-geocodes.geocodes-aws-dev.earthcube.org/ec/api
 MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
 # local development
 #API_URL: "${window_location_origin}/ec/api"
@@ -100,6 +100,11 @@ FACETS:
     type: text
   - field: datep
     title: Year Published Range
+    sort: acs
+    open: true
+    type: range
+  - field: minDepth
+    title: Min Depth Range
     sort: acs
     open: true
     type: range
