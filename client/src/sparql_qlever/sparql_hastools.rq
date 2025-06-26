@@ -5,7 +5,7 @@ PREFIX ecrr: <https://qlever.geocodes-aws-dev.earthcube.org/graphspace/ecrr>
 # run in a DATASET namespace
 ASK
 	WHERE                    {
-	  graph  <urn:gleaner.io:eco:ssdbiodp:data:01f777af8e78c3e56a378e4d98337b185d766114>
+	  graph  <${g}>
 		  {
 			{
 			  ?s schemaold:distribution|schema:distribution ?dist .

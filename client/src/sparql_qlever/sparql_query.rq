@@ -10,7 +10,7 @@ SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", "
 		    ?subj ?o ?item .
 
     ?text ql:contains-entity ?item .
-    ?text ql:contains-word "water"
+    ?text ql:contains-word "${q}"
           graph ?g {
 
              ?subj schema:name|sschema:name ?name .
@@ -45,7 +45,7 @@ SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", "
         }
         GROUP BY ?subj ?pubname ?placename  ?datep ?url  ?name ?description ?type ?g
         ORDER BY DESC(?score)
-LIMIT 1000
+        LIMIT ${n}
     #LIMIT 100
 #OFFSET 0
 
