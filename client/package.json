@@ -71,6 +71,7 @@
     "@vue/eslint-config-typescript": "^10.0.0",
     "@vue/test-utils": "^2.4.3",
     "@vue/vue3-jest": "^29.2.6",
+    "@yarnpkg/cli": "^4.0.0",
     "core-js": "^3.8.3",
     "eslint": "^8.56.0",
     "eslint-plugin-vue": "^9.20.0",
@@ -113,5 +114,9 @@
     "last 2 versions",
     "not dead"
   ],
+  "engines": {
+    "node": ">=20.0.0",
+    "yarn": ">=4.0.0"
+  },
   "packageManager": "yarn@4.0.0+sha512.955259c0370ab8c06d013faa7d5e7addb6914251029695675f54e04c917ea6b092c379ba8d3521556d90b3874e5037759467072f01d2295341ead43cc259f14b"
 }
