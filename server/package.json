@@ -29,5 +29,4 @@
     "node": ">=22.0.0",
     "yarn": ">=4.0.0"
   },
-  "packageManager": "yarn@4.0.0"
 }
