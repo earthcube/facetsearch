@@ -60,13 +60,13 @@ WHERE {
     #     bind ( COALESCE(?box) As ?bbox)
     OPTIONAL {?subj schema:keywords|sschema:keywords ?kw1 .}
     OPTIONAL {
-        ?subj schema:variableMeasured ?vm .
-        ?vm a schema:PropertyValue .
-        ?vm schema:name ?variableMeasured_a .
+        ?subj sschema:variableMeasured ?vm .
+        ?vm a sschema:PropertyValue .
+        ?vm sschema:name ?variableMeasured_a .
     }
     # if there is more than one location, then coallese to get the versions.
-    OPTIONAL {?subj schema:variableMeasured ?vm .
-              ?vm a  schema:PropertyValue  .
+    OPTIONAL {?subj sschema:variableMeasured ?vm .
+              ?vm a  sschema:PropertyValue  .
               ?vm schema:name "depth" .
               ?vm schema:maxValue ?maxdepth_d .
               ?vm schema:minValue ?minDepth_d
@@ -76,9 +76,9 @@ WHERE {
 
     # temporal coverage.
     bind ( COALESCE(?kw1, "") As ?kwu)
-    bind ( COALESCE(?url1, "") As ?url)
+    bind ( COALESCE(?url1) As ?url)
     # pick one date
-    bind ( COALESCE(?datec,?dateM,?datep1) As ?datep)
+    bind ( COALESCE(?datec,?datem,?datep1) As ?datep)
     BIND ( IF ( BOUND(?pub_name), ?pub_name, "No Publisher") as ?pubname ) .
     BIND ( IF ( BOUND(?place_name), ?place_name, "No Placenames") as ?placename ) .
 }
