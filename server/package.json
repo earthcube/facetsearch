@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node  --max-old-space-size=4096 ./bin/www",
-    "dev": "nodemon ./bin/www"
+    "dev": "nodemon --max-old-space-size=4096 ./bin/www"
   },
   "dependencies": {
     "axios": "1.8.2",
@@ -21,8 +21,13 @@
     "qs": "^6.10.1"
   },
   "devDependencies": {
+    "@yarnpkg/cli": "^4.0.0",
     "nodemon": "^2.0.7",
     "oas-tools": "^2.1.8"
   },
-  "packageManager": "yarn@4.0.0+sha512.955259c0370ab8c06d013faa7d5e7addb6914251029695675f54e04c917ea6b092c379ba8d3521556d90b3874e5037759467072f01d2295341ead43cc259f14b"
+  "engines": {
+    "node": ">=22.0.0",
+    "yarn": ">=4.0.0"
+  },
+  "packageManager": "yarn@4.0.0"
 }
