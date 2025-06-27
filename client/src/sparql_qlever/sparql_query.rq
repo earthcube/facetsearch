@@ -59,15 +59,16 @@ WHERE {
     #		 ?geo sschema:box ?box .}
     #     bind ( COALESCE(?box) As ?bbox)
     OPTIONAL {?subj schema:keywords|sschema:keywords ?kw1 .}
-    OPTIONAL {
-        ?subj sschema:variableMeasured ?vm .
-        ?vm a sschema:PropertyValue .
-        ?vm sschema:name ?variableMeasured_a .
-    }
+#    OPTIONAL {
+#        ?subj sschema:variableMeasured ?vm .
+#        ?vm a sschema:PropertyValue .
+#        ?vm sschema:name ?variableMeasured_a .
+#    }
     # if there is more than one location, then coallese to get the versions.
     OPTIONAL {?subj sschema:variableMeasured ?vm .
               ?vm a  sschema:PropertyValue  .
-              ?vm schema:name "depth" .
+              ?vm schema:name ?namedepth  .
+              FILTER (?namedepth IN ("depth", "CmpDep") ) .
               ?vm schema:maxValue ?maxdepth_d .
               ?vm schema:minValue ?minDepth_d
     }
