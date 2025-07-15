@@ -1,9 +1,9 @@
 ---
-API_URL: https://geocodes-aws.earthcube.org/ec/api
-S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/
-TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube/sparql
+API_URL: https://geocodes-all.geocodes-aws.earthcube.org/ec/api
+S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/geocodes_all/reports/
+TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/geocodes_all/sparql
 ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
-SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube_summary/sparql
+SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/geocodes_all_summary/sparql
 COMMUNTY: all
 # timeout for blazgraph queries
 BLAZEGRAPH_TIMEOUT: 20
@@ -13,9 +13,9 @@ SPARQL_QUERY: queries/sparql_query.txt
 SPARQL_HASTOOLS: queries/sparql_hastools.txt
 SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
 SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
-JSONLD_PROXY: https://geocodes-aws.earthcube.org/ec/api${o}
-SPARQL_NB: https://geocodes-aws.earthcube.org/notebook/mkQ?q=${q}
-SPARQL_YASGUI: https://geocodes-aws.earthcube.org/sparqlgui?
+JSONLD_PROXY: https://geocodes-all.geocodes-aws.earthcube.org/ec/api${o}
+SPARQL_NB: https://geocodes-all.geocodes-aws.earthcube.org/notebook/mkQ?q=${q}
+SPARQL_YASGUI: https://geocodes-all.geocodes-aws.earthcube.org/sparqlgui?
 
 #
 #API_URL: https://geocodes.wifire-data.sdsc.edu/ec/api
