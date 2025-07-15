@@ -2,7 +2,7 @@
 ---
 MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
 API_URL: https://geocodes-aws.earthcube.org/ec/api
-
+TENANT_URL: https://oss.geocodes-aws-dev.earthcube.org/test/scheduler/configs/test/tenant.yaml
 TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube/sparql
 ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
 SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube_summary/sparql

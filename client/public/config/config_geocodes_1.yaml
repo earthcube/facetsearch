@@ -1,6 +1,7 @@
 ---
 #API_URL: http://localhost:3000
 API_URL: https://geocodes.earthcube.org/ec/api
+TENANT_URL: https://oss.geocodes-aws-dev.earthcube.org/test/scheduler/configs/test/tenant.yaml
 S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/
 TRIPLESTORE_URL: https://graph.geocodes-1.earthcube.org/blazegraph/namespace/earthcube/sparql
 ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query

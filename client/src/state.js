@@ -250,6 +250,17 @@ export const store = _createStore({
         commit("setTenantData", tenantData);
       } catch (error) {
         console.error('Error loading Tenant YAML file:', error);
+        const tenantData = {
+          tenant:[{
+            community: "MISSING FacetsConfig.TENANT_URL",
+            landing_introduction: "Missing FacetsConfig.TENANT_URL",
+            description:  "Missing FacetsConfig.TENANT_URL",
+            name: "MISSING FacetsConfig.TENANT_URL",
+            color: "blue"
+
+          }]
+        }
+        commit("setTenantData", tenantData);
       }
     },
     // eslint-disable-next-line

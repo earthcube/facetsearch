@@ -2,6 +2,7 @@ COMMUNITY: ecoforecast
 # https://geocodes.earthcube.org
 API_URL: https://ecoforecast.geocodes-aws.earthcube.org/ec/api
 MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
+TENANT_URL: https://oss.geocodes-aws-dev.earthcube.org/test/scheduler/configs/test/tenant.yaml
 # local development
 #API_URL: "${window_location_origin}/ec/api"
 S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/

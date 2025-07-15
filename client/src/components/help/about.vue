@@ -19,15 +19,15 @@
       </b-col>
 
       <b-col cols="6" class="d-flex">
-        <b-jumbotron text-variant="white" :style="{ backgroundColor: tenantData.tenant[0].color || secondary }" class="w-100 d-flex flex-column">
+        <b-jumbotron text-variant="white" :style="{ backgroundColor: tenantData.tenant[0]?.color || secondary }" class="w-100 d-flex flex-column">
           <template #header>
 <!--            <span class="text-white">You are on {{ this.tenantData.tenant[0].community }}</span>-->
-            <span class="text-white">You are on {{ this.tenantData.tenant[0].community }}</span>
+            <span class="text-white">You are on {{ this.tenantData.tenant[0]?.community }}</span>
           </template>
 
           <template #lead>
             <span class="p-5 flex-grow-1">
-              {{ this.tenantData.tenant[0].description }}
+              {{ this.tenantData.tenant[0]?.description }}
             </span>
           </template>
         </b-jumbotron>

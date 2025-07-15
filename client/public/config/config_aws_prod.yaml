@@ -4,6 +4,7 @@ S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/
 TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube/sparql
 ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
 SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube_summary/sparql
+TENANT_URL: https://oss.geocodes-aws-dev.earthcube.org/geocodes/scheduler/configs/production/tenant.yaml
 COMMUNTY: all
 # timeout for blazgraph queries
 BLAZEGRAPH_TIMEOUT: 20
