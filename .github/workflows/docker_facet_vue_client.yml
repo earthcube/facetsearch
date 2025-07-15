@@ -25,7 +25,7 @@ jobs:
       - run: npm install -g corepack
       - name: Enable Corepack
         run: corepack enable
-      - run: yarn exec env
+      #- run: yarn exec env
       - name: Create Node Environment
         uses: actions/setup-node@v4
         env:
