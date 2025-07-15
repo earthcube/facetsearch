@@ -535,7 +535,7 @@ export default {
           newWindow.document.write(`
             <html>
               <head>
-                <title>View Access Code</title>
+                <title>View Example Source Code</title>
                 <style>
                   /* General Styles */
                   body {
