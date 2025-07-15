@@ -3982,6 +3982,7 @@ __metadata:
     jsonpath: "npm:^1.1.1"
     jsonpath-plus: "npm:^7.2.0"
     leaflet: "npm:^1.9.4"
+    leaflet-draw: "npm:^1.0.4"
     localforage: "npm:^1.10.0"
     localforage-startswith: "npm:^1.4.0"
     lodash: "npm:^4.17.21"
@@ -8079,6 +8080,13 @@ __metadata:
     picocolors: "npm:^1.0.0"
     shell-quote: "npm:^1.8.1"
   checksum: 10c0/82d0bd9a44e7a972157719e63dac1b8196db6ec7066c1ec57a495f6c3d6e734f3c4da89549e7b33eb3b0356668ad02a9e7782b6733f5ebd7a61b7c5f635a3ee9
+  languageName: node
+  linkType: hard
+
+"leaflet-draw@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "leaflet-draw@npm:1.0.4"
+  checksum: 10c0/9e700b7e5e7d70c0f9d66efe2fec282f635eff63699e5f2f4eb733b140188058cc7cb2a5d3c6889c300958ec9e415fd5c0a02a08db0e1fc13a063d4710cff004
   languageName: node
   linkType: hard
 
