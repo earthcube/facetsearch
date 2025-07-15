@@ -8,29 +8,29 @@
 
       </b-row>
       <b-card class="mt-3" bg-variant="light" border-variant="secondary" v-if="isDataCatalog">
-        <b-card-header  >Records from DataCatalog</b-card-header>
+        <b-card-header>Records from DataCatalog</b-card-header>
         <b-card-body>
-        <b-list-group flush >
-          <b-list-group-item>
-            <h4 class="page_title mb-0" v-html="name"></h4>
-          </b-list-group-item>
+          <b-list-group flush>
+            <b-list-group-item>
+              <h4 class="page_title mb-0" v-html="name"></h4>
+            </b-list-group-item>
 
-          <b-list-group-item>
-            <strong>Description: </strong>
-            <span class="text-muted" v-html="description"></span>
-          </b-list-group-item>
+            <b-list-group-item>
+              <strong>Description: </strong>
+              <span class="text-muted" v-html="description"></span>
+            </b-list-group-item>
 
-          <b-list-group-item>
-            <strong>Keywords:</strong>
-            <b-badge v-for="(kw, idx) in keywords" :key="idx" variant="info" class="mr-1">
-              {{ kw }}
-            </b-badge>
-          </b-list-group-item>
+            <b-list-group-item>
+              <strong>Keywords:</strong>
+              <b-badge v-for="(kw, idx) in keywords" :key="idx" variant="info" class="mr-1">
+                {{kw}}
+              </b-badge>
+            </b-list-group-item>
 
-        </b-list-group>
+          </b-list-group>
         </b-card-body>
         <b-card-footer>
-          <div v-if="mappings.length>0"> Number of Datasets: {{mappings.length}}</div>
+          <div v-if="mappings.length>0"> Number of Datasets: {{ mappings.length }}</div>
         </b-card-footer>
       </b-card>
       <!--      <div v-for="(mapping, index) in mappings" :key="index">-->
@@ -629,40 +629,41 @@ export default {
     },
     toMetadata() {
       var self = this;
-      var mapping = { "s_name": "",
-            "s_description": "",
-            s_url: "",
-            s_contributor: "",
-            s_datePublished: "",
-            s_sdPublisher: "",
-            s_citation: "",
-            has_citation: "",
-            s_keywords: [],
-            s_landingpage: "",
-            s_downloads: [],
-            s_identifier: "",
-            details: {},
-           raw_json: "",
-            html_name: "",
-            publisher: "",
-            description: "",
-            s_publisher: "",
-            s_publishedDate: "",
-            has_s_url: false,
-            downloads: [],
-            s_distribution: "",
-            s_variableMeasuredNames: [],
-            s_doiurl: "",
-            doi_citation: "", // s_ is schema... doi_citation not a schema element
-            doi_metadata: "",
-            s_spatialCoverage: false,
-            placenames: "",
-            box: "",
-            poly: "",
-            points: [],
-            updated: "",
-            start_datetime: "",
-            end_datetime: ""
+      var mapping = {
+        "s_name": "",
+        "s_description": "",
+        s_url: "",
+        s_contributor: "",
+        s_datePublished: "",
+        s_sdPublisher: "",
+        s_citation: "",
+        has_citation: "",
+        s_keywords: [],
+        s_landingpage: "",
+        s_downloads: [],
+        s_identifier: "",
+        details: {},
+        raw_json: "",
+        html_name: "",
+        publisher: "",
+        description: "",
+        s_publisher: "",
+        s_publishedDate: "",
+        has_s_url: false,
+        downloads: [],
+        s_distribution: "",
+        s_variableMeasuredNames: [],
+        s_doiurl: "",
+        doi_citation: "", // s_ is schema... doi_citation not a schema element
+        doi_metadata: "",
+        s_spatialCoverage: false,
+        placenames: "",
+        box: "",
+        poly: "",
+        points: [],
+        updated: "",
+        start_datetime: "",
+        end_datetime: ""
       };
       var jp = self.jsonLdObj; // framed dataset
       if (jp["@type"] == "DataCatalog") {
