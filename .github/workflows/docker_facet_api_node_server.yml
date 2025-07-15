@@ -22,7 +22,7 @@ jobs:
           NODE_ENV:
             production
         with:
-          node-version: '14'
+          node-version: '22'
       - run: npm install
       #- run: npm install -g  yarn
       #- run: yarn install
