@@ -8,6 +8,7 @@ on:
       - 148-year-published-range-bar-is-not-working-1
       - 163-geochemistry-dataset-not-rendering-correctly
       - 167-ecoforecast-s3-url
+      - 174-datacatalog-rendering-for-cchdo
       - 173-landing-page-and-about-page-specification-from-user-testing
 
 # https://github.com/marketplace/actions/publish-docker
@@ -25,7 +26,6 @@ jobs:
       - run: npm install -g corepack
       - name: Enable Corepack
         run: corepack enable
-      #- run: yarn exec env
       - name: Create Node Environment
         uses: actions/setup-node@v4
         env:
