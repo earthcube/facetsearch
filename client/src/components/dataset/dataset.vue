@@ -3,366 +3,358 @@
     <b-overlay :show="obscurePage" rounded="sm">
       <b-row class="align-items-center mb-3">
         <b-col cols="auto">
-          <back-button />
+          <back-button/>
         </b-col>
-        <b-col>
-          <h4 class="page_title mb-0" v-html="name"></h4>
-        </b-col>
+
       </b-row>
+      <b-card class="mt-3" bg-variant="light" border-variant="secondary" v-if="isDataCatalog">
+        <b-list-group flush >
+          <b-list-group-item>
+            <h4 class="page_title mb-0" v-html="name"></h4>
+          </b-list-group-item>
 
-      <b-card class="mt-3" bg-variant="light" border-variant="secondary">
-  <b-list-group flush>
-    <b-list-group-item>
-      <strong>Description: </strong>
-      <span class="text-muted" v-html="description"></span>
-    </b-list-group-item>
-    <b-list-group-item>
-      <strong>@vocab:</strong>
-      <a href="{{vocab}}" target="_blank" rel="noopener noreferrer">
-        https://schema.org/
-      </a>
-    </b-list-group-item>
-    <b-list-group-item>
-      <strong>geolink:</strong>
-      <a href="{{geolink}}" target="_blank" rel="noopener noreferrer">
-        http://schema.geolink.org/1.0/base/main#
-      </a>
-    </b-list-group-item>
-    <b-list-group-item>
-      <strong>Keywords:</strong>
-      <b-badge v-for="(kw, idx) in keywords" :key="idx" variant="info" class="mr-1">
-        {{ kw }}
-      </b-badge>
-    </b-list-group-item>
-  </b-list-group>
-</b-card>
-<!--      <div v-for="(mapping, index) in mappings" :key="index">-->
-<!--        <b-row class="align-items-center mb-2">-->
-<!--          <b-col>-->
-<!--            <h4 class="page_title" v-html="mapping.s_name"></h4>-->
-<!--          </b-col>-->
-<!--          <b-col cols="auto">-->
-<!--            <feedback-->
-<!--              subject="Dataset"-->
-<!--              :name="mapping.s_name"-->
-<!--              :urn="d"-->
-<!--            />-->
-<!--          </b-col>-->
-<!--        </b-row>-->
-<!--        <b-row>-->
-<!--          <b-col md="8">-->
-<!--            <div class="metadata">-->
-<!--              <div class="label">Type</div>-->
-<!--              <div class="value">-->
-<!--                <b-icon-->
-<!--                  font-scale="2"-->
-<!--                  class="mr-1"-->
-<!--                  shift-v="-2"-->
-<!--                  :icon="'data' == 'data' ? 'server' : 'tools'"-->
-<!--                  :variant="'data' == 'data' ? 'data' : 'tool'"-->
-<!--                ></b-icon>-->
-<!--                <b-badge variant="data" class="mr-1 mb-1">Data</b-badge>-->
-<!--              </div>-->
-<!--            </div>-->
+          <b-list-group-item>
+            <strong>Description: </strong>
+            <span class="text-muted" v-html="description"></span>
+          </b-list-group-item>
 
-<!--            <div class="metadata">-->
-<!--              <div class="label">Abstract</div>-->
-<!--              <div class="value" v-html="mapping.s_description"></div>-->
-<!--            </div>-->
+          <b-list-group-item>
+            <strong>Keywords:</strong>
+            <b-badge v-for="(kw, idx) in keywords" :key="idx" variant="info" class="mr-1">
+              {{ kw }}
+            </b-badge>
+          </b-list-group-item>
+        </b-list-group>
+      </b-card>
+      <!--      <div v-for="(mapping, index) in mappings" :key="index">-->
+      <!--        <b-row class="align-items-center mb-2">-->
+      <!--          <b-col>-->
+      <!--            <h4 class="page_title" v-html="mapping.s_name"></h4>-->
+      <!--          </b-col>-->
+      <!--          <b-col cols="auto">-->
+      <!--            <feedback-->
+      <!--              subject="Dataset"-->
+      <!--              :name="mapping.s_name"-->
+      <!--              :urn="d"-->
+      <!--            />-->
+      <!--          </b-col>-->
+      <!--        </b-row>-->
+      <!--        <b-row>-->
+      <!--          <b-col md="8">-->
+      <!--            <div class="metadata">-->
+      <!--              <div class="label">Type</div>-->
+      <!--              <div class="value">-->
+      <!--                <b-icon-->
+      <!--                  font-scale="2"-->
+      <!--                  class="mr-1"-->
+      <!--                  shift-v="-2"-->
+      <!--                  :icon="'data' == 'data' ? 'server' : 'tools'"-->
+      <!--                  :variant="'data' == 'data' ? 'data' : 'tool'"-->
+      <!--                ></b-icon>-->
+      <!--                <b-badge variant="data" class="mr-1 mb-1">Data</b-badge>-->
+      <!--              </div>-->
+      <!--            </div>-->
 
-<!--            <div v-if="mapping.s_contributor" class="metadata">-->
-<!--              <div class="label">Creator</div>-->
-<!--              <div v-if="!Array.isArray(mapping.s_contributor)" class="value">-->
-<!--                {{ mapping.s_contributor }}-->
-<!--              </div>-->
-<!--              <div v-if="Array.isArray(mapping.s_contributor)" class="value">-->
-<!--                <div v-for="i in mapping.s_contributor" :key="i">-->
-<!--                  {{ i }}-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
+      <!--            <div class="metadata">-->
+      <!--              <div class="label">Abstract</div>-->
+      <!--              <div class="value" v-html="mapping.s_description"></div>-->
+      <!--            </div>-->
 
-<!--            <div v-if="mapping.s_publisher" class="metadata">-->
-<!--              <div class="label">Publisher</div>-->
-<!--              <div class="value">{{ mapping.publisher }}</div>-->
-<!--            </div>-->
+      <!--            <div v-if="mapping.s_contributor" class="metadata">-->
+      <!--              <div class="label">Creator</div>-->
+      <!--              <div v-if="!Array.isArray(mapping.s_contributor)" class="value">-->
+      <!--                {{ mapping.s_contributor }}-->
+      <!--              </div>-->
+      <!--              <div v-if="Array.isArray(mapping.s_contributor)" class="value">-->
+      <!--                <div v-for="i in mapping.s_contributor" :key="i">-->
+      <!--                  {{ i }}-->
+      <!--                </div>-->
+      <!--              </div>-->
+      <!--            </div>-->
 
-<!--            <div v-if="mapping.s_datePublished" class="metadata">-->
-<!--              <div class="label">Date</div>-->
-<!--              <div class="value">{{ mapping.s_datePublished }}</div>-->
-<!--            </div>-->
+      <!--            <div v-if="mapping.s_publisher" class="metadata">-->
+      <!--              <div class="label">Publisher</div>-->
+      <!--              <div class="value">{{ mapping.publisher }}</div>-->
+      <!--            </div>-->
 
-<!--            <div v-if="mapping.updated" class="metadata">-->
-<!--              <div class="label">Last Updated</div>-->
-<!--              <div class="value">{{ mapping.updated }}</div>-->
-<!--            </div>-->
+      <!--            <div v-if="mapping.s_datePublished" class="metadata">-->
+      <!--              <div class="label">Date</div>-->
+      <!--              <div class="value">{{ mapping.s_datePublished }}</div>-->
+      <!--            </div>-->
 
-<!--            <div v-if="mapping.start_datetime" class="metadata">-->
-<!--              <div class="label">Start Date</div>-->
-<!--              <div class="value">{{ mapping.start_datetime }}</div>-->
-<!--            </div>-->
+      <!--            <div v-if="mapping.updated" class="metadata">-->
+      <!--              <div class="label">Last Updated</div>-->
+      <!--              <div class="value">{{ mapping.updated }}</div>-->
+      <!--            </div>-->
 
-<!--            <div v-if="mapping.end_datetime" class="metadata">-->
-<!--              <div class="label">End Date</div>-->
-<!--              <div class="value">{{ mapping.end_datetime }}</div>-->
-<!--            </div>-->
+      <!--            <div v-if="mapping.start_datetime" class="metadata">-->
+      <!--              <div class="label">Start Date</div>-->
+      <!--              <div class="value">{{ mapping.start_datetime }}</div>-->
+      <!--            </div>-->
 
-<!--            <div v-if="mapping.has_citation" class="metadata">-->
-<!--              <div class="label">Citation</div>-->
-<!--              <div class="value">{{ mapping.s_citation }}</div>-->
-<!--            </div>-->
-<!--            <div-->
-<!--              v-if="mapping.s_variableMeasuredNames.length > 0"-->
-<!--              class="varaibles"-->
-<!--            >-->
-<!--              <div class="label">Variables Measured</div>-->
-<!--              <div class="value">-->
-<!--                <span v-for="vm in mapping.s_variableMeasuredNames" :key="vm">-->
-<!--                  <b-badge class="mr-1" variant="light"> {{ vm }}</b-badge>-->
-<!--                </span>-->
-<!--              </div>-->
-<!--            </div>-->
+      <!--            <div v-if="mapping.end_datetime" class="metadata">-->
+      <!--              <div class="label">End Date</div>-->
+      <!--              <div class="value">{{ mapping.end_datetime }}</div>-->
+      <!--            </div>-->
 
-<!--            <div v-if="mapping.s_downloads || mapping.s_url" class="metadata">-->
-<!--              <div class="label">Links</div>-->
-<!--              <div class="value">-->
-<!--                &lt;!&ndash;                        <div style="font-weight:600;">Object URL text/plain; application=magic-tsv</div>&ndash;&gt;-->
+      <!--            <div v-if="mapping.has_citation" class="metadata">-->
+      <!--              <div class="label">Citation</div>-->
+      <!--              <div class="value">{{ mapping.s_citation }}</div>-->
+      <!--            </div>-->
+      <!--            <div-->
+      <!--              v-if="mapping.s_variableMeasuredNames.length > 0"-->
+      <!--              class="varaibles"-->
+      <!--            >-->
+      <!--              <div class="label">Variables Measured</div>-->
+      <!--              <div class="value">-->
+      <!--                <span v-for="vm in mapping.s_variableMeasuredNames" :key="vm">-->
+      <!--                  <b-badge class="mr-1" variant="light"> {{ vm }}</b-badge>-->
+      <!--                </span>-->
+      <!--              </div>-->
+      <!--            </div>-->
 
-<!--                &lt;!&ndash;                        <div><a href="#">https://earthref.org/MagIC/3484</a></div>&ndash;&gt;-->
-<!--                &lt;!&ndash;                        <div><a href="#">https://earthref.org/MagIC/download/3484/magic_contribution_348415032.txt</a></div>&ndash;&gt;-->
-<!--                &lt;!&ndash;                        <div><a href="#">https://earthref.org/MagIC/download/9843/magic_contribution_176534821.txt</a></div>&ndash;&gt;-->
-<!--                <div v-if="mapping.s_url">-->
-<!--                  <div style="font-weight: 600">URL from JSON-LD</div>-->
-<!--                  <div>-->
-<!--                    <a :href="mapping.s_url" target="_blank">-->
-<!--                      {{ mapping.s_url }}-->
-<!--                    </a>-->
-<!--                  </div>-->
-<!--                </div>-->
+      <!--            <div v-if="mapping.s_downloads || mapping.s_url" class="metadata">-->
+      <!--              <div class="label">Links</div>-->
+      <!--              <div class="value">-->
+      <!--                &lt;!&ndash;                        <div style="font-weight:600;">Object URL text/plain; application=magic-tsv</div>&ndash;&gt;-->
 
-<!--                <div v-for="i in mapping.s_downloads" :key="i.name">-->
-<!--                  <div style="font-weight: 600">Distribution: {{ i.name }}</div>-->
-<!--                  &lt;!&ndash; do we want this? &ndash;&gt;-->
-<!--                  <div-->
-<!--                    v-if="i.encodingFormat && i.name !== i.encodingFormat"-->
-<!--                    style="font-weight: 600"-->
-<!--                  >-->
-<!--                    {{ i.encodingFormat }}-->
-<!--                  </div>-->
-<!--                  <div>-->
-<!--                    &lt;!&ndash; Show the URL if it does NOT start with 's3:' &ndash;&gt;-->
-<!--                    <a v-if="!i.contentUrl.startsWith('s3:')" target="_blank" :href="i.contentUrl">{{ i.contentUrl }}</a>-->
-<!--                    &lt;!&ndash; Show the button if the URL starts with 's3:' &ndash;&gt;-->
-<!--                    <button-->
-<!--                      v-else-->
-<!--                      class="data-access-button"-->
-<!--                      @click="copyAndOpenWindow(i.description)"-->
-<!--                    >-->
-<!--                      View Access Code-->
-<!--                    </button>-->
-<!--                  </div>-->
-<!--                  &lt;!&ndash; Dialog &ndash;&gt;-->
-<!--                  <div v-if="isDialogOpen" class="dialog-backdrop" @click.self="closeDialog">-->
-<!--                    <div class="dialog-content">-->
-<!--                      <h3>URL Copied!</h3>-->
-<!--                      <p>{{ dialogContent }}</p>-->
-<!--                      <button @click="closeDialog">Close</button>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
+      <!--                &lt;!&ndash;                        <div><a href="#">https://earthref.org/MagIC/3484</a></div>&ndash;&gt;-->
+      <!--                &lt;!&ndash;                        <div><a href="#">https://earthref.org/MagIC/download/3484/magic_contribution_348415032.txt</a></div>&ndash;&gt;-->
+      <!--                &lt;!&ndash;                        <div><a href="#">https://earthref.org/MagIC/download/9843/magic_contribution_176534821.txt</a></div>&ndash;&gt;-->
+      <!--                <div v-if="mapping.s_url">-->
+      <!--                  <div style="font-weight: 600">URL from JSON-LD</div>-->
+      <!--                  <div>-->
+      <!--                    <a :href="mapping.s_url" target="_blank">-->
+      <!--                      {{ mapping.s_url }}-->
+      <!--                    </a>-->
+      <!--                  </div>-->
+      <!--                </div>-->
 
-<!--            <div class="metadata mt-4">-->
-<!--              <div class="label"></div>-->
-<!--              <citationButton class="value buttons"></citationButton>-->
-<!--              &lt;!&ndash;                    <b-button variant="outline-secondary">Website</b-button>&ndash;&gt;-->
-<!--            </div>-->
+      <!--                <div v-for="i in mapping.s_downloads" :key="i.name">-->
+      <!--                  <div style="font-weight: 600">Distribution: {{ i.name }}</div>-->
+      <!--                  &lt;!&ndash; do we want this? &ndash;&gt;-->
+      <!--                  <div-->
+      <!--                    v-if="i.encodingFormat && i.name !== i.encodingFormat"-->
+      <!--                    style="font-weight: 600"-->
+      <!--                  >-->
+      <!--                    {{ i.encodingFormat }}-->
+      <!--                  </div>-->
+      <!--                  <div>-->
+      <!--                    &lt;!&ndash; Show the URL if it does NOT start with 's3:' &ndash;&gt;-->
+      <!--                    <a v-if="!i.contentUrl.startsWith('s3:')" target="_blank" :href="i.contentUrl">{{ i.contentUrl }}</a>-->
+      <!--                    &lt;!&ndash; Show the button if the URL starts with 's3:' &ndash;&gt;-->
+      <!--                    <button-->
+      <!--                      v-else-->
+      <!--                      class="data-access-button"-->
+      <!--                      @click="dataAccessWindow(i.description)"-->
+      <!--                    >-->
+      <!--                      View Access Code-->
+      <!--                    </button>-->
+      <!--                  </div>-->
+      <!--                  &lt;!&ndash; Dialog &ndash;&gt;-->
+      <!--                  <div v-if="isDialogOpen" class="dialog-backdrop" @click.self="closeDialog">-->
+      <!--                    <div class="dialog-content">-->
+      <!--                      <h3>URL Copied!</h3>-->
+      <!--                      <p>{{ dialogContent }}</p>-->
+      <!--                      <button @click="closeDialog">Close</button>-->
+      <!--                    </div>-->
+      <!--                  </div>-->
+      <!--                </div>-->
+      <!--              </div>-->
+      <!--            </div>-->
 
-<!--            &lt;!&ndash; TODO remove this or change to new structure &ndash;&gt;-->
-<!--            &lt;!&ndash;   <Metadata style="display: none;"></Metadata> &ndash;&gt;-->
-<!--          </b-col>-->
+      <!--            <div class="metadata mt-4">-->
+      <!--              <div class="label"></div>-->
+      <!--              <citationButton class="value buttons"></citationButton>-->
+      <!--              &lt;!&ndash;                    <b-button variant="outline-secondary">Website</b-button>&ndash;&gt;-->
+      <!--            </div>-->
 
-<!--          <b-col md="4">-->
-<!--            <DatasetLocation :m="mapping"></DatasetLocation>-->
+      <!--            &lt;!&ndash; TODO remove this or change to new structure &ndash;&gt;-->
+      <!--            &lt;!&ndash;   <Metadata style="display: none;"></Metadata> &ndash;&gt;-->
+      <!--          </b-col>-->
 
-<!--            <b-card>-->
-<!--              <b-card-title>Downloads</b-card-title>-->
-<!--              <downloadfiles :d="d" :m="mapping"></downloadfiles>-->
-<!--            </b-card>-->
-<!--          </b-col>-->
-<!--        </b-row>-->
-<!--      </div>-->
+      <!--          <b-col md="4">-->
+      <!--            <DatasetLocation :m="mapping"></DatasetLocation>-->
+
+      <!--            <b-card>-->
+      <!--              <b-card-title>Downloads</b-card-title>-->
+      <!--              <downloadfiles :d="d" :m="mapping"></downloadfiles>-->
+      <!--            </b-card>-->
+      <!--          </b-col>-->
+      <!--        </b-row>-->
+      <!--      </div>-->
       <div v-for="(mapping, index) in mappings" :key="index">
         <b-card no-body class="mb-2">
           <!-- Toggle Header -->
           <b-card-header
-            class="d-flex justify-content-between align-items-center"
-            @click="toggleCollapse(index)"
-            style="cursor: pointer;"
+              class="d-flex justify-content-between align-items-center"
+              @click="toggleCollapse(index)"
+              style="cursor: pointer;"
           >
             <h5 class="mb-0" v-html="mapping.s_name"></h5>
-            <b-icon :icon="collapsedIndices.includes(index) ? 'chevron-down' : 'chevron-up'" />
+            <b-icon :icon="collapsedIndices.includes(index) ? 'chevron-down' : 'chevron-up'"/>
           </b-card-header>
 
           <!-- Collapsible Body -->
           <b-collapse :id="'collapse-' + index" :visible="!collapsedIndices.includes(index)">
             <b-card-body>
               <b-row class="align-items-center">
-<!--                <b-col>-->
-<!--                  <p>{{ mapping.description }}</p>-->
-<!--                </b-col>-->
+                <!--                <b-col>-->
+                <!--                  <p>{{ mapping.description }}</p>-->
+                <!--                </b-col>-->
                 <b-col cols="right">
                   <feedback
-                    subject="Dataset"
-                    :name="mapping.s_name"
-                    :urn="d"
+                      subject="Dataset"
+                      :name="mapping.s_name"
+                      :urn="d"
                   />
                 </b-col>
               </b-row>
               <b-row>
-          <b-col md="8">
-            <div class="metadata">
-              <div class="label">Type</div>
-              <div class="value">
-                <b-icon
-                  font-scale="2"
-                  class="mr-1"
-                  shift-v="-2"
-                  :icon="'data' == 'data' ? 'server' : 'tools'"
-                  :variant="'data' == 'data' ? 'data' : 'tool'"
-                ></b-icon>
-                <b-badge variant="data" class="mr-1 mb-1">Data</b-badge>
-              </div>
-            </div>
+                <b-col md="8">
+                  <div class="metadata">
+                    <div class="label">Type</div>
+                    <div class="value">
+                      <b-icon
+                          font-scale="2"
+                          class="mr-1"
+                          shift-v="-2"
+                          :icon="'data' == 'data' ? 'server' : 'tools'"
+                          :variant="'data' == 'data' ? 'data' : 'tool'"
+                      ></b-icon>
+                      <b-badge variant="data" class="mr-1 mb-1">Data</b-badge>
+                    </div>
+                  </div>
 
-            <div class="metadata">
-              <div class="label">Abstract</div>
-              <div class="value" v-html="mapping.s_description"></div>
-            </div>
+                  <div class="metadata">
+                    <div class="label">Abstract</div>
+                    <div class="value" v-html="mapping.s_description"></div>
+                  </div>
 
-            <div v-if="mapping.s_contributor" class="metadata">
-              <div class="label">Creator</div>
-              <div v-if="!Array.isArray(mapping.s_contributor)" class="value">
-                {{ mapping.s_contributor }}
-              </div>
-              <div v-if="Array.isArray(mapping.s_contributor)" class="value">
-                <div v-for="i in mapping.s_contributor" :key="i">
-                  {{ i }}
-                </div>
-              </div>
-            </div>
+                  <div v-if="mapping.s_contributor" class="metadata">
+                    <div class="label">Creator</div>
+                    <div v-if="!Array.isArray(mapping.s_contributor)" class="value">
+                      {{ mapping.s_contributor }}
+                    </div>
+                    <div v-if="Array.isArray(mapping.s_contributor)" class="value">
+                      <div v-for="i in mapping.s_contributor" :key="i">
+                        {{ i }}
+                      </div>
+                    </div>
+                  </div>
 
-            <div v-if="mapping.s_publisher" class="metadata">
-              <div class="label">Publisher</div>
-              <div class="value">{{ mapping.publisher }}</div>
-            </div>
+                  <div v-if="mapping.s_publisher" class="metadata">
+                    <div class="label">Publisher</div>
+                    <div class="value">{{ mapping.publisher }}</div>
+                  </div>
 
-            <div v-if="mapping.s_datePublished" class="metadata">
-              <div class="label">Date</div>
-              <div class="value">{{ mapping.s_datePublished }}</div>
-            </div>
+                  <div v-if="mapping.s_datePublished" class="metadata">
+                    <div class="label">Date</div>
+                    <div class="value">{{ mapping.s_datePublished }}</div>
+                  </div>
 
-            <div v-if="mapping.updated" class="metadata">
-              <div class="label">Last Updated</div>
-              <div class="value">{{ mapping.updated }}</div>
-            </div>
+                  <div v-if="mapping.updated" class="metadata">
+                    <div class="label">Last Updated</div>
+                    <div class="value">{{ mapping.updated }}</div>
+                  </div>
 
-            <div v-if="mapping.start_datetime" class="metadata">
-              <div class="label">Start Date</div>
-              <div class="value">{{ mapping.start_datetime }}</div>
-            </div>
+                  <div v-if="mapping.start_datetime" class="metadata">
+                    <div class="label">Start Date</div>
+                    <div class="value">{{ mapping.start_datetime }}</div>
+                  </div>
 
-            <div v-if="mapping.end_datetime" class="metadata">
-              <div class="label">End Date</div>
-              <div class="value">{{ mapping.end_datetime }}</div>
-            </div>
+                  <div v-if="mapping.end_datetime" class="metadata">
+                    <div class="label">End Date</div>
+                    <div class="value">{{ mapping.end_datetime }}</div>
+                  </div>
 
-            <div v-if="mapping.has_citation" class="metadata">
-              <div class="label">Citation</div>
-              <div class="value">{{ mapping.s_citation }}</div>
-            </div>
-            <div
-              v-if="mapping.s_variableMeasuredNames.length > 0"
-              class="varaibles"
-            >
-              <div class="label">Variables Measured</div>
-              <div class="value">
+                  <div v-if="mapping.has_citation" class="metadata">
+                    <div class="label">Citation</div>
+                    <div class="value">{{ mapping.s_citation }}</div>
+                  </div>
+                  <div
+                      v-if="mapping.s_variableMeasuredNames?.length > 0"
+                      class="varaibles"
+                  >
+                    <div class="label">Variables Measured</div>
+                    <div class="value">
                 <span v-for="vm in mapping.s_variableMeasuredNames" :key="vm">
                   <b-badge class="mr-1" variant="light"> {{ vm }}</b-badge>
                 </span>
-              </div>
-            </div>
-
-            <div v-if="mapping.s_downloads || mapping.s_url" class="metadata">
-              <div class="label">Links</div>
-              <div class="value">
-                <!--                        <div style="font-weight:600;">Object URL text/plain; application=magic-tsv</div>-->
-
-                <!--                        <div><a href="#">https://earthref.org/MagIC/3484</a></div>-->
-                <!--                        <div><a href="#">https://earthref.org/MagIC/download/3484/magic_contribution_348415032.txt</a></div>-->
-                <!--                        <div><a href="#">https://earthref.org/MagIC/download/9843/magic_contribution_176534821.txt</a></div>-->
-                <div v-if="mapping.s_url">
-                  <div style="font-weight: 600">URL from JSON-LD</div>
-                  <div>
-                    <a :href="mapping.s_url" target="_blank">
-                      {{ mapping.s_url }}
-                    </a>
-                  </div>
-                </div>
-
-                <div v-for="i in mapping.s_downloads" :key="i.name">
-                  <div style="font-weight: 600">Distribution: {{ i.name }}</div>
-                  <!-- do we want this? -->
-                  <div
-                    v-if="i.encodingFormat && i.name !== i.encodingFormat"
-                    style="font-weight: 600"
-                  >
-                    {{ i.encodingFormat }}
-                  </div>
-                  <div>
-                    <!-- Show the URL if it does NOT start with 's3:' -->
-                    <a v-if="!i.contentUrl.startsWith('s3:')" target="_blank" :href="i.contentUrl">{{ i.contentUrl }}</a>
-                    <!-- Show the button if the URL starts with 's3:' -->
-                    <button
-                      v-else
-                      class="data-access-button"
-                      @click="copyAndOpenWindow(i.description)"
-                    >
-                      View Access Code
-                    </button>
-                  </div>
-                  <!-- Dialog -->
-                  <div v-if="isDialogOpen" class="dialog-backdrop" @click.self="closeDialog">
-                    <div class="dialog-content">
-                      <h3>URL Copied!</h3>
-                      <p>{{ dialogContent }}</p>
-                      <button @click="closeDialog">Close</button>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
 
-            <div class="metadata mt-4">
-              <div class="label"></div>
-              <citationButton class="value buttons"></citationButton>
-              <!--                    <b-button variant="outline-secondary">Website</b-button>-->
-            </div>
+                  <div v-if="mapping.s_downloads || mapping.s_url" class="metadata">
+                    <div class="label">Links</div>
+                    <div class="value">
+                      <!--                        <div style="font-weight:600;">Object URL text/plain; application=magic-tsv</div>-->
 
-            <!-- TODO remove this or change to new structure -->
-            <!--   <Metadata style="display: none;"></Metadata> -->
-          </b-col>
+                      <!--                        <div><a href="#">https://earthref.org/MagIC/3484</a></div>-->
+                      <!--                        <div><a href="#">https://earthref.org/MagIC/download/3484/magic_contribution_348415032.txt</a></div>-->
+                      <!--                        <div><a href="#">https://earthref.org/MagIC/download/9843/magic_contribution_176534821.txt</a></div>-->
+                      <div v-if="mapping.s_url">
+                        <div style="font-weight: 600">URL from JSON-LD</div>
+                        <div>
+                          <a :href="mapping.s_url" target="_blank">
+                            {{ mapping.s_url }}
+                          </a>
+                        </div>
+                      </div>
 
-          <b-col md="4">
-            <DatasetLocation :m="mapping"></DatasetLocation>
+                      <div v-for="i in mapping.s_downloads" :key="i.name">
+                        <div style="font-weight: 600">Distribution: {{ i.name }}</div>
+                        <!-- do we want this? -->
+                        <div
+                            v-if="i.encodingFormat && i.name !== i.encodingFormat"
+                            style="font-weight: 600"
+                        >
+                          {{ i.encodingFormat }}
+                        </div>
+                        <div>
+                          <!-- Show the URL if it does NOT start with 's3:' -->
+                          <a v-if="!i.contentUrl.startsWith('s3:')" target="_blank" :href="i.contentUrl">{{
+                              i.contentUrl
+                            }}</a>
+                          <!-- Show the button if the URL starts with 's3:' -->
+                          <button
+                              v-else
+                              class="data-access-button"
+                              @click="dataAccessWindow(i.description)"
+                          >
+                            View Access Code
+                          </button>
+                        </div>
+                        <!-- Dialog -->
+                        <div v-if="isDialogOpen" class="dialog-backdrop" @click.self="closeDialog">
+                          <div class="dialog-content">
+                            <h3>URL Copied!</h3>
+                            <p>{{ dialogContent }}</p>
+                            <button @click="closeDialog">Close</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-            <b-card>
-              <b-card-title>Downloads</b-card-title>
-              <downloadfiles :d="d" :m="mapping"></downloadfiles>
-            </b-card>
-          </b-col>
-        </b-row>
+                  <div class="metadata mt-4">
+                    <div class="label"></div>
+                    <citationButton class="value buttons"></citationButton>
+                    <!--                    <b-button variant="outline-secondary">Website</b-button>-->
+                  </div>
+
+                  <!-- TODO remove this or change to new structure -->
+                  <!--   <Metadata style="display: none;"></Metadata> -->
+                </b-col>
+
+                <b-col md="4">
+                  <DatasetLocation :m="mapping"></DatasetLocation>
+
+                  <b-card>
+                    <b-card-title>Downloads</b-card-title>
+                    <downloadfiles :d="d" :m="mapping"></downloadfiles>
+                  </b-card>
+                </b-col>
+              </b-row>
             </b-card-body>
           </b-collapse>
         </b-card>
@@ -381,15 +373,15 @@
             <!--            <b-icon icon="code-slash" class="mr-1"-->
             <!--            ></b-icon>-->
             <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="currentColor"
-              class="bi bi-code-slash"
-              viewBox="0 0 16 16"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-code-slash"
+                viewBox="0 0 16 16"
             >
               <path
-                d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"
+                  d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"
               />
             </svg>
             Metadata
@@ -399,10 +391,10 @@
             <b-card>
               <!-- TODO remove inline style attributes -->
               <vue-json-pretty
-                class="text-left"
-                :show-line="true"
-                :deep="2"
-                :data="mapping.raw_json"
+                  class="text-left"
+                  :show-line="true"
+                  :deep="2"
+                  :data="jsonLdObj"
               />
             </b-card>
           </b-collapse>
@@ -422,7 +414,7 @@ import annotation from "@/components/dataset/annotation.vue";
 import feedback from "@/components/feedback/feedback.vue";
 import citationButton from "@/components/dataset/citationButton.vue";
 import backButton from "@/components/backButton.vue";
-import { mapState, mapActions } from "vuex";
+import {mapState, mapActions} from "vuex";
 import _ from "lodash";
 import {
   geoplacename,
@@ -436,7 +428,7 @@ import {
 } from "../../api/jsonldObject";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
-import { marked } from "marked";
+import {marked} from "marked";
 
 export default {
   compatConfig: {
@@ -470,6 +462,9 @@ export default {
       keywords: [],
       vocab: "",
       geolink: "",
+      isDataCatalog: false,
+      raw_json: "",
+      mappings: [],
       mapping: {
         s_name: "",
         s_description: "",
@@ -523,22 +518,22 @@ export default {
     this.$store.commit("setJsonLdCompact", {});
     this.obscurePage = true;
     this.$store
-      .dispatch("fetchJsonLd", this.d)
-      .then(() => {
-        this.obscurePage = false;
-      })
-      .catch((ex) => {
-        this.obscurePage = false;
-        this.$bvToast.toast(
-          `This is probably an issue with stale data, or bad identifier: ` + ex,
-          {
-            title: "No JSONLD Metadata Found",
+        .dispatch("fetchJsonLd", this.d)
+        .then(() => {
+          this.obscurePage = false;
+        })
+        .catch((ex) => {
+          this.obscurePage = false;
+          this.$bvToast.toast(
+              `This is probably an issue with stale data, or bad identifier: ` + ex,
+              {
+                title: "No JSONLD Metadata Found",
 
-            solid: true,
-            appendToast: false,
-          }
-        );
-      });
+                solid: true,
+                appendToast: false,
+              }
+          );
+        });
   },
   computed: {
     ...mapState(["jsonLdObj", "jsonLdCompact"]),
@@ -553,7 +548,7 @@ export default {
       }
     },
     ...mapActions(["fetchJsonLd"]),
-    async copyAndOpenWindow(content) {
+    async dataAccessWindow(content) {
       content = marked(content, {
         highlight: function (code, language) {
           return code; // Optionally highlight the code here
@@ -645,7 +640,7 @@ export default {
           alert("Popup blocked. Please allow popups for this website.");
         }
       } catch (error) {
-        console.error("Error in copyAndOpenWindow:", error);
+        console.error("Error in dataAccessWindow:", error);
       }
     },
     scrollToMetadata() {
@@ -663,6 +658,9 @@ export default {
       var self = this;
       var mapping = this.mapping;
       var jp = self.jsonLdObj; // framed dataset
+      if (jp["@type"] == "DataCatalog") {
+        this.isDataCatalog = true;
+      }
       this.name = jp["name"];
       this.description = jp["description"];
       this.keywords = jp["keywords"];
@@ -678,8 +676,10 @@ export default {
         let datasets = [];
         if (jp["@graph"] !== undefined) {
           datasets = jp["@graph"].filter(item => item["@type"] === "Dataset");
+
         } else if (jp["@type"] === "Dataset") {
           datasets = [jp];
+
         }
 
         if (datasets.length === 0) {
@@ -722,8 +722,8 @@ export default {
             const c = schemaItem("contributor", dataset);
             if (Array.isArray(c)) {
               mapping.s_contributor = c
-                .map(obj => hasSchemaProperty("name", obj) ? schemaItem("name", obj) : "")
-                .filter(Boolean);
+                  .map(obj => hasSchemaProperty("name", obj) ? schemaItem("name", obj) : "")
+                  .filter(Boolean);
             } else {
               mapping.s_contributor = schemaItem("name", c);
             }
@@ -734,8 +734,8 @@ export default {
             const cr = schemaItem("creator", dataset);
             if (Array.isArray(cr)) {
               mapping.s_contributor = cr
-                .map(obj => hasSchemaProperty("name", obj) ? schemaItem("name", obj) : "")
-                .filter(Boolean);
+                  .map(obj => hasSchemaProperty("name", obj) ? schemaItem("name", obj) : "")
+                  .filter(Boolean);
             } else {
               mapping.s_contributor = schemaItem("name", cr);
             }
@@ -763,16 +763,16 @@ export default {
           const variableMeasured = schemaItem("variableMeasured", dataset);
           if (variableMeasured) {
             mapping.s_variableMeasuredNames = variableMeasured.map((item) =>
-              _.truncate(schemaItem("name", item), {
-                length: 80,
-                omission: "***",
-              })
+                _.truncate(schemaItem("name", item), {
+                  length: 80,
+                  omission: "***",
+                })
             );
           }
 
           if (
-            JSON.stringify(dataset) !== "{}" &&
-            (mapping.s_name === undefined || mapping.s_name === "")
+              JSON.stringify(dataset) !== "{}" &&
+              (mapping.s_name === undefined || mapping.s_name === "")
           ) {
             console.log("json issue");
             this.$bvToast.toast(`See Metadata for item description`, {
@@ -1065,27 +1065,27 @@ i {
 }
 
 .data-access-button {
-    display: inline-block;
-    padding: 8px 16px;
-    font-size: 14px;
-    color: #ffffff;
-    background-color: #007bff; /* Primary blue color */
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s, transform 0.2s;
-  }
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #ffffff;
+  background-color: #007bff; /* Primary blue color */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, transform 0.2s;
+}
 
-  .data-access-button:hover {
-    background-color: #0056b3; /* Slightly darker blue on hover */
-    transform: translateY(-2px); /* Slight lift effect */
-  }
+.data-access-button:hover {
+  background-color: #0056b3; /* Slightly darker blue on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+}
 
-  .data-access-button:active {
-    background-color: #003f8a; /* Even darker blue when clicked */
-    transform: translateY(0); /* Reset the lift */
-  }
+.data-access-button:active {
+  background-color: #003f8a; /* Even darker blue when clicked */
+  transform: translateY(0); /* Reset the lift */
+}
 </style>
