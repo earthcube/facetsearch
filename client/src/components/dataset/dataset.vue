@@ -347,7 +347,7 @@
                 </b-col>
 
                 <b-col md="4">
-                  <DatasetLocation :m="mapping" v-if="!isDataCatalog"></DatasetLocation>
+                  <DatasetLocation :m="mapping" :index="index"></DatasetLocation>
 
                   <b-card>
                     <b-card-title>Downloads</b-card-title>

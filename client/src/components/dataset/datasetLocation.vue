@@ -2,7 +2,7 @@
   <b-card v-show="hasSpatial" variant="secondary">
     <b-card-title>Location</b-card-title>
 
-    <div id="myMap" ref="myMap" style="width: 100%; height: 320px"></div>
+    <div :id="'myMap'+index" ref="myMap" style="width: 100%; height: 320px"></div>
 
     <!--      <l-map ref="myMap" id="myMap" :zoom="zoom"-->
     <!--             :center="center"-->
@@ -79,7 +79,7 @@ export default {
     LPolygon,
     LRectangle,
   },
-  props: { m: Object },
+  props: { m: Object, index: Number },
   data() {
     return {
       hasSpatial: false,
@@ -89,6 +89,7 @@ export default {
       zoom: 8,
       maxZoom: 12,
       myMap: {},
+
     };
   },
   // watch: {
