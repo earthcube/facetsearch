@@ -33,7 +33,7 @@ jobs:
           NODE_ENV:
             production
         with:
-          node-version: '20'
+          node-version: '22'
       - run: npm install -g  yarn
       - run: yarn install
       - run: yarn build:ci
