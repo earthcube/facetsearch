@@ -347,7 +347,7 @@
                 </b-col>
 
                 <b-col md="4">
-                  <DatasetLocation :m="mapping"></DatasetLocation>
+                  <DatasetLocation :m="mapping" v-if="!isDataCatalog"></DatasetLocation>
 
                   <b-card>
                     <b-card-title>Downloads</b-card-title>
@@ -456,51 +456,17 @@ export default {
   data() {
     return {
       obscurePage: false,
+      isDataCatalog: false,
       doiUrl: "",
       name: "ABC",
       description: "description",
       keywords: [],
       vocab: "",
-      geolink: "",
-      isDataCatalog: false,
       raw_json: "",
       mappings: [],
-      mapping: {
-        s_name: "",
-        s_description: "",
-        s_url: "",
-        s_contributor: "",
-        s_datePublished: "",
-        s_sdPublisher: "",
-        s_citation: "",
-        has_citation: "",
-        s_keywords: [],
-        s_landingpage: "",
-        s_downloads: [],
-        s_identifier: "",
-        details: {},
-        raw_json: "",
-        html_name: "",
-        publisher: "",
-        description: "",
-        s_publisher: "",
-        s_publishedDate: "",
-        has_s_url: false,
-        downloads: [],
-        s_distribution: "",
-        s_variableMeasuredNames: [],
-        s_doiurl: "",
-        doi_citation: "", // s_ is schema... doi_citation not a schema element
-        doi_metadata: "",
-        s_spatialCoverage: false,
-        placenames: "",
-        box: "",
-        poly: "",
-        points: [],
-        updated: "",
-        start_datetime: "",
-        end_datetime: ""
-      },
+      geolink: "",
+
+
       collapsedIndices: [] // keeps track of collapsed panels
     };
   },
@@ -656,7 +622,41 @@ export default {
     },
     toMetadata() {
       var self = this;
-      var mapping = this.mapping;
+      var mapping = { "s_name": "",
+            "s_description": "",
+            s_url: "",
+            s_contributor: "",
+            s_datePublished: "",
+            s_sdPublisher: "",
+            s_citation: "",
+            has_citation: "",
+            s_keywords: [],
+            s_landingpage: "",
+            s_downloads: [],
+            s_identifier: "",
+            details: {},
+           raw_json: "",
+            html_name: "",
+            publisher: "",
+            description: "",
+            s_publisher: "",
+            s_publishedDate: "",
+            has_s_url: false,
+            downloads: [],
+            s_distribution: "",
+            s_variableMeasuredNames: [],
+            s_doiurl: "",
+            doi_citation: "", // s_ is schema... doi_citation not a schema element
+            doi_metadata: "",
+            s_spatialCoverage: false,
+            placenames: "",
+            box: "",
+            poly: "",
+            points: [],
+            updated: "",
+            start_datetime: "",
+            end_datetime: ""
+      };
       var jp = self.jsonLdObj; // framed dataset
       if (jp["@type"] == "DataCatalog") {
         this.isDataCatalog = true;

@@ -91,12 +91,13 @@ export default {
       myMap: {},
     };
   },
-  watch: {
-    jsonLdCompact: "toMap",
-  },
+  // watch: {
+  //   jsonLdCompact: "toMap",
+  // },
   mounted() {
     this.hasSpatial = false;
     this.mapboxurl = `https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${this.FacetsConfig.MAPBOX_API_KEY}`;
+    this.toMap();
     // this.$nextTick(() => {
     //   //this.$refs.myMap.mapObject.setView(this.center, 13);
     //   this.mymap = L.map(this.$refs.myMap.id).setView(this.center, 13);
@@ -125,7 +126,7 @@ export default {
       this.bounds = bounds;
     },
     toMap: function () {
-      var obj = this.jsonLdObj;
+      var obj = this.m;
       var self = this;
       // move all the caluations out of nextTick
       //       let datasetFrame = JSON.parse(`
@@ -140,9 +141,9 @@ export default {
       //   "@type": "schema:Dataset"
       // }`)
       //       jsonld.frame(obj, datasetFrame).then(
-      frameJsonLD(obj, "Dataset").then((obj) => {
-        let name = schemaItem("name", obj);
-        let s_spatialCoverage = schemaItem("spatialCoverage", obj);
+      //frameJsonLD(obj, "Dataset").then((obj) => {
+        let name =  obj["s_name"];
+        let s_spatialCoverage =  obj["s_spatialCoverage"];
         if (s_spatialCoverage) {
           this.hasSpatial = true;
 
@@ -267,7 +268,7 @@ export default {
             }, 100);
           });
         }
-      });
+          // });
     },
   },
 };
