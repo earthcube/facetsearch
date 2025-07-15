@@ -7,8 +7,8 @@ TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/e
 ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
 SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube_summary/sparql
 # reports
-S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/earthcube/reports/
-COMMUNTY: all
+S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/decoder/reports/
+COMMUNITY: all
 # timeout for blazgraph queries
 BLAZEGRAPH_TIMEOUT: 20
 ECRR_GRAPH: http://earthcube.org/gleaner-summoned
