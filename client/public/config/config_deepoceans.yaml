@@ -1,3 +1,4 @@
+
 ---
 MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
 API_URL: https://deepoceans.geocodes-aws.earthcube.org/ec/api
@@ -186,3 +187,4 @@ NOTEBOOKS:
 #    pageTemplate: ''
 #    formats:
 #      - "*"
+
