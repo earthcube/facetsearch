@@ -8,6 +8,8 @@
 
       </b-row>
       <b-card class="mt-3" bg-variant="light" border-variant="secondary" v-if="isDataCatalog">
+        <b-card-header  >Records from DataCatalog</b-card-header>
+        <b-card-body>
         <b-list-group flush >
           <b-list-group-item>
             <h4 class="page_title mb-0" v-html="name"></h4>
@@ -24,7 +26,12 @@
               {{ kw }}
             </b-badge>
           </b-list-group-item>
+
         </b-list-group>
+        </b-card-body>
+        <b-card-footer>
+          <div v-if="mappings.length>0"> Number of Datasets: {{mappings.length}}</div>
+        </b-card-footer>
       </b-card>
       <!--      <div v-for="(mapping, index) in mappings" :key="index">-->
       <!--        <b-row class="align-items-center mb-2">-->
