@@ -8,6 +8,8 @@ on:
       - 148-year-published-range-bar-is-not-working-1
       - 163-geochemistry-dataset-not-rendering-correctly
       - 167-ecoforecast-s3-url
+      - 174-datacatalog-rendering-for-cchdo
+      - 173-landing-page-and-about-page-specification-from-user-testing
 
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
@@ -20,15 +22,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+      - run: npm install -g corepack
+      - name: Enable Corepack
+        run: corepack enable
+        #- run: yarn exec env
       - name: Create Node Environment
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         env:
           NODE_ENV:
             production
         with:
-          node-version: '20'
-      - run: npm install -g  yarn
+          node-version: '22'
+      #- run: npm install -g  yarn
       - run: yarn install
       - run: yarn build:ci
       - name: Set up QEMU
