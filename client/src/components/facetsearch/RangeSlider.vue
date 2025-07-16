@@ -128,7 +128,7 @@ export default {
       this.olderFilters = filteredDates;
 
       for (let i = 0; i < difference.length; i++) {
-        this.toggleFilter("datep", difference[i]);
+        this.toggleFilter(this.fieldname, difference[i]);
       }
     },
   },

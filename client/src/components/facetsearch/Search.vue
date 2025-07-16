@@ -345,65 +345,93 @@ export default {
      * The number of items in each filter from each facet is also updated
      */
     filter: function () {
-      let self = this;
-
+      // first apply the filters to the items
       const getLatestFilterValue = (key) => {
         const val = self.filtersState.filters[key];
         return Array.isArray(val) ? val.slice(-1)[0] : undefined;
       };
-
-      const minDepthFilter = getLatestFilterValue("minDepth");
-      const maxDepthFilter = getLatestFilterValue("maxDepth");
-      const startYearFilter = getLatestFilterValue("startYear");
-      const endYearFilter = getLatestFilterValue("endYear");
-
-      let newResults = _.filter(this.items, function (item) {
-        const itemMin = parseFloat(item.minDepth);
-        const itemMax = parseFloat(item.maxDepth);
-
-        let itemStartYear = undefined;
-        let itemEndYear = undefined;
-        if (typeof item.temporalCoverage === "string" && item.temporalCoverage.includes("/")) {
-          const [start, end] = item.temporalCoverage.split("/");
-          itemStartYear = parseInt(start.trim(), 10);
-          itemEndYear = parseInt(end.trim(), 10);
-        }
-
-        const isValid = () => {
-          if (isNaN(itemMin) || isNaN(itemMax)) return false;
-
-          const overlapsDepthRange =
-            (minDepthFilter === undefined || itemMax >= minDepthFilter) &&
-            (maxDepthFilter === undefined || itemMin <= maxDepthFilter);
-
-          if (!overlapsDepthRange) return false;
-
-          if (isNaN(itemStartYear) && isNaN(itemEndYear)) return false;
-          if (isNaN(itemStartYear)) itemStartYear = itemEndYear;
-          if (isNaN(itemEndYear)) itemEndYear = itemStartYear;
-
-          const overlapsYearRange =
-            (startYearFilter === undefined || itemEndYear >= startYearFilter) &&
-            (endYearFilter === undefined || itemStartYear <= endYearFilter);
-
-          return overlapsYearRange;
-        };
-
-        if (!isValid()) return false;
-
-        for (const [facet, filter] of Object.entries(self.filtersState.filters)) {
-          if (["minDepth", "maxDepth", "startYear", "endYear"].includes(facet)) continue;
-
+      const getRangeIsValid = (item, min, max) => {
+        const val = self.filtersState.filters[key];
+        return Array.isArray(val) ? val.slice(-1)[0] : undefined;
+      };
+      // this.currentResults = [] // triggers reactive event and we are resetting it in the next lines, anyway
+      let self = this;
+      // self.currentResults = _.select(this.items, function (item) {
+      let newResults = _.select(this.items, function (item) {
+        let filtersApply = true;
+        _.each(self.filtersState.filters, function (filter, facet) {
+          // if a filter is a range, the do a range check
+          // this does not need to be custom for each. This is a range
+          // these things need to ha able to have MORE THAN ONE
+          // One Numberic, and one Date, m.
           if (_.isArray(item[facet])) {
-            const inters = _.intersection(item[facet], filter);
-            if (inters.length === 0) return false;
+            var inters = _.intersection(item[facet], filter);
+            if (inters.length == 0) {
+              filtersApply = false;
+            }
           } else {
-            if (filter.length && !filter.includes(item[facet])) return false;
+            if (filter.length && _.indexOf(filter, item[facet]) == -1) {
+              filtersApply = false;
+            }
           }
-        }
-
-        return true;
+        });
+        return filtersApply;
       });
+
+
+
+      // const minDepthFilter = getLatestFilterValue("minDepth");
+      // const maxDepthFilter = getLatestFilterValue("maxDepth");
+      // const startYearFilter = getLatestFilterValue("startYear");
+      // const endYearFilter = getLatestFilterValue("endYear");
+
+      // let newResults = _.filter(this.items, function (item) {
+      //   const itemMin = parseFloat(item.minDepth);
+      //   const itemMax = parseFloat(item.maxDepth);
+      //
+      //   let itemStartYear = undefined;
+      //   let itemEndYear = undefined;
+      //   if (typeof item.temporalCoverage === "string" && item.temporalCoverage.includes("/")) {
+      //     const [start, end] = item.temporalCoverage.split("/");
+      //     itemStartYear = parseInt(start.trim(), 10);
+      //     itemEndYear = parseInt(end.trim(), 10);
+      //   }
+      //
+      //   const isValid = () => {
+      //     if (isNaN(itemMin) || isNaN(itemMax)) return false;
+      //
+      //     const overlapsDepthRange =
+      //       (minDepthFilter === undefined || itemMax >= minDepthFilter) &&
+      //       (maxDepthFilter === undefined || itemMin <= maxDepthFilter);
+      //
+      //     if (!overlapsDepthRange) return false;
+      //
+      //     if (isNaN(itemStartYear) && isNaN(itemEndYear)) return false;
+      //     if (isNaN(itemStartYear)) itemStartYear = itemEndYear;
+      //     if (isNaN(itemEndYear)) itemEndYear = itemStartYear;
+      //
+      //     const overlapsYearRange =
+      //       (startYearFilter === undefined || itemEndYear >= startYearFilter) &&
+      //       (endYearFilter === undefined || itemStartYear <= endYearFilter);
+      //
+      //     return overlapsYearRange;
+      //   };
+      //
+      //   if (!isValid()) return false;
+      //
+      //   for (const [facet, filter] of Object.entries(self.filtersState.filters)) {
+      //     if (["minDepth", "maxDepth", "startYear", "endYear"].includes(facet)) continue;
+      //
+      //     if (_.isArray(item[facet])) {
+      //       const inters = _.intersection(item[facet], filter);
+      //       if (inters.length === 0) return false;
+      //     } else {
+      //       if (filter.length && !filter.includes(item[facet])) return false;
+      //     }
+      //   }
+      //
+      //   return true;
+      // });
 
       const len = self.currentResults.length;
       self.currentResults.splice(0, len);
