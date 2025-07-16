@@ -364,6 +364,9 @@ export default {
           // this does not need to be custom for each. This is a range
           // these things need to ha able to have MORE THAN ONE
           // One Numberic, and one Date, m.
+          // AKA WRITE ONE RANGE FUNCTION
+          // maybe check can be, if is object, and with min and max
+          // change the range filters to pass that object to toggle filter
           if (_.isArray(item[facet])) {
             var inters = _.intersection(item[facet], filter);
             if (inters.length == 0) {
