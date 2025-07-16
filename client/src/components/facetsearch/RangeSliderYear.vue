@@ -45,6 +45,7 @@
 import "vue-range-component/dist/vue-range-slider.css";
 import VueRangeSlider from "vue-range-component-fixed";
 import {mapState} from "vuex";
+import DateRange from '@/components/facetsearch/range'
 
 export default {
   components: {
@@ -66,7 +67,7 @@ export default {
       mydata: [],
       startYear: null,
       endYear: null,
-      value: [0, 0],
+      value: DateRange(0,2025),
       sliderKey: 0,
       disableDrag: false,
     };
@@ -94,14 +95,18 @@ export default {
         this.startYear = startYears.length ? Math.min(...startYears) : new Date().getFullYear();
         this.endYear = endYears.length ? Math.max(...endYears) : new Date().getFullYear();
 
-        this.value = [this.startYear, this.endYear];
+       // this.value = [this.startYear, this.endYear];
+        this.value.min=this.startYear;
+        this.value.min=this.endYear;
       },
       immediate: true
     }
   },
   methods: {
     filtered() {
-      const [start, end] = this.value;
+      //const [start, end] = this.value;
+      const start = this.value.min;
+      const end = this.value.max
       //this.toggleFilter("startYear", start, true);
      // this.toggleFilter("endYear", end, true);
       this.toggleFilter(this.fieldname, this.value , true);

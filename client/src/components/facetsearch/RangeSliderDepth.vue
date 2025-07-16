@@ -45,6 +45,7 @@
 import "vue-range-component/dist/vue-range-slider.css";
 import VueRangeSlider from "vue-range-component-fixed";
 import {mapState} from "vuex";
+import NumericRange from '@/components/facetsearch/range'
 
 export default {
   components: {
@@ -66,7 +67,7 @@ export default {
       mydata: [],
       minDepth: null,
       maxDepth: null,
-      value: [0, 0],
+      value: NumericRange(0,0),
       sliderKey: 0,
       disableDrag: false,
     };
@@ -90,7 +91,9 @@ export default {
 
         this.minDepth = min;
         this.maxDepth = max;
-        this.value = [min, max];
+        this.value.max = max;
+        this.value.min = min;
+        //this.value = ;
       },
       immediate: true // <-- run immediately if `results` already exists
     }
