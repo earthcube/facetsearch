@@ -102,8 +102,9 @@ export default {
   methods: {
     filtered() {
       const [start, end] = this.value;
-      this.toggleFilter("startYear", start, true);
-      this.toggleFilter("endYear", end, true);
+      //this.toggleFilter("startYear", start, true);
+     // this.toggleFilter("endYear", end, true);
+      this.toggleFilter(this.fieldname, this.value , true);
     },
     onCollapseShown() {
       // Option A: if the slider instance has a .refresh() API

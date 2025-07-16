@@ -99,8 +99,9 @@ export default {
     filtered() {
       const [selectedMin, selectedMax] = this.value;
       // pass values to toggleFilter
-      this.toggleFilter("minDepth", selectedMin, true);
-      this.toggleFilter("maxDepth", selectedMax, true);
+     // this.toggleFilter("minDepth", selectedMin, true);
+    //  this.toggleFilter("maxDepth", selectedMax, true);
+      this.toggleFilter(this.fieldname, this.value , true);
     },
     onCollapseShown() {
       // Option A: if the slider instance has a .refresh() API
