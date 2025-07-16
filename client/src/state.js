@@ -15,14 +15,10 @@ import SpaqlHasToolsQuery from "@/sparql_qlever/sparql_hastools.rq?raw";
 import { default as LRUCache } from "lru-cache";
 import localforage from "localforage";
 import yaml from "js-yaml";
+import {commit} from "lodash/seq.js"
 
-//let esTemplateOptions = FacetsConfig.ES_TEMPLATE_OPTIONS
 let esTemplateOptions = { interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g };
-//let TRIPLESTORE_URL = FacetsConfig.TRIPLESTORE_URL
-
-//let TRIPLESTORE_URL=FacetsConfigValue.TRIPLESTORE_URL
 export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
-  //return await  fetch(process.env.BASE_URL + remoteConfig)
   return await fetch(import.meta.env.BASE_URL + remoteConfig)
     .then((response) => response.text())
     .then((config) => {
@@ -30,6 +26,7 @@ export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
       let base = store;
       base.commit("setFacetsConfig", y);
       base.commit("setTripleStoreURL", y.TRIPLESTORE_URL);
+      base.commit("setTenantURL", y.TENANT_URL);
       return base;
     })
     .catch(function (err) {
@@ -39,9 +36,7 @@ export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
 
 export const store = _createStore({
   state: {
-    // packageVersion: process.env.PACKAGE_VERSION || '0',
     packageVersion: import.meta.env.VITE_APP_PACKAGE_VERSION || "0",
-    //   date: process.env.DATE || '2021-Unknown',
     date: import.meta.env.VITE_APP_DATE|| "2021-Unknown",
     jsonLdObj: {},
     jsonLdCompact: {},
@@ -83,16 +78,12 @@ export const store = _createStore({
     }),
     collection: {}, // key: name,
     FacetsConfig: null,
+    tenantData: null
   },
   getters: {
     FacetsConfig: (state) => {
       // now read on creation
       return state.FacetsConfig;
-      // if (state.FacetsConfig != null){
-      //     return state.FacetsConfig
-      // } else {
-      //     this.initializeFacetsConfig()
-      // }
     },
     getesTemplateOptions: (state) => {
       return state.esTemplateOptions;
@@ -150,12 +141,12 @@ export const store = _createStore({
     getTextQuery: (state) => {
       return state.q;
     },
-    // getSearchExactMatch:(state) => {
-    //     return state.searchExactMatch
-    // }
     getLastQueryResults: (state) => (key) => {
       return state.microCache.get(key);
     },
+    getTenantData: (state) => {
+      return state.tenantData
+    }
   },
   mutations: {
     setFacetsConfig: (state, obj) => {
@@ -242,11 +233,36 @@ export const store = _createStore({
     setTripleStoreURL(state, string) {
       state.TRIPLESTORE_URL = string;
     },
-    // setResultLimit(state, obj){
-    //     state.resultLimit = obj
-    // },
+    setTenantURL(state, string) {
+      state.TENANT_URL = string;
+    },
+    setTenantData(state, data) {
+      state.tenantData = data;
+    }
   },
   actions: {
+    async fetchTenantData({ commit }) {
+      console.log("Trying to fetch tenant data");
+      try {
+        const response = await axios.get(this.state.FacetsConfig.TENANT_URL);
+        let tenantData = yaml.load(response.data);
+        console.log(tenantData);
+        commit("setTenantData", tenantData);
+      } catch (error) {
+        console.error('Error loading Tenant YAML file:', error);
+        const tenantData = {
+          tenant:[{
+            community: "MISSING FacetsConfig.TENANT_URL",
+            landing_introduction: "Missing FacetsConfig.TENANT_URL",
+            description:  "Missing FacetsConfig.TENANT_URL",
+            name: "MISSING FacetsConfig.TENANT_URL",
+            color: "blue"
+
+          }]
+        }
+        commit("setTenantData", tenantData);
+      }
+    },
     // eslint-disable-next-line
         async facetClick(context, facetFilter){
       //  var filter = self.getFilterById(event.target.id);

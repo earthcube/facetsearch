@@ -3,6 +3,9 @@
     <div>
       <h2>Source: {{ source }}</h2>
       <div v-if="loadinfo">
+        <b-card header="Description">
+          <p>{{ this.description }}</p>
+        </b-card>
         <b-card header="Load Report">
           <div v-if="loadinfo">
             <b-link :href="load_url" class="card-link"
@@ -253,7 +256,7 @@ import { mapState } from "vuex";
 export default {
   name: "report.vue",
   props: {
-    source: String,
+    source: String
   },
   data() {
     return {
@@ -265,10 +268,14 @@ export default {
   },
   computed: {
     ...mapState(["FacetsConfig"]),
+    description() {
+      return this.$route.query.description;
+    }
   },
   mounted() {
-    // const source = this.$route.params.repo;
+    //const description = "The Site Survey Data Bank (SSDB) is a repository for site survey data submitted in support of International Ocean Discovery Program (IODP) proposals and expeditions. SSDB serves different roles for different sets of users.";
     console.log(this.source);
+    console.log(this.description);
     const s3base = this.FacetsConfig.S3_REPORTS_URL;
     this.load_url = `${s3base}${this.source}/latest/load_report_s3.json`;
     this.graph_url = `${s3base}${this.source}/latest/graph_stats.json`;
