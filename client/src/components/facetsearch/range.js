@@ -1,4 +1,4 @@
-class Range {
+export class Range {
     filtertype = 'range';
     min = undefined;
     max = undefined;
@@ -8,7 +8,7 @@ class Range {
     }
 
 }
-class DateRange extends Range {
+export class DateRange extends Range {
     filtertype = 'dateRange';
 
     constructor(min, max) {
@@ -17,7 +17,7 @@ class DateRange extends Range {
     }
 
 }
-class NumericRange extends Range{
+export class NumericRange extends Range{
     filtertype = 'numericRange';
     limitMin = -10000
     limitMax = 10000

@@ -368,11 +368,15 @@ export default {
           // maybe check can be, if is object, and with min and max
           // change the range filters to pass that object to toggle filter
           if (_.isArray(item[facet])) {
+            // this is if a facet has multiple selections, like keywords, or places
             var inters = _.intersection(item[facet], filter);
             if (inters.length == 0) {
               filtersApply = false;
             }
-          } else {
+          }
+          // is Objec with facetType (Range, DateRange, NumericRange)
+              // filter based on min/max
+          else {
             if (filter.length && _.indexOf(filter, item[facet]) == -1) {
               filtersApply = false;
             }
@@ -482,11 +486,11 @@ export default {
       var s_state = this.filtersState;
 
       // Special case for range filters: overwrite instead of push
-      if (key === "minDepth" || key === "maxDepth") {
-        this.$set(s_state.filters, key, [value]); // replace with single-element array
-        this.filter();
-        return;
-      }
+      // if (key === "minDepth" || key === "maxDepth") {
+      //   this.$set(s_state.filters, key, [value]); // replace with single-element array
+      //   this.filter();
+      //   return;
+      // }
 
       this.$set(s_state.filters, key, s_state.filters[key] || []);
       if (_.indexOf(s_state.filters[key], value) == -1) {
