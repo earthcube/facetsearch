@@ -41,6 +41,7 @@
 <script>
 import "vue-range-component/dist/vue-range-slider.css";
 import VueRangeSlider from "vue-range-component-fixed";
+import Range from '@/components/facetsearch/range'
 export default {
   components: {
     VueRangeSlider,
@@ -62,7 +63,7 @@ export default {
   },
   data() {
     return {
-      value: [0, 2050],
+      value: Range(0,2500),
       olderFilters: [],
       sliderInit: true,
       myfilterDates: [],
@@ -83,19 +84,20 @@ export default {
       //   return
       // }
       console.log(this.filterDates);
-      var newRangeStartDate = this.value[0];
-      var newRangeEndDate = this.value[1];
+      var newRangeStartDate = this.value['min'];
+      var newRangeEndDate = this.value['max'];
       if (action === "clear") {
         newRangeStartDate = this.startDate;
         newRangeEndDate = this.endDate;
-        this.value = [newRangeStartDate, newRangeEndDate];
+        //this.value = [newRangeStartDate, newRangeEndDate];
+        this.value = Range(newRangeStartDate, newRangeEndDate);
         this.olderFilters = [];
         return;
       } else if (action === "init") {
         this.sliderInit = true;
         newRangeStartDate = start;
         newRangeEndDate = end;
-        this.value = [newRangeStartDate, newRangeEndDate];
+        this.value = Range(newRangeStartDate, newRangeEndDateRange);
         if (start === 0 && end === 0) {
           this.disableDrag = true;
         } else {
@@ -108,28 +110,30 @@ export default {
       }
 
       console.log(newRangeStartDate + ", " + newRangeEndDate);
+      // pass the range object
+      this.toggleFilter(this.fieldname, this.value);
+// original method just created a list
+      // var filteredDates = this.myfilterDates.filter(
+      //   (date) =>
+      //     new Date(date.toString()) >= new Date(newRangeStartDate.toString()) &&
+      //     new Date(date.toString()) <= new Date(newRangeEndDate.toString())
+      // );
+      // console.log(filteredDates);
+      //
+      // // send difference filters between olderFilters and filteredDates
+      // var difference1 = this.olderFilters.filter(
+      //   (x) => !filteredDates.includes(x)
+      // );
+      // var difference2 = filteredDates.filter(
+      //   (x) => !this.olderFilters.includes(x)
+      // );
+      // var difference = difference1.concat(difference2);
+      // console.log(difference);
+      // this.olderFilters = filteredDates;
 
-      var filteredDates = this.myfilterDates.filter(
-        (date) =>
-          new Date(date.toString()) >= new Date(newRangeStartDate.toString()) &&
-          new Date(date.toString()) <= new Date(newRangeEndDate.toString())
-      );
-      console.log(filteredDates);
-
-      // send difference filters between olderFilters and filteredDates
-      var difference1 = this.olderFilters.filter(
-        (x) => !filteredDates.includes(x)
-      );
-      var difference2 = filteredDates.filter(
-        (x) => !this.olderFilters.includes(x)
-      );
-      var difference = difference1.concat(difference2);
-      console.log(difference);
-      this.olderFilters = filteredDates;
-
-      for (let i = 0; i < difference.length; i++) {
-        this.toggleFilter(this.fieldname, difference[i]);
-      }
+      // for (let i = 0; i < difference.length; i++) {
+      //   this.toggleFilter(this.fieldname, difference[i]);
+      // }
     },
   },
 };
