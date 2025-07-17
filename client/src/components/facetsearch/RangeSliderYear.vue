@@ -21,7 +21,7 @@
     </b-button>
     <b-collapse :id="'accordion_range_' + facetSetting.field" @shown="onCollapseShown">
       <vue-range-slider
-        v-model="value"
+        v-model="value.range"
         ref="rangeSlider"
         :key="sliderKey"
         class="mx-2 py-2"
@@ -31,12 +31,13 @@
         :disabled="disableDrag"
         @drag-end="filtered"
       ></vue-range-slider>
-      <div v-if="value.length === 2" class="mt-0 px-2 py-0">
-        <span class="text-h2 font-weight-light">{{ value[0] }}</span>
+      <div v-if="this.value.temporalCount > 0" class="mt-0 px-2 py-0">
+        <span class="text-h2 font-weight-light">{{ value.range[0] }}</span>
         <span class="subheading font-weight-light mx-1">to</span>
-        <span class="text-h2 font-weight-light">{{ value[1] }}</span>
+        <span class="text-h2 font-weight-light">{{ value.range[1] }}</span>
         <span class="subheading font-weight-light ml-1">year</span>
       </div>
+      <div v-else>No Temporal Ranges</div>
     </b-collapse>
   </div>
 </template>
@@ -45,7 +46,7 @@
 import "vue-range-component/dist/vue-range-slider.css";
 import VueRangeSlider from "vue-range-component-fixed";
 import {mapState} from "vuex";
-import DateRange from '@/components/facetsearch/range'
+import {DateRange} from '@/components/facetsearch/range'
 
 export default {
   components: {
@@ -67,7 +68,7 @@ export default {
       mydata: [],
       startYear: null,
       endYear: null,
-      value: DateRange(0,2025),
+      value: new DateRange(0,2025),
       sliderKey: 0,
       disableDrag: false,
     };
@@ -89,6 +90,12 @@ export default {
           return (!isNaN(start) && !isNaN(end)) ? { start, end } : null;
         }).filter(Boolean);
 
+        if (ranges.length > 0) {
+          this.value.temporalCount=ranges.length;
+        }
+        else {
+          this.value.temporalCount=0;
+        }
         const startYears = ranges.map(r => r.start);
         const endYears = ranges.map(r => r.end);
 
@@ -96,8 +103,8 @@ export default {
         this.endYear = endYears.length ? Math.max(...endYears) : new Date().getFullYear();
 
        // this.value = [this.startYear, this.endYear];
-        this.value.min=this.startYear;
-        this.value.min=this.endYear;
+        this.value.range[0]=this.startYear;
+        this.value.range[1]=this.endYear;
       },
       immediate: true
     }
@@ -105,8 +112,8 @@ export default {
   methods: {
     filtered() {
       //const [start, end] = this.value;
-      const start = this.value.min;
-      const end = this.value.max
+      const start = this.value.range[0];
+      const end = this.value.range[1]
       //this.toggleFilter("startYear", start, true);
      // this.toggleFilter("endYear", end, true);
       this.toggleFilter(this.fieldname, this.value , true);

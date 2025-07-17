@@ -21,7 +21,7 @@
     </b-button>
     <b-collapse :id="'accordion_range_' + facetSetting.field" @shown="onCollapseShown">
       <vue-range-slider
-        v-model="value"
+        v-model="value.range"
         ref="rangeSlider"
         :key="sliderKey"
         class="mx-2 py-2"
@@ -31,10 +31,10 @@
         :disabled="disableDrag"
         @drag-end="filtered"
       ></vue-range-slider>
-      <div v-if="value.length === 2" class="mt-0 px-2 py-0">
-        <span class="text-h2 font-weight-light">{{ value[0] }}</span>
+      <div v-if="value.range.length === 2" class="mt-0 px-2 py-0">
+        <span class="text-h2 font-weight-light">{{ value.range[0] }}</span>
         <span class="subheading font-weight-light mx-1">to</span>
-        <span class="text-h2 font-weight-light">{{ value[1] }}</span>
+        <span class="text-h2 font-weight-light">{{ value.range[1] }}</span>
         <span class="subheading font-weight-light ml-1">m</span>
       </div>
     </b-collapse>
@@ -45,7 +45,7 @@
 import "vue-range-component/dist/vue-range-slider.css";
 import VueRangeSlider from "vue-range-component-fixed";
 import {mapState} from "vuex";
-import NumericRange from '@/components/facetsearch/range'
+import {NumericRange} from '@/components/facetsearch/range'
 
 export default {
   components: {
@@ -67,7 +67,7 @@ export default {
       mydata: [],
       minDepth: null,
       maxDepth: null,
-      value: NumericRange(0,0),
+      value: new NumericRange(-5000,0),
       sliderKey: 0,
       disableDrag: false,
     };
@@ -91,8 +91,8 @@ export default {
 
         this.minDepth = min;
         this.maxDepth = max;
-        this.value.max = max;
-        this.value.min = min;
+        this.value.range[1] = max;
+        this.value.range[0] = min;
         //this.value = ;
       },
       immediate: true // <-- run immediately if `results` already exists
@@ -100,7 +100,9 @@ export default {
   },
   methods: {
     filtered() {
-      const [selectedMin, selectedMax] = this.value;
+      //const [selectedMin, selectedMax] = this.value;
+      const selectedMin =this.value.range[0];
+      const selectedMax =this.value.range[1];
       // pass values to toggleFilter
      // this.toggleFilter("minDepth", selectedMin, true);
     //  this.toggleFilter("maxDepth", selectedMax, true);
