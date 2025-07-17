@@ -1,10 +1,10 @@
 <template>
   <b-container fluid="md" class="mt-3">
     <b-overlay
-      rounded="sm"
-      :show="queryRunning"
-      variant="white"
-      :opacity="0.85"
+        rounded="sm"
+        :show="queryRunning"
+        variant="white"
+        :opacity="0.85"
     >
       <b-row>
         <!-- sidebar -->
@@ -20,14 +20,14 @@
         <b-col md="9" class="results">
           <!-- Here comes the demo, if you want to copy and paste, start here -->
           <ResultHeader
-            :current-count="currentResults.length"
-            :total-count="items.length"
-            :filters="filtersState.filters"
+              :current-count="currentResults.length"
+              :total-count="items.length"
+              :filters="filtersState.filters"
           ></ResultHeader>
 
           <Results
-            :current-results="currentResults"
-            :state="filtersState"
+              :current-results="currentResults"
+              :state="filtersState"
           ></Results>
 
           <!--                    <b-button variant="outline-primary" class="mt-5">Load More</b-button>-->
@@ -56,7 +56,8 @@ import {
   // mapGetters
 } from "vuex";
 import feedback from "@/components/feedback/feedback.vue";
-import { v5 as uuidv5 } from "uuid";
+import {v5 as uuidv5} from "uuid";
+import { isProxy, toRaw } from 'vue';
 
 // import HistRangeSlider from "@/components/facetsearch/HistRangeSlider.vue"
 
@@ -219,7 +220,7 @@ export default {
       };
       let string2uuid = JSON.stringify(queryObj);
       let uuid = uuidv5(string2uuid, uuidv5.URL); // any old 16 character namespace
-      return { uuid: uuid, query: queryObj };
+      return {uuid: uuid, query: queryObj};
     },
     //content.results.bindings
     newTextSearch: function () {
@@ -227,19 +228,19 @@ export default {
       //   this.$store.state.q = this.textQuery
       this.setTextQuery(this.textQuery);
       this.getResults(this.getQueryObj())
-        .then(() => {
-          this.queryRunning = false;
-        })
-        .catch((ex) => {
-          this.lastError = ex;
-          this.$bvToast.toast(`Query issue ` + ex, {
-            title: "Server issues with query to triplestore",
+          .then(() => {
+            this.queryRunning = false;
+          })
+          .catch((ex) => {
+            this.lastError = ex;
+            this.$bvToast.toast(`Query issue ` + ex, {
+              title: "Server issues with query to triplestore",
 
-            solid: true,
-            appendToast: false,
-            noAutoHide: true,
+              solid: true,
+              appendToast: false,
+              noAutoHide: true,
+            });
           });
-        });
       //this.queryRunning = false;
     },
 
@@ -286,8 +287,8 @@ export default {
                 return;
               }
               facetStore[facet.field][facetitem] = facetStore[facet.field][
-                facetitem
-              ] || {
+                  facetitem
+                  ] || {
                 count: 0,
                 id: _.uniqueId("facet_"),
                 isActive: false,
@@ -300,8 +301,8 @@ export default {
                 return;
               }
               facetStore[facet.field][item[facet.field]] = facetStore[
-                facet.field
-              ][item[facet.field]] || {
+                  facet.field
+                  ][item[facet.field]] || {
                 count: 0,
                 id: _.uniqueId("facet_"),
                 isActive: false,
@@ -367,24 +368,48 @@ export default {
           // AKA WRITE ONE RANGE FUNCTION
           // maybe check can be, if is object, and with min and max
           // change the range filters to pass that object to toggle filter
-          if (_.isArray(item[facet])) {
-            // this is if a facet has multiple selections, like keywords, or places
-            var inters = _.intersection(item[facet], filter);
-            if (inters.length == 0) {
-              filtersApply = false;
-            }
+          let isRangeFilter = false;
+          if ( isProxy(filter) && _.isObject(toRaw(filter))){
+            const NoProxy = toRaw(filter)[0]; // no idea why this is an array
+            //isRangeFilter =  NoProxy.hasOwnProperty('range') ;
+            isRangeFilter =Object.hasOwn(NoProxy,'range')
           }
-          // is Objec with facetType (Range, DateRange, NumericRange)
-              // filter based on min/max
-          else {
-            if (filter.length && _.indexOf(filter, item[facet]) == -1) {
-              filtersApply = false;
+
+
+          if (isRangeFilter) {
+            const thisFacet = item[facet]
+            if (_.isArray(item[facet])) {
+              var hasMatches = _.filter(thisFacet, (num) => _.inRange(thisFacet, filter[0].range[0], filter[0].range[0]));
+              if (hasMatches.length == 0) {
+                filtersApply = false;
+              }
+            } else {
+              if (filter[0].range[0] && filter[0].range[1]) {
+                if (thisFacet < filter[0].range[0] || thisFacet > filter[0].range[1]) {
+                  filtersApply = false;
+                }
+              }
+            }
+          } else {
+
+            if (_.isArray(item[facet])) {
+              // this is if a facet has multiple selections, like keywords, or places
+              var inters = _.intersection(item[facet], filter);
+              if (inters.length == 0) {
+                filtersApply = false;
+              }
+            }
+                // is Objec with facetType (Range, DateRange, NumericRange)
+            // filter based on min/max
+            else {
+              if (filter.length && _.indexOf(filter, item[facet]) == -1) {
+                filtersApply = false;
+              }
             }
           }
         });
         return filtersApply;
       });
-
 
 
       // const minDepthFilter = getLatestFilterValue("minDepth");
@@ -469,7 +494,7 @@ export default {
       self.filtersState.shownResults = 0;
     },
     toggleFilter: function (key, value, skipfilterUrl = false) {
-      var stateObj = { key: value };
+      var stateObj = {key: value};
       if (!skipfilterUrl) {
         if (window.location.href.includes(encodeURI("&" + key + "=" + value))) {
           var href = window.location.href;
@@ -477,9 +502,9 @@ export default {
           history.pushState(stateObj, "", href);
         } else {
           history.pushState(
-            stateObj,
-            "",
-            window.location.href + "&" + key + "=" + value
+              stateObj,
+              "",
+              window.location.href + "&" + key + "=" + value
           );
         }
       }
@@ -500,7 +525,7 @@ export default {
       } else {
         var indx = _.indexOf(s_state.filters[key], value);
         console.log(
-          "delete filter: " +
+            "delete filter: " +
             s_state.filters[key][indx] +
             " from the key: " +
             key
