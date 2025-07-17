@@ -3,12 +3,15 @@ on:
   push:
     branches:
       - master
+      - feature/*
+      - fix/*
       - dv_minrelevance
       - 140-add-andor-option
       - 148-year-published-range-bar-is-not-working-1
       - 163-geochemistry-dataset-not-rendering-correctly
       - 167-ecoforecast-s3-url
       - add-min-max-depth-facets
+
 
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
