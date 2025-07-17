@@ -1,16 +1,15 @@
 export class Range {
     filtertype = 'range';
-    min = undefined;
-    max = undefined;
-    constructor(min=0, max=10000) {
-        this.min = min;
-        this.max = max;
-    }
+    range  = [0,0]
 
+    constructor(min=0, max=10000) {
+        this.range = [min, max];
+    }
+// probably should add, getMin, GetMax, setMin, SetMax
 }
 export class DateRange extends Range {
     filtertype = 'dateRange';
-
+    temporalCount=0;
     constructor(min, max) {
         super(min, max);
         this.filtertype = 'dateRange';
@@ -19,12 +18,12 @@ export class DateRange extends Range {
 }
 export class NumericRange extends Range{
     filtertype = 'numericRange';
-    limitMin = -10000
-    limitMax = 10000
+    limitRange = [-10000,10000]
+
     constructor(min, max,limitMin=-10000,limitMax=10000 ) {
         super(min, max);
-        this.limitMax=limitMax
-        this.limitMin=limitMin
+        this.limitRange= [limitMin, limitMax]
+
         this.filtertype = 'numericRange';
     }
 }

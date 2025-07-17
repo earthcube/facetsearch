@@ -3,7 +3,7 @@
     <div>
       <vue-range-slider
         ref="slider"
-        v-model="value"
+        v-model="value.range"
         class="mx-2"
         :tooltip="false"
         :min="parseInt(startDate)"
@@ -16,7 +16,7 @@
       <span
         v-if="filterDates.length > 0"
         class="text-h2 font-weight-light"
-        v-text="value[0]"
+        v-text="value.range[0]"
       ></span>
       <span
         v-if="filterDates.length > 0"
@@ -27,7 +27,7 @@
       <span
         v-if="filterDates.length > 0"
         class="text-h2 font-weight-light"
-        v-text="value[1]"
+        v-text="value.range[1]"
       ></span>
       <span
         v-if="filterDates.length > 0"
@@ -41,7 +41,7 @@
 <script>
 import "vue-range-component/dist/vue-range-slider.css";
 import VueRangeSlider from "vue-range-component-fixed";
-import Range from '@/components/facetsearch/range'
+import {Range} from '@/components/facetsearch/range'
 export default {
   components: {
     VueRangeSlider,
@@ -63,7 +63,7 @@ export default {
   },
   data() {
     return {
-      value: Range(0,2500),
+      value: new Range(0,2500),
       olderFilters: [],
       sliderInit: true,
       myfilterDates: [],
@@ -84,20 +84,20 @@ export default {
       //   return
       // }
       console.log(this.filterDates);
-      var newRangeStartDate = this.value['min'];
-      var newRangeEndDate = this.value['max'];
+      var newRangeStartDate = this.value.range[0];
+      var newRangeEndDate = this.value.range[1];
       if (action === "clear") {
         newRangeStartDate = this.startDate;
         newRangeEndDate = this.endDate;
         //this.value = [newRangeStartDate, newRangeEndDate];
-        this.value = Range(newRangeStartDate, newRangeEndDate);
+        this.value = new Range(newRangeStartDate, newRangeEndDate);
         this.olderFilters = [];
         return;
       } else if (action === "init") {
         this.sliderInit = true;
         newRangeStartDate = start;
         newRangeEndDate = end;
-        this.value = Range(newRangeStartDate, newRangeEndDateRange);
+        this.value = new Range(newRangeStartDate, newRangeEndDateRange);
         if (start === 0 && end === 0) {
           this.disableDrag = true;
         } else {
