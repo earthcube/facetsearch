@@ -107,7 +107,7 @@ export default {
   },
   inject: ["toggleFilter", "filtersState"],
   props: {
-    fieldName: {
+    fieldname: {
       type: String,
     },
     startYear: {

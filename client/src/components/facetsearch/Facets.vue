@@ -15,7 +15,7 @@
 
       <FacetNumericRangeSlider
         v-if="facetSetting.type == 'range'"
-        :field-name="facetSetting.field"
+        :fieldname="facetSetting.field"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
       >
@@ -23,7 +23,7 @@
 
       <RangeSliderDepth
         v-if="facetSetting.type == 'depthrange'"
-        :field-name="facetSetting.field"
+        :fieldname="facetSetting.field"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
       >
@@ -31,7 +31,7 @@
 
       <RangeSliderYear
         v-if="facetSetting.type == 'depthyear'"
-        :field-name="facetSetting.field"
+        :fieldname="facetSetting.field"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
       >
@@ -39,7 +39,7 @@
 
       <GeoBoundingBoxPicker
         v-if="facetSetting.type == 'geo'"
-        :field-name="facetSetting.field"
+        :fieldname="facetSetting.field"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
       >

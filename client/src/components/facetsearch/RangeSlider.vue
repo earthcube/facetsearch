@@ -53,6 +53,9 @@ export default {
   // },
   inject: ["toggleFilter"],
   props: {
+    fieldname: {
+      type: String,
+    },
     startDate: {
       required: true,
     },
