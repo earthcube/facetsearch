@@ -53,9 +53,6 @@ export default {
   },
   inject: ["toggleFilter", "filtersState"],
   props: {
-    fieldname: {
-      type: String,
-    },
     facetSetting: {
       type: Object,
       required: true,
@@ -81,12 +78,14 @@ export default {
   watch: {
     results: {
       handler(newResults) {
+        const minDepthField = this.facetSetting.range_fields[0]
+        const maxDepthFeild = this.facetSetting.range_fields[1]
         const validMinDepths = newResults
-          .map(d => parseFloat(d.minDepth))
+          .map(d => parseFloat(d[minDepthField]))
           .filter(d => !isNaN(d));
 
         const validMaxDepths = newResults
-          .map(d => parseFloat(d.maxDepth))
+          .map(d => parseFloat(d[maxDepthFeild]))
           .filter(d => !isNaN(d));
 
         const min = validMinDepths.length > 0 ? Math.min(...validMinDepths) : -10000;
@@ -96,6 +95,8 @@ export default {
         this.maxDepth = max;
         this.value.range[1] = max;
         this.value.range[0] = min;
+        this.value.minField = minDepthField;
+        this.value.maxField = maxDepthFeild;
         //this.value = ;
       },
       immediate: true // <-- run immediately if `results` already exists
@@ -109,7 +110,10 @@ export default {
       // pass values to toggleFilter
      // this.toggleFilter("minDepth", selectedMin, true);
     //  this.toggleFilter("maxDepth", selectedMax, true);
-      this.toggleFilter(this.fieldname, this.value , true);
+   //   this.toggleFilter(this.facetSetting.field, this.value , true);
+
+      // pass in a field name... the numericRange has the field names
+      this.toggleFilter(this.facetSetting.field, this.value , true);
     },
     onCollapseShown() {
       // Option A: if the slider instance has a .refresh() API

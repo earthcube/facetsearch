@@ -57,7 +57,7 @@ import {
 } from "vuex";
 import feedback from "@/components/feedback/feedback.vue";
 import {v5 as uuidv5} from "uuid";
-import { isProxy, toRaw } from 'vue';
+import {isProxy, toRaw} from 'vue';
 
 // import HistRangeSlider from "@/components/facetsearch/HistRangeSlider.vue"
 
@@ -369,27 +369,89 @@ export default {
           // maybe check can be, if is object, and with min and max
           // change the range filters to pass that object to toggle filter
           let isRangeFilter = false;
-          if ( isProxy(filter) && _.isObject(toRaw(filter))){
+          let isNumericRangeFilter = false; // depth uses
+          if (isProxy(filter) && _.isObject(toRaw(filter))) {
             const NoProxy = toRaw(filter)[0]; // no idea why this is an array
             //isRangeFilter =  NoProxy.hasOwnProperty('range') ;
-            isRangeFilter =Object.hasOwn(NoProxy,'range')
+            isRangeFilter = Object.hasOwn(NoProxy, 'range')
+            isNumericRangeFilter = NoProxy.filtertype == 'numericRange'
           }
 
 
           if (isRangeFilter) {
-            const thisFacet = item[facet]
-            if (_.isArray(item[facet])) {
-              var hasMatches = _.filter(thisFacet, (num) => _.inRange(thisFacet, filter[0].range[0], filter[0].range[0]));
-              if (hasMatches.length == 0) {
-                filtersApply = false;
+            if (!isNumericRangeFilter) {
+              const thisFacet = item[facet]
+              if (_.isArray(item[facet])) {
+                var hasMatches = _.filter(thisFacet, (num) => _.inRange(thisFacet, filter[0].range[0], filter[0].range[0]));
+                if (hasMatches.length == 0) {
+                  filtersApply = false;
+                }
+              } else {
+                if (filter[0].range[0] && filter[0].range[1]) {
+                  if (thisFacet < filter[0].range[0] || thisFacet > filter[0].range[1]) {
+                    filtersApply = false;
+                  }
+                }
               }
             } else {
-              if (filter[0].range[0] && filter[0].range[1]) {
-                if (thisFacet < filter[0].range[0] || thisFacet > filter[0].range[1]) {
+              // this is passed from the depth
+              //const [minFacet, maxFacet] = filter.split(',');  // for some reason array becomes string
+              const minFacet = filter[0].minField;
+              const maxFacet = filter[0].maxField;
+              const minSlider =filter[0].range[0];
+              const maxSlider = filter[0].range[1];
+              const minFacetValue = item[minFacet]
+              const maxFacetValue = item[maxFacet]
+              // Function to check if two ranges overlap
+              function rangesOverlap(minFacetValue, maxFacetValue, minSlider, maxSlider) {
+                return (
+                    minFacetValue <= maxSlider &&
+                    maxFacetValue >= minSlider
+                );
+              }
+
+              // Handle array case
+              if (_.isArray(minFacetValue) || _.isArray(maxFacetValue)) {
+                // For arrays, check if any range overlaps
+                const ranges = _.zip(
+                    _.isArray(minFacetValue) ? minFacetValue : [minFacetValue],
+                    _.isArray(maxFacetValue) ? maxFacetValue : [maxFacetValue]
+                );
+
+                const hasOverlap = ranges.some(([min, max]) => {
+                  if (min === undefined || max === undefined) {
+                    console.log(`possible misconfiguraton of facetsConfig change names ${minFacet}  ${maxFacet}`);
+                    return false;
+                  }
+                  return rangesOverlap(
+                      parseFloat(min),
+                      parseFloat(max),
+                      parseFloat(minSlider),
+                      parseFloat(maxSlider)
+                  );
+                });
+
+                if (!hasOverlap) {
                   filtersApply = false;
                 }
               }
+              // Handle single value case
+              else if (minFacetValue !== undefined && maxFacetValue !== undefined) {
+                const hasOverlap = rangesOverlap(
+                    parseFloat(minFacetValue),
+                    parseFloat(maxFacetValue),
+                    parseFloat(minSlider),
+                    parseFloat(maxSlider)
+                );
+
+                if (!hasOverlap) {
+                  filtersApply = false;
+                }
+              } else {
+                console.log(`possible misconfiguraton of facetsConfig change names ${minFacet}  ${maxFacet}`)
+              }
             }
+
           } else {
 
             if (_.isArray(item[facet])) {
