@@ -18,12 +18,14 @@ export class DateRange extends Range {
 }
 export class NumericRange extends Range{
     filtertype = 'numericRange';
-    limitRange = [-10000,10000]
-
-    constructor(min, max,limitMin=-10000,limitMax=10000 ) {
+    limitRange = [-10000,10000];
+    minField = 'minDepth';
+    maxField = 'maxDepth';
+    constructor(min, max,minField='minDepth', maxField='maxDepth', limitMin=-10000,limitMax=10000 ) {
         super(min, max);
         this.limitRange= [limitMin, limitMax]
-
+        this.minField = minField;
+        this.maxField = maxField;
         this.filtertype = 'numericRange';
     }
 }

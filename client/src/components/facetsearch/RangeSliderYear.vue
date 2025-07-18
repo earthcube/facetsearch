@@ -54,9 +54,6 @@ export default {
   },
   inject: ["toggleFilter", "filtersState"],
   props: {
-    fieldname: {
-      type: String,
-    },
     facetSetting: {
       type: Object,
       required: true,
@@ -119,7 +116,7 @@ export default {
       const end = this.value.range[1]
       //this.toggleFilter("startYear", start, true);
      // this.toggleFilter("endYear", end, true);
-      this.toggleFilter(this.fieldname, this.value , true);
+      this.toggleFilter(this.facetSetting.field, this.value , true);
     },
     onCollapseShown() {
       // Option A: if the slider instance has a .refresh() API
