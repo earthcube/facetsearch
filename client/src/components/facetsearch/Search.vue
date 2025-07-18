@@ -1,10 +1,10 @@
 <template>
   <b-container fluid="md" class="mt-3">
     <b-overlay
-      rounded="sm"
-      :show="queryRunning"
-      variant="white"
-      :opacity="0.85"
+        rounded="sm"
+        :show="queryRunning"
+        variant="white"
+        :opacity="0.85"
     >
       <b-row>
         <!-- sidebar -->
@@ -20,14 +20,14 @@
         <b-col md="9" class="results">
           <!-- Here comes the demo, if you want to copy and paste, start here -->
           <ResultHeader
-            :current-count="currentResults.length"
-            :total-count="items.length"
-            :filters="filtersState.filters"
+              :current-count="currentResults.length"
+              :total-count="items.length"
+              :filters="filtersState.filters"
           ></ResultHeader>
 
           <Results
-            :current-results="currentResults"
-            :state="filtersState"
+              :current-results="currentResults"
+              :state="filtersState"
           ></Results>
 
           <!--                    <b-button variant="outline-primary" class="mt-5">Load More</b-button>-->
@@ -56,7 +56,8 @@ import {
   // mapGetters
 } from "vuex";
 import feedback from "@/components/feedback/feedback.vue";
-import { v5 as uuidv5 } from "uuid";
+import {v5 as uuidv5} from "uuid";
+import {isProxy, toRaw} from 'vue';
 
 // import HistRangeSlider from "@/components/facetsearch/HistRangeSlider.vue"
 
@@ -72,22 +73,9 @@ export default {
       setSearchExactmatch: this.setSearchExactmatch,
       facetStore: this.facetStore,
       filtersState: this.filtersState,
+      filter: this.filter,
     };
   },
-  // setup() {
-  //
-  //   const facetStore = reactive({})
-  //   const filtersState = reactive(     {
-  //     orderBy: 'score',
-  //         filters: {}
-  //   })
-  //
-  //   provide("facetStore", facetStore)
-  //   provide("filtersState", filtersState)
-  //   provide('toggleFilter', this.toggleFilter)
-  //
-  //
-  // },
   computed: {
     ...mapState([
       "results",
@@ -213,6 +201,11 @@ export default {
   methods: {
     ...mapMutations(["setTextQuery", "setResourceTypeQuery", "setSearchExactMatch"]),
     ...mapActions(["getResults", "getQueryTemplate", "addtoMicroCache"]),
+    updateYearRange(start, end) {
+      this.$set(this.filtersState.filters, "startYear", [start]);
+      this.$set(this.filtersState.filters, "endYear", [end]);
+      this.filter();
+    },
     getQueryObj: function () {
       //let activeFilters = this.filtersState.filters|| []; // filters needs to be moved into actual filtersState in the future
       let activeFilters = [];
@@ -227,7 +220,7 @@ export default {
       };
       let string2uuid = JSON.stringify(queryObj);
       let uuid = uuidv5(string2uuid, uuidv5.URL); // any old 16 character namespace
-      return { uuid: uuid, query: queryObj };
+      return {uuid: uuid, query: queryObj};
     },
     //content.results.bindings
     newTextSearch: function () {
@@ -235,19 +228,19 @@ export default {
       //   this.$store.state.q = this.textQuery
       this.setTextQuery(this.textQuery);
       this.getResults(this.getQueryObj())
-        .then(() => {
-          this.queryRunning = false;
-        })
-        .catch((ex) => {
-          this.lastError = ex;
-          this.$bvToast.toast(`Query issue ` + ex, {
-            title: "Server issues with query to triplestore",
+          .then(() => {
+            this.queryRunning = false;
+          })
+          .catch((ex) => {
+            this.lastError = ex;
+            this.$bvToast.toast(`Query issue ` + ex, {
+              title: "Server issues with query to triplestore",
 
-            solid: true,
-            appendToast: false,
-            noAutoHide: true,
+              solid: true,
+              appendToast: false,
+              noAutoHide: true,
+            });
           });
-        });
       //this.queryRunning = false;
     },
 
@@ -294,8 +287,8 @@ export default {
                 return;
               }
               facetStore[facet.field][facetitem] = facetStore[facet.field][
-                facetitem
-              ] || {
+                  facetitem
+                  ] || {
                 count: 0,
                 id: _.uniqueId("facet_"),
                 isActive: false,
@@ -308,8 +301,8 @@ export default {
                 return;
               }
               facetStore[facet.field][item[facet.field]] = facetStore[
-                facet.field
-              ][item[facet.field]] || {
+                  facet.field
+                  ][item[facet.field]] || {
                 count: 0,
                 id: _.uniqueId("facet_"),
                 isActive: false,
@@ -354,74 +347,216 @@ export default {
      */
     filter: function () {
       // first apply the filters to the items
-
+      const getLatestFilterValue = (key) => {
+        const val = self.filtersState.filters[key];
+        return Array.isArray(val) ? val.slice(-1)[0] : undefined;
+      };
+      const getRangeIsValid = (item, min, max) => {
+        const val = self.filtersState.filters[key];
+        return Array.isArray(val) ? val.slice(-1)[0] : undefined;
+      };
       // this.currentResults = [] // triggers reactive event and we are resetting it in the next lines, anyway
       let self = this;
       // self.currentResults = _.select(this.items, function (item) {
       let newResults = _.select(this.items, function (item) {
         let filtersApply = true;
         _.each(self.filtersState.filters, function (filter, facet) {
-          if (_.isArray(item[facet])) {
-            var inters = _.intersection(item[facet], filter);
-            if (inters.length == 0) {
-              filtersApply = false;
+          // if a filter is a range, the do a range check
+          // this does not need to be custom for each. This is a range
+          // these things need to ha able to have MORE THAN ONE
+          // One Numberic, and one Date, m.
+          // AKA WRITE ONE RANGE FUNCTION
+          // maybe check can be, if is object, and with min and max
+          // change the range filters to pass that object to toggle filter
+          let isRangeFilter = false;
+          let isNumericRangeFilter = false; // depth uses
+          if (isProxy(filter) && _.isObject(toRaw(filter))) {
+            const NoProxy = toRaw(filter)[0]; // no idea why this is an array
+            //isRangeFilter =  NoProxy.hasOwnProperty('range') ;
+            isRangeFilter = Object.hasOwn(NoProxy, 'range')
+            isNumericRangeFilter = NoProxy.filtertype == 'numericRange'
+          }
+
+
+          if (isRangeFilter) {
+            if (!isNumericRangeFilter) {
+              const thisFacet = item[facet]
+              if (_.isArray(item[facet])) {
+                var hasMatches = _.filter(thisFacet, (num) => _.inRange(thisFacet, filter[0].range[0], filter[0].range[0]));
+                if (hasMatches.length == 0) {
+                  filtersApply = false;
+                }
+              } else {
+                if (filter[0].range[0] && filter[0].range[1]) {
+                  if (thisFacet < filter[0].range[0] || thisFacet > filter[0].range[1]) {
+                    filtersApply = false;
+                  }
+                }
+              }
+            } else {
+              // this is passed from the depth
+              //const [minFacet, maxFacet] = filter.split(',');  // for some reason array becomes string
+              const minFacet = filter[0].minField;
+              const maxFacet = filter[0].maxField;
+              const minSlider =filter[0].range[0];
+              const maxSlider = filter[0].range[1];
+              const minFacetValue = item[minFacet]
+              const maxFacetValue = item[maxFacet]
+              // Function to check if two ranges overlap
+              function rangesOverlap(minFacetValue, maxFacetValue, minSlider, maxSlider) {
+                return (
+                    minFacetValue <= maxSlider &&
+                    maxFacetValue >= minSlider
+                );
+              }
+
+              // Handle array case
+              if (_.isArray(minFacetValue) || _.isArray(maxFacetValue)) {
+                // For arrays, check if any range overlaps
+                const ranges = _.zip(
+                    _.isArray(minFacetValue) ? minFacetValue : [minFacetValue],
+                    _.isArray(maxFacetValue) ? maxFacetValue : [maxFacetValue]
+                );
+
+                const hasOverlap = ranges.some(([min, max]) => {
+                  if (min === undefined || max === undefined) {
+                    console.log(`possible misconfiguraton of facetsConfig change names ${minFacet}  ${maxFacet}`);
+                    return false;
+                  }
+                  return rangesOverlap(
+                      parseFloat(min),
+                      parseFloat(max),
+                      parseFloat(minSlider),
+                      parseFloat(maxSlider)
+                  );
+                });
+
+                if (!hasOverlap) {
+                  filtersApply = false;
+                }
+              }
+              // Handle single value case
+              else if (minFacetValue !== undefined && maxFacetValue !== undefined) {
+                const hasOverlap = rangesOverlap(
+                    parseFloat(minFacetValue),
+                    parseFloat(maxFacetValue),
+                    parseFloat(minSlider),
+                    parseFloat(maxSlider)
+                );
+
+                if (!hasOverlap) {
+                  filtersApply = false;
+                }
+              } else {
+                console.log(`possible misconfiguraton of facetsConfig change names ${minFacet}  ${maxFacet}`)
+              }
             }
+
           } else {
-            if (filter.length && _.indexOf(filter, item[facet]) == -1) {
-              filtersApply = false;
+
+            if (_.isArray(item[facet])) {
+              // this is if a facet has multiple selections, like keywords, or places
+              var inters = _.intersection(item[facet], filter);
+              if (inters.length == 0) {
+                filtersApply = false;
+              }
+            }
+                // is Objec with facetType (Range, DateRange, NumericRange)
+            // filter based on min/max
+            else {
+              if (filter.length && _.indexOf(filter, item[facet]) == -1) {
+                filtersApply = false;
+              }
             }
           }
         });
         return filtersApply;
       });
 
-      // the next two lines are needed to make the vue reactivity work.
-      // vue cannot easily detect array length changes, so.
-      //self.currentResults =self.currentResults.splice(0, 0);
-      let len = self.currentResults.length;
-      self.currentResults.splice(0, len);
-      newResults.forEach((i) => self.currentResults.push(i));
 
-      /// console.log(data)
-      // console.log(data.map(d => new Date(d).valueOf()))
+      // const minDepthFilter = getLatestFilterValue("minDepth");
+      // const maxDepthFilter = getLatestFilterValue("maxDepth");
+      // const startYearFilter = getLatestFilterValue("startYear");
+      // const endYearFilter = getLatestFilterValue("endYear");
+
+      // let newResults = _.filter(this.items, function (item) {
+      //   const itemMin = parseFloat(item.minDepth);
+      //   const itemMax = parseFloat(item.maxDepth);
+      //
+      //   let itemStartYear = undefined;
+      //   let itemEndYear = undefined;
+      //   if (typeof item.temporalCoverage === "string" && item.temporalCoverage.includes("/")) {
+      //     const [start, end] = item.temporalCoverage.split("/");
+      //     itemStartYear = parseInt(start.trim(), 10);
+      //     itemEndYear = parseInt(end.trim(), 10);
+      //   }
+      //
+      //   const isValid = () => {
+      //     if (isNaN(itemMin) || isNaN(itemMax)) return false;
+      //
+      //     const overlapsDepthRange =
+      //       (minDepthFilter === undefined || itemMax >= minDepthFilter) &&
+      //       (maxDepthFilter === undefined || itemMin <= maxDepthFilter);
+      //
+      //     if (!overlapsDepthRange) return false;
+      //
+      //     if (isNaN(itemStartYear) && isNaN(itemEndYear)) return false;
+      //     if (isNaN(itemStartYear)) itemStartYear = itemEndYear;
+      //     if (isNaN(itemEndYear)) itemEndYear = itemStartYear;
+      //
+      //     const overlapsYearRange =
+      //       (startYearFilter === undefined || itemEndYear >= startYearFilter) &&
+      //       (endYearFilter === undefined || itemStartYear <= endYearFilter);
+      //
+      //     return overlapsYearRange;
+      //   };
+      //
+      //   if (!isValid()) return false;
+      //
+      //   for (const [facet, filter] of Object.entries(self.filtersState.filters)) {
+      //     if (["minDepth", "maxDepth", "startYear", "endYear"].includes(facet)) continue;
+      //
+      //     if (_.isArray(item[facet])) {
+      //       const inters = _.intersection(item[facet], filter);
+      //       if (inters.length === 0) return false;
+      //     } else {
+      //       if (filter.length && !filter.includes(item[facet])) return false;
+      //     }
+      //   }
+      //
+      //   return true;
+      // });
+
+      const len = self.currentResults.length;
+      self.currentResults.splice(0, len);
+      newResults.forEach(i => self.currentResults.push(i));
+
       this.resetFacetCount();
-      // then reduce the items to get the current count for each facet
+
       _.each(self.facets, function (facet) {
         _.each(self.currentResults, function (item) {
-          if (_.isArray(item[facet.field])) {
-            _.each(item[facet.field], function (facetitem) {
-              if (_.isEmpty(facetitem)) {
-                return;
-              }
-              //self.facetStore[facet.field][facetitem].count += 1;
-              let newcount = self.facetStore[facet.field][facetitem].count + 1;
-              self.facetStore[facet.field][facetitem].count = newcount;
+          const val = item[facet.field];
+          if (_.isArray(val)) {
+            val.forEach(facetitem => {
+              if (_.isEmpty(facetitem)) return;
+              self.facetStore[facet.field][facetitem].count += 1;
             });
-          } else {
-            if (item[facet.field] !== undefined) {
-              if (_.isEmpty(item[facet.field])) {
-                return;
-              }
-              //self.facetStore[facet.field][item[facet.field]].count += 1;
-              let newcount =
-                self.facetStore[facet.field][item[facet.field]].count + 1;
-              self.facetStore[facet.field][item[facet.field]].count = newcount;
-            }
+          } else if (val !== undefined && !_.isEmpty(val)) {
+            self.facetStore[facet.field][val].count += 1;
           }
         });
       });
-      // remove confusing 0 from facets where a filter has been set
+
       _.each(self.filtersState.filters, function (filters, facettitle) {
         _.each(self.facetStore[facettitle], function (facet) {
-          if (facet.count == 0 && self.filtersState.filters[facettitle].length)
-            facet.count = "+";
+          if (facet.count === 0 && filters.length) facet.count = "+";
         });
       });
+
       self.filtersState.shownResults = 0;
     },
     toggleFilter: function (key, value, skipfilterUrl = false) {
-      console.log(window.location.href);
-      var stateObj = { key: value };
+      var stateObj = {key: value};
       if (!skipfilterUrl) {
         if (window.location.href.includes(encodeURI("&" + key + "=" + value))) {
           var href = window.location.href;
@@ -429,15 +564,21 @@ export default {
           history.pushState(stateObj, "", href);
         } else {
           history.pushState(
-            stateObj,
-            "",
-            window.location.href + "&" + key + "=" + value
+              stateObj,
+              "",
+              window.location.href + "&" + key + "=" + value
           );
         }
       }
-      console.log(window.location.href);
-      console.log("toggleFilter");
       var s_state = this.filtersState;
+
+      // Special case for range filters: overwrite instead of push
+      // if (key === "minDepth" || key === "maxDepth") {
+      //   this.$set(s_state.filters, key, [value]); // replace with single-element array
+      //   this.filter();
+      //   return;
+      // }
+
       this.$set(s_state.filters, key, s_state.filters[key] || []);
       if (_.indexOf(s_state.filters[key], value) == -1) {
         s_state.filters[key].push(value);
@@ -446,7 +587,7 @@ export default {
       } else {
         var indx = _.indexOf(s_state.filters[key], value);
         console.log(
-          "delete filter: " +
+            "delete filter: " +
             s_state.filters[key][indx] +
             " from the key: " +
             key

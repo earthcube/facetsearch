@@ -47,7 +47,7 @@
 
     <div v-if="Object.keys(filters).length > 0" class="mt-3">
       <span
-        v-for="f in Object.keys(filters)"
+        v-for="f in Object.keys(filters).filter(k => !['startYear', 'endYear', 'minDepth', 'maxDepth'].includes(k))"
         :key="f"
         align-v="center"
         class="filters"
@@ -138,6 +138,7 @@ export default {
   methods: {
     consolidateFilter: function (key) {
       var filters = this.filters[key];
+      // Special case: consolidate dates into unique years
       if ("datep" === key) {
         var years = new Set();
         for (let i = 0; i < filters.length; i++) {
