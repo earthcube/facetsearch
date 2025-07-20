@@ -114,7 +114,9 @@ FACETS:
 #    open: true
 #    type: range
   - field: minDepth
-    field2: maxDepth
+    range_fields:
+      - minDepth
+      - maxDepth
     title: Depth Range
     sort: acs
     open: true

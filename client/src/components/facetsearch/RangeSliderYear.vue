@@ -1,7 +1,7 @@
 <template>
   <div class="filter_card">
     <b-button
-      v-b-toggle="'accordion_range_' + facetSetting.field"
+      v-b-toggle="'accordion_daterange_' + facetSetting.field"
       block
       squared
     >
@@ -19,7 +19,7 @@
         aria-hidden="true"
       ></b-icon>
     </b-button>
-    <b-collapse :id="'accordion_range_' + facetSetting.field" @shown="onCollapseShown">
+    <b-collapse :id="'accordion_daterange_' + facetSetting.field" @shown="onCollapseShown">
       <vue-range-slider
         v-model="value.range"
         ref="rangeSlider"
