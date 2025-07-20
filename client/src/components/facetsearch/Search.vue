@@ -332,15 +332,11 @@ export default {
       _.each(self.facetStore, function (items, facetname) {
         _.each(items, function (value, itemname) {
           self.facetStore[facetname][itemname].count = 0;
-          const updateFacetItemStatus = (facetName: string, itemName: string
-        ):
-          void
-        =>
-          {
-            const isItemInFilters = self.filtersState.filters[facetName]?.includes(itemName) ?? false;
-            self.facetStore[facetName][itemName].isActive = isItemInFilters;
+          if (_.indexOf(self.filtersState.filters[facetname], itemname) == -1) {
+            self.facetStore[facetname][itemname].isActive = false;
+          } else {
+            self.facetStore[facetname][itemname].isActive = true;
           }
-          ;
         });
       });
     },
