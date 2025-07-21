@@ -113,7 +113,7 @@ export default {
    //   this.toggleFilter(this.facetSetting.field, this.value , true);
 
       // pass in a field name... the numericRange has the field names
-      this.toggleFilter(this.facetSetting.field, this.value , true);
+      this.toggleFilter(this.facetSetting.field, this.value , false);
     },
     onCollapseShown() {
       // Option A: if the slider instance has a .refresh() API
