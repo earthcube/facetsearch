@@ -398,10 +398,11 @@ export default {
               //const [minFacet, maxFacet] = filter.split(',');  // for some reason array becomes string
               const minFacet = filter[0].minField;
               const maxFacet = filter[0].maxField;
-              const minSlider =filter[0].range[0];
+              const minSlider = filter[0].range[0];
               const maxSlider = filter[0].range[1];
               const minFacetValue = item[minFacet]
               const maxFacetValue = item[maxFacet]
+
               // Function to check if two ranges overlap
               function rangesOverlap(minFacetValue, maxFacetValue, minSlider, maxSlider) {
                 return (
@@ -555,55 +556,51 @@ export default {
 
       self.filtersState.shownResults = 0;
     },
-    toggleFilter: function (key, value, skipfilterUrl = false) {
-      var stateObj = {key: value};
-      if (!skipfilterUrl) {
-        if (window.location.href.includes(encodeURI("&" + key + "=" + value))) {
-          var href = window.location.href;
-          href = href.replace(encodeURI("&" + key + "=" + value), "");
-          history.pushState(stateObj, "", href);
-        } else {
-          history.pushState(
-              stateObj,
-              "",
-              window.location.href + "&" + key + "=" + value
-          );
-        }
+    toggleFilter: function (key, value, skipUrlUpdate = false) {
+      const state = this.filtersState;
+
+      if (!skipUrlUpdate) {
+        this.updateUrlState(key, value);
       }
-      var s_state = this.filtersState;
 
-      // Special case for range filters: overwrite instead of push
-      // if (key === "minDepth" || key === "maxDepth") {
-      //   this.$set(s_state.filters, key, [value]); // replace with single-element array
-      //   this.filter();
-      //   return;
-      // }
+      // Initialize filters if needed
+      if (!state.filters[key]) {
+        state.filters[key] = [];
+      }
 
-      //this.$set(s_state.filters, key, s_state.filters[key] || []);
-      this.s_state.filters[key]= s_state.filters[key] || [];
-      if (_.indexOf(s_state.filters[key], value) == -1) {
-        s_state.filters[key].push(value);
-        this.$set(s_state.filters, key, s_state.filters[key]);
-        // don't do isActive here. resetFacetCount is called later
+      const filterArray = state.filters[key];
+      const valueIndex = _.indexOf(filterArray, value);
+
+      if (valueIndex === -1) {
+        // Add new value
+        filterArray.push(value);
       } else {
-        var indx = _.indexOf(s_state.filters[key], value);
-        console.log(
-            "delete filter: " +
-            s_state.filters[key][indx] +
-            " from the key: " +
-            key
-        );
-        this.$set(s_state.filters, key, _.without(s_state.filters[key], value));
-        if (s_state.filters[key].length == 0) {
-          console.log("empty filter kw: " + key);
-          delete s_state.filters[key];
-          // this.$set(s_state.filters, key,  undefined)
-          // just setting to undefined does not work, and just delete does not work, so
-          s_state.filters = Object.assign({}, s_state.filters);
-          // don't do isActive here. resetFacetCount is called later
+        // Remove existing value
+        state.filters[key] = _.without(filterArray, value);
+
+        // Clean up empty filters
+        if (state.filters[key].length === 0) {
+          delete state.filters[key];
+          // Trigger reactivity by creating a new object
+          state.filters = {...state.filters};
         }
       }
+
       this.filter();
+    },
+
+    updateUrlState: function (key, value) {
+      const url = new URL(window.location.href);
+      const paramString = `${key}=${value}`;
+      const hasParam = url.search.includes(encodeURI(`&${paramString}`));
+
+      if (hasParam) {
+        url.search = url.search.replace(encodeURI(`&${paramString}`), '');
+      } else {
+        url.search += `&${paramString}`;
+      }
+
+      history.pushState({key: value}, '', url.toString());
     },
     clearFilters: function () {
       console.log(window.location.href);
