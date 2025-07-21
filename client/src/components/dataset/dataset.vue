@@ -250,6 +250,15 @@
                     </div>
                   </div>
 
+          <div v-if="mapping.publisher" class="metadata">
+            <div class="label">Publisher</div>
+            <div class="value">{{ mapping.publisher }}</div>
+          </div>
+
+          <div v-if="mapping.s_provider" class="metadata">
+            <div class="label">Provider</div>
+            <div class="value">{{ mapping.s_provider }}</div>
+          </div>
                   <div v-if="mapping.s_publisher" class="metadata">
                     <div class="label">Publisher</div>
                     <div class="value">{{ mapping.publisher }}</div>
@@ -275,21 +284,29 @@
                     <div class="value">{{ mapping.end_datetime }}</div>
                   </div>
 
-                  <div v-if="mapping.has_citation" class="metadata">
-                    <div class="label">Citation</div>
-                    <div class="value">{{ mapping.s_citation }}</div>
-                  </div>
-                  <div
-                      v-if="mapping.s_variableMeasuredNames?.length > 0"
-                      class="varaibles"
-                  >
-                    <div class="label">Variables Measured</div>
-                    <div class="value">
-                <span v-for="vm in mapping.s_variableMeasuredNames" :key="vm">
-                  <b-badge class="mr-1" variant="light"> {{ vm }}</b-badge>
-                </span>
-                    </div>
-                  </div>
+          <div v-if="mapping.has_citation" class="metadata">
+            <div class="label">Citation</div>
+            <div class="value">{{ mapping.s_citation }}</div>
+          </div>
+
+          <div v-if="mapping.s_keywords?.length" class="metadata">
+            <div class="label">Keywords</div>
+            <div class="value">
+              {{ mapping.s_keywords.join(', ') }}
+            </div>
+          </div>
+
+          <div
+            v-if="mapping.s_variableMeasuredNames?.length > 0"
+            class="varaibles"
+          >
+            <div class="label">Variables Measured</div>
+            <div class="value">
+              <span v-for="vm in mapping.s_variableMeasuredNames" :key="vm">
+                <b-badge class="mr-1" variant="light"> {{ vm }}</b-badge>
+              </span>
+            </div>
+          </div>
 
                   <div v-if="mapping.s_downloads || mapping.s_url" class="metadata">
                     <div class="label">Links</div>
@@ -509,7 +526,7 @@ export default {
         });
   },
   computed: {
-    ...mapState(["jsonLdObj", "jsonLdCompact"]),
+    ...mapState(["jsonLdObj", "jsonLdCompact"])
   },
   methods: {
     toggleCollapse(index) {
@@ -620,8 +637,6 @@ export default {
       const element = this.$refs.metadataview;
 
       if (element) {
-        // Use el.scrollIntoView() to instantly scroll to the element
-        // el.scrollIntoView({behavior: 'smooth'});
         var top = element.$el.offsetHeight;
 
         window.scrollTo(0, top);
