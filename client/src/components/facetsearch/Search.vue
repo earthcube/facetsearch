@@ -574,6 +574,7 @@ export default {
       if (valueIndex === -1) {
         // Add new value
         filterArray.push(value);
+        state.filters = {...state.filters};
       } else {
         // Remove existing value
         state.filters[key] = _.without(filterArray, value);
@@ -589,19 +590,45 @@ export default {
       this.filter();
     },
 
+
     updateUrlState: function (key, value) {
       const url = new URL(window.location.href);
-      const paramString = `${key}=${value}`;
-      const hasParam = url.search.includes(encodeURI(`&${paramString}`));
+      const hashParts = url.hash.split('?');
+      const basePath = hashParts[0]; // Keeps the /#/search/ part
+      const params = new URLSearchParams(hashParts[1] || '');
 
-      if (hasParam) {
-        url.search = url.search.replace(encodeURI(`&${paramString}`), '');
+      // Toggle the parameter
+      if (params.has(key) && params.get(key) === value) {
+        params.delete(key);
       } else {
-        url.search += `&${paramString}`;
+        let isRangeFilter = false;
+        let isNumericRangeFilter = false; // depth uses
+        if (isProxy(value) && _.isObject(toRaw(value))) {
+          const NoProxy = toRaw(value); // no idea why this is an array
+          //isRangeFilter =  NoProxy.hasOwnProperty('range') ;
+          isRangeFilter = Object.hasOwn(NoProxy, 'range')
+          isNumericRangeFilter = NoProxy.filtertype == 'numericRange'
+        }
+
+        if (!isRangeFilter) {
+          params.append(key, value);
+        } else {
+          //if (isNumericRangeFilter){
+            value = value.range.toString(); // yes, overwrite so that it can get encoded in pushState
+            params.append(key, value);
+         // }
+        }
+
+
       }
 
+      // Reconstruct the hash with the encoded path and parameters
+      url.hash = `${basePath}?${params.toString()}`;
       history.pushState({key: value}, '', url.toString());
     },
+
+
+
     clearFilters: function () {
       console.log(window.location.href);
       var href = window.location.href;
