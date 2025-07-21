@@ -19,15 +19,15 @@
       </b-col>
 
       <b-col cols="6" class="d-flex">
-        <b-jumbotron text-variant="white" :style="{ backgroundColor: tenantData.tenant[0]?.color || secondary }" class="w-100 d-flex flex-column">
+        <b-jumbotron text-variant="white" :style="{ backgroundColor: currentTenant.color || secondary }" class="w-100 d-flex flex-column">
           <template #header>
 <!--            <span class="text-white">You are on {{ this.tenantData.tenant[0].community }}</span>-->
-            <span class="text-white">You are on {{ this.tenantData.tenant[0]?.community }}</span>
+            <span class="text-white">You are on {{ currentTenant.community }}</span>
           </template>
 
           <template #lead>
             <span class="p-5 flex-grow-1">
-              {{ this.tenantData.tenant[0]?.description }}
+              {{ currentTenant.description }}
             </span>
           </template>
         </b-jumbotron>
@@ -95,9 +95,9 @@ in case more intro paragraph text is needed
     <b-container fluid="md" class="mt-5">
       <h2>
          <a
-          :href="tenantData.tenant[0].url"
+          :href="currentTenant.url"
           target="_blank"
-          >{{ this.tenantData.tenant[0].community }}</a
+          >{{ currentTenant.community }}</a
         >
       </h2>
       <h5>Repositories crawled and indexed</h5>
@@ -247,7 +247,15 @@ export default {
     ...mapGetters(["appVersion", "appDate", "getTenantData"]),
     tenantData() {
       return this.$store.getters.getTenantData;
-      //  use community then get title, url
+    },
+    currentCommunity() {
+      return this.FacetsConfig.COMMUNITY;
+    },
+    currentTenant() {
+      if (!this.tenantData?.tenant) return null;
+      return this.tenantData.tenant.find(
+        t => t.community === this.currentCommunity
+      ) || null;
     },
     bgColor() {
       return this.generateColorFromTitle("Geochemistry");
