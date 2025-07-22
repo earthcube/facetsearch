@@ -33,163 +33,6 @@
           <div v-if="mappings.length>0"> Number of Datasets: {{ mappings.length }}</div>
         </b-card-footer>
       </b-card>
-      <!--      <div v-for="(mapping, index) in mappings" :key="index">-->
-      <!--        <b-row class="align-items-center mb-2">-->
-      <!--          <b-col>-->
-      <!--            <h4 class="page_title" v-html="mapping.s_name"></h4>-->
-      <!--          </b-col>-->
-      <!--          <b-col cols="auto">-->
-      <!--            <feedback-->
-      <!--              subject="Dataset"-->
-      <!--              :name="mapping.s_name"-->
-      <!--              :urn="d"-->
-      <!--            />-->
-      <!--          </b-col>-->
-      <!--        </b-row>-->
-      <!--        <b-row>-->
-      <!--          <b-col md="8">-->
-      <!--            <div class="metadata">-->
-      <!--              <div class="label">Type</div>-->
-      <!--              <div class="value">-->
-      <!--                <b-icon-->
-      <!--                  font-scale="2"-->
-      <!--                  class="mr-1"-->
-      <!--                  shift-v="-2"-->
-      <!--                  :icon="'data' == 'data' ? 'server' : 'tools'"-->
-      <!--                  :variant="'data' == 'data' ? 'data' : 'tool'"-->
-      <!--                ></b-icon>-->
-      <!--                <b-badge variant="data" class="mr-1 mb-1">Data</b-badge>-->
-      <!--              </div>-->
-      <!--            </div>-->
-
-      <!--            <div class="metadata">-->
-      <!--              <div class="label">Abstract</div>-->
-      <!--              <div class="value" v-html="mapping.s_description"></div>-->
-      <!--            </div>-->
-
-      <!--            <div v-if="mapping.s_contributor" class="metadata">-->
-      <!--              <div class="label">Creator</div>-->
-      <!--              <div v-if="!Array.isArray(mapping.s_contributor)" class="value">-->
-      <!--                {{ mapping.s_contributor }}-->
-      <!--              </div>-->
-      <!--              <div v-if="Array.isArray(mapping.s_contributor)" class="value">-->
-      <!--                <div v-for="i in mapping.s_contributor" :key="i">-->
-      <!--                  {{ i }}-->
-      <!--                </div>-->
-      <!--              </div>-->
-      <!--            </div>-->
-
-      <!--            <div v-if="mapping.s_publisher" class="metadata">-->
-      <!--              <div class="label">Publisher</div>-->
-      <!--              <div class="value">{{ mapping.publisher }}</div>-->
-      <!--            </div>-->
-
-      <!--            <div v-if="mapping.s_datePublished" class="metadata">-->
-      <!--              <div class="label">Date</div>-->
-      <!--              <div class="value">{{ mapping.s_datePublished }}</div>-->
-      <!--            </div>-->
-
-      <!--            <div v-if="mapping.updated" class="metadata">-->
-      <!--              <div class="label">Last Updated</div>-->
-      <!--              <div class="value">{{ mapping.updated }}</div>-->
-      <!--            </div>-->
-
-      <!--            <div v-if="mapping.start_datetime" class="metadata">-->
-      <!--              <div class="label">Start Date</div>-->
-      <!--              <div class="value">{{ mapping.start_datetime }}</div>-->
-      <!--            </div>-->
-
-      <!--            <div v-if="mapping.end_datetime" class="metadata">-->
-      <!--              <div class="label">End Date</div>-->
-      <!--              <div class="value">{{ mapping.end_datetime }}</div>-->
-      <!--            </div>-->
-
-      <!--            <div v-if="mapping.has_citation" class="metadata">-->
-      <!--              <div class="label">Citation</div>-->
-      <!--              <div class="value">{{ mapping.s_citation }}</div>-->
-      <!--            </div>-->
-      <!--            <div-->
-      <!--              v-if="mapping.s_variableMeasuredNames.length > 0"-->
-      <!--              class="varaibles"-->
-      <!--            >-->
-      <!--              <div class="label">Variables Measured</div>-->
-      <!--              <div class="value">-->
-      <!--                <span v-for="vm in mapping.s_variableMeasuredNames" :key="vm">-->
-      <!--                  <b-badge class="mr-1" variant="light"> {{ vm }}</b-badge>-->
-      <!--                </span>-->
-      <!--              </div>-->
-      <!--            </div>-->
-
-      <!--            <div v-if="mapping.s_downloads || mapping.s_url" class="metadata">-->
-      <!--              <div class="label">Links</div>-->
-      <!--              <div class="value">-->
-      <!--                &lt;!&ndash;                        <div style="font-weight:600;">Object URL text/plain; application=magic-tsv</div>&ndash;&gt;-->
-
-      <!--                &lt;!&ndash;                        <div><a href="#">https://earthref.org/MagIC/3484</a></div>&ndash;&gt;-->
-      <!--                &lt;!&ndash;                        <div><a href="#">https://earthref.org/MagIC/download/3484/magic_contribution_348415032.txt</a></div>&ndash;&gt;-->
-      <!--                &lt;!&ndash;                        <div><a href="#">https://earthref.org/MagIC/download/9843/magic_contribution_176534821.txt</a></div>&ndash;&gt;-->
-      <!--                <div v-if="mapping.s_url">-->
-      <!--                  <div style="font-weight: 600">URL from JSON-LD</div>-->
-      <!--                  <div>-->
-      <!--                    <a :href="mapping.s_url" target="_blank">-->
-      <!--                      {{ mapping.s_url }}-->
-      <!--                    </a>-->
-      <!--                  </div>-->
-      <!--                </div>-->
-
-      <!--                <div v-for="i in mapping.s_downloads" :key="i.name">-->
-      <!--                  <div style="font-weight: 600">Distribution: {{ i.name }}</div>-->
-      <!--                  &lt;!&ndash; do we want this? &ndash;&gt;-->
-      <!--                  <div-->
-      <!--                    v-if="i.encodingFormat && i.name !== i.encodingFormat"-->
-      <!--                    style="font-weight: 600"-->
-      <!--                  >-->
-      <!--                    {{ i.encodingFormat }}-->
-      <!--                  </div>-->
-      <!--                  <div>-->
-      <!--                    &lt;!&ndash; Show the URL if it does NOT start with 's3:' &ndash;&gt;-->
-      <!--                    <a v-if="!i.contentUrl.startsWith('s3:')" target="_blank" :href="i.contentUrl">{{ i.contentUrl }}</a>-->
-      <!--                    &lt;!&ndash; Show the button if the URL starts with 's3:' &ndash;&gt;-->
-      <!--                    <button-->
-      <!--                      v-else-->
-      <!--                      class="data-access-button"-->
-      <!--                      @click="dataAccessWindow(i.description)"-->
-      <!--                    >-->
-      <!--                      View Access Code-->
-      <!--                    </button>-->
-      <!--                  </div>-->
-      <!--                  &lt;!&ndash; Dialog &ndash;&gt;-->
-      <!--                  <div v-if="isDialogOpen" class="dialog-backdrop" @click.self="closeDialog">-->
-      <!--                    <div class="dialog-content">-->
-      <!--                      <h3>URL Copied!</h3>-->
-      <!--                      <p>{{ dialogContent }}</p>-->
-      <!--                      <button @click="closeDialog">Close</button>-->
-      <!--                    </div>-->
-      <!--                  </div>-->
-      <!--                </div>-->
-      <!--              </div>-->
-      <!--            </div>-->
-
-      <!--            <div class="metadata mt-4">-->
-      <!--              <div class="label"></div>-->
-      <!--              <citationButton class="value buttons"></citationButton>-->
-      <!--              &lt;!&ndash;                    <b-button variant="outline-secondary">Website</b-button>&ndash;&gt;-->
-      <!--            </div>-->
-
-      <!--            &lt;!&ndash; TODO remove this or change to new structure &ndash;&gt;-->
-      <!--            &lt;!&ndash;   <Metadata style="display: none;"></Metadata> &ndash;&gt;-->
-      <!--          </b-col>-->
-
-      <!--          <b-col md="4">-->
-      <!--            <DatasetLocation :m="mapping"></DatasetLocation>-->
-
-      <!--            <b-card>-->
-      <!--              <b-card-title>Downloads</b-card-title>-->
-      <!--              <downloadfiles :d="d" :m="mapping"></downloadfiles>-->
-      <!--            </b-card>-->
-      <!--          </b-col>-->
-      <!--        </b-row>-->
-      <!--      </div>-->
       <div v-for="(mapping, index) in mappings" :key="index">
         <b-card no-body class="mb-2">
           <!-- Toggle Header -->
@@ -250,6 +93,15 @@
                     </div>
                   </div>
 
+          <div v-if="mapping.publisher" class="metadata">
+            <div class="label">Publisher</div>
+            <div class="value">{{ mapping.publisher }}</div>
+          </div>
+
+          <div v-if="mapping.s_provider" class="metadata">
+            <div class="label">Provider</div>
+            <div class="value">{{ mapping.s_provider }}</div>
+          </div>
                   <div v-if="mapping.s_publisher" class="metadata">
                     <div class="label">Publisher</div>
                     <div class="value">{{ mapping.publisher }}</div>
@@ -275,21 +127,32 @@
                     <div class="value">{{ mapping.end_datetime }}</div>
                   </div>
 
-                  <div v-if="mapping.has_citation" class="metadata">
-                    <div class="label">Citation</div>
-                    <div class="value">{{ mapping.s_citation }}</div>
-                  </div>
-                  <div
-                      v-if="mapping.s_variableMeasuredNames?.length > 0"
-                      class="varaibles"
-                  >
-                    <div class="label">Variables Measured</div>
-                    <div class="value">
-                <span v-for="vm in mapping.s_variableMeasuredNames" :key="vm">
-                  <b-badge class="mr-1" variant="light"> {{ vm }}</b-badge>
-                </span>
-                    </div>
-                  </div>
+          <div v-if="mapping.has_citation" class="metadata">
+            <div class="label">Citation</div>
+            <div
+              class="value"
+              v-html="formatCitation(mapping)"
+            ></div>
+          </div>
+
+          <div v-if="mapping.s_keywords?.length" class="metadata">
+            <div class="label">Keywords</div>
+            <div class="value">
+              {{ mapping.s_keywords.join(', ') }}
+            </div>
+          </div>
+
+          <div
+            v-if="mapping.s_variableMeasuredNames?.length > 0"
+            class="varaibles"
+          >
+            <div class="label">Variables Measured</div>
+            <div class="value">
+              <span v-for="vm in mapping.s_variableMeasuredNames" :key="vm">
+                <b-badge class="mr-1" variant="light"> {{ vm }}</b-badge>
+              </span>
+            </div>
+          </div>
 
                   <div v-if="mapping.s_downloads || mapping.s_url" class="metadata">
                     <div class="label">Links</div>
@@ -509,7 +372,7 @@ export default {
         });
   },
   computed: {
-    ...mapState(["jsonLdObj", "jsonLdCompact"]),
+    ...mapState(["jsonLdObj", "jsonLdCompact"])
   },
   methods: {
     toggleCollapse(index) {
@@ -620,8 +483,6 @@ export default {
       const element = this.$refs.metadataview;
 
       if (element) {
-        // Use el.scrollIntoView() to instantly scroll to the element
-        // el.scrollIntoView({behavior: 'smooth'});
         var top = element.$el.offsetHeight;
 
         window.scrollTo(0, top);
@@ -796,7 +657,55 @@ export default {
         this.obscurePage = false;
       });
     },
+    formatCitation(mapping) {
+      const raw = mapping.s_citation;
+      if (!mapping.has_citation || !raw) return "";
+
+      // 1) If it’s a string, try to parse it
+      let c;
+      if (typeof raw === "string") {
+        try {
+          c = JSON.parse(raw);
+        } catch {
+          // not valid JSON, just render the string
+          return raw;
+        }
+      }
+      // 2) If it’s already an object, use it directly
+      else if (typeof raw === "object") {
+        c = raw;
+      } else {
+        return "";
+      }
+
+      // 3) Build the formatted HTML
+      const authors = (c.author || [])
+        .map(a => a.name)
+        .join(", ");
+      const year = c.datePublished
+        ? `(${new Date(c.datePublished).getFullYear()})`
+        : "";
+      const title = c.name || "";
+      const journal = c.isPartOf?.name || "";
+      // identifier.value might itself be a string or array:
+      const doiVal =
+        typeof c.identifier?.value === "string"
+          ? c.identifier.value
+          : Array.isArray(c.identifier?.value)
+            ? c.identifier.value[0]
+            : "";
+      const doi = doiVal.replace(/^doi:/, "");
+
+      return `
+        ${authors ? `<strong>${authors}</strong> ` : ""}
+        ${year}
+        <em>${title}</em>
+        ${journal ? `, ${journal}` : ""}
+        ${doi ? `.&nbsp;<a href="https://doi.org/${doi}" target="_blank">doi:${doi}</a>` : ""}
+      `;
+    },
   },
+
 };
 </script>
 

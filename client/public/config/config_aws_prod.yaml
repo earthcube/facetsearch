@@ -1,6 +1,6 @@
 ---
 
-API_URL: https://geocodes-aws.earthcube.org/ec/api
+API_URL: https://geocodes-allgeocodes-aws.earthcube.org/ec/api
 S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/decoder/reports/
 TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube/sparql
 ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
