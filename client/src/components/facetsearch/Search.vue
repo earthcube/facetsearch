@@ -171,6 +171,7 @@ export default {
       if (pair[0] === "searchExactMatch") continue;
       // console.log("Key is:" + pair[0]);
       // console.log("Value is:" + pair[1]);
+      // this will need to better handle RangeFilters and populate the toggle with an array
       this.toggleFilter(pair[0], pair[1], true);
     }
 
@@ -594,54 +595,75 @@ export default {
     updateUrlState: function (key, value) {
       const url = new URL(window.location.href);
       const hashParts = url.hash.split('?');
-      const basePath = hashParts[0]; // Keeps the /#/search/ part
+      const basePath = hashParts[0];
       const params = new URLSearchParams(hashParts[1] || '');
 
-      // Toggle the parameter
-      if (params.has(key) && params.get(key) === value) {
+      // Check if this exact parameter is already in the URL
+      const existingValue = params.get(key);
+      if (existingValue === value.toString()) {
+        // If it exists, remove it
         params.delete(key);
       } else {
+        // Handle range filters differently
         let isRangeFilter = false;
-        let isNumericRangeFilter = false; // depth uses
+        let isNumericRangeFilter = false;
         if (isProxy(value) && _.isObject(toRaw(value))) {
-          const NoProxy = toRaw(value); // no idea why this is an array
-          //isRangeFilter =  NoProxy.hasOwnProperty('range') ;
-          isRangeFilter = Object.hasOwn(NoProxy, 'range')
-          isNumericRangeFilter = NoProxy.filtertype == 'numericRange'
+          const NoProxy = toRaw(value);
+          isRangeFilter = Object.hasOwn(NoProxy, 'range');
+          isNumericRangeFilter = NoProxy.filtertype == 'numericRange';
         }
 
-        if (!isRangeFilter) {
-          params.append(key, value);
-        } else {
-          //if (isNumericRangeFilter){
-            value = value.range.toString(); // yes, overwrite so that it can get encoded in pushState
-            params.append(key, value);
-         // }
+        // If it's a range filter, convert to string format
+        if (isRangeFilter) {
+          value = value.range.toString();
         }
 
-
+        // Remove any existing value for this key before adding the new one
+        params.delete(key);
+        params.append(key, value);
       }
 
-      // Reconstruct the hash with the encoded path and parameters
+      // Update the URL
       url.hash = `${basePath}?${params.toString()}`;
       history.pushState({key: value}, '', url.toString());
     },
 
 
 
+
     clearFilters: function () {
-      console.log(window.location.href);
-      var href = window.location.href;
-      for (const [key, value] of Object.entries(this.filtersState.filters)) {
-        console.log(key, value);
-        for (let s of value) {
-          href = href.replace(encodeURI("&" + key + "=" + s), "");
-          console.log(href);
+      // Get the current URL and split it to preserve the base path
+      const url = new URL(window.location.href);
+      const hashParts = url.hash.split('?');
+      const basePath = hashParts[0];
+
+      // Create new URLSearchParams to preserve only essential parameters
+      const params = new URLSearchParams(hashParts[1] || '');
+
+      // Preserve only essential parameters (q, resourceType, searchExactMatch)
+      const essentialParams = ['q', 'resourceType', 'searchExactMatch'];
+      const preservedParams = new URLSearchParams();
+
+      essentialParams.forEach(param => {
+        const value = params.get(param);
+        if (value !== null) {
+          preservedParams.append(param, value);
         }
-      }
-      history.pushState("", "", href);
+      });
+
+      // Update URL with preserved parameters
+      const newHash = preservedParams.toString()
+        ? `${basePath}?${preservedParams.toString()}`
+        : basePath;
+
+      url.hash = newHash;
+      history.pushState({}, '', url.toString());
+
+      // Clear the filters state
       this.filtersState.filters = {};
       this.filter();
+
+      // Emit event to reset sliders - ensure this happens after filters are cleared
       this.$root.$emit("refresh slider range", "clear");
     },
     order: function (orderBy) {
