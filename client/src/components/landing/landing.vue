@@ -3,7 +3,7 @@
     <!-- allow logo to size according to container. fill with primary color from bootstrap variables -->
     <b-container class="col-md-5 pt-5">
       <template v-if="currentTenant">
-        <span class="logo">{{ currentTenant.community }}</span>
+        <span class="logo">{{ currentTenant.name }}</span>
       </template>
        <template v-else>
         <logoGeoCodes fill="#18598b" width="100%" />

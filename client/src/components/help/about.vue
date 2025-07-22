@@ -22,7 +22,7 @@
         <b-jumbotron text-variant="white" :style="{ backgroundColor: currentTenant.color || secondary }" class="w-100 d-flex flex-column">
           <template #header>
 <!--            <span class="text-white">You are on {{ this.tenantData.tenant[0].community }}</span>-->
-            <span class="text-white">You are on {{ currentTenant.community }}</span>
+            <span class="text-white">You are on {{ currentTenant.name }}</span>
           </template>
 
           <template #lead>
@@ -97,7 +97,7 @@ in case more intro paragraph text is needed
          <a
           :href="currentTenant.url"
           target="_blank"
-          >{{ currentTenant.community }}</a
+          >{{ currentTenant.name }}</a
         >
       </h2>
       <h5>Repositories crawled and indexed</h5>
