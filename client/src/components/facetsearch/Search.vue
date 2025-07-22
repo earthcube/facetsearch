@@ -608,10 +608,14 @@ export default {
         let isRangeFilter = false;
         let isNumericRangeFilter = false;
         if (isProxy(value) && _.isObject(toRaw(value))) {
-          const NoProxy = toRaw(value);
-          isRangeFilter = Object.hasOwn(NoProxy, 'range');
-          isNumericRangeFilter = NoProxy.filtertype == 'numericRange';
+          value = toRaw(value);
         }
+        isRangeFilter = Object.hasOwn(value, 'range');
+        if (isRangeFilter) {
+          isNumericRangeFilter = value.filtertype == 'numericRange';
+        }
+
+
 
         // If it's a range filter, convert to string format
         if (isRangeFilter) {
