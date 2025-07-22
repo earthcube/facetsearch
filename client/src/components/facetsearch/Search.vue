@@ -58,6 +58,7 @@ import {
 import feedback from "@/components/feedback/feedback.vue";
 import {v5 as uuidv5} from "uuid";
 import {isProxy, toRaw} from 'vue';
+import {DateRange} from "@/components/facetsearch/range.js";
 
 // import HistRangeSlider from "@/components/facetsearch/HistRangeSlider.vue"
 
@@ -607,12 +608,14 @@ export default {
         // Handle range filters differently
         let isRangeFilter = false;
         let isNumericRangeFilter = false;
+        let isDateRangeFilter = false;
         if (isProxy(value) && _.isObject(toRaw(value))) {
           value = toRaw(value);
         }
         isRangeFilter = Object.hasOwn(value, 'range');
         if (isRangeFilter) {
-          isNumericRangeFilter = value.filtertype == 'numericRange';
+          isNumericRangeFilter = value?.filtertype == 'numericRange';
+          isDateRangeFilter = value?.filtertype == 'dateRange';
         }
 
 

@@ -100,7 +100,7 @@ export default {
         this.sliderInit = true;
         newRangeStartDate = start;
         newRangeEndDate = end;
-        this.value = new Range(newRangeStartDate, newRangeEndDateRange);
+        this.value = new Range(newRangeStartDate, newRangeEndDate);
         if (start === 0 && end === 0) {
           this.disableDrag = true;
         } else {
