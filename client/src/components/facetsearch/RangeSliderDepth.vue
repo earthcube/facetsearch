@@ -107,7 +107,7 @@ export default {
       if (minDepth.value !== null && maxDepth.value !== null) {
         sliderValue.value = [minDepth.value, maxDepth.value]
         sliderKey.value++
-        filtered()
+        // Don't call filtered() here as it would add the default range to the URL
       }
     }
 
