@@ -20,21 +20,21 @@
       ></b-icon>
     </b-button>
     <b-collapse :id="'accordion_depthrange_' + facetSetting.field" @shown="onCollapseShown">
-      <vue-range-slider
-        v-model="value.range"
-        ref="rangeSlider"
+      <VueformSlider
+        :model-value="sliderValue"
         :key="sliderKey"
-        class="mx-2 py-2"
-        :tooltip="false"
+        class="slider mx-2 py-2"
         :min="parseInt(minDepth)"
         :max="parseInt(maxDepth)"
         :disabled="disableDrag"
-        @drag-end="filtered"
-      ></vue-range-slider>
-      <div v-if="value.range.length === 2" class="mt-0 px-2 py-0">
-        <span class="text-h2 font-weight-light">{{ value.range[0] }}</span>
+        :tooltip="tooltipFormat"
+        :format="numberFormat"
+        @update:model-value="handleSliderUpdate"
+      />
+      <div v-if="sliderValue.length === 2" class="mt-0 px-2 py-0">
+        <span class="text-h2 font-weight-light">{{ formatNumber(sliderValue[0]) }}</span>
         <span class="subheading font-weight-light mx-1">to</span>
-        <span class="text-h2 font-weight-light">{{ value.range[1] }}</span>
+        <span class="text-h2 font-weight-light">{{ formatNumber(sliderValue[1]) }}</span>
         <span class="subheading font-weight-light ml-1">m</span>
       </div>
     </b-collapse>
@@ -42,16 +42,17 @@
 </template>
 
 <script>
-import "vue-range-component/dist/vue-range-slider.css";
-import VueRangeSlider from "vue-range-component-fixed";
-import {mapState} from "vuex";
-import {NumericRange} from '@/components/facetsearch/range'
+import VueformSlider from '@vueform/slider'
+import { useStore } from 'vuex'
+import { NumericRange } from '@/components/facetsearch/range'
+import { computed, ref, watch, inject, nextTick, getCurrentInstance, onUnmounted } from 'vue'
+import '@vueform/slider/themes/default.css'
 
 export default {
+  name: 'RangeSliderDepth',
   components: {
-    VueRangeSlider,
+    VueformSlider,
   },
-  inject: ["toggleFilter", "filtersState"],
   props: {
     facetSetting: {
       type: Object,
@@ -62,75 +63,111 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      mydata: [],
-      minDepth: null,
-      maxDepth: null,
-      value: new NumericRange(-5000,0),
-      sliderKey: 0,
-      disableDrag: false,
-    };
-  },
-  computed: {
-    ...mapState(["results"]),
-  },
-  watch: {
-    results: {
-      handler(newResults) {
-        const minDepthField = this.facetSetting.range_fields[0]
-        const maxDepthFeild = this.facetSetting.range_fields[1]
-        const validMinDepths = newResults
-          .map(d => parseFloat(d[minDepthField]))
-          .filter(d => !isNaN(d));
+  setup(props) {
+    const store = useStore()
+    const toggleFilter = inject('toggleFilter')
+    const filtersState = inject('filtersState')
+    const results = computed(() => store.state.results)
 
-        const validMaxDepths = newResults
-          .map(d => parseFloat(d[maxDepthFeild]))
-          .filter(d => !isNaN(d));
+    const minDepth = ref(null)
+    const maxDepth = ref(null)
+    const sliderValue = ref([-5000, 0])
+    const sliderKey = ref(0)
+    const disableDrag = ref(false)
+    const controlValue = new NumericRange(-5000,0);
 
-        const min = validMinDepths.length > 0 ? Math.min(...validMinDepths) : -10000;
-        const max = validMaxDepths.length > 0 ? Math.max(...validMaxDepths) : 10000;
-
-        this.minDepth = min;
-        this.maxDepth = max;
-        this.value.range[1] = max;
-        this.value.range[0] = min;
-        this.value.minField = minDepthField;
-        this.value.maxField = maxDepthFeild;
-        //this.value = ;
-      },
-      immediate: true // <-- run immediately if `results` already exists
+    const formatNumber = (value) => {
+      return new Intl.NumberFormat('en-US', {
+        maximumFractionDigits: 0
+      }).format(value)
     }
-  },
-  methods: {
-    filtered() {
-      //const [selectedMin, selectedMax] = this.value;
-      const selectedMin =this.value.range[0];
-      const selectedMax =this.value.range[1];
-      // pass values to toggleFilter
-     // this.toggleFilter("minDepth", selectedMin, true);
-    //  this.toggleFilter("maxDepth", selectedMax, true);
-   //   this.toggleFilter(this.facetSetting.field, this.value , true);
 
-      // pass in a field name... the numericRange has the field names
-      this.toggleFilter(this.facetSetting.field, this.value , false);
-    },
-    onCollapseShown() {
-      // Option A: if the slider instance has a .refresh() API
-      if (this.$refs.rangeSlider && this.$refs.rangeSlider.refresh) {
-        this.$nextTick(() => this.$refs.rangeSlider.refresh());
-        return;
+    const numberFormat = (value) => {
+      return formatNumber(value)
+    }
+
+    const tooltipFormat = (value) => {
+      return `${formatNumber(value)} m`
+    }
+
+    const filtered = () => {
+      if (sliderValue.value && sliderValue.value.length === 2) {
+        controlValue.range = [...sliderValue.value];
+        toggleFilter(props.facetSetting.field, controlValue, false)
+      } else {
+        toggleFilter(props.facetSetting.field, controlValue, false)
       }
-      // Option B: force a remount via key
-      this.sliderKey++;
-   }
+    }
+
+    const onCollapseShown = () => {
+      sliderKey.value++
+    }
+
+    const resetToFullRange = () => {
+      if (minDepth.value !== null && maxDepth.value !== null) {
+        sliderValue.value = [minDepth.value, maxDepth.value]
+        sliderKey.value++
+        filtered()
+      }
+    }
+
+    const { proxy: { $root } } = getCurrentInstance()
+
+    $root.$on('refresh slider range', (action) => {
+      if (action === 'clear') {
+        resetToFullRange()
+      }
+    })
+
+    watch(() => results.value, (newResults) => {
+      if (!newResults) return
+
+      const minDepthField = props.facetSetting.range_fields[0]
+      const maxDepthField = props.facetSetting.range_fields[1]
+
+      const validMinDepths = newResults
+        .map(d => parseFloat(d[minDepthField]))
+        .filter(d => !isNaN(d))
+
+      const validMaxDepths = newResults
+        .map(d => parseFloat(d[maxDepthField]))
+        .filter(d => !isNaN(d))
+
+      minDepth.value = validMinDepths.length > 0 ? Math.min(...validMinDepths) : -10000
+      maxDepth.value = validMaxDepths.length > 0 ? Math.max(...validMaxDepths) : 10000
+
+      sliderValue.value = [minDepth.value, maxDepth.value]
+    }, { immediate: true })
+
+    onUnmounted(() => {
+      $root.$off('refresh slider range')
+    })
+
+    const handleSliderUpdate = (newValue) => {
+      sliderValue.value = newValue
+      filtered()
+    }
+
+    return {
+      minDepth,
+      maxDepth,
+      sliderKey,
+      disableDrag,
+      sliderValue,
+      filtered,
+      onCollapseShown,
+      formatNumber,
+      numberFormat,
+      tooltipFormat,
+      resetToFullRange,
+      handleSliderUpdate
+    }
   }
-
-
-};
+}
 </script>
+
 <style scoped lang="scss">
-@import "@/assets/bootstrapcss/custom";  // your custom Bootstrap overrides
+@import "@/assets/bootstrapcss/custom";
 
 .filter_card {
   background-color: #f5f5f5;
@@ -140,7 +177,6 @@ export default {
     margin-top: $spacer / 2;
   }
 
-  /* this targets the b-button inside filter_card */
   & > .btn {
     display: flex;
     justify-content: space-between;
@@ -159,16 +195,28 @@ export default {
   }
 }
 
-/* hide/show icons based on collapsed state */
 .collapsed > .when-open,
 .not-collapsed > .when-closed {
   display: none;
 }
 
-/* if you need flat secondary buttons everywhere */
 .btn-secondary,
 .btn-secondary:hover {
   background-image: none !important;
 }
-</style>
 
+/* Custom styles for @vueform/slider */
+.slider {
+  --slider-handle-bg: #4CAF50;
+  --slider-connect-bg: #4CAF50;
+  --slider-tooltip-bg: #4CAF50;
+  --slider-tooltip-color: white;
+  --slider-height: 6px;
+  --slider-handle-width: 16px;
+  --slider-handle-height: 16px;
+  --slider-handle-border-radius: 50%;
+  --slider-handle-border: none;
+  --slider-handle-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  margin: 20px 10px;
+}
+</style>

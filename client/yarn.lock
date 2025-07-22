@@ -3743,6 +3743,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vueform/slider@npm:^2.1.10":
+  version: 2.1.10
+  resolution: "@vueform/slider@npm:2.1.10"
+  checksum: 10c0/0bcc60075a66456abbc8919e9db05b25466525755d1a35e000c4900ab5c245f81b10729ab8eeac0a104021d211337f21b07393ea47d2a6f038b10dd570746aa1
+  languageName: node
+  linkType: hard
+
 "@webassemblyjs/ast@npm:1.11.6, @webassemblyjs/ast@npm:^1.11.5":
   version: 1.11.6
   resolution: "@webassemblyjs/ast@npm:1.11.6"
@@ -3968,6 +3975,7 @@ __metadata:
     "@vue/eslint-config-typescript": "npm:^10.0.0"
     "@vue/test-utils": "npm:^2.4.3"
     "@vue/vue3-jest": "npm:^29.2.6"
+    "@vueform/slider": "npm:^2.1.10"
     axios: "npm:^1.6.5"
     bootstrap-icons-vue: "npm:^1.11.1"
     bootstrap-vue: "npm:^2.23.1"
