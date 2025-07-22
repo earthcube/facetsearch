@@ -4001,6 +4001,7 @@ __metadata:
     vite: "npm:^5.0.12"
     vite-raw-plugin: "npm:^1.0.2"
     vue: "npm:~3.3.4"
+    vue-3-slider-component: "npm:^1.0.2"
     vue-axios: "npm:^3.5.2"
     vue-eslint-parser: "npm:^8.3.0"
     vue-gtag: "npm:^2.0.1"
@@ -11889,6 +11890,15 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 10c0/c51b8e458851943c903fddde6973e720099ef8a5f364fb107cddade59c9e90f6d9ad98b61a7419cdfa0c6374236e10bff965d0c2d9e7b1790c68b874e5e7950c
+  languageName: node
+  linkType: hard
+
+"vue-3-slider-component@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "vue-3-slider-component@npm:1.0.2"
+  peerDependencies:
+    vue: ^3.0.0
+  checksum: 10c0/8d7d51ef8ea8102004f61f4751457c2780723408b98ff8fb8bcdb2300205a3ff6c04eee87d7361fe8af1096ccc640bc192ee81a6cd62edd9dd6daa252df19ef2
   languageName: node
   linkType: hard
 
