@@ -39,6 +39,7 @@
     "underscore": "^1.13.6",
     "uuid": "^9.0.1",
     "vue": "~3.3.4",
+    "vue-3-slider-component": "^1.0.2",
     "vue-axios": "^3.5.2",
     "vue-gtag": "^2.0.1",
     "vue-histogram-slider": "^0.3.8",
