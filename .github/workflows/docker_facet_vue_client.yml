@@ -32,7 +32,7 @@ jobs:
           NODE_ENV:
             production
         with:
-          node-version: '20'
+          node-version: '22'
       #    cache: 'yarn'
       #- run: npm install -g  yarn
       - run: yarn install

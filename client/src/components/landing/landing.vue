@@ -2,8 +2,12 @@
   <b-container fluid="md" class="mt-5">
     <!-- allow logo to size according to container. fill with primary color from bootstrap variables -->
     <b-container class="col-md-5 pt-5">
-      <logoGeoCodes v-if="!this.tenantData" fill="#18598b" width="100%" />
-      <span v-if="this.tenantData" class="logo">{{this.tenantData.tenant[0].community}}</span>
+      <template v-if="currentTenant">
+        <span class="logo">{{ currentTenant.name }}</span>
+      </template>
+       <template v-else>
+        <logoGeoCodes fill="#18598b" width="100%" />
+      </template>
     </b-container>
 
     <b-container class="col-md-5 mt-4">
@@ -64,7 +68,7 @@
       </b-form>
     </b-container>
 
-    <b-container v-if="this.tenantData" fluid="md" class="mt-5">
+    <b-container v-if="currentTenant" fluid="md" class="mt-5">
       <b-carousel
         id="carousel-landing"
         v-model="slide"
@@ -73,8 +77,7 @@
         indicators
       >
         <b-carousel-slide>
-          {{ this.tenantData.tenant[0].landing_introduction }}
-<!--          <span class="text-nowrap">and tool search engine</span>-->
+          {{ currentTenant.landing_introduction }}
         </b-carousel-slide>
 <!--        <b-carousel-slide> a schema.org/Dataset search </b-carousel-slide>-->
 <!--        <b-carousel-slide>-->
@@ -190,6 +193,15 @@ export default {
   },
   computed: {
     ...mapState(["FacetsConfig"]),
+    currentCommunity() {
+      return this.FacetsConfig.COMMUNITY;
+    },
+    currentTenant() {
+      if (!this.tenantData?.tenant) return null;
+      return this.tenantData.tenant.find(
+        t => t.community === this.currentCommunity
+      ) || null;
+    },
     tenantData() {
       return this.$store.getters.getTenantData;
     }
