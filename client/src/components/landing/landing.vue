@@ -171,6 +171,7 @@ import {mapGetters, mapMutations, mapState} from "vuex";
 import VueToggles from "vue-toggles";
 import axios from "axios";
 import yaml from "js-yaml";
+import {tenantDefault} from "@/config.js";
 
 
 export default {
@@ -197,10 +198,10 @@ export default {
       return this.FacetsConfig.COMMUNITY;
     },
     currentTenant() {
-      if (!this.tenantData?.tenant) return null;
+      if (!this.tenantData?.tenant) return tenantDefault.tenant[0];
       return this.tenantData.tenant.find(
         t => t.community === this.currentCommunity
-      ) || null;
+      ) || tenantDefault.tenant[0];
     },
     tenantData() {
       return this.$store.getters.getTenantData;

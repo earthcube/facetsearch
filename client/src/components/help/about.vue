@@ -230,6 +230,7 @@ import axios from "axios";
 import $ from "jquery";
 import { mapState, mapGetters, mapActions} from "vuex";
 import yaml from 'js-yaml';
+import {tenantDefault} from "@/config.js";
 
 export default {
   name: "about.vue",
@@ -252,10 +253,10 @@ export default {
       return this.FacetsConfig.COMMUNITY;
     },
     currentTenant() {
-      if (!this.tenantData?.tenant) return null;
+      if (!this.tenantData?.tenant) return tenantDefault.tenant[0];
       return this.tenantData.tenant.find(
         t => t.community === this.currentCommunity
-      ) || null;
+      ) || tenantDefault.tenant[0];
     },
     bgColor() {
       return this.generateColorFromTitle("Geochemistry");
