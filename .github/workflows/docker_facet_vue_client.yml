@@ -3,13 +3,11 @@ on:
   push:
     branches:
       - master
-      - 140-add-andor-option
-      - 148-year-published-range-bar-is-not-working-1
-      - 163-geochemistry-dataset-not-rendering-correctly
-      - 167-ecoforecast-s3-url
       - feature/*
       - fix/*
-      - qleverstable
+      - add-min-max-depth-facets
+
+
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
 defaults:
@@ -25,18 +23,16 @@ jobs:
       - run: npm install -g corepack
       - name: Enable Corepack
         run: corepack enable
-      - run: yarn exec env
       - name: Create Node Environment
         uses: actions/setup-node@v4
         env:
           NODE_ENV:
             production
         with:
-          node-version: '20'
-      #    cache: 'yarn'
+          node-version: '22'
       #- run: npm install -g  yarn
       - run: yarn install
-      - run: yarn build:ci
+      - run: yarn build
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -64,7 +60,7 @@ jobs:
           push: true
           context: ./client
           tags: ${{ steps.meta.outputs.tags }}
-#          tags: nsfearthcube/ec_facets_client:latest
+          #          tags: nsfearthcube/ec_facets_client:latest
           labels: ${{ steps.meta.outputs.labels }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
