@@ -103,11 +103,11 @@ FACETS:
     sort: acs
     open: true
     type: range
-  - field: minDepth
-    title: Min Depth Range
-    sort: acs
-    open: true
-    type: range
+#  - field: minDepth
+#    title: Min Depth Range
+#    sort: acs
+#    open: true
+#    type: range
   - field: variableMeasured
     title: Variables Measured
     sort: acs
