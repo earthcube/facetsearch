@@ -16,6 +16,7 @@ import { default as LRUCache } from "lru-cache";
 import localforage from "localforage";
 import yaml from "js-yaml";
 import {commit} from "lodash/seq.js"
+import {tenantDefault} from "@/config.js";
 
 let esTemplateOptions = { interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g };
 export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
@@ -250,16 +251,7 @@ export const store = _createStore({
         commit("setTenantData", tenantData);
       } catch (error) {
         console.error('Error loading Tenant YAML file:', error);
-        const tenantData = {
-          tenant:[{
-            community: "MISSING FacetsConfig.TENANT_URL",
-            landing_introduction: "Missing FacetsConfig.TENANT_URL",
-            description:  "Missing FacetsConfig.TENANT_URL",
-            name: "MISSING FacetsConfig.TENANT_URL",
-            color: "blue"
-
-          }]
-        }
+        const tenantData = tenantDefault
         commit("setTenantData", tenantData);
       }
     },
