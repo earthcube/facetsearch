@@ -120,12 +120,12 @@ FACETS:
     title: Depth Range
     sort: acs
     open: true
-    type: depthrange
+    type: rangedepth
   - field: temporalCoverage
     title: Temporal Coverage
     sort: acs
     open: true
-    type: depthyear
+    type: rangeyear
   - field: spatialCoverage
     title: Spatial Filter
     sort: acs

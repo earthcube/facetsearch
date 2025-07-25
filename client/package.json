@@ -34,6 +34,7 @@
     "localforage-startswith": "^1.4.0",
     "lodash": "^4.17.21",
     "lru-cache": "~7.18.3",
+    "luxon": "^3.7.1",
     "marked": "^15.0.6",
     "query-string": "^7.0.0",
     "querystring": "^0.2.1",

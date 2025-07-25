@@ -112,6 +112,11 @@ FACETS:
 #    sort: acs
 #    open: true
 #    type: range
+  - field: datep
+    title: Year Published Range
+    sort: acs
+    open: true
+    type: rangeyear
   - field: minDepth
     range_fields:
       - minDepth
@@ -119,12 +124,12 @@ FACETS:
     title: Depth Range
     sort: acs
     open: true
-    type: depthrange
+    type: rangedepth
   - field: temporalCoverage
     title: Temporal Coverage
     sort: acs
     open: true
-    type: depthyear
+    type: rangeyear
   - field: spatialCoverage
     title: Spatial Filter
     sort: acs
