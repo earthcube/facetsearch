@@ -1,42 +1,42 @@
 <template>
   <div class="filter_card">
     <b-button
-      v-b-toggle="'accordion_daterange_' + facetSetting.field"
-      block
-      squared
+        v-b-toggle="'accordion_daterange_' + facetSetting.field"
+        block
+        squared
     >
-      {{ facetSetting.title }}
+      {{facetSetting.title}}
 
       <b-badge pill variant="info">{{temporalCount}}</b-badge>
       <b-icon
-        icon="square"
-        class="when-open"
-        scale="0.8"
-        aria-hidden="true"
+          icon="square"
+          class="when-open"
+          scale="0.8"
+          aria-hidden="true"
       ></b-icon>
       <b-icon
-        icon="plus-square"
-        class="when-closed"
-        scale="0.8"
-        aria-hidden="true"
+          icon="plus-square"
+          class="when-closed"
+          scale="0.8"
+          aria-hidden="true"
       ></b-icon>
     </b-button>
     <b-collapse :id="'accordion_daterange_' + facetSetting.field" @shown="onCollapseShown">
       <VueformSlider v-if="temporalCount > 0"
-        v-model="value.range"
-        ref="rangeSlider"
-        :key="sliderKey"
-        class="mx-2 py-2"
-        :tooltip="false"
-        :min="parseInt(startYear)"
-        :max="parseInt(endYear)"
-        :disabled="disableDrag"
-        @drag-end="filtered"
+                     v-model="value.range"
+                     ref="rangeSlider"
+                     :key="sliderKey"
+                     class="mx-2 py-2"
+                     :tooltip="false"
+                     :min="parseInt(startYear)"
+                     :max="parseInt(endYear)"
+                     :disabled="disableDrag"
+                     @drag-end="filtered"
       ></VueformSlider>
       <div v-if="temporalCount > 0" class="mt-0 px-2 py-0">
-        <span class="text-h2 font-weight-light">{{ value.range[0] }}</span>
+        <span class="text-h2 font-weight-light">{{value.range[0]}}</span>
         <span class="subheading font-weight-light mx-1">to</span>
-        <span class="text-h2 font-weight-light">{{ value.range[1] }}</span>
+        <span class="text-h2 font-weight-light">{{value.range[1]}}</span>
         <span class="subheading font-weight-light ml-1">year</span>
       </div>
       <div v-else>No Temporal Ranges</div>
@@ -47,10 +47,12 @@
 <script>
 import VueformSlider from '@vueform/slider'
 import '@vueform/slider/themes/default.css'
-import { useStore } from 'vuex'
-import { DateRange } from '@/components/facetsearch/range'
-import { computed, ref, watch, inject, nextTick } from 'vue'
-import { DateTime, Interval } from "luxon";
+import {useStore} from 'vuex'
+import {DateRange} from '@/components/facetsearch/range'
+import {computed, ref, watch, inject, nextTick} from 'vue'
+import {DateTime, Interval} from "luxon";
+import _ from 'lodash';
+
 
 export default {
   name: 'RangeSliderYear',
@@ -91,16 +93,16 @@ export default {
 
       const ranges = newResults.map(item => {
         //const tc = item?.temporalCoverage ;
-        const tc = item[props.facetSetting.field] ;
+        const tc = item[props.facetSetting.field];
         if (tc === undefined) return null;
-       // if (!tc.includes("/")) return null; // just parse them
-        try{
+        // if (!tc.includes("/")) return null; // just parse them
+        try {
           let range = Interval.fromISO(tc);
-          if (!range.invalid){
+          if (!range.invalid) {
             return [range.start, range.end]
           } else {
 
-              let date = DateTime.fromISO(tc);
+            let date = DateTime.fromISO(tc);
 
             if (!date.invalid) {
               return [date, date]
@@ -108,40 +110,41 @@ export default {
           }
         } catch (e) {
 
-            console.log( ` cannot parse ${tc } ${e}  ${e2}`)
-            return null;
-          }
+          console.log(` cannot parse ${tc} ${e}  ${e2}`)
+          return null;
+        }
 
 
-
-       // const [rawStart, rawEnd] = tc.split("/");
-       // const start = parseInt(rawStart.trim(), 10);
-       // const end = parseInt(rawEnd.trim(), 10);
+        // const [rawStart, rawEnd] = tc.split("/");
+        // const start = parseInt(rawStart.trim(), 10);
+        // const end = parseInt(rawEnd.trim(), 10);
 
         //return (!isNaN(start) && !isNaN(end)) ? { start, end } : null;
         return null
-      }); //.filter(Boolean);
+      }).filter(Boolean); //.filter(Boolean);
 
       if (ranges.length > 0) {
         temporalCount.value = ranges.length;
         value.value.temporalCount = ranges.length;
+
+
+        const startYears = ranges.filter(r => r != undefined || r != null).map(r => r[0]);
+        const endYears = ranges.filter(r => r != undefined || r != null).map(r =>  r[1]);
+
+        // startYear.value = startYears.length ? Math.min(...startYears) : new Date().getFullYear();
+        // endYear.value = endYears.length ? Math.max(...endYears) : new Date().getFullYear();
+        startYear.value = startYears.length ? _.min(startYears) : new DateTime();
+        endYear.value = endYears.length ? _.max(endYears) : new DateTime();
+
+        if (value.value.range) {
+          value.value.range[0] = startYear.value.year;
+          value.value.range[1] = endYear.value.year;
+        }
       } else {
         temporalCount.value = 0;
         value.value.temporalCount = 0;
       }
-
-
-      const startYears = ranges.map(r => r[0]);
-      const endYears = ranges.map(r => r[1]);
-
-      startYear.value = startYears.length ? Math.min(...startYears) : new Date().getFullYear();
-      endYear.value = endYears.length ? Math.max(...endYears) : new Date().getFullYear();
-
-      if (value.value.range) {
-        value.value.range[0] = startYear.value;
-        value.value.range[1] = endYear.value;
-      }
-    }, { immediate: true })
+    }, {immediate: true})
 
     // Methods
     const filtered = () => {
@@ -177,7 +180,7 @@ export default {
 };
 </script>
 <style scoped lang="scss">
-@import "@/assets/bootstrapcss/custom";  // your custom Bootstrap overrides
+@import "@/assets/bootstrapcss/custom"; // your custom Bootstrap overrides
 
 .filter_card {
   background-color: #f5f5f5;

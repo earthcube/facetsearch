@@ -23,6 +23,7 @@
     "bootstrap-icons-vue": "^1.11.1",
     "bootstrap-vue": "^2.23.1",
     "caniuse-lite": "^1.0.30001349",
+    "dayjs": "^1.11.13",
     "js-yaml": "^4.1.0",
     "json5": "^2.2.3",
     "jsonld": "^8.3.2",
