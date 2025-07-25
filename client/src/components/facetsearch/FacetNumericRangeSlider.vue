@@ -107,6 +107,14 @@ export default {
   },
   inject: ["toggleFilter", "filtersState"],
   props: {
+    facetSetting: {
+      type: Object,
+      required: true,
+    },
+    facetStore: {
+      type: Object,
+      required: true,
+    },
     fieldname: {
       type: String,
     },
