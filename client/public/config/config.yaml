@@ -1,4 +1,6 @@
-
+# DO NOT CHANGE THIS FOR YOUR LOCAL DEVELOPMENT
+# CREATE A NEW CONFIG AND
+# PASS AN ENVIRONMENT VARIABLE: `VITE_APP_FACETS_CONFIG_FILE=config/config_dev.yaml`
 ---
 MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
 API_URL: https://deepoceans.geocodes-aws.earthcube.org/ec/api
