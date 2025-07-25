@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <vue-range-slider
+      <VueformSlider
         ref="slider"
         v-model="value.range"
         class="mx-2"
@@ -10,27 +10,27 @@
         :max="parseInt(endDate)"
         :disabled="disableDrag"
         @drag-end="updateRange"
-      ></vue-range-slider>
+      ></VueformSlider>
     </div>
     <div>
       <span
-        v-if="filterDates.length > 0"
+        v-if="filterDates?.length > 0"
         class="text-h2 font-weight-light"
         v-text="value.range[0]"
       ></span>
       <span
-        v-if="filterDates.length > 0"
+        v-if="filterDates?.length > 0"
         class="subheading font-weight-light mr-1"
       >
         year to
       </span>
       <span
-        v-if="filterDates.length > 0"
+        v-if="filterDates?.length > 0"
         class="text-h2 font-weight-light"
         v-text="value.range[1]"
       ></span>
       <span
-        v-if="filterDates.length > 0"
+        v-if="filterDates?.length > 0"
         class="subheading font-weight-light mr-1"
       >
         year</span
@@ -39,12 +39,14 @@
   </div>
 </template>
 <script>
-import "vue-range-component/dist/vue-range-slider.css";
-import VueRangeSlider from "vue-range-component-fixed";
-import {Range} from '@/components/facetsearch/range'
+import VueformSlider from '@vueform/slider'
+import { useStore } from 'vuex'
+import { Range } from '@/components/facetsearch/range'
+import { computed, ref, watch, inject, nextTick, getCurrentInstance, onUnmounted } from 'vue'
+import '@vueform/slider/themes/default.css'
 export default {
   components: {
-    VueRangeSlider,
+    VueformSlider,
   },
   // provide: function () {
   //   return {
@@ -53,16 +55,14 @@ export default {
   // },
   inject: ["toggleFilter"],
   props: {
-    fieldname: {
-      type: String,
-    },
-    startDate: {
+    facetSetting: {
+      type: Object,
       required: true,
     },
-    endDate: {
+    facetStore: {
+      type: Object,
       required: true,
     },
-    filterDates: [],
   },
   data() {
     return {

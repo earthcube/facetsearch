@@ -6,6 +6,7 @@
       squared
     >
       {{ facetSetting.title }}
+      <b-badge pill variant="info">{{depthCount}}</b-badge>
       <b-icon
         icon="square"
         class="when-open"
@@ -19,8 +20,8 @@
         aria-hidden="true"
       ></b-icon>
     </b-button>
-    <b-collapse :id="'accordion_depthrange_' + facetSetting.field" @shown="onCollapseShown">
-      <VueformSlider
+    <b-collapse :id="'accordion_depthrange_' + facetSetting.field" @shown="onCollapseShown"   >
+      <VueformSlider v-if="depthCount > 0"
         :model-value="sliderValue"
         :key="sliderKey"
         class="slider mx-2 py-2"
@@ -31,12 +32,20 @@
         :format="numberFormat"
         @update:model-value="handleSliderUpdate"
       />
-      <div v-if="sliderValue.length === 2" class="mt-0 px-2 py-0">
-        <span class="text-h2 font-weight-light">{{ formatNumber(sliderValue[0]) }}</span>
+      <div v-if="depthCount > 0" class="mt-0 px-2 py-0">
+        <span class="text-h2 font-weight-light">{{ value.range[0] }}</span>
         <span class="subheading font-weight-light mx-1">to</span>
-        <span class="text-h2 font-weight-light">{{ formatNumber(sliderValue[1]) }}</span>
-        <span class="subheading font-weight-light ml-1">m</span>
+        <span class="text-h2 font-weight-light">{{ value.range[1] }}</span>
+        <span class="subheading font-weight-light ml-1">year</span>
+        <div v-if="sliderValue.length === 2" class="mt-0 px-2 py-0">
+          <span class="text-h2 font-weight-light">{{ formatNumber(sliderValue[0]) }}</span>
+          <span class="subheading font-weight-light mx-1">to</span>
+          <span class="text-h2 font-weight-light">{{ formatNumber(sliderValue[1]) }}</span>
+          <span class="subheading font-weight-light ml-1">m</span>
+        </div>
       </div>
+      <div v-else>No Depths</div>
+
     </b-collapse>
   </div>
 </template>
@@ -75,6 +84,7 @@ export default {
     const sliderKey = ref(0)
     const disableDrag = ref(false)
     const controlValue = new NumericRange(-5000,0);
+    const depthCount =ref(0);
 
     const formatNumber = (value) => {
       return new Intl.NumberFormat('en-US', {
@@ -134,8 +144,12 @@ export default {
         .filter(d => !isNaN(d))
 
       minDepth.value = validMinDepths.length > 0 ? Math.min(...validMinDepths) : -10000
-      maxDepth.value = validMaxDepths.length > 0 ? Math.max(...validMaxDepths) : 10000
-
+      maxDepth.value = validMinDepths.length > 0 ? Math.max(...validMaxDepths) : 10000
+      if (validMinDepths.length > 0 || validMinDepths.length > 0 ){
+        depthCount.value = validMinDepths.length + validMaxDepths.length;
+      } else {
+        depthCount.value = 0;
+      }
       sliderValue.value = [minDepth.value, maxDepth.value]
     }, { immediate: true })
 
@@ -154,6 +168,7 @@ export default {
       sliderKey,
       disableDrag,
       sliderValue,
+      depthCount,
       filtered,
       onCollapseShown,
       formatNumber,
