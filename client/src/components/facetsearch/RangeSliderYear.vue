@@ -21,22 +21,22 @@
           aria-hidden="true"
       ></b-icon>
     </b-button>
-    <b-collapse :id="'accordion_daterange_' + facetSetting.field" @shown="onCollapseShown">
+    <b-collapse :id="'accordion_daterange_' + facetSetting.field" @shown="onCollapseShown" >
       <VueformSlider v-if="temporalCount > 0"
-                     v-model="value.range"
+                     v-model="sliderValue"
                      ref="rangeSlider"
                      :key="sliderKey"
-                     class="mx-2 py-2"
+                     class="slider  mx-2 py-2"
                      :tooltip="false"
                      :min="parseInt(startYear)"
                      :max="parseInt(endYear)"
                      :disabled="disableDrag"
-                     @drag-end="filtered"
+                     @update:model-value="handleSliderUpdate"
       ></VueformSlider>
       <div v-if="temporalCount > 0" class="mt-0 px-2 py-0">
-        <span class="text-h2 font-weight-light">{{value.range[0]}}</span>
+        <span class="text-h2 font-weight-light">{{controlValue.range[0]}}</span>
         <span class="subheading font-weight-light mx-1">to</span>
-        <span class="text-h2 font-weight-light">{{value.range[1]}}</span>
+        <span class="text-h2 font-weight-light">{{controlValue.range[1]}}</span>
         <span class="subheading font-weight-light ml-1">year</span>
       </div>
       <div v-else>No Temporal Ranges</div>
@@ -76,10 +76,11 @@ export default {
 
     // Reactive data
     const mydata = ref([])
-    const startYear = ref(new Date().getFullYear())
-    const endYear = ref(new Date().getFullYear())
-    const value = ref(new DateRange(0, 2025))
+    const startYear = ref( DateTime.now().year)
+    const endYear = ref(DateTime.now().year)
+    const sliderValue = ref([1800,2100])
     const sliderKey = ref(0)
+    const controlValue = ref(new DateRange(1800,2100))
     const disableDrag = ref(false)
     const rangeSlider = ref(null)
     const temporalCount = ref(0);
@@ -125,7 +126,7 @@ export default {
 
       if (ranges.length > 0) {
         temporalCount.value = ranges.length;
-        value.value.temporalCount = ranges.length;
+        controlValue.value.temporalCount = ranges.length;
 
 
         const startYears = ranges.filter(r => r != undefined || r != null).map(r => r[0]);
@@ -133,23 +134,28 @@ export default {
 
         // startYear.value = startYears.length ? Math.min(...startYears) : new Date().getFullYear();
         // endYear.value = endYears.length ? Math.max(...endYears) : new Date().getFullYear();
-        startYear.value = startYears.length ? _.min(startYears) : new DateTime();
-        endYear.value = endYears.length ? _.max(endYears) : new DateTime();
+        startYear.value = startYears.length ? _.min(startYears) : DateTime.now();
+        endYear.value = endYears.length ? _.max(endYears) : DateTime.now();
 
-        if (value.value.range) {
-          value.value.range[0] = startYear.value.year;
-          value.value.range[1] = endYear.value.year;
+        if (controlValue.value.range) {
+          controlValue.value.range[0] = startYear.value.year;
+          controlValue.value.range[1] = endYear.value.year;
+          sliderValue.value = [startYear.value.year, endYear.value.year]
         }
       } else {
         temporalCount.value = 0;
-        value.value.temporalCount = 0;
+        controlValue.value.temporalCount = 0;
       }
     }, {immediate: true})
 
     // Methods
     const filtered = () => {
-      if (value.value.range) {
-        toggleFilter(props.facetSetting.field, value.value, true);
+
+      if (sliderValue.value && sliderValue.value.length === 2) {
+        controlValue.range = [...sliderValue.value];
+        toggleFilter(props.facetSetting.field, controlValue, false)
+      } else {
+        toggleFilter(props.facetSetting.field, controlValue, false)
       }
     }
 
@@ -162,13 +168,17 @@ export default {
       // Option B: force a remount via key
       sliderKey.value++;
     }
-
+    const handleSliderUpdate = (newValue) => {
+      sliderValue.value = newValue
+      filtered()
+    }
     return {
       mydata,
       startYear,
       endYear,
-      value,
+      sliderValue,
       sliderKey,
+      controlValue,
       disableDrag,
       rangeSlider,
       results,
