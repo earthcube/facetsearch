@@ -33,9 +33,9 @@
         @update:model-value="handleSliderUpdate"
       />
       <div v-if="depthCount > 0" class="mt-0 px-2 py-0">
-        <span class="text-h2 font-weight-light">{{ value.range[0] }}</span>
+        <span class="text-h2 font-weight-light">{{ controlValue.range[0] }}</span>
         <span class="subheading font-weight-light mx-1">to</span>
-        <span class="text-h2 font-weight-light">{{ value.range[1] }}</span>
+        <span class="text-h2 font-weight-light">{{ controlValue.range[1] }}</span>
         <span class="subheading font-weight-light ml-1">year</span>
         <div v-if="sliderValue.length === 2" class="mt-0 px-2 py-0">
           <span class="text-h2 font-weight-light">{{ formatNumber(sliderValue[0]) }}</span>
@@ -146,7 +146,7 @@ export default {
       minDepth.value = validMinDepths.length > 0 ? Math.min(...validMinDepths) : -10000
       maxDepth.value = validMinDepths.length > 0 ? Math.max(...validMaxDepths) : 10000
       if (validMinDepths.length > 0 || validMinDepths.length > 0 ){
-        depthCount.value = validMinDepths.length + validMaxDepths.length;
+        depthCount.value = Math.max(validMinDepths.length, validMaxDepths.length);
       } else {
         depthCount.value = 0;
       }
@@ -168,6 +168,7 @@ export default {
       sliderKey,
       disableDrag,
       sliderValue,
+      controlValue,
       depthCount,
       filtered,
       onCollapseShown,
