@@ -138,6 +138,7 @@ export default {
   methods: {
     consolidateFilter: function (key) {
       var filters = this.filters[key];
+      // Special case: consolidate dates into unique years
       if ("datep" === key) {
         var years = new Set();
         for (let i = 0; i < filters.length; i++) {

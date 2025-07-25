@@ -3,7 +3,7 @@ PREFIX bds: <http://www.bigdata.com/rdf/search#>
  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
  prefix schema: <https://schema.org/>
  SELECT distinct ?g ?pubname ?placenames ?kw  ?datep
- 	(MAX(?score1) as ?score)  ?name ?description ?resourceType
+ 	(MAX(?score1) as ?score)  ?name ?description ?resourceType ?maxDepth ?minDepth ?temporalCoverage
           WHERE {
             ?lit bds:search "${q}" .
             ?lit bds:matchAllTerms "${exact}" .
@@ -18,9 +18,12 @@ PREFIX bds: <http://www.bigdata.com/rdf/search#>
          OPTIONAL {?g schema:publisher ?pubname .}
          OPTIONAL {?g schema:place ?placenames .}
          OPTIONAL {?g schema:keywords ?kw .}
-
+         OPTIONAL {?g schema:maxDepth ?maxDepth .}
+         OPTIONAL {?g schema:minDepth ?minDepth .}
+         OPTIONAL {?g schema:temporalCoverage ?temporalCoverage .}
          }
- GROUP BY ?g ?pubname ?placenames ?kw ?datep ?disurl ?score ?name ?description  ?resourceType
+ GROUP BY ?g ?pubname ?placenames ?kw ?datep ?disurl ?score ?name ?description  ?resourceType ?maxDepth ?minDepth
+          ?temporalCoverage
          ORDER BY DESC(?score)
  LIMIT ${n}
 

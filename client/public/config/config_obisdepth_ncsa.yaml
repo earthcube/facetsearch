@@ -1,15 +1,14 @@
-# DO NOT CHANGE THIS FOR YOUR LOCAL DEVELOPMENT
-# CREATE A NEW CONFIG AND
-# PASS AN ENVIRONMENT VARIABLE: `VITE_APP_FACETS_CONFIG_FILE=config/config_dev.yaml`
+
 ---
-# confg_dev
-API_URL: http://localhost:3000
-TENANT_URL: https://oss.geocodes-aws-dev.earthcube.org/geocodes/scheduler/configs/production/tenant.yaml
-S3_REPORTS_URL: https://oss.geocodes-aws-dev.earthcube.org/decoder/reports/
-TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/test/sparql
-SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/test_summary/sparql
+MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
+API_URL: https://deepoceans.geocodes-aws.earthcube.org/ec/api
+TENANT_URL: https://oss.geocodes-aws-dev.earthcube.org/test/scheduler/configs/test/tenant.yaml
+TRIPLESTORE_URL: https://graph.geocodes.ncsa.illinois.edu/blazegraph/namespace/obisdepth/sparql
 ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
-COMMUNITY: dev
+SUMMARYSTORE_URL: https://graph.geocodes.ncsa.illinois.edu/blazegraph/namespace/obisdepth_summary/sparql
+# reports
+S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/decoder/reports/
+COMMUNITY: deepoceans
 # timeout for blazgraph queries
 BLAZEGRAPH_TIMEOUT: 20
 ECRR_GRAPH: http://earthcube.org/gleaner-summoned
@@ -18,13 +17,33 @@ SPARQL_QUERY: queries/sparql_query.txt
 SPARQL_HASTOOLS: queries/sparql_hastools.txt
 SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
 SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
-JSONLD_PROXY: http://localhost:3000/${o}
+JSONLD_PROXY: https://geocodes-aws.earthcube.org/ec/api${o}
 SPARQL_NB: https://geocodes-aws.earthcube.org/notebook/mkQ?q=${q}
-SPARQL_YASGUI: https://geocodes.earthcube.org/sparqlgui?
+SPARQL_YASGUI: https://sparqlgui.geocodes-aws.earthcube.org/?
+
+#
+#API_URL: https://geocodes.wifire-data.sdsc.edu/ec/api
+##API_URL: https://geocodes.earthcube.org/ec/api
+#TRIPLESTORE_URL: "https://graph.geocodes-dev.earthcube.org/blazegraph/namespace/wifire/sparql"
+##SUMMARYSTORE_URL: https://graph.geocodes-1.earthcube.org/blazegraph/namespace/summary/sparql
+#SUMMARYSTORE_URL: "https://graph.geocodes-dev.earthcube.org/blazegraph/namespace/wifire_summary/sparql"
+##SUMMARYSTORE_URL: https://graph.geodex.org/blazegraph/namespace/summary/sparql
+#ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
+## timeout for blazgraph queries
+#BLAZEGRAPH_TIMEOUT: 20
+#ECRR_GRAPH: http://earthcube.org/gleaner-summoned
+#THROUGHPUTDB_URL: https://throughputdb.com/api/ccdrs/annotations
+#SPARQL_QUERY: queries/sparql_query.txt
+#SPARQL_HASTOOLS: queries/sparql_hastools.txt
+#SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
+#SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
+#JSONLD_PROXY: https://geocodes.wifire-data.sdsc.edu/ec/api/${o}
+#SPARQL_NB: https://geocodes.geocodes-1.earthcube.org/notebook/mkQ?q=${q}
+#SPARQL_YASGUI: https://geocodes.geocodes-1.earthcube.org/sparqlgui?
 COLLECTION_FACETS:
   - field: unassigned
     title: All Items
-    sort: acs\
+    sort: acs
     open: false
     type: unassigned
     collections:
@@ -93,7 +112,25 @@ FACETS:
     title: Year Published Range
     sort: acs
     open: true
-    type: range
+    type: rangeyear
+  - field: minDepth
+    range_fields:
+     - minDepth
+     - maxDepth
+    title: Depth Range
+    sort: acs
+    open: true
+    type: rangedepth
+  - field: temporalCoverage
+    title: Temporal Coverage
+    sort: acs
+    open: true
+    type: rangeyear
+  - field: spatialCoverage
+    title: Spatial Filter
+    sort: acs
+    open: true
+    type: geo
 ORDER_BY_DEFAULT: score
 ORDER_BY_OPTIONS:
   - field: name
@@ -130,7 +167,7 @@ NOTEBOOKS:
       - text/tab-separated-values
       - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
   - name: Collab-Developer
-    badge: https://camo.githubusercontent.com/84f0493939e0c4de4e6dbe113251b4bfb5353e57134ffd9fcab6b8714514d4d1/68747470733a2f2f636f6c61622e72657365617263682e676f6f676c652e636f6d2f6173736574732f636f6c61622d62616467652e737667
+    badge: https://upload.wikimedia.org/wikipedia/commons/d/d0/Google_Colaboratory_SVG_Logo.svg
     baseurl: http://141.142.218.86:3031/mknb
     binderEncodeParameters: false
     contentQuery: url=${contentUrl}&ext=${format}&urn=${urn}&encoding=${format}
@@ -138,19 +175,19 @@ NOTEBOOKS:
     formats:
       - "*"
   - name: Collab-Service
-    badge: https://camo.githubusercontent.com/84f0493939e0c4de4e6dbe113251b4bfb5353e57134ffd9fcab6b8714514d4d1/68747470733a2f2f636f6c61622e72657365617263682e676f6f676c652e636f6d2f6173736574732f636f6c61622d62616467652e737667
-    baseurl: https://beta.geocodes.earthcube.org/notebook/mknb
+    badge: https://upload.wikimedia.org/wikipedia/commons/d/d0/Google_Colaboratory_SVG_Logo.svg
+    baseurl: https://geocodes.earthcube.org/notebook/mknb
     binderEncodeParameters: false
     contentQuery: url=${contentUrl}&ext=${format}&urn=${urn}&encoding=${format}
     pageTemplate: ''
     formats:
       - "*"
-  - name: Collab-NoLogin
-    badge: ''
-    baseurl: https://beta.geocodes.earthcube.org/notebook2/mknb
-    binderEncodeParameters: false
-    contentQuery: url=${contentUrl}&ext=${format}&urn=${urn}&encoding=${format}
-    pageTemplate: ''
-    formats:
-      - "*"
+#  - name: Collab-NoLogin
+#    badge: ''
+#    baseurl: https://geocodes.earthcube.org/notebook2/mknb
+#    binderEncodeParameters: false
+#    contentQuery: url=${contentUrl}&ext=${format}&urn=${urn}&encoding=${format}
+#    pageTemplate: ''
+#    formats:
+#      - "*"
 
