@@ -59,6 +59,7 @@ import feedback from "@/components/feedback/feedback.vue";
 import {v5 as uuidv5} from "uuid";
 import {isProxy, toRaw} from 'vue';
 import {DateRange} from "@/components/facetsearch/range.js";
+import {DateTime} from "luxon";
 
 // import HistRangeSlider from "@/components/facetsearch/HistRangeSlider.vue"
 
@@ -345,7 +346,7 @@ export default {
       let isRange = false;
       let filterType = 'notRange'
       if (filter !== undefined) {
-        if (isProxy(filter) && _.isObject(toRaw(filter))) {
+        if (isProxy(filter) && _.isObject(filter)) {
           filter = toRaw(filter);
         }
         if (isArray(filter)) {
@@ -387,6 +388,7 @@ export default {
           // change the range filters to pass that object to toggle filter
           let [isRange, filterType] = self.isRangeFilter(filter);
           let isNumericRange = filterType === 'numericRange'
+          let isDateRange = filterType === 'dateRange'
           // let isNumericRangeFilter = false; // depth uses
           // if (isProxy(filter) && _.isObject(toRaw(filter))) {
           //   const NoProxy = toRaw(filter)[0]; // no idea why this is an array
@@ -397,24 +399,10 @@ export default {
 
 
           if (isRange) {
-            if (isArray(filter)){
+            if (isArray(filter)) {
               filter = filter[0]
             }
-            if (!isNumericRange) {
-              const thisFacet = item[facet]
-              if (_.isArray(item[facet])) {
-                var hasMatches = _.filter(thisFacet, (num) => _.inRange(thisFacet, filter.range[0], filter.range[0]));
-                if (hasMatches.length == 0) {
-                  filtersApply = false;
-                }
-              } else {
-                if (filter.range[0] && filter[0].range[1]) {
-                  if (thisFacet < filter.range[0] || thisFacet > filter.range[1]) {
-                    filtersApply = false;
-                  }
-                }
-              }
-            } else {
+            if (isNumericRange) {
               // this is passed from the depth
               //const [minFacet, maxFacet] = filter.split(',');  // for some reason array becomes string
               const minFacet = filter.minField;
@@ -471,6 +459,36 @@ export default {
                 }
               } else {
                 console.log(`possible misconfiguraton of facetsConfig change names ${minFacet}  ${maxFacet}`)
+              }
+            } else if (isDateRange){
+              const thisFacet = item[facet]
+              if (_.isArray(item[facet])) {
+                var hasMatches = _.filter(thisFacet, (num) => _.inRange(DateTime.fromISO(thisFacet).year, filter.range[0], filter.range[0]));
+                if (hasMatches.length == 0) {
+                  filtersApply = false;
+                }
+              } else {
+                if (filter.range[0] && filter.range[1]) {
+                  const theDate = DateTime.fromISO(thisFacet);
+                  if (!theDate.invalid && ( theDate.year < filter.range[0] || theDate.year  > filter.range[1])) {
+                    filtersApply = false;
+                  }
+                }
+              }
+            } else // range filter
+            {
+              const thisFacet = item[facet]
+              if (_.isArray(item[facet])) {
+                var hasMatches = _.filter(thisFacet, (num) => _.inRange(thisFacet, filter.range[0], filter.range[0]));
+                if (hasMatches.length == 0) {
+                  filtersApply = false;
+                }
+              } else {
+                if (filter.range[0] && filter.range[1]) {
+                  if (thisFacet < filter.range[0] || thisFacet > filter.range[1]) {
+                    filtersApply = false;
+                  }
+                }
               }
             }
 
@@ -617,7 +635,7 @@ export default {
         // just reset the range.
         const filterArray = state.filters[key];
 
-        if (filterArray != undefined ){
+        if (filterArray != undefined) {
           // TODO. test if range min and max == max value of the control for the result set
           state.filters[key] = value;
           state.filters = {...state.filters}
@@ -641,7 +659,7 @@ export default {
         params.delete(key);
       } else {
         // Handle range filters differently
-        let isRange, filterType = this.isRangeFilter(value);
+        let [isRange, filterType] = this.isRangeFilter(toRaw(value));
         let isNumericRange = filterType === 'numericRange'
         let isDateRange = filterType === 'dateRange';
         // let isRangeFilter = false;
