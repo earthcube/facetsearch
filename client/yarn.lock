@@ -3981,6 +3981,7 @@ __metadata:
     bootstrap-vue: "npm:^2.23.1"
     caniuse-lite: "npm:^1.0.30001349"
     core-js: "npm:^3.8.3"
+    dayjs: "npm:^1.11.13"
     eslint: "npm:^8.56.0"
     eslint-plugin-vue: "npm:^9.20.0"
     execa: "npm:^5.0.0"
@@ -5558,6 +5559,13 @@ __metadata:
   version: 4.0.1
   resolution: "data-uri-to-buffer@npm:4.0.1"
   checksum: 10c0/20a6b93107597530d71d4cb285acee17f66bcdfc03fd81040921a81252f19db27588d87fc8fc69e1950c55cfb0bf8ae40d0e5e21d907230813eb5d5a7f9eb45b
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:^1.11.13":
+  version: 1.11.13
+  resolution: "dayjs@npm:1.11.13"
+  checksum: 10c0/a3caf6ac8363c7dade9d1ee797848ddcf25c1ace68d9fe8678ecf8ba0675825430de5d793672ec87b24a69bf04a1544b176547b2539982275d5542a7955f35b7
   languageName: node
   linkType: hard
 
