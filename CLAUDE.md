@@ -4,103 +4,99 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-GeoCODES Faceted Search Application - A Vue.js/Node.js web application for scientific data discovery through faceted search over SPARQL endpoints. Deployed at https://geocodes.earthcube.org
+FacetSearch is a Vue.js + Node.js application for searching and exploring scientific datasets and tools in the EarthCube ecosystem. It consists of two main components:
+
+- **Client**: Vue 3 application with TypeScript support running on port 5413
+- **Server**: Express.js API server running on port 3000
+
+The application provides faceted search functionality over linked data using SPARQL queries to explore scientific datasets and connected tools.
 
 ## Development Commands
 
-### Setup & Development
-```bash
-# Terminal 1 - Server (runs on port 3000)
-cd server
-yarn install
-yarn dev
-
-# Terminal 2 - Client (runs on port 5413) 
-cd client
-yarn install
-yarn dev
-```
-
-### Client Commands
+### Client (Vue.js Frontend)
 ```bash
 cd client
-yarn build           # Production build
-yarn fullbuild       # Build with linting and type checking
-yarn lint            # ESLint with auto-fix
+yarn install
+yarn dev          # Development server with hot reload
+yarn build        # Production build
+yarn lint         # Lint and fix TypeScript/Vue files
 ```
 
-### Server Commands
+### Server (Node.js API)
 ```bash
 cd server
-yarn start           # Production mode
-yarn dev             # Development with nodemon
+yarn install
+yarn dev          # Development server with nodemon
+yarn start        # Production server
 ```
+
+## Configuration
+
+### Client Configuration
+- Config files located in `client/public/config/` (YAML format)
+- Available configs must be registered in `client/public/config.yaml`
+- Select config via environment variable: `VITE_APP_FACETS_CONFIG_FILE=config/config_dev.yaml`
+- Default config: `config/config.yaml`
+
+### Server Configuration
+- Environment variables control server configuration
+- Required variables in `server/env.minimal.example`:
+  - `S3ADDRESS` - S3 storage endpoint
+  - `S3KEY` - S3 access key
+  - `S3SECRET` - S3 secret key
+  - `BUCKET` - S3 bucket name
+- Full configuration example in `server/env.full.example`
 
 ## Architecture
 
-**Frontend**: Vue.js 3 (compatibility mode) + Vuex + Vue Router + Vite
-**Backend**: Node.js/Express API server  
-**Data**: SPARQL endpoints (Blazegraph), S3-compatible storage (MinIO)
-**UI**: Bootstrap Vue
+### Client Architecture
+- **Vue 3** with Composition API compatibility mode
+- **Vue Router** for navigation with hash-based routing
+- **Vuex** for state management with remote config loading
+- **Bootstrap Vue** for UI components
+- **Leaflet** for geospatial mapping
+- **Axios** for API calls
 
-### Key Directories
-- `/client/src/components/facetsearch/` - Core search interface
-- `/client/src/components/dataset/` - Dataset detail views
-- `/client/src/state.js` - Vuex store with remote config loading
-- `/server/api/` - API controllers for datasets, tools, utilities
-- `/client/public/config/` - Environment-specific YAML configurations
+Key directories:
+- `src/components/facetsearch/` - Main search interface and facets
+- `src/components/dataset/` - Dataset detail views
+- `src/components/collection/` - Collection management
+- `src/state.js` - Vuex store with SPARQL query handling
+- `src/routes.js` - Application routing configuration
 
-## Configuration System
+### Server Architecture
+- **Express.js** REST API
+- **MinIO** client for S3-compatible storage
+- Routes in `server/routes/index.js`:
+  - `/dataset/*` - Dataset metadata retrieval
+  - `/tools/*` - Tool metadata retrieval  
+  - `/config` - Configuration endpoint
 
-### Client Configuration
-Set via environment variable (defaults to `config/config.yaml`):
-```bash
-VITE_APP_FACETS_CONFIG_FILE=config/config_dev.yaml
-```
+### Data Flow
+1. Client loads remote YAML configuration on startup
+2. User searches trigger SPARQL queries via Vuex actions
+3. Server proxies requests to triple store and S3 storage
+4. Results cached in client-side LRU cache
+5. Linked data (JSON-LD) processed for display
 
-Configuration files in `/client/public/config/` define:
-- SPARQL endpoints and queries
-- UI branding and logos  
-- Available facets and filters
-- Repository-specific settings
+## Key Technologies
 
-### Server Configuration
-Required environment variables (see `server/env.minimal.example`):
-```bash
-S3ADDRESS="oss.geocodes-aws.earthcube.org"
-S3KEY=your_key
-S3SECRET=your_secret
-BUCKET=your_bucket
-```
+- **SPARQL**: Query language for RDF data
+- **JSON-LD**: Linked data format for metadata
+- **Blazegraph**: Triple store database
+- **S3**: Object storage for dataset files
+- **Vite**: Build tool for client
+- **LocalForage**: Client-side storage for collections
 
-## Data Flow Architecture
+## Testing and Linting
 
-1. **Search**: Vue components → Vuex store → SPARQL queries → Blazegraph endpoints
-2. **Facets**: Dynamic facet generation from configuration → Real-time filtering
-3. **Dataset Details**: S3 JSON-LD retrieval → JSON-LD processing → Vue rendering
-4. **Tool Discovery**: Federated SPARQL queries across multiple endpoints
+- Client uses ESLint with Vue.js rules
+- TypeScript checking: `vue-tsc --noEmit`
+- No test framework currently configured
 
-## Key Features
+## Common Issues
 
-### Faceted Search
-- Text filters (keywords, place names, publishers)
-- Range filters (dates, numeric values) 
-- Dynamic facet configuration per deployment
-- LRU caching for performance
-
-### Multi-tenant Support
-- Environment-specific configurations via YAML files
-- Customizable branding, logos, and UI elements
-- Multiple repository/endpoint support per configuration
-
-### JSON-LD Processing
-- Metadata stored as JSON-LD in S3
-- Client-side JSON-LD expansion and normalization
-- Support for multiple schema formats
-
-## Development Notes
-
-- Uses Vite for client builds (migrated from Vue CLI webpack)
-- Vue 3 with Vue 2 compatibility mode for Bootstrap Vue
-- LocalForage for client-side collection storage
-- Microservices architecture with decoupled frontend/backend
+- Ensure both client and server are running for full functionality
+- Check environment variables are properly set for server
+- Verify SPARQL endpoint connectivity in configuration
+- Client requires specific Node.js version (>=20.0.0) and Yarn 4+
