@@ -107,11 +107,29 @@ FACETS:
     sort: acs
     open: false
     type: text
-#  - field: datep
-#    title: Year Published Range
-#    sort: acs
-#    open: true
-#    type: range
+  - field: datep
+    title: Year Published Range
+    sort: acs
+    open: true
+    type: rangeyear
+  - field: minDepth
+    range_fields:
+      - minDepth
+      - maxDepth
+    title: Depth Range
+    sort: acs
+    open: true
+    type: rangedepth
+  - field: temporalCoverage
+    title: Temporal Coverage
+    sort: acs
+    open: true
+    type: rangeyear
+  - field: spatialCoverage
+    title: Spatial Filter
+    sort: acs
+    open: true
+    type: geo
 ORDER_BY_DEFAULT: score
 ORDER_BY_OPTIONS:
   - field: name
