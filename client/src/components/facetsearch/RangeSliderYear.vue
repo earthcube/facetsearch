@@ -48,7 +48,7 @@ import VueformSlider from '@vueform/slider'
 import '@vueform/slider/themes/default.css'
 import {useStore} from 'vuex'
 import {DateRange} from '@/components/facetsearch/range'
-import {computed, ref, watch, inject, nextTick} from 'vue'
+import {computed, ref, watch, inject, nextTick, getCurrentInstance} from 'vue'
 import {DateTime, Interval} from "luxon";
 import _ from 'lodash';
 
@@ -167,6 +167,19 @@ export default {
       // Option B: force a remount via key
       sliderKey.value++;
     }
+    const resetToFullRange = () => {
+      if (startYear.value !== null && endYear.value !== null) {
+        sliderValue.value = [startYear.value, endYear.value]
+        sliderKey.value++
+        // Don't call filtered() here as it would add the default range to the URL
+      }
+    }
+    const { proxy: { $root } } = getCurrentInstance()
+    $root.$on('refresh slider range', (action) => {
+      if (action === 'clear') {
+        resetToFullRange()
+      }
+    })
     const handleSliderUpdate = (newValue) => {
       sliderValue.value = newValue
       filtered()
