@@ -108,11 +108,11 @@ FACETS:
     sort: acs
     open: false
     type: text
-#  - field: datep
-#    title: Year Published Range
-#    sort: acs
-#    open: true
-#    type: range
+  - field: datep
+    title: Year Published Range
+    sort: acs
+    open: true
+    type: rangeyear
   - field: minDepth
     range_fields:
      - minDepth
