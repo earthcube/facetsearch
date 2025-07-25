@@ -47,7 +47,7 @@
 
     <div v-if="Object.keys(filters).length > 0" class="mt-3">
       <span
-        v-for="f in Object.keys(filters).filter(k => !['startYear', 'endYear', 'minDepth', 'maxDepth'].includes(k))"
+        v-for="f in Object.keys(filters)"
         :key="f"
         align-v="center"
         class="filters"

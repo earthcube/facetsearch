@@ -42,7 +42,7 @@
 //import { provide, reactive } from 'vue'
 import Results from "@/components/facetsearch/Results.vue";
 import Facets from "@/components/facetsearch/Facets.vue";
-import _ from "underscore";
+import _, {isArray} from "underscore";
 //import axios from "axios";
 //import FacetsConfig from '../../config.js'
 
@@ -341,6 +341,21 @@ export default {
           }
         });
       });
+    }, isRangeFilter: function (filter) {
+      let isRange = false;
+      let filterType = 'notRange'
+      if (filter !== undefined) {
+        if (isProxy(filter) && _.isObject(toRaw(filter))) {
+          filter = toRaw(filter);
+        }
+        if (isArray(filter)) {
+          filter = filter[0];
+        }
+        //isRangeFilter =  NoProxy.hasOwnProperty('range') ;
+        isRange = Object.hasOwn(filter, 'range')
+        filterType = filter.filtertype
+      }
+      return [isRange, filterType]
     },
     /**
      * Filters all items from the settings according to the currently
@@ -370,27 +385,31 @@ export default {
           // AKA WRITE ONE RANGE FUNCTION
           // maybe check can be, if is object, and with min and max
           // change the range filters to pass that object to toggle filter
-          let isRangeFilter = false;
-          let isNumericRangeFilter = false; // depth uses
-          if (isProxy(filter) && _.isObject(toRaw(filter))) {
-            const NoProxy = toRaw(filter)[0]; // no idea why this is an array
-            //isRangeFilter =  NoProxy.hasOwnProperty('range') ;
-            isRangeFilter = Object.hasOwn(NoProxy, 'range')
-            isNumericRangeFilter = NoProxy.filtertype == 'numericRange'
-          }
+          let [isRange, filterType] = self.isRangeFilter(filter);
+          let isNumericRange = filterType === 'numericRange'
+          // let isNumericRangeFilter = false; // depth uses
+          // if (isProxy(filter) && _.isObject(toRaw(filter))) {
+          //   const NoProxy = toRaw(filter)[0]; // no idea why this is an array
+          //   //isRangeFilter =  NoProxy.hasOwnProperty('range') ;
+          //   isRangeFilter = Object.hasOwn(NoProxy, 'range')
+          //   isNumericRangeFilter = NoProxy.filtertype == 'numericRange'
+          // }
 
 
-          if (isRangeFilter) {
-            if (!isNumericRangeFilter) {
+          if (isRange) {
+            if (isArray(filter)){
+              filter = filter[0]
+            }
+            if (!isNumericRange) {
               const thisFacet = item[facet]
               if (_.isArray(item[facet])) {
-                var hasMatches = _.filter(thisFacet, (num) => _.inRange(thisFacet, filter[0].range[0], filter[0].range[0]));
+                var hasMatches = _.filter(thisFacet, (num) => _.inRange(thisFacet, filter.range[0], filter.range[0]));
                 if (hasMatches.length == 0) {
                   filtersApply = false;
                 }
               } else {
-                if (filter[0].range[0] && filter[0].range[1]) {
-                  if (thisFacet < filter[0].range[0] || thisFacet > filter[0].range[1]) {
+                if (filter.range[0] && filter[0].range[1]) {
+                  if (thisFacet < filter.range[0] || thisFacet > filter.range[1]) {
                     filtersApply = false;
                   }
                 }
@@ -398,10 +417,10 @@ export default {
             } else {
               // this is passed from the depth
               //const [minFacet, maxFacet] = filter.split(',');  // for some reason array becomes string
-              const minFacet = filter[0].minField;
-              const maxFacet = filter[0].maxField;
-              const minSlider = filter[0].range[0];
-              const maxSlider = filter[0].range[1];
+              const minFacet = filter.minField;
+              const maxFacet = filter.maxField;
+              const minSlider = filter.range[0];
+              const maxSlider = filter.range[1];
               const minFacetValue = item[minFacet]
               const maxFacetValue = item[maxFacet]
 
@@ -558,6 +577,8 @@ export default {
 
       self.filtersState.shownResults = 0;
     },
+
+
     toggleFilter: function (key, value, skipUrlUpdate = false) {
       const state = this.filtersState;
 
@@ -569,23 +590,37 @@ export default {
       if (!state.filters[key]) {
         state.filters[key] = [];
       }
+      let [isRange, filterType] = this.isRangeFilter(value);
+      let isNumericRange = filterType === 'numericRange'
+      let isDateRange = filterType === 'dateRange';
+      if (!isRange) {
+        const filterArray = state.filters[key];
+        const valueIndex = _.indexOf(filterArray, value);
 
-      const filterArray = state.filters[key];
-      const valueIndex = _.indexOf(filterArray, value);
-
-      if (valueIndex === -1) {
-        // Add new value
-        filterArray.push(value);
-        state.filters = {...state.filters};
-      } else {
-        // Remove existing value
-        state.filters[key] = _.without(filterArray, value);
-
-        // Clean up empty filters
-        if (state.filters[key].length === 0) {
-          delete state.filters[key];
-          // Trigger reactivity by creating a new object
+        if (valueIndex === -1) {
+          // Add new value
+          filterArray.push(value);
           state.filters = {...state.filters};
+        } else {
+          // Remove existing value
+          state.filters[key] = _.without(filterArray, value);
+
+          // Clean up empty filters
+          if (state.filters[key].length === 0) {
+            delete state.filters[key];
+            // Trigger reactivity by creating a new object
+            state.filters = {...state.filters};
+          }
+        }
+      } else {
+        // ignore that the dates should be encoded as timespan for now.
+        // just reset the range.
+        const filterArray = state.filters[key];
+
+        if (filterArray != undefined ){
+          // TODO. test if range min and max == max value of the control for the result set
+          state.filters[key] = value;
+          state.filters = {...state.filters}
         }
       }
 
@@ -606,22 +641,24 @@ export default {
         params.delete(key);
       } else {
         // Handle range filters differently
-        let isRangeFilter = false;
-        let isNumericRangeFilter = false;
-        let isDateRangeFilter = false;
-        if (isProxy(value) && _.isObject(toRaw(value))) {
-          value = toRaw(value);
-        }
-        isRangeFilter = Object.hasOwn(value, 'range');
-        if (isRangeFilter) {
-          isNumericRangeFilter = value?.filtertype == 'numericRange';
-          isDateRangeFilter = value?.filtertype == 'dateRange';
-        }
-
+        let isRange, filterType = this.isRangeFilter(value);
+        let isNumericRange = filterType === 'numericRange'
+        let isDateRange = filterType === 'dateRange';
+        // let isRangeFilter = false;
+        // let isNumericRangeFilter = false;
+        // let isDateRangeFilter = false;
+        // if (isProxy(value) && _.isObject(toRaw(value))) {
+        //   value = toRaw(value);
+        // }
+        // isRangeFilter = Object.hasOwn(value, 'range');
+        // if (isRangeFilter) {
+        //   isNumericRangeFilter = value?.filtertype == 'numericRange';
+        //   isDateRangeFilter = value?.filtertype == 'dateRange';
+        // }
 
 
         // If it's a range filter, convert to string format
-        if (isRangeFilter) {
+        if (isRange) {
           value = value.range.toString();
         }
 
@@ -634,8 +671,6 @@ export default {
       url.hash = `${basePath}?${params.toString()}`;
       history.pushState({key: value}, '', url.toString());
     },
-
-
 
 
     clearFilters: function () {
@@ -660,8 +695,8 @@ export default {
 
       // Update URL with preserved parameters
       const newHash = preservedParams.toString()
-        ? `${basePath}?${preservedParams.toString()}`
-        : basePath;
+          ? `${basePath}?${preservedParams.toString()}`
+          : basePath;
 
       url.hash = newHash;
       history.pushState({}, '', url.toString());
