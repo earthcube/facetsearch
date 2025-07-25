@@ -23,11 +23,10 @@
     </b-button>
     <b-collapse :id="'accordion_daterange_' + facetSetting.field" @shown="onCollapseShown" >
       <VueformSlider v-if="temporalCount > 0"
-                     v-model="sliderValue"
+                     :model-value="sliderValue"
                      ref="rangeSlider"
                      :key="sliderKey"
                      class="slider  mx-2 py-2"
-                     :tooltip="false"
                      :min="parseInt(startYear)"
                      :max="parseInt(endYear)"
                      :disabled="disableDrag"
@@ -57,7 +56,7 @@ import _ from 'lodash';
 export default {
   name: 'RangeSliderYear',
   components: {
-    'vue-range-slider': VueformSlider,
+    VueformSlider,
   },
   inject: ["toggleFilter", "filtersState"],
   props: {
@@ -80,7 +79,7 @@ export default {
     const endYear = ref(DateTime.now().year)
     const sliderValue = ref([1800,2100])
     const sliderKey = ref(0)
-    const controlValue = ref(new DateRange(1800,2100))
+    const controlValue = new DateRange(1800,2100) // not reactive
     const disableDrag = ref(false)
     const rangeSlider = ref(null)
     const temporalCount = ref(0);
@@ -126,7 +125,7 @@ export default {
 
       if (ranges.length > 0) {
         temporalCount.value = ranges.length;
-        controlValue.value.temporalCount = ranges.length;
+        controlValue.temporalCount = ranges.length;
 
 
         const startYears = ranges.filter(r => r != undefined || r != null).map(r => r[0]);
@@ -137,14 +136,14 @@ export default {
         startYear.value = startYears.length ? _.min(startYears) : DateTime.now();
         endYear.value = endYears.length ? _.max(endYears) : DateTime.now();
 
-        if (controlValue.value.range) {
-          controlValue.value.range[0] = startYear.value.year;
-          controlValue.value.range[1] = endYear.value.year;
+        if (controlValue.range) {
+          controlValue.range[0] = startYear.value.year;
+          controlValue.range[1] = endYear.value.year;
           sliderValue.value = [startYear.value.year, endYear.value.year]
         }
       } else {
         temporalCount.value = 0;
-        controlValue.value.temporalCount = 0;
+        controlValue.temporalCount = 0;
       }
     }, {immediate: true})
 
@@ -184,7 +183,8 @@ export default {
       results,
       filtered,
       onCollapseShown,
-      temporalCount
+      temporalCount,
+      handleSliderUpdate
     }
   }
 };

@@ -83,7 +83,7 @@ export default {
     const sliderValue = ref([-5000, 0])
     const sliderKey = ref(0)
     const disableDrag = ref(false)
-    const controlValue = new NumericRange(-5000,0);
+    const controlValue = new NumericRange(-5000,0); // not reactive
     const depthCount =ref(0);
 
     const formatNumber = (value) => {
