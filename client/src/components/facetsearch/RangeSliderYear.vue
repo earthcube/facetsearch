@@ -50,6 +50,7 @@ import '@vueform/slider/themes/default.css'
 import { useStore } from 'vuex'
 import { DateRange } from '@/components/facetsearch/range'
 import { computed, ref, watch, inject, nextTick } from 'vue'
+import { DateTime, Interval } from "luxon";
 
 export default {
   name: 'RangeSliderYear',
@@ -89,15 +90,37 @@ export default {
       if (!Array.isArray(newResults)) return;
 
       const ranges = newResults.map(item => {
-        const tc = item?.temporalCoverage || "";
-        if (!tc.includes("/")) return null;
+        //const tc = item?.temporalCoverage ;
+        const tc = item[props.facetSetting.field] ;
+        if (tc === undefined) return null;
+       // if (!tc.includes("/")) return null; // just parse them
+        try{
+          let range = Interval.fromISO(tc);
+          if (!range.invalid){
+            return [range.start, range.end]
+          } else {
 
-        const [rawStart, rawEnd] = tc.split("/");
-        const start = parseInt(rawStart.trim(), 10);
-        const end = parseInt(rawEnd.trim(), 10);
+              let date = DateTime.fromISO(tc);
 
-        return (!isNaN(start) && !isNaN(end)) ? { start, end } : null;
-      }).filter(Boolean);
+            if (!date.invalid) {
+              return [date, date]
+            }
+          }
+        } catch (e) {
+
+            console.log( ` cannot parse ${tc } ${e}  ${e2}`)
+            return null;
+          }
+
+
+
+       // const [rawStart, rawEnd] = tc.split("/");
+       // const start = parseInt(rawStart.trim(), 10);
+       // const end = parseInt(rawEnd.trim(), 10);
+
+        //return (!isNaN(start) && !isNaN(end)) ? { start, end } : null;
+        return null
+      }); //.filter(Boolean);
 
       if (ranges.length > 0) {
         temporalCount.value = ranges.length;
@@ -107,8 +130,9 @@ export default {
         value.value.temporalCount = 0;
       }
 
-      const startYears = ranges.map(r => r.start);
-      const endYears = ranges.map(r => r.end);
+
+      const startYears = ranges.map(r => r[0]);
+      const endYears = ranges.map(r => r[1]);
 
       startYear.value = startYears.length ? Math.min(...startYears) : new Date().getFullYear();
       endYear.value = endYears.length ? Math.max(...endYears) : new Date().getFullYear();

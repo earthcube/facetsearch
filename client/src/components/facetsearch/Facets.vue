@@ -22,7 +22,7 @@
       </FacetNumericRangeSlider>
 
       <RangeSliderDepth
-        v-if="facetSetting.type == 'depthrange'"
+        v-if="facetSetting.type == 'rangedepth'"
         :fieldname="facetSetting.field"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
@@ -30,7 +30,7 @@
       </RangeSliderDepth>
 
       <RangeSliderYear
-        v-if="facetSetting.type == 'depthyear'"
+        v-if="facetSetting.type == 'rangeyear'"
         :fieldname="facetSetting.field"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
