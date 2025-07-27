@@ -386,6 +386,11 @@ export default {
         let filtersApply = true;
        // _.each(self.filtersState.filters, function (filter, facet) {
           _.each(self.filters, function (filter, facet) {
+            const thisFacet = item[facet];
+            if (thisFacet == undefined) {
+              filtersApply = false;
+              return filtersApply;
+            }
           // if a filter is a range, the do a range check
           // this does not need to be custom for each. This is a range
           // these things need to ha able to have MORE THAN ONE
@@ -468,7 +473,7 @@ export default {
                 console.log(`possible misconfiguraton of facetsConfig change names ${minFacet}  ${maxFacet}`)
               }
             } else if (isDateRange){
-              const thisFacet = item[facet]
+
               if (_.isArray(item[facet])) {
                 var hasMatches = _.filter(thisFacet, (num) => _.inRange(DateTime.fromISO(thisFacet).year, filter.range[0], filter.range[0]));
                 if (hasMatches.length == 0) {
@@ -477,7 +482,10 @@ export default {
               } else {
                 if (filter.range[0] && filter.range[1]) {
                   const theDate = DateTime.fromISO(thisFacet);
-                  if (!theDate.invalid && ( theDate.year < filter.range[0] || theDate.year  > filter.range[1])) {
+                  if (theDate.invalid ) {
+                    filtersApply = false;
+                  }
+                  if (theDate.invalid || (!theDate.invalid && ( theDate.year < filter.range[0] || theDate.year  > filter.range[1]))) {
                     filtersApply = false;
                   }
                 }
@@ -485,6 +493,9 @@ export default {
             } else // range filter
             {
               const thisFacet = item[facet]
+              if (thisFacet == undefined ){
+                filtersApply = false;
+              }
               if (_.isArray(item[facet])) {
                 var hasMatches = _.filter(thisFacet, (num) => _.inRange(thisFacet, filter.range[0], filter.range[0]));
                 if (hasMatches.length == 0) {
