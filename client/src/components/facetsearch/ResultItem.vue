@@ -97,10 +97,10 @@ import { isProxy, toRaw } from "vue";
 
 export default {
   name: "ResultItem",
-  props: ["item", "state"],
+  props: ["item", "filters"],
   data() {
     return {
-      filters: this.state.filters,
+
       connectedTools: undefined,
       clickToAddCollection: false,
       collectionNames: undefined,

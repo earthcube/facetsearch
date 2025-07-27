@@ -169,7 +169,7 @@ export default {
     }
     const resetToFullRange = () => {
       if (startYear.value !== null && endYear.value !== null) {
-        sliderValue.value = [startYear.value, endYear.value]
+        sliderValue.value = [startYear.value.year, endYear.value.year]
         sliderKey.value++
         // Don't call filtered() here as it would add the default range to the URL
       }
@@ -203,7 +203,9 @@ export default {
 };
 </script>
 <style scoped lang="scss">
+@import "@/assets/bootstrapcss/_variables.scss";
 @import "@/assets/bootstrapcss/custom"; // your custom Bootstrap overrides
+@import '@vueform/slider/themes/tailwind.scss';
 
 .filter_card {
   background-color: #f5f5f5;
@@ -242,6 +244,21 @@ export default {
 .btn-secondary,
 .btn-secondary:hover {
   background-image: none !important;
+}
+/* Custom styles for @vueform/slider */
+.slider {
+  --slider-handle-bg: #18598b;
+  --slider-connect-bg: #18598b;
+  --slider-tooltip-bg: #18598b;
+  --slider-tooltip-color: white;
+  --slider-height: 6px;
+  --slider-handle-width: 16px;
+  --slider-handle-height: 16px;
+  --slider-handle-border-radius: 50%;
+  --slider-handle-border: none;
+  --slider-handle-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --slider-handle-ring-color: #18598b;
+  margin: 20px 10px;
 }
 </style>
 
