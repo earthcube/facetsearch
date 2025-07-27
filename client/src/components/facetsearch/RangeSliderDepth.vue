@@ -224,9 +224,9 @@ export default {
 
 /* Custom styles for @vueform/slider */
 .slider {
-  --slider-handle-bg: $blue;
-  --slider-connect-bg: $blue;
-  --slider-tooltip-bg: $blue;
+  --slider-handle-bg: #18598b;
+  --slider-connect-bg: #18598b;
+  --slider-tooltip-bg: #18598b;
   --slider-tooltip-color: white;
   --slider-height: 6px;
   --slider-handle-width: 16px;
@@ -234,7 +234,7 @@ export default {
   --slider-handle-border-radius: 50%;
   --slider-handle-border: none;
   --slider-handle-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  --slider-handle-ring-color: $blue;
+  --slider-handle-ring-color: #18598b;
   margin: 20px 10px;
 }
 </style>

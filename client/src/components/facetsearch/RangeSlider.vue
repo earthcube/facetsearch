@@ -141,3 +141,62 @@ export default {
   },
 };
 </script>
+<style scoped lang="scss">
+@import "@/assets/bootstrapcss/_variables.scss";
+@import "@/assets/bootstrapcss/custom"; // your custom Bootstrap overrides
+@import '@vueform/slider/themes/tailwind.scss';
+
+.filter_card {
+  background-color: #f5f5f5;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+
+  & + .filter_card {
+    margin-top: $spacer / 2;
+  }
+
+  /* this targets the b-button inside filter_card */
+  & > .btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: none;
+
+    &:not(:hover) {
+      color: $gray-700;
+      background-color: $gray-300;
+    }
+  }
+
+  .list-group {
+    overflow-y: auto;
+    max-height: 170px;
+  }
+}
+
+/* hide/show icons based on collapsed state */
+.collapsed > .when-open,
+.not-collapsed > .when-closed {
+  display: none;
+}
+
+/* if you need flat secondary buttons everywhere */
+.btn-secondary,
+.btn-secondary:hover {
+  background-image: none !important;
+}
+/* Custom styles for @vueform/slider */
+.slider {
+  --slider-handle-bg: #18598b;
+  --slider-connect-bg: #18598b;
+  --slider-tooltip-bg: #18598b;
+  --slider-tooltip-color: white;
+  --slider-height: 6px;
+  --slider-handle-width: 16px;
+  --slider-handle-height: 16px;
+  --slider-handle-border-radius: 50%;
+  --slider-handle-border: none;
+  --slider-handle-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --slider-handle-ring-color: #18598b;
+  margin: 20px 10px;
+}
+</style>
