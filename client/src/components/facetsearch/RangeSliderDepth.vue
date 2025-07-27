@@ -183,6 +183,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "@/assets/bootstrapcss/_variables.scss";
 @import "@/assets/bootstrapcss/custom";
 
 .filter_card {
@@ -223,9 +224,9 @@ export default {
 
 /* Custom styles for @vueform/slider */
 .slider {
-  --slider-handle-bg: #4CAF50;
-  --slider-connect-bg: #4CAF50;
-  --slider-tooltip-bg: #4CAF50;
+  --slider-handle-bg: $blue;
+  --slider-connect-bg: $blue;
+  --slider-tooltip-bg: $blue;
   --slider-tooltip-color: white;
   --slider-height: 6px;
   --slider-handle-width: 16px;
@@ -233,6 +234,7 @@ export default {
   --slider-handle-border-radius: 50%;
   --slider-handle-border: none;
   --slider-handle-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --slider-handle-ring-color: $blue;
   margin: 20px 10px;
 }
 </style>

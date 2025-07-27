@@ -22,12 +22,12 @@
           <ResultHeader
               :current-count="currentResults.length"
               :total-count="items.length"
-              :filters="filtersState.filters"
+              :filters="filters"
           ></ResultHeader>
 
           <Results
               :current-results="currentResults"
-              :state="filtersState"
+              :filters="filters"
           ></Results>
 
           <!--                    <b-button variant="outline-primary" class="mt-5">Load More</b-button>-->
@@ -127,15 +127,18 @@ export default {
 
       esTemplateOptions: this.esTemplateOptions,
       queryTemplates: {},
-      filtersState: {
-        orderBy: "score",
-        filters: {},
-      },
+      // filtersState: {
+      //   orderBy: "score",
+      //   filters: {},
+      // },
+      "orderby":"score",
+      filters: {},
       items: [],
       currentResults: [],
       facetStore: {}, ///  now defined using a provide
       //---- ok to edit facets
       facets: [],
+      shownResults: 0,
 
       // -- end edit  facets
       queryRunning: false,
@@ -335,7 +338,8 @@ export default {
       _.each(self.facetStore, function (items, facetname) {
         _.each(items, function (value, itemname) {
           self.facetStore[facetname][itemname].count = 0;
-          if (_.indexOf(self.filtersState.filters[facetname], itemname) == -1) {
+         // if (_.indexOf(self.filtersState.filters[facetname], itemname) == -1) {
+            if (_.indexOf(self.filters[facetname], itemname) == -1) {
             self.facetStore[facetname][itemname].isActive = false;
           } else {
             self.facetStore[facetname][itemname].isActive = true;
@@ -366,11 +370,13 @@ export default {
     filter: function () {
       // first apply the filters to the items
       const getLatestFilterValue = (key) => {
-        const val = self.filtersState.filters[key];
+        //const val = self.filtersState.filters[key];
+        const val = self.filters[key];
         return Array.isArray(val) ? val.slice(-1)[0] : undefined;
       };
       const getRangeIsValid = (item, min, max) => {
-        const val = self.filtersState.filters[key];
+        //const val = self.filtersState.filters[key];
+        const val = self.filters[key];
         return Array.isArray(val) ? val.slice(-1)[0] : undefined;
       };
       // this.currentResults = [] // triggers reactive event and we are resetting it in the next lines, anyway
@@ -378,7 +384,8 @@ export default {
       // self.currentResults = _.select(this.items, function (item) {
       let newResults = _.select(this.items, function (item) {
         let filtersApply = true;
-        _.each(self.filtersState.filters, function (filter, facet) {
+       // _.each(self.filtersState.filters, function (filter, facet) {
+          _.each(self.filters, function (filter, facet) {
           // if a filter is a range, the do a range check
           // this does not need to be custom for each. This is a range
           // these things need to ha able to have MORE THAN ONE
@@ -587,58 +594,74 @@ export default {
         });
       });
 
-      _.each(self.filtersState.filters, function (filters, facettitle) {
+    //  _.each(self.filtersState.filters, function (filters, facettitle) {
+            _.each(self.filters, function (filters, facettitle) {
         _.each(self.facetStore[facettitle], function (facet) {
           if (facet.count === 0 && filters.length) facet.count = "+";
         });
       });
 
-      self.filtersState.shownResults = 0;
+      self.shownResults = 0;
     },
 
 
     toggleFilter: function (key, value, skipUrlUpdate = false) {
-      const state = this.filtersState;
-
+     // const state = this.filtersState;
+      const filters = this.filters;
       if (!skipUrlUpdate) {
         this.updateUrlState(key, value);
       }
 
       // Initialize filters if needed
-      if (!state.filters[key]) {
-        state.filters[key] = [];
+      // if (!state.filters[key]) {
+      //   state.filters[key] = [];
+      // }
+      if (!filters[key]) {
+        filters[key] = [];
       }
       let [isRange, filterType] = this.isRangeFilter(value);
       let isNumericRange = filterType === 'numericRange'
       let isDateRange = filterType === 'dateRange';
       if (!isRange) {
-        const filterArray = state.filters[key];
+        //const filterArray = state.filters[key];
+        const filterArray = filters[key];
         const valueIndex = _.indexOf(filterArray, value);
 
         if (valueIndex === -1) {
           // Add new value
           filterArray.push(value);
-          state.filters = {...state.filters};
+         // state.filters = {...state.filters};
+          self.filters = {...filters};
         } else {
           // Remove existing value
-          state.filters[key] = _.without(filterArray, value);
-
+          //state.filters[key] = _.without(filterArray, value);
+          filters[key] = _.without(filterArray, value);
           // Clean up empty filters
-          if (state.filters[key].length === 0) {
-            delete state.filters[key];
+          // if (state.filters[key].length === 0) {
+          //   delete state.filters[key];
+          //   // Trigger reactivity by creating a new object
+          //   state.filters = {...state.filters};
+          // }
+          if (filters[key].length === 0) {
+            delete filters[key];
             // Trigger reactivity by creating a new object
-            state.filters = {...state.filters};
+            self.filters = {...filters};
           }
         }
       } else {
         // ignore that the dates should be encoded as timespan for now.
         // just reset the range.
-        const filterArray = state.filters[key];
-
+       // const filterArray = state.filters[key];
+        const filterArray = filters[key];
+        // if (filterArray != undefined) {
+        //   // TODO. test if range min and max == max value of the control for the result set
+        //   state.filters[key] = value;
+        //   state.filters = {...state.filters}
+        // }
         if (filterArray != undefined) {
           // TODO. test if range min and max == max value of the control for the result set
-          state.filters[key] = value;
-          state.filters = {...state.filters}
+          filters[key] = value;
+          self.filters = {...filters}
         }
       }
 
@@ -720,7 +743,8 @@ export default {
       history.pushState({}, '', url.toString());
 
       // Clear the filters state
-      this.filtersState.filters = {};
+      //this.filtersState.filters = {};
+      this.filters = {};
       this.filter();
 
       // Emit event to reset sliders - ensure this happens after filters are cleared
@@ -728,15 +752,18 @@ export default {
     },
     order: function (orderBy) {
       let self = this;
-      self.filtersState.orderBy = orderBy.field;
+      //self.filtersState.orderBy = orderBy.field;
+      self.orderBy = orderBy.field;
       if (this.filtersState.orderBy) {
         //$(".activeorderby").removeClass("activeorderby");
         //$('#orderby_'+self.filtersState.orderBy).addClass("activeorderby");
         self.currentResults = _.sortBy(self.currentResults, function (item) {
-          if (self.filtersState.orderBy == "RANDOM") {
+          //if (self.filtersState.orderBy == "RANDOM") {
+            if (self.orderBy == "RANDOM") {
             return Math.random() * 10000;
           } else {
-            return item[self.filtersState.orderBy];
+           // return item[self.filtersState.orderBy];
+              return item[self.orderBy];
           }
         });
         //if (this.orderByOptionsSort[self.filtersState.orderBy] === 'desc')
