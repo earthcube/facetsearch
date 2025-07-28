@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="aws client aws" type="js.build_tools.npm">
+    <package-json value="$PROJECT_DIR$/client/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="dev" />
+    </scripts>
+    <node-interpreter value="project" />
+    <envs>
+      <env name="VITE_FACETS_CONFIG_FILE" value="config/config_aws_prod.yaml" />
+    </envs>
+    <method v="2" />
+  </configuration>
+</component>
