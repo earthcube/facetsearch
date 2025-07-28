@@ -2,7 +2,11 @@
   <b-card v-show="hasSpatial" variant="secondary">
     <b-card-title>Location</b-card-title>
 
-    <div :id="'myMap'+index" ref="myMap" style="width: 100%; height: 320px"></div>
+    <div
+      :id="'myMap' + index"
+      ref="myMap"
+      style="width: 100%; height: 320px"
+    ></div>
 
     <!--      <l-map ref="myMap" id="myMap" :zoom="zoom"-->
     <!--             :center="center"-->
@@ -45,9 +49,9 @@ import {
   LPolygon,
   LRectangle,
 } from "@vue-leaflet/vue-leaflet";
-import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png?url'
-import iconUrl from 'leaflet/dist/images/marker-icon.png?url'
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png?url'
+import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png?url";
+import iconUrl from "leaflet/dist/images/marker-icon.png?url";
+import shadowUrl from "leaflet/dist/images/marker-shadow.png?url";
 import { mapState } from "vuex";
 import {
   schemaItem,
@@ -63,7 +67,7 @@ delete Icon.Default.prototype._getIconUrl;
 Icon.Default.mergeOptions({
   iconRetinaUrl: iconRetinaUrl, //'leaflet/dist/images/marker-icon-2x.png',// iconRetinaUrl ,// require('leaflet/dist/images/marker-icon-2x.png'),
   iconUrl: iconUrl, //'leaflet/dist/images/marker-icon-2x.png', // require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: shadowUrl //'leaflet/dist/images/marker-icon-2x.png', // require('leaflet/dist/images/marker-shadow.png'),
+  shadowUrl: shadowUrl, //'leaflet/dist/images/marker-icon-2x.png', // require('leaflet/dist/images/marker-shadow.png'),
 });
 export default {
   name: "DatasetLocation",
@@ -89,7 +93,6 @@ export default {
       zoom: 8,
       maxZoom: 12,
       myMap: {},
-
     };
   },
   // watch: {
@@ -143,135 +146,130 @@ export default {
       // }`)
       //       jsonld.frame(obj, datasetFrame).then(
       //frameJsonLD(obj, "Dataset").then((obj) => {
-        let name =  obj["s_name"];
-        let s_spatialCoverage =  obj["s_spatialCoverage"];
-        if (s_spatialCoverage) {
-          this.hasSpatial = true;
+      let name = obj["s_name"];
+      let s_spatialCoverage = obj["s_spatialCoverage"];
+      if (s_spatialCoverage) {
+        this.hasSpatial = true;
 
-          let placename = geoplacename(s_spatialCoverage);
-          let box = getFirstGeoShape(s_spatialCoverage, "box");
-          let poly = getFirstGeoShape(s_spatialCoverage, "polygon");
-          let line = getFirstGeoShape(s_spatialCoverage, "line");
-          let points = getGeoCoordinates(s_spatialCoverage);
-          console.info(
-            `placename:${placename} box:${box} poly:${poly} line:${line} points:${points}`
-          );
-          //this.s_identifier_doi= ""
+        let placename = geoplacename(s_spatialCoverage);
+        let box = getFirstGeoShape(s_spatialCoverage, "box");
+        let poly = getFirstGeoShape(s_spatialCoverage, "polygon");
+        let line = getFirstGeoShape(s_spatialCoverage, "line");
+        let points = getGeoCoordinates(s_spatialCoverage);
+        console.info(
+          `placename:${placename} box:${box} poly:${poly} line:${line} points:${points}`
+        );
+        //this.s_identifier_doi= ""
 
-          // let detail = {
-          //   name: this.name,
-          //   points: points,
-          //   poly: poly,
-          //   box: box,
-          //   placename: placename
-          // }
+        // let detail = {
+        //   name: this.name,
+        //   points: points,
+        //   poly: poly,
+        //   box: box,
+        //   placename: placename
+        // }
 
-          // this.$refs.myMap.mapObject.ANY_LEAFLET_MAP_METHOD();
-          self.center = [46.8832566, -114.0870563]; // original centerpoint hell, montanta
-          if (!(box || points || poly || line)) {
-            return;
-          }
-          // this needs to be cleaned up, and probably set a
-          // standard geomentry objects and simplify the adding
-          // of the objects to leaflet.
-          // if (points && points.length > 0) {
-          //
-          //   self.center = points[0] // first one
-          //   console.log(`firstpoint will be center ${self.center}`)
-          // } else if (box) {
-          //   // calc centerpoint of box
-          //   //var points = e.detail.box.split(" ")
-          //
-          //   var northing = (box[0][0] + box[1][0]) / 2
-          //   var easting = (box[0][1] + box[1][1]) / 2
-          //   console.log(`box center: ${northing} ${easting}`)
-          //   self.center = [northing, easting]
-          // } else if (line) {
-          //   self.center(L.polyline(line).getCenter())
-          //   // do polygon here
-          // } else if (poly){
-          //   self.center(L.polygon(poly).getCenter())
-          // } else {
-          //   // can do anything, so let's turn off
-          //   console.log("unrecognized spatial object. Disabling location")
-          //   this.hasSpatial = false
-          // }
-
-          // move all the caluations out of nextTick
-          this.$nextTick(() => {
-            //this.$refs.myMap.mapObject.setView(this.center, 13);
-            this.mymap = L.map(self.$refs.myMap.id).setView(self.center, 8);
-            let mb_url = self.mapboxurl;
-            L.tileLayer(mb_url, {
-              maxZoom: 13,
-              attribution:
-                'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
-                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-              id: "mapbox/streets-v11",
-              tileSize: 512,
-              zoomOffset: -1,
-            }).addTo(self.mymap);
-
-            if (points && points.length > 0) {
-              self.center = points[0]; // first one
-              // console.log(`first point will be center ${self.center}`);
-              for (var p = 0; p < points.length; p++) {
-                L.marker(points[p]).addTo(self.mymap);
-              }
-            }
-
-            if (poly) {
-              const newgeo = L.polygon(poly).addTo(self.mymap);
-              self.center = newgeo.getCenter();
-            }
-
-            if (line) {
-              const newgeo = L.polyline(line).addTo(self.mymap);
-              self.center = newgeo.getCenter();
-            }
-
-            if (box) {
-              let bounds = L.latLngBounds(box[0], box[1]);
-              console.log("bounds valid " + bounds.isValid());
-              // not always correct order.
-              let padding = Math.abs(box[0][0] - box[0][1]) / 2;
-              this.mymap.fitBounds(bounds, {
-                padding: [padding, padding],
-                maxZoom: 12,
-              });
-              const newgeo = L.rectangle(bounds, {
-                color: "#ff7800",
-                weight: 1,
-              }).addTo(this.mymap);
-              self.center = newgeo.getCenter();
-            }
-
-            // If none of the objects exist, disable spatial features
-            if (!points && !poly && !line && !box) {
-              console.log("unrecognized spatial object. Disabling location");
-              this.hasSpatial = false;
-            }
-
-            if (name) {
-              L.marker(self.center)
-                .addTo(self.mymap)
-                .bindPopup(name)
-                .openPopup();
-            } else {
-              L.marker(self.center).addTo(self.mymap);
-            }
-            setTimeout(() => {
-              this.mymap.panTo(self.center);
-              this.mymap.invalidateSize();
-            }, 100);
-          });
+        // this.$refs.myMap.mapObject.ANY_LEAFLET_MAP_METHOD();
+        self.center = [46.8832566, -114.0870563]; // original centerpoint hell, montanta
+        if (!(box || points || poly || line)) {
+          return;
         }
-          // });
+        // this needs to be cleaned up, and probably set a
+        // standard geomentry objects and simplify the adding
+        // of the objects to leaflet.
+        // if (points && points.length > 0) {
+        //
+        //   self.center = points[0] // first one
+        //   console.log(`firstpoint will be center ${self.center}`)
+        // } else if (box) {
+        //   // calc centerpoint of box
+        //   //var points = e.detail.box.split(" ")
+        //
+        //   var northing = (box[0][0] + box[1][0]) / 2
+        //   var easting = (box[0][1] + box[1][1]) / 2
+        //   console.log(`box center: ${northing} ${easting}`)
+        //   self.center = [northing, easting]
+        // } else if (line) {
+        //   self.center(L.polyline(line).getCenter())
+        //   // do polygon here
+        // } else if (poly){
+        //   self.center(L.polygon(poly).getCenter())
+        // } else {
+        //   // can do anything, so let's turn off
+        //   console.log("unrecognized spatial object. Disabling location")
+        //   this.hasSpatial = false
+        // }
+
+        // move all the caluations out of nextTick
+        this.$nextTick(() => {
+          //this.$refs.myMap.mapObject.setView(this.center, 13);
+          this.mymap = L.map(self.$refs.myMap.id).setView(self.center, 8);
+          let mb_url = self.mapboxurl;
+          L.tileLayer(mb_url, {
+            maxZoom: 13,
+            attribution:
+              'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+              'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            id: "mapbox/streets-v11",
+            tileSize: 512,
+            zoomOffset: -1,
+          }).addTo(self.mymap);
+
+          if (points && points.length > 0) {
+            self.center = points[0]; // first one
+            // console.log(`first point will be center ${self.center}`);
+            for (var p = 0; p < points.length; p++) {
+              L.marker(points[p]).addTo(self.mymap);
+            }
+          }
+
+          if (poly) {
+            const newgeo = L.polygon(poly).addTo(self.mymap);
+            self.center = newgeo.getCenter();
+          }
+
+          if (line) {
+            const newgeo = L.polyline(line).addTo(self.mymap);
+            self.center = newgeo.getCenter();
+          }
+
+          if (box) {
+            let bounds = L.latLngBounds(box[0], box[1]);
+            console.log("bounds valid " + bounds.isValid());
+            // not always correct order.
+            let padding = Math.abs(box[0][0] - box[0][1]) / 2;
+            this.mymap.fitBounds(bounds, {
+              padding: [padding, padding],
+              maxZoom: 12,
+            });
+            const newgeo = L.rectangle(bounds, {
+              color: "#ff7800",
+              weight: 1,
+            }).addTo(this.mymap);
+            self.center = newgeo.getCenter();
+          }
+
+          // If none of the objects exist, disable spatial features
+          if (!points && !poly && !line && !box) {
+            console.log("unrecognized spatial object. Disabling location");
+            this.hasSpatial = false;
+          }
+
+          if (name) {
+            L.marker(self.center).addTo(self.mymap).bindPopup(name).openPopup();
+          } else {
+            L.marker(self.center).addTo(self.mymap);
+          }
+          setTimeout(() => {
+            this.mymap.panTo(self.center);
+            this.mymap.invalidateSize();
+          }, 100);
+        });
+      }
+      // });
     },
   },
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

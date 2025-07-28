@@ -1,24 +1,24 @@
-# DO NOT CHANGE THIS FOR YOUR LOCAL DEVELOPMENT
-# CREATE A NEW CONFIG AND
-# PASS AN ENVIRONMENT VARIABLE: `VITE_APP_FACETS_CONFIG_FILE=config/config_dev.yaml`
 ---
 # confg_dev
 API_URL: http://localhost:3000
-S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/test/reports/
-TRIPLESTORE_URL: https://qlever.geocodes-aws-dev.earthcube.org/graphspace/facetsearch
-SUMMARYSTORE_URL: https://qlever.geocodes-aws-dev.earthcube.org/graphspace/facetsearch
-ECRR_TRIPLESTORE_URL: https://qlever.geocodes-aws-dev.earthcube.org/graphspace/ecrr
-COMMUNITY: all
+TENANT_URL: https://oss.geocodes-aws-dev.earthcube.org/geocodes/scheduler/configs/production/tenant.yaml
+S3_REPORTS_URL: https://oss.geocodes-aws-dev.earthcube.org/decoder/reports/
+TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/test/sparql
+SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/test_summary/sparql
+ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
+COMMUNITY: dev
 # timeout for blazgraph queries
-BLAZEGRAPH_TIMEOUT: 20s
+BLAZEGRAPH_TIMEOUT: 20
 ECRR_GRAPH: http://earthcube.org/gleaner-summoned
 THROUGHPUTDB_URL: https://throughputdb.com/api/ccdrs/annotations
-SPARQL_QUERY: queries/sparql_query.rq
-SPARQL_HASTOOLS: queries/sparql_hastools.rq
-SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.rq
-SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.rq
+QUERY_ENGINE: blazegraph
+SPARQL_QUERY: sparql_query.txt
+SPARQL_HASTOOLS: sparql_hastools.txt
+SPARQL_TOOLS_WEBSERVICE: sparql_gettools_webservice.txt
+SPARQL_TOOLS_DOWNLOAD: sparql_gettools_download.txt
+SPARQL_RELATED_DATA: sparql_relateddatafilename.txt
 JSONLD_PROXY: http://localhost:3000/${o}
-SPARQL_NB: https://geocodes-aws-dev.earthcube.org/notebook/mkQ?q=${q}
+SPARQL_NB: https://geocodes-aws.earthcube.org/notebook/mkQ?q=${q}
 SPARQL_YASGUI: https://geocodes.earthcube.org/sparqlgui?
 COLLECTION_FACETS:
   - field: unassigned

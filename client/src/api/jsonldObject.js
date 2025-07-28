@@ -310,7 +310,7 @@ const makeLinkObj = function (obj_dist) {
       encodingFormat: encodingFormatString,
       name: name,
       linkName: linkName,
-      description: description
+      description: description,
     });
   } else {
     name = hasSchemaProperty("name", obj_dist)
@@ -331,7 +331,7 @@ const makeLinkObj = function (obj_dist) {
       encodingFormat: encodingFormats,
       name: name,
       linkName: linkName,
-      description: description
+      description: description,
     });
   }
   return downloads;
@@ -357,5 +357,5 @@ export {
   getDistributions,
   makeLinkObj,
   matchDistributions,
-  formatDateToYYYYMMDD
+  formatDateToYYYYMMDD,
 };

@@ -106,7 +106,7 @@ export default {
     title: String,
     textQuery: String, // this needs to be here route passes as a prop
     resourceType: String,
-    exact: String
+    exact: String,
     // results:[]
   },
 
@@ -205,7 +205,11 @@ export default {
     // }
   },
   methods: {
-    ...mapMutations(["setTextQuery", "setResourceTypeQuery", "setSearchExactMatch"]),
+    ...mapMutations([
+      "setTextQuery",
+      "setResourceTypeQuery",
+      "setSearchExactMatch",
+    ]),
     ...mapActions(["getResults", "getQueryTemplate", "addtoMicroCache"]),
     updateYearRange(start, end) {
       this.$set(this.filtersState.filters, "startYear", [start]);

@@ -197,8 +197,8 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import SpaqlToolsDownloadQuery from "@/sparql_qlever/sparql_gettools_download.rq?raw";
-import SpaqlToolsWebserviceQuery from "@/sparql_qlever/sparql_gettools_webservice.rq?raw";
+// Static imports removed - now using dynamic loading via queryService
+import queryService from "@/services/queryService.js";
 import _ from "lodash";
 
 //import FacetsConfig from "../../config";
@@ -250,87 +250,99 @@ export default {
       this.getDownloadableTools(graphUri);
       this.getWebTools(graphUri);
     },
-    getWebTools(graphUri) {
+    async getWebTools(graphUri) {
       var self = this;
-      const resultsTemplate = _.template(
-        SpaqlToolsWebserviceQuery,
-        this.esTemplateOptions
-      );
-      // const resultsTemplate = _.template(SpaqlToolsDownloadQuery, esTemplateOptions)
-      let hasToolsQuery = resultsTemplate({
-        g: graphUri,
-        ecrr_service: this.FacetsConfig.ECRR_TRIPLESTORE_URL,
-        ecrr_graph: this.FacetsConfig.ECRR_GRAPH,
-      });
-
-      var url = this.FacetsConfig.TRIPLESTORE_URL;
-      var params = {
-        query: hasToolsQuery,
-      };
-
-      const config = {
-        url: url,
-        method: "get",
-        headers: {
-          Accept: "application/sparql-results+json",
-          "Content-Type": "application/json",
-        },
-        params: params,
-      };
-      console.log("webtools:query:");
-      // console.log(params["query"]);
-      axios
-        .request(config)
-        .then(function (response) {
-          //self.webserviceTools =  response.data.results.bindings
-          var bindings = response.data.results.bindings;
-          let index = 0;
-          bindings.forEach((i) => (i.index = "wtool-" + index++));
-
-          self.webserviceTools = bindings;
-        })
-        .catch((e) => console.error("webtools:query failed" + e.toString()));
-    },
-    getDownloadableTools(graphUri) {
-      var self = this;
-      const resultsTemplate = _.template(
-        SpaqlToolsDownloadQuery,
-        this.esTemplateOptions
-      );
-      let hasToolsQuery = resultsTemplate({
-        g: graphUri,
-        ecrr_service: this.FacetsConfig.ECRR_TRIPLESTORE_URL,
-        ecrr_graph: this.FacetsConfig.ECRR_GRAPH,
-      });
-
-      var url = this.FacetsConfig.TRIPLESTORE_URL;
-      var params = {
-        query: hasToolsQuery,
-      };
-
-      const config = {
-        url: url,
-        method: "get",
-        headers: {
-          Accept: "application/sparql-results+json",
-          "Content-Type": "application/json",
-        },
-        params: params,
-      };
-      console.log("donwloadtools:query:" + params["query"]);
-      axios
-        .request(config)
-        .then(function (response) {
-          // self.downloadTools = response.data.results.bindings
-          var bindings = response.data.results.bindings;
-          let index = 0;
-          bindings.forEach((i) => (i.index = "dtool-" + index++));
-
-          self.downloadTools = bindings;
-        })
-        .catch((e) =>
-          console.error("donwloadtools:query failed" + e.toString())
+      try {
+        // Load query dynamically from configuration
+        const queryText = await queryService.loadQuery(
+          "SPARQL_TOOLS_WEBSERVICE",
+          this.FacetsConfig
         );
+        const resultsTemplate = _.template(queryText, this.esTemplateOptions);
+        // const resultsTemplate = _.template(SpaqlToolsDownloadQuery, esTemplateOptions)
+        let hasToolsQuery = resultsTemplate({
+          g: graphUri,
+          ecrr_service: this.FacetsConfig.ECRR_TRIPLESTORE_URL,
+          ecrr_graph: this.FacetsConfig.ECRR_GRAPH,
+        });
+
+        var url = this.FacetsConfig.TRIPLESTORE_URL;
+        var params = {
+          query: hasToolsQuery,
+        };
+
+        const config = {
+          url: url,
+          method: "get",
+          headers: {
+            Accept: "application/sparql-results+json",
+            "Content-Type": "application/json",
+          },
+          params: params,
+        };
+        console.log("webtools:query:");
+        // console.log(params["query"]);
+        axios
+          .request(config)
+          .then(function (response) {
+            //self.webserviceTools =  response.data.results.bindings
+            var bindings = response.data.results.bindings;
+            let index = 0;
+            bindings.forEach((i) => (i.index = "wtool-" + index++));
+
+            self.webserviceTools = bindings;
+          })
+          .catch((e) => console.error("webtools:query failed" + e.toString()));
+      } catch (error) {
+        console.error("Failed to load webtools query:", error);
+      }
+    },
+    async getDownloadableTools(graphUri) {
+      var self = this;
+      try {
+        // Load query dynamically from configuration
+        const queryText = await queryService.loadQuery(
+          "SPARQL_TOOLS_DOWNLOAD",
+          this.FacetsConfig
+        );
+        const resultsTemplate = _.template(queryText, this.esTemplateOptions);
+        let hasToolsQuery = resultsTemplate({
+          g: graphUri,
+          ecrr_service: this.FacetsConfig.ECRR_TRIPLESTORE_URL,
+          ecrr_graph: this.FacetsConfig.ECRR_GRAPH,
+        });
+
+        var url = this.FacetsConfig.TRIPLESTORE_URL;
+        var params = {
+          query: hasToolsQuery,
+        };
+
+        const config = {
+          url: url,
+          method: "get",
+          headers: {
+            Accept: "application/sparql-results+json",
+            "Content-Type": "application/json",
+          },
+          params: params,
+        };
+        console.log("donwloadtools:query:" + params["query"]);
+        axios
+          .request(config)
+          .then(function (response) {
+            // self.downloadTools = response.data.results.bindings
+            var bindings = response.data.results.bindings;
+            let index = 0;
+            bindings.forEach((i) => (i.index = "dtool-" + index++));
+
+            self.downloadTools = bindings;
+          })
+          .catch((e) =>
+            console.error("donwloadtools:query failed" + e.toString())
+          );
+      } catch (error) {
+        console.error("Failed to load download tools query:", error);
+      }
     },
   },
 };
