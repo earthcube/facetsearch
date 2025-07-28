@@ -1,4 +1,9 @@
-COMMUNITY: qlever-test
+# DO NOT CHANGE THIS FOR YOUR LOCAL DEVELOPMENT
+# CREATE A NEW CONFIG AND
+# PASS AN ENVIRONMENT VARIABLE: `VITE_APP_FACETS_CONFIG_FILE=config/config_dev.yaml`
+---
+COMMUNITY: geocodesall
+TENANT_URL: https://oss.geocodes-aws-dev.earthcube.org/geocodes/scheduler/configs/production/tenant.yaml
 # https://geocodes.earthcube.org
 API_URL: https://qlever-geocodes.geocodes-aws-dev.earthcube.org/ec/api
 MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
@@ -102,16 +107,29 @@ FACETS:
     title: Year Published Range
     sort: acs
     open: true
-    type: range
-#  - field: minDepth
-#    title: Min Depth Range
+    type: rangeyear
+  - field: minDepth
+    range_fields:
+      - minDepth
+      - maxDepth
+    title: Depth Range
+    sort: acs
+    open: true
+    type: rangedepth
+#  - field: temporalCoverage
+#    title: Temporal Coverage
 #    sort: acs
 #    open: true
-#    type: range
+#    type: rangeyear
+  - field: spatialCoverage
+    title: Spatial Filter
+    sort: acs
+    open: true
+    type: geo
   - field: variableMeasured
     title: Variables Measured
     sort: acs
-    open: false
+    open: true
     type: text
 ORDER_BY_DEFAULT: score
 ORDER_BY_OPTIONS:
