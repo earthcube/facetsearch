@@ -7,7 +7,7 @@ SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", "
     ?datep  (GROUP_CONCAT(DISTINCT ?url; SEPARATOR=", ") AS ?disurl)
     (COUNT(?text) AS ?score) (SAMPLE(?text) AS ?example_text)
     ?name ?description (GROUP_CONCAT(DISTINCT ?resourceType_u; SEPARATOR=", ") as ?resourceType )  ?type ?g   (MAX(?lat) as ?maxlat) (Min(?lat) as ?minlat) (MAX(?lon) as ?maxlon) (Min(?lon) as ?minlon)
-    ?maxdepth ?minDepth ?temporalCoverage (GROUP_CONCAT(DISTINCT ?variableMeasured_a; SEPARATOR=", ") as ?variableMeasured  )
+    ?maxDepth ?minDepth ?temporalCoverage (GROUP_CONCAT(DISTINCT ?variableMeasured_a; SEPARATOR=", ") as ?variableMeasured  )
     ?bbox
 WHERE {
     ?subj ?o ?item .
@@ -69,10 +69,10 @@ WHERE {
               ?vm a  sschema:PropertyValue  .
               ?vm sschema:name ?namedepth  .
               FILTER (?namedepth IN ("depth", "CmpDep") ) .
-              ?vm sschema:maxValue ?maxdepth_d .
+              ?vm sschema:maxValue ?maxDepth_d .
               ?vm sschema:minValue ?minDepth_d
     }
-    bind ( COALESCE(?maxdepth_d) As ?maxdepth)
+    bind ( COALESCE(?maxDepth_d) As ?maxDepth)
     bind ( COALESCE(?minDepth_d) As ?minDepth)
 
     # temporal coverage.
@@ -83,7 +83,7 @@ WHERE {
     BIND ( IF ( BOUND(?pub_name), ?pub_name, "No Publisher") as ?pubname ) .
     BIND ( IF ( BOUND(?place_name), ?place_name, "No Placenames") as ?placename ) .
 }
-GROUP BY ?subj ?pubname ?placename  ?datep ?url  ?name ?description ?type ?maxdepth ?minDepth ?temporalCoverage ?bbox ?g
+GROUP BY ?subj ?pubname ?placename  ?datep ?url  ?name ?description ?type ?maxDepth ?minDepth ?temporalCoverage ?bbox ?g
 ORDER BY DESC(?score)
 LIMIT ${n}
 

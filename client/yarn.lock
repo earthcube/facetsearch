@@ -4068,6 +4068,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vueform/slider@npm:^2.1.10":
+  version: 2.1.10
+  resolution: "@vueform/slider@npm:2.1.10"
+  checksum: 10c0/0bcc60075a66456abbc8919e9db05b25466525755d1a35e000c4900ab5c245f81b10729ab8eeac0a104021d211337f21b07393ea47d2a6f038b10dd570746aa1
+  languageName: node
+  linkType: hard
+
 "@webassemblyjs/ast@npm:1.11.6, @webassemblyjs/ast@npm:^1.11.5":
   version: 1.11.6
   resolution: "@webassemblyjs/ast@npm:1.11.6"
@@ -4856,12 +4863,14 @@ __metadata:
     "@vue/eslint-config-typescript": "npm:^10.0.0"
     "@vue/test-utils": "npm:^2.4.3"
     "@vue/vue3-jest": "npm:^29.2.6"
+    "@vueform/slider": "npm:^2.1.10"
     "@yarnpkg/cli": "npm:^4.0.0"
     axios: "npm:^1.6.5"
     bootstrap-icons-vue: "npm:^1.11.1"
     bootstrap-vue: "npm:^2.23.1"
     caniuse-lite: "npm:^1.0.30001349"
     core-js: "npm:^3.8.3"
+    dayjs: "npm:^1.11.13"
     eslint: "npm:^8.56.0"
     eslint-plugin-vue: "npm:^9.20.0"
     execa: "npm:^5.0.0"
@@ -4871,10 +4880,12 @@ __metadata:
     jsonpath: "npm:^1.1.1"
     jsonpath-plus: "npm:^7.2.0"
     leaflet: "npm:^1.9.4"
+    leaflet-draw: "npm:^1.0.4"
     localforage: "npm:^1.10.0"
     localforage-startswith: "npm:^1.4.0"
     lodash: "npm:^4.17.21"
     lru-cache: "npm:~7.18.3"
+    luxon: "npm:^3.7.1"
     marked: "npm:^15.0.6"
     prettier: "npm:^2.6.2"
     query-string: "npm:^7.0.0"
@@ -4889,6 +4900,7 @@ __metadata:
     vite: "npm:^5.0.12"
     vite-raw-plugin: "npm:^1.0.2"
     vue: "npm:~3.3.4"
+    vue-3-slider-component: "npm:^1.0.2"
     vue-axios: "npm:^3.5.2"
     vue-eslint-parser: "npm:^8.3.0"
     vue-gtag: "npm:^2.0.1"
@@ -6610,6 +6622,13 @@ __metadata:
   version: 4.0.1
   resolution: "data-uri-to-buffer@npm:4.0.1"
   checksum: 10c0/20a6b93107597530d71d4cb285acee17f66bcdfc03fd81040921a81252f19db27588d87fc8fc69e1950c55cfb0bf8ae40d0e5e21d907230813eb5d5a7f9eb45b
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:^1.11.13":
+  version: 1.11.13
+  resolution: "dayjs@npm:1.11.13"
+  checksum: 10c0/a3caf6ac8363c7dade9d1ee797848ddcf25c1ace68d9fe8678ecf8ba0675825430de5d793672ec87b24a69bf04a1544b176547b2539982275d5542a7955f35b7
   languageName: node
   linkType: hard
 
@@ -9429,6 +9448,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"leaflet-draw@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "leaflet-draw@npm:1.0.4"
+  checksum: 10c0/9e700b7e5e7d70c0f9d66efe2fec282f635eff63699e5f2f4eb733b140188058cc7cb2a5d3c6889c300958ec9e415fd5c0a02a08db0e1fc13a063d4710cff004
+  languageName: node
+  linkType: hard
+
 "leaflet@npm:^1.9.4":
   version: 1.9.4
   resolution: "leaflet@npm:1.9.4"
@@ -9701,6 +9727,13 @@ __metadata:
   version: 7.18.3
   resolution: "lru-cache@npm:7.18.3"
   checksum: 10c0/b3a452b491433db885beed95041eb104c157ef7794b9c9b4d647be503be91769d11206bb573849a16b4cc0d03cbd15ffd22df7960997788b74c1d399ac7a4fed
+  languageName: node
+  linkType: hard
+
+"luxon@npm:^3.7.1":
+  version: 3.7.1
+  resolution: "luxon@npm:3.7.1"
+  checksum: 10c0/f83bc23a4c09da9111bc2510d2f5346e1ced4938379ebff13e308fece2ea852eb6e8b9ed8053b8d82e0fce05d5dd46e4cd64d8831ca04cfe32c0954b6f087258
   languageName: node
   linkType: hard
 
@@ -13583,6 +13616,15 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 10c0/c51b8e458851943c903fddde6973e720099ef8a5f364fb107cddade59c9e90f6d9ad98b61a7419cdfa0c6374236e10bff965d0c2d9e7b1790c68b874e5e7950c
+  languageName: node
+  linkType: hard
+
+"vue-3-slider-component@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "vue-3-slider-component@npm:1.0.2"
+  peerDependencies:
+    vue: ^3.0.0
+  checksum: 10c0/8d7d51ef8ea8102004f61f4751457c2780723408b98ff8fb8bcdb2300205a3ff6c04eee87d7361fe8af1096ccc640bc192ee81a6cd62edd9dd6daa252df19ef2
   languageName: node
   linkType: hard
 

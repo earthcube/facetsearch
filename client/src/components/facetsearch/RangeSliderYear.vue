@@ -21,17 +21,18 @@
           aria-hidden="true"
       ></b-icon>
     </b-button>
-    <b-collapse :id="'accordion_daterange_' + facetSetting.field" @shown="onCollapseShown" >
-      <VueformSlider v-if="temporalCount > 0"
+    <b-collapse :id="'accordion_daterange_' + facetSetting.field" @shown="onCollapseShown"
+                :visible="facetSetting.open">
+      <Slider v-if="temporalCount > 0"
                      :model-value="sliderValue"
                      ref="rangeSlider"
                      :key="sliderKey"
                      class="slider  mx-2 py-2"
-                     :min="parseInt(startYear)"
-                     :max="parseInt(endYear)"
+                     :min="startYear"
+                     :max="endYear"
                      :disabled="disableDrag"
                      @update:model-value="handleSliderUpdate"
-      ></VueformSlider>
+      ></Slider>
       <div v-if="temporalCount > 0" class="mt-0 px-2 py-0">
         <span class="text-h2 font-weight-light">{{controlValue.range[0]}}</span>
         <span class="subheading font-weight-light mx-1">to</span>
@@ -44,19 +45,20 @@
 </template>
 
 <script>
-import VueformSlider from '@vueform/slider'
+import Slider from '@vueform/slider'
 import '@vueform/slider/themes/default.css'
 import {useStore} from 'vuex'
 import {DateRange} from '@/components/facetsearch/range'
 import {computed, ref, watch, inject, nextTick, getCurrentInstance} from 'vue'
 import {DateTime, Interval} from "luxon";
 import _ from 'lodash';
+import {isArray} from "underscore";
 
 
 export default {
   name: 'RangeSliderYear',
   components: {
-    VueformSlider,
+    Slider,
   },
   inject: ["toggleFilter", "filtersState"],
   props: {
@@ -75,8 +77,9 @@ export default {
 
     // Reactive data
     const mydata = ref([])
-    const startYear = ref( DateTime.now().year)
-    const endYear = ref(DateTime.now().year)
+    const yearNow = DateTime.now().year
+    const startYear = ref( yearNow)
+    const endYear = ref(yearNow)
     const sliderValue = ref([1800,2100])
     const sliderKey = ref(0)
     const controlValue = new DateRange(1800,2100) // not reactive
@@ -128,18 +131,18 @@ export default {
         controlValue.temporalCount = ranges.length;
 
 
-        const startYears = ranges.filter(r => r != undefined || r != null).map(r => r[0]);
-        const endYears = ranges.filter(r => r != undefined || r != null).map(r =>  r[1]);
+        const startYears = ranges.filter(r => (r != undefined || r != null) ).map(r => r[0].year);
+        const endYears = ranges.filter(r => (r != undefined || r != null)).map(r =>  r[1].year);
 
         // startYear.value = startYears.length ? Math.min(...startYears) : new Date().getFullYear();
         // endYear.value = endYears.length ? Math.max(...endYears) : new Date().getFullYear();
-        startYear.value = startYears.length ? _.min(startYears) : DateTime.now();
-        endYear.value = endYears.length ? _.max(endYears) : DateTime.now();
+        startYear.value = startYears.length ? _.min(startYears) : yearNow;
+        endYear.value = endYears.length ? _.max(endYears) : yearNow;
 
         if (controlValue.range) {
-          controlValue.range[0] = startYear.value.year;
-          controlValue.range[1] = endYear.value.year;
-          sliderValue.value = [startYear.value.year, endYear.value.year]
+          controlValue.range[0] = startYear.value;
+          controlValue.range[1] = endYear.value;
+          sliderValue.value = [startYear.value, endYear.value]
         }
       } else {
         temporalCount.value = 0;
@@ -169,7 +172,7 @@ export default {
     }
     const resetToFullRange = () => {
       if (startYear.value !== null && endYear.value !== null) {
-        sliderValue.value = [startYear.value.year, endYear.value.year]
+        sliderValue.value = [startYear.value, endYear.value]
         sliderKey.value++
         // Don't call filtered() here as it would add the default range to the URL
       }
@@ -181,8 +184,14 @@ export default {
       }
     })
     const handleSliderUpdate = (newValue) => {
-      sliderValue.value = newValue
+      if (isArray(newValue)){
+        sliderValue.value = newValue
+
+      } else {
+        sliderValue.value = [startYear.value, endYear.value]
+      }
       filtered()
+
     }
     return {
       mydata,

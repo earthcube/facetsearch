@@ -20,23 +20,20 @@
         aria-hidden="true"
       ></b-icon>
     </b-button>
-    <b-collapse :id="'accordion_depthrange_' + facetSetting.field" @shown="onCollapseShown"   >
-      <VueformSlider v-if="depthCount > 0"
+    <b-collapse :id="'accordion_depthrange_' + facetSetting.field" @shown="onCollapseShown"
+                :visible="facetSetting.open">
+      <Slider v-if="depthCount > 0"
         :model-value="sliderValue"
         :key="sliderKey"
         class="slider mx-2 py-2"
-        :min="parseInt(minDepth)"
-        :max="parseInt(maxDepth)"
+        :min="minDepth"
+        :max="maxDepth"
         :disabled="disableDrag"
         :tooltip="tooltipFormat"
         :format="numberFormat"
         @update:model-value="handleSliderUpdate"
       />
       <div v-if="depthCount > 0" class="mt-0 px-2 py-0">
-        <span class="text-h2 font-weight-light">{{ controlValue.range[0] }}</span>
-        <span class="subheading font-weight-light mx-1">to</span>
-        <span class="text-h2 font-weight-light">{{ controlValue.range[1] }}</span>
-        <span class="subheading font-weight-light ml-1">year</span>
         <div v-if="sliderValue.length === 2" class="mt-0 px-2 py-0">
           <span class="text-h2 font-weight-light">{{ formatNumber(sliderValue[0]) }}</span>
           <span class="subheading font-weight-light mx-1">to</span>
@@ -51,16 +48,17 @@
 </template>
 
 <script>
-import VueformSlider from '@vueform/slider'
+import Slider from '@vueform/slider'
 import { useStore } from 'vuex'
 import { NumericRange } from '@/components/facetsearch/range'
 import { computed, ref, watch, inject, nextTick, getCurrentInstance, onUnmounted } from 'vue'
 import '@vueform/slider/themes/default.css'
+import _ from 'lodash';
 
 export default {
   name: 'RangeSliderDepth',
   components: {
-    VueformSlider,
+    Slider,
   },
   props: {
     facetSetting: {
@@ -76,15 +74,17 @@ export default {
     const store = useStore()
     const toggleFilter = inject('toggleFilter')
     const filtersState = inject('filtersState')
-    const results = computed(() => store.state.results)
-
-    const minDepth = ref(null)
-    const maxDepth = ref(null)
+    const defaultMinDepth = -5000;
+    const defaultMaxDepth = 5000;
+    const minDepth = ref(defaultMinDepth)
+    const maxDepth = ref(defaultMaxDepth)
     const sliderValue = ref([-5000, 0])
     const sliderKey = ref(0)
     const disableDrag = ref(false)
     const controlValue = new NumericRange(-5000,0); // not reactive
-    const depthCount =ref(0);
+    const depthCount =ref(0)
+// Computed
+    const results = computed(() => store.state.results || [])
 
     const formatNumber = (value) => {
       return new Intl.NumberFormat('en-US', {
@@ -129,7 +129,7 @@ export default {
       }
     })
 
-    watch(() => results.value, (newResults) => {
+    watch(results, (newResults) => {
       if (!newResults) return
 
       const minDepthField = props.facetSetting.range_fields[0]
@@ -143,10 +143,10 @@ export default {
         .map(d => parseFloat(d[maxDepthField]))
         .filter(d => !isNaN(d))
 
-      minDepth.value = validMinDepths.length > 0 ? Math.min(...validMinDepths) : -10000
-      maxDepth.value = validMinDepths.length > 0 ? Math.max(...validMaxDepths) : 10000
+      minDepth.value = validMinDepths.length > 0 ? _.min(validMinDepths) : defaultMinDepth
+      maxDepth.value = validMinDepths.length > 0 ? _.max(validMaxDepths) : defaultMaxDepth
       if (validMinDepths.length > 0 || validMinDepths.length > 0 ){
-        depthCount.value = Math.max(validMinDepths.length, validMaxDepths.length);
+        depthCount.value =Math.max(validMinDepths.length, validMaxDepths.length);
       } else {
         depthCount.value = 0;
       }
