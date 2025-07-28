@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 class QueryService {
   constructor() {
     this.queryCache = new Map()
@@ -41,7 +43,7 @@ class QueryService {
   }
 
   /**
-   * Fetch query from assets using dynamic import
+   * Fetch query from public folder using HTTP request
    * @param {string} queryPath - Path to query file (just filename)
    * @param {string} configKey - Configuration key for caching
    * @param {Object} facetsConfig - The configuration object
@@ -52,18 +54,17 @@ class QueryService {
       // Get query engine from config, default to 'blazegraph'
       const queryEngine = facetsConfig?.QUERY_ENGINE || 'blazegraph'
       
-      // Build the full import path
-      // Use /* @vite-ignore */ to suppress Vite's dynamic import warning
-      const fullPath = `/src/assets/sparql/${queryEngine}/${queryPath}`
-      const queryModule = await import(/* @vite-ignore */ `${fullPath}?raw`)
-      const queryText = queryModule.default
+      // Build the full HTTP path
+      const fullPath = `${import.meta.env.BASE_URL}queries/${queryEngine}/${queryPath}`
+      const response = await axios.get(fullPath)
+      const queryText = response.data
 
       // Cache the result
       this.queryCache.set(configKey, queryText)
       
       return queryText
     } catch (error) {
-      console.error(`Failed to load query from assets: ${queryPath}:`, error)
+      console.error(`Failed to load query from public folder: ${queryPath}:`, error)
       throw new Error(`Failed to load SPARQL query: ${configKey}`)
     }
   }
