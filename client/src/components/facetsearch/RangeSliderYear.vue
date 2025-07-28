@@ -21,7 +21,7 @@
           aria-hidden="true"
       ></b-icon>
     </b-button>
-    <b-collapse :id="'accordion_daterange_' + facetSetting.field" @shown="onCollapseShown" >
+    <b-collapse :id="'accordion_daterange_' + facetSetting.field" @shown="onCollapseShown" :visible="facetSetting.open">
       <VueformSlider v-if="temporalCount > 0"
                      :model-value="sliderValue"
                      ref="rangeSlider"

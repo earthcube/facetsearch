@@ -20,7 +20,7 @@
         aria-hidden="true"
       ></b-icon>
     </b-button>
-    <b-collapse :id="'accordion_depthrange_' + facetSetting.field" @shown="onCollapseShown"   >
+    <b-collapse :id="'accordion_depthrange_' + facetSetting.field" @shown="onCollapseShown"  :visible="facetSetting.open" >
       <VueformSlider v-if="depthCount > 0"
         :model-value="sliderValue"
         :key="sliderKey"
