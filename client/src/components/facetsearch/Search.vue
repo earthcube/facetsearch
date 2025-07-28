@@ -116,7 +116,7 @@ export default {
     title: String,
     textQuery: String, // this needs to be here route passes as a prop
     resourceType: String,
-    exact: String
+    exact: String,
     // results:[]
   },
 
@@ -211,7 +211,11 @@ export default {
     // }
   },
   methods: {
-    ...mapMutations(["setTextQuery", "setResourceTypeQuery", "setSearchExactMatch"]),
+    ...mapMutations([
+      "setTextQuery",
+      "setResourceTypeQuery",
+      "setSearchExactMatch",
+    ]),
     ...mapActions(["getResults", "getQueryTemplate", "addtoMicroCache"]),
     getQueryObj: function () {
       //let activeFilters = this.filtersState.filters|| []; // filters needs to be moved into actual filtersState in the future

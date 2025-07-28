@@ -93,7 +93,8 @@
 import { mapState } from "vuex";
 import axios from "axios";
 
-import SpaqlToolsWebserviceQuery from "@/sparql_blaze/sparql_relateddatafilename.txt?raw";
+// Static import removed - now using dynamic loading via queryService
+import queryService from '@/services/queryService.js';
 
 import _ from "lodash";
 import { frameJsonLD, schemaItem } from "@/api/jsonldObject";
@@ -140,13 +141,13 @@ export default {
     //     ];
   },
   methods: {
-    showRelatedData() {
+    async showRelatedData() {
       this.running = true;
       var self = this;
       console.log("related: " + self.related);
       // let jp = self.jsonLdCompact // just short name
-      frameJsonLD(self.jsonLdObj, "Dataset")
-        .then((jp) => {
+      try {
+        const jp = await frameJsonLD(self.jsonLdObj, "Dataset");
           let realtedTextFields =
             schemaItem("description", jp) + schemaItem("name", jp);
           realtedTextFields = realtedTextFields
@@ -159,8 +160,10 @@ export default {
           console.log(realtedTextFields);
           if (realtedTextFields == "") return;
 
+          // Load query dynamically - using related data specific query
+          const queryText = await queryService.loadQuery('SPARQL_RELATED_DATA', this.FacetsConfig);
           const resultsTemplate = _.template(
-            SpaqlToolsWebserviceQuery,
+            queryText,
             this.FacetsConfig.esTemplateOptions
           );
           let hasToolsQuery = resultsTemplate({
@@ -182,16 +185,18 @@ export default {
           };
           console.log("relateddata:query:");
           // console.log(params["query"]);
-          axios.request(config).then(function (response) {
-            //self.webserviceTools =  response.data.results.bindings
-            var bindings = response.data.results.bindings;
-            let index = 0;
-            bindings.forEach((i) => (i.index = "relatedData-" + index++));
-            _.remove(bindings, (i) => i.g.value === self.d);
-            self.related = bindings;
-          });
-        })
-        .finally(() => (this.running = false));
+          const response = await axios.request(config);
+          //self.webserviceTools =  response.data.results.bindings
+          var bindings = response.data.results.bindings;
+          let index = 0;
+          bindings.forEach((i) => (i.index = "relatedData-" + index++));
+          _.remove(bindings, (i) => i.g.value === self.d);
+          self.related = bindings;
+      } catch (error) {
+        console.error('Failed to load related data query or process data:', error);
+      } finally {
+        this.running = false;
+      }
     },
     // toRelatedData: function (d) {
     //   // console.log(index)
