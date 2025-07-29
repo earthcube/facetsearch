@@ -59,7 +59,7 @@ import feedback from "@/components/feedback/feedback.vue";
 import {v5 as uuidv5} from "uuid";
 import {isProxy, toRaw} from 'vue';
 import {DateRange} from "@/components/facetsearch/range.js";
-import {DateTime} from "luxon";
+import {DateTime, Interval} from "luxon";
 
 // import HistRangeSlider from "@/components/facetsearch/HistRangeSlider.vue"
 
@@ -477,21 +477,57 @@ export default {
                 console.log(`possible misconfiguraton of facetsConfig change names ${minFacet}  ${maxFacet}`)
               }
             } else if (isDateRange){
+              const thisYear = DateTime.now(thisFacet).toISODate();
+              const temporalFix = (facetData,thisYear) => {
+                if (typeof facetData === 'string' && facetData.endsWith('/..')) {
+                  return facetData.replace('/..', `/${thisYear}`);
+                }
+                return facetData;
 
-              if (_.isArray(item[facet])) {
+              };
+              const temporalParse = (tc,thisYear) => {
+                try {
+                  const fixedFacet = temporalFix(thisFacet, thisYear);
+                  let range = Interval.fromISO(fixedFacet);
+                  if (!range.invalid) {
+                    return [range.start, range.end]
+                  } else {
+
+                    let date = DateTime.fromISO(tc);
+
+                    if (!date.invalid) {
+                      return [date, date]
+                    }
+                  }
+                } catch (e) {
+
+                  console.log(` cannot parse temporal range ${tc}`)
+                  return null;
+                }
+              }
+              if (_.isArray(thisFacet)) {
                 var hasMatches = _.filter(thisFacet, (num) => _.inRange(DateTime.fromISO(thisFacet).year, filter.range[0], filter.range[0]));
                 if (hasMatches.length == 0) {
                   filtersApply = false;
                 }
               } else {
+
                 if (filter.range[0] && filter.range[1]) {
-                  const theDate = DateTime.fromISO(thisFacet);
+                  const theDate = temporalParse(thisFacet, thisYear);
                   if (theDate.invalid ) {
                     filtersApply = false;
                   }
-                  if (theDate.invalid || (!theDate.invalid && ( theDate.year < filter.range[0] || theDate.year  > filter.range[1]))) {
-                    filtersApply = false;
+                  if (_.isArray(theDate)) {
+                    if ( ( theDate[1].year < filter.range[0] || theDate[0].year  > filter.range[1]))
+                      filtersApply = false;
+
+                  } else {
+                    if (theDate.invalid || (!theDate.invalid && ( theDate.year < filter.range[0] || theDate.year  > filter.range[1]))) {
+                      filtersApply = false;
+                    }
                   }
+
+
                 }
               }
             } else // range filter

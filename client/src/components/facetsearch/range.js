@@ -9,7 +9,6 @@ export class Range {
 }
 export class DateRange extends Range {
     filtertype = 'dateRange';
-    temporalCount=0;
     constructor(min, max) {
         super(min, max);
         this.filtertype = 'dateRange';
