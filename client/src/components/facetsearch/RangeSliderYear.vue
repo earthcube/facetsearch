@@ -89,7 +89,14 @@ export default {
 
     // Computed
     const results = computed(() => store.state.results || [])
+    const thisYear = DateTime.now().toISODate();
+    const temporalFix = (facetData,thisYear) => {
+      if (typeof facetData === 'string' && facetData.endsWith('/..')) {
+        return facetData.replace('/..', `/${thisYear}`);
+      }
+      return facetData;
 
+    };
     // Watch results
     watch(results, (newResults) => {
       if (!Array.isArray(newResults)) return;
@@ -100,7 +107,8 @@ export default {
         if (tc === undefined) return null;
         // if (!tc.includes("/")) return null; // just parse them
         try {
-          let range = Interval.fromISO(tc);
+          const fixedFacet = temporalFix(tc, thisYear);
+          let range = Interval.fromISO(fixedFacet);
           if (!range.invalid) {
             return [range.start, range.end]
           } else {
@@ -128,7 +136,7 @@ export default {
 
       if (ranges.length > 0) {
         temporalCount.value = ranges.length;
-        controlValue.temporalCount = ranges.length;
+
 
 
         const startYears = ranges.filter(r => (r != undefined || r != null) ).map(r => r[0].year);
@@ -146,7 +154,7 @@ export default {
         }
       } else {
         temporalCount.value = 0;
-        controlValue.temporalCount = 0;
+
       }
     }, {immediate: true})
 
