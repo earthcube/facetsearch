@@ -74,6 +74,7 @@ export default {
   setup(props) {
     const store = useStore()
     const toggleFilter = inject("toggleFilter")
+    const currentResults = inject('currentResults')
 
     // Reactive data
     const mydata = ref([])
@@ -88,7 +89,7 @@ export default {
     const temporalCount = ref(0);
 
     // Computed
-    const results = computed(() => store.state.results || [])
+    const results = computed(() => currentResults || [])
     const thisYear = DateTime.now().toISODate();
     const temporalFix = (facetData,thisYear) => {
       if (typeof facetData === 'string' && facetData.endsWith('/..')) {

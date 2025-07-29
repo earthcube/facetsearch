@@ -77,6 +77,7 @@ export default {
       filtersState: this.filtersState,
       filter: this.filter,
       isRangeFilter: this.isRangeFilter,
+      currentResults: this.currentResults,
     };
   },
   computed: {

@@ -74,6 +74,7 @@ export default {
     const store = useStore()
     const toggleFilter = inject('toggleFilter')
     const filtersState = inject('filtersState')
+    const currentResults = inject('currentResults')
     const defaultMinDepth = -5000;
     const defaultMaxDepth = 5000;
     const minDepth = ref(defaultMinDepth)
@@ -84,7 +85,7 @@ export default {
     const controlValue = new NumericRange(-5000,0); // not reactive
     const depthCount =ref(0)
 // Computed
-    const results = computed(() => store.state.results || [])
+    const results = computed(() => currentResults || [])
 
     const formatNumber = (value) => {
       return new Intl.NumberFormat('en-US', {
