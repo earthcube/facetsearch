@@ -89,7 +89,8 @@ export default {
     const temporalCount = ref(0);
 
     // Computed
-    const results = computed(() => currentResults || [])
+    const results = computed(() => store.state.results || [])
+    const filteredResults = computed(() => currentResults || [])
     const thisYear = DateTime.now().toISODate();
     const temporalFix = (facetData,thisYear) => {
       if (typeof facetData === 'string' && facetData.endsWith('/..')) {
@@ -98,65 +99,60 @@ export default {
       return facetData;
 
     };
-    // Watch results
-    watch(results, (newResults) => {
-      if (!Array.isArray(newResults)) return;
-
-      const ranges = newResults.map(item => {
-        //const tc = item?.temporalCoverage ;
+    const parseTemporalRanges = (resultsList) => {
+      return resultsList.map(item => {
         const tc = item[props.facetSetting.field];
         if (tc === undefined) return null;
-        // if (!tc.includes("/")) return null; // just parse them
         try {
           const fixedFacet = temporalFix(tc, thisYear);
           let range = Interval.fromISO(fixedFacet);
           if (!range.invalid) {
             return [range.start, range.end]
           } else {
-
             let date = DateTime.fromISO(tc);
-
             if (!date.invalid) {
               return [date, date]
             }
           }
         } catch (e) {
-
-          console.log(` cannot parse ${tc} ${e}  ${e2}`)
+          console.log(` cannot parse ${tc} ${e}`)
           return null;
         }
-
-
-        // const [rawStart, rawEnd] = tc.split("/");
-        // const start = parseInt(rawStart.trim(), 10);
-        // const end = parseInt(rawEnd.trim(), 10);
-
-        //return (!isNaN(start) && !isNaN(end)) ? { start, end } : null;
         return null
-      }).filter(Boolean); //.filter(Boolean);
+      }).filter(Boolean);
+    }
+
+    // Watch original results to set slider bounds and initial position
+    watch(results, (newResults) => {
+      if (!Array.isArray(newResults)) return;
+
+      const ranges = parseTemporalRanges(newResults);
 
       if (ranges.length > 0) {
-        temporalCount.value = ranges.length;
-
-
-
         const startYears = ranges.filter(r => (r != undefined || r != null) ).map(r => r[0].year);
         const endYears = ranges.filter(r => (r != undefined || r != null)).map(r =>  r[1].year);
 
-        // startYear.value = startYears.length ? Math.min(...startYears) : new Date().getFullYear();
-        // endYear.value = endYears.length ? Math.max(...endYears) : new Date().getFullYear();
         startYear.value = startYears.length ? _.min(startYears) : yearNow;
         endYear.value = endYears.length ? _.max(endYears) : yearNow;
 
-        if (controlValue.range) {
+        // Only reset slider value if this is the initial load
+        if (sliderValue.value[0] === 1800 && sliderValue.value[1] === 2100) {
           controlValue.range[0] = startYear.value;
           controlValue.range[1] = endYear.value;
           sliderValue.value = [startYear.value, endYear.value]
         }
-      } else {
-        temporalCount.value = 0;
-
       }
+    }, {immediate: true})
+
+    // Watch filtered results to update count only
+    watch(filteredResults, (newResults) => {
+      if (!Array.isArray(newResults)) {
+        temporalCount.value = 0;
+        return;
+      }
+
+      const ranges = parseTemporalRanges(newResults);
+      temporalCount.value = ranges.length;
     }, {immediate: true})
 
     // Methods

@@ -85,7 +85,8 @@ export default {
     const controlValue = new NumericRange(-5000,0); // not reactive
     const depthCount =ref(0)
 // Computed
-    const results = computed(() => currentResults || [])
+    const results = computed(() => store.state.results || [])
+    const filteredResults = computed(() => currentResults || [])
 
     const formatNumber = (value) => {
       return new Intl.NumberFormat('en-US', {
@@ -130,6 +131,7 @@ export default {
       }
     })
 
+    // Watch original results to set slider bounds and initial position
     watch(results, (newResults) => {
       if (!newResults) return
 
@@ -146,12 +148,36 @@ export default {
 
       minDepth.value = validMinDepths.length > 0 ? _.min(validMinDepths) : defaultMinDepth
       maxDepth.value = validMinDepths.length > 0 ? _.max(validMaxDepths) : defaultMaxDepth
-      if (validMinDepths.length > 0 || validMinDepths.length > 0 ){
-        depthCount.value =Math.max(validMinDepths.length, validMaxDepths.length);
+      
+      // Only reset slider value if this is the initial load
+      if (sliderValue.value[0] === -5000 && sliderValue.value[1] === 0) {
+        sliderValue.value = [minDepth.value, maxDepth.value]
+      }
+    }, { immediate: true })
+
+    // Watch filtered results to update count only
+    watch(filteredResults, (newResults) => {
+      if (!newResults) {
+        depthCount.value = 0
+        return
+      }
+
+      const minDepthField = props.facetSetting.range_fields[0]
+      const maxDepthField = props.facetSetting.range_fields[1]
+
+      const validMinDepths = newResults
+        .map(d => parseFloat(d[minDepthField]))
+        .filter(d => !isNaN(d))
+
+      const validMaxDepths = newResults
+        .map(d => parseFloat(d[maxDepthField]))
+        .filter(d => !isNaN(d))
+
+      if (validMinDepths.length > 0 || validMaxDepths.length > 0 ){
+        depthCount.value = Math.max(validMinDepths.length, validMaxDepths.length);
       } else {
         depthCount.value = 0;
       }
-      sliderValue.value = [minDepth.value, maxDepth.value]
     }, { immediate: true })
 
     onUnmounted(() => {
