@@ -83,10 +83,10 @@ export default {
     const sliderKey = ref(0)
     const disableDrag = ref(false)
     const controlValue = new NumericRange(
-      -5000, 
-      0, 
-      minField=props.facetSetting.range_fields[0], // minField
-      maxField=props.facetSetting.range_fields[1]  // maxField
+      -5000,
+      0,
+        props.facetSetting.range_fields[0], // minField
+      props.facetSetting.range_fields[1]  // maxField
     ); // not reactive
     const depthCount =ref(0)
 // Computed
@@ -153,7 +153,7 @@ export default {
 
       minDepth.value = validMinDepths.length > 0 ? _.min(validMinDepths) : defaultMinDepth
       maxDepth.value = validMinDepths.length > 0 ? _.max(validMaxDepths) : defaultMaxDepth
-      
+
       // Only reset slider value if this is the initial load
       if (sliderValue.value[0] === -5000 && sliderValue.value[1] === 0) {
         sliderValue.value = [minDepth.value, maxDepth.value]
