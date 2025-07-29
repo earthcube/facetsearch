@@ -45,6 +45,7 @@
       </b-col>
     </b-row>
 
+
     <div v-if="Object.keys(filters).length > 0" class="mt-3">
       <span
         v-for="f in Object.keys(filters)"
@@ -52,13 +53,21 @@
         align-v="center"
         class="filters"
       >
+<!--        <b-badge-->
+<!--          v-for="applied in consolidateFilter(f)"-->
+<!--          :key="applied"-->
+<!--          variant="info"-->
+<!--          class="m-1"-->
+<!--        >-->
+<!--          &lt;!&ndash;{{ f }} / &ndash;&gt;{{f}}:{{ applied }}-->
+<!--        </b-badge>-->
         <b-badge
-          v-for="applied in consolidateFilter(f)"
-          :key="applied"
-          variant="info"
-          class="m-1"
+
+            :key="'applied'+key"
+            variant="info"
+            class="m-1"
         >
-          <!--{{ f }} / -->{{ applied }}
+          {{f}}:{{consolidateFilter(f)}}
         </b-badge>
       </span>
 
@@ -92,6 +101,7 @@ https://github.com/bootstrap-vue/bootstrap-vue/issues/7182#issuecomment-18115211
 import { mapState } from "vuex";
 //import {bus} from "@/main"; //vue3
 import localforage from "localforage";
+import {isProxy,toRaw} from "vue";
 //import {mapState} from "vuex";
 
 export default {
@@ -104,6 +114,7 @@ export default {
     "clearFilters",
     "order",
     "setResultLimit",
+    "isRangeFilter",
     //   , "setSearchExactmatch"
   ],
   computed: {
@@ -137,17 +148,16 @@ export default {
   },
   methods: {
     consolidateFilter: function (key) {
-      var filters = this.filters[key];
+      var filterValue = this.filters[key];
       // Special case: consolidate dates into unique years
-      if ("datep" === key) {
-        var years = new Set();
-        for (let i = 0; i < filters.length; i++) {
-          var date = filters[i];
-          years.add(date.split("-")[0]);
-        }
-        filters = Array.from(years);
+      const [isRange, filterType] =this.isRangeFilter(filterValue)
+      if (isRange) {
+        return filterValue.range;
       }
-      return filters;
+      if (isProxy(filterValue)){
+        return toRaw(filterValue)
+      }
+      return filterValue;
     },
     deselect() {
       this.clearFilters();
