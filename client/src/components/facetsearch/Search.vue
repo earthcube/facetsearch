@@ -76,6 +76,7 @@ export default {
       facetStore: this.facetStore,
       filtersState: this.filtersState,
       filter: this.filter,
+      isRangeFilter: this.isRangeFilter,
     };
   },
   computed: {
@@ -350,7 +351,8 @@ export default {
           }
         });
       });
-    }, isRangeFilter: function (filter) {
+    },
+    isRangeFilter: function (filter) {
       let isRange = false;
       let filterType = 'notRange'
       if (filter !== undefined) {
@@ -681,6 +683,7 @@ export default {
         if (valueIndex === -1) {
           // Add new value
           filterArray.push(value);
+          filters[key] = [...filterArray]
          // state.filters = {...state.filters};
           self.filters = {...filters};
         } else {
