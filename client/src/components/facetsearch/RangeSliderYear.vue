@@ -83,7 +83,7 @@ export default {
     const endYear = ref(yearNow)
     const sliderValue = ref([1800,2100])
     const sliderKey = ref(0)
-    const controlValue = new DateRange(1800,2100) // not reactive
+    const controlValue = new DateRange(1800, 2100) // not reactive
     const disableDrag = ref(false)
     const rangeSlider = ref(null)
     const temporalCount = ref(0);

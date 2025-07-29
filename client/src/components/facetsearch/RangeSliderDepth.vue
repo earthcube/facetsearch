@@ -82,7 +82,12 @@ export default {
     const sliderValue = ref([-5000, 0])
     const sliderKey = ref(0)
     const disableDrag = ref(false)
-    const controlValue = new NumericRange(-5000,0); // not reactive
+    const controlValue = new NumericRange(
+      -5000, 
+      0, 
+      minField=props.facetSetting.range_fields[0], // minField
+      maxField=props.facetSetting.range_fields[1]  // maxField
+    ); // not reactive
     const depthCount =ref(0)
 // Computed
     const results = computed(() => store.state.results || [])
