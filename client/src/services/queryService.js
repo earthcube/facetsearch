@@ -1,9 +1,9 @@
-import axios from 'axios'
+import axios from "axios";
 
 class QueryService {
   constructor() {
-    this.queryCache = new Map()
-    this.loadingPromises = new Map()
+    this.queryCache = new Map();
+    this.loadingPromises = new Map();
   }
 
   /**
@@ -15,30 +15,32 @@ class QueryService {
   async loadQuery(configKey, facetsConfig) {
     // Check cache first
     if (this.queryCache.has(configKey)) {
-      return this.queryCache.get(configKey)
+      return this.queryCache.get(configKey);
     }
 
     // Check if already loading to prevent duplicate requests
     if (this.loadingPromises.has(configKey)) {
-      return this.loadingPromises.get(configKey)
+      return this.loadingPromises.get(configKey);
     }
 
     // Get the query path from configuration
-    const queryPath = facetsConfig?.[configKey]
+    const queryPath = facetsConfig?.[configKey];
     if (!queryPath) {
-      throw new Error(`Query configuration key '${configKey}' not found in FacetsConfig`)
+      throw new Error(
+        `Query configuration key '${configKey}' not found in FacetsConfig`
+      );
     }
 
     // Create loading promise
-    const loadingPromise = this.fetchQuery(queryPath, configKey, facetsConfig)
-    this.loadingPromises.set(configKey, loadingPromise)
+    const loadingPromise = this.fetchQuery(queryPath, configKey, facetsConfig);
+    this.loadingPromises.set(configKey, loadingPromise);
 
     try {
-      const queryText = await loadingPromise
-      return queryText
+      const queryText = await loadingPromise;
+      return queryText;
     } finally {
       // Clean up loading promise
-      this.loadingPromises.delete(configKey)
+      this.loadingPromises.delete(configKey);
     }
   }
 
@@ -52,20 +54,25 @@ class QueryService {
   async fetchQuery(queryPath, configKey, facetsConfig) {
     try {
       // Get query engine from config, default to 'blazegraph'
-      const queryEngine = facetsConfig?.QUERY_ENGINE || 'blazegraph'
-      
+      const queryEngine = facetsConfig?.QUERY_ENGINE || "blazegraph";
+
       // Build the full HTTP path
-      const fullPath = `${import.meta.env.BASE_URL}queries/${queryEngine}/${queryPath}`
-      const response = await axios.get(fullPath)
-      const queryText = response.data
+      const fullPath = `${
+        import.meta.env.BASE_URL
+      }queries/${queryEngine}/${queryPath}`;
+      const response = await axios.get(fullPath);
+      const queryText = response.data;
 
       // Cache the result
-      this.queryCache.set(configKey, queryText)
-      
-      return queryText
+      this.queryCache.set(configKey, queryText);
+
+      return queryText;
     } catch (error) {
-      console.error(`Failed to load query from public folder: ${queryPath}:`, error)
-      throw new Error(`Failed to load SPARQL query: ${configKey}`)
+      console.error(
+        `Failed to load query from public folder: ${queryPath}:`,
+        error
+      );
+      throw new Error(`Failed to load SPARQL query: ${configKey}`);
     }
   }
 
@@ -73,8 +80,8 @@ class QueryService {
    * Clear cached queries (useful for development/testing)
    */
   clearCache() {
-    this.queryCache.clear()
-    this.loadingPromises.clear()
+    this.queryCache.clear();
+    this.loadingPromises.clear();
   }
 
   /**
@@ -83,23 +90,25 @@ class QueryService {
    */
   async preloadQueries(facetsConfig) {
     const commonQueries = [
-      'SPARQL_QUERY',
-      'SPARQL_HASTOOLS',
-      'SPARQL_TOOLS_WEBSERVICE',
-      'SPARQL_TOOLS_DOWNLOAD',
-      'SPARQL_RELATED_DATA'
-    ]
+      "SPARQL_QUERY",
+      "SPARQL_HASTOOLS",
+      "SPARQL_TOOLS_WEBSERVICE",
+      "SPARQL_TOOLS_DOWNLOAD",
+      "SPARQL_RELATED_DATA",
+    ];
 
     const loadPromises = commonQueries
-      .filter(key => facetsConfig[key])
-      .map(key => this.loadQuery(key, facetsConfig).catch(error => {
-        console.warn(`Failed to preload query ${key}:`, error)
-      }))
+      .filter((key) => facetsConfig[key])
+      .map((key) =>
+        this.loadQuery(key, facetsConfig).catch((error) => {
+          console.warn(`Failed to preload query ${key}:`, error);
+        })
+      );
 
-    await Promise.allSettled(loadPromises)
+    await Promise.allSettled(loadPromises);
   }
 }
 
 // Export singleton instance
-export const queryService = new QueryService()
-export default queryService
+export const queryService = new QueryService();
+export default queryService;

@@ -37,7 +37,7 @@ export default {
   components: {
     //   Landing,
     //   Search,
-    navHeader
+    navHeader,
   },
 };
 </script>

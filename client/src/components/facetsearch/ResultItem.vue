@@ -100,7 +100,6 @@ export default {
   props: ["item", "filters"],
   data() {
     return {
-
       connectedTools: undefined,
       clickToAddCollection: false,
       collectionNames: undefined,

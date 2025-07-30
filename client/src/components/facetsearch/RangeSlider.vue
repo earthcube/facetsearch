@@ -39,11 +39,19 @@
   </div>
 </template>
 <script>
-import VueformSlider from '@vueform/slider'
-import { useStore } from 'vuex'
-import { Range } from '@/components/facetsearch/range'
-import { computed, ref, watch, inject, nextTick, getCurrentInstance, onUnmounted } from 'vue'
-import '@vueform/slider/themes/default.css'
+import VueformSlider from "@vueform/slider";
+import { useStore } from "vuex";
+import { Range } from "@/components/facetsearch/range";
+import {
+  computed,
+  ref,
+  watch,
+  inject,
+  nextTick,
+  getCurrentInstance,
+  onUnmounted,
+} from "vue";
+import "@vueform/slider/themes/default.css";
 export default {
   components: {
     VueformSlider,
@@ -66,7 +74,7 @@ export default {
   },
   data() {
     return {
-      value: new Range(0,2500),
+      value: new Range(0, 2500),
       olderFilters: [],
       sliderInit: true,
       myfilterDates: [],
@@ -115,7 +123,7 @@ export default {
       console.log(newRangeStartDate + ", " + newRangeEndDate);
       // pass the range object
       this.toggleFilter(this.fieldname, this.value);
-// original method just created a list
+      // original method just created a list
       // var filteredDates = this.myfilterDates.filter(
       //   (date) =>
       //     new Date(date.toString()) >= new Date(newRangeStartDate.toString()) &&
@@ -144,7 +152,7 @@ export default {
 <style scoped lang="scss">
 @import "@/assets/bootstrapcss/_variables.scss";
 @import "@/assets/bootstrapcss/custom"; // your custom Bootstrap overrides
-@import '@vueform/slider/themes/tailwind.scss';
+@import "@vueform/slider/themes/tailwind.scss";
 
 .filter_card {
   background-color: #f5f5f5;
@@ -195,7 +203,7 @@ export default {
   --slider-handle-height: 16px;
   --slider-handle-border-radius: 50%;
   --slider-handle-border: none;
-  --slider-handle-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --slider-handle-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   --slider-handle-ring-color: #18598b;
   margin: 20px 10px;
 }

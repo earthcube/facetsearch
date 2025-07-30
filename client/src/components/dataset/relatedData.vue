@@ -94,7 +94,7 @@ import { mapState } from "vuex";
 import axios from "axios";
 
 // Static import removed - now using dynamic loading via queryService
-import queryService from '@/services/queryService.js';
+import queryService from "@/services/queryService.js";
 
 import _ from "lodash";
 import { frameJsonLD, schemaItem } from "@/api/jsonldObject";
@@ -148,53 +148,61 @@ export default {
       // let jp = self.jsonLdCompact // just short name
       try {
         const jp = await frameJsonLD(self.jsonLdObj, "Dataset");
-          let realtedTextFields =
-              schemaItem("keywords", jp) + schemaItem("name", jp) + schemaItem("description", jp)  ;
-          realtedTextFields = realtedTextFields
-            .replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi, "")
-            .replace(/<[^>]+?>/g, "")
-            .replace(/\s+/g, " ")
-            .replace(/ /g, " ")
-            .replace(/>/g, " ");
-          realtedTextFields = realtedTextFields.replace(/"/g, "");
-          realtedTextFields = realtedTextFields.split(' ', 60).join(' ');
-          console.log(realtedTextFields);
-          if (realtedTextFields == "") return;
+        let realtedTextFields =
+          schemaItem("keywords", jp) +
+          schemaItem("name", jp) +
+          schemaItem("description", jp);
+        realtedTextFields = realtedTextFields
+          .replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi, "")
+          .replace(/<[^>]+?>/g, "")
+          .replace(/\s+/g, " ")
+          .replace(/ /g, " ")
+          .replace(/>/g, " ");
+        realtedTextFields = realtedTextFields.replace(/"/g, "");
+        realtedTextFields = realtedTextFields.split(" ", 60).join(" ");
+        console.log(realtedTextFields);
+        if (realtedTextFields == "") return;
 
-          // Load query dynamically - using related data specific query
-          const queryText = await queryService.loadQuery('SPARQL_RELATED_DATA', this.FacetsConfig);
-          const resultsTemplate = _.template(
-            queryText,
-            this.FacetsConfig.esTemplateOptions
-          );
-          let hasToolsQuery = resultsTemplate({
-            relatedData: realtedTextFields,
-            n: this.FacetsConfig.RELATEDDATA_COUNT,
-          });
-          var url = this.FacetsConfig.TRIPLESTORE_URL;
-          var params = {
-            query: "#hastoodsquery /n" + hasToolsQuery,
-          };
-          const config = {
-            url: url,
-            method: "get",
-            headers: {
-              Accept: "application/sparql-results+json",
-              "Content-Type": "application/json",
-            },
-            params: params,
-          };
-          console.log("relateddata:query:");
-          // console.log(params["query"]);
-          const response = await axios.request(config);
-          //self.webserviceTools =  response.data.results.bindings
-          var bindings = response.data.results.bindings;
-          let index = 0;
-          bindings.forEach((i) => (i.index = "relatedData-" + index++));
-          _.remove(bindings, (i) => i.g.value === self.d);
-          self.related = bindings;
+        // Load query dynamically - using related data specific query
+        const queryText = await queryService.loadQuery(
+          "SPARQL_RELATED_DATA",
+          this.FacetsConfig
+        );
+        const resultsTemplate = _.template(
+          queryText,
+          this.FacetsConfig.esTemplateOptions
+        );
+        let hasToolsQuery = resultsTemplate({
+          relatedData: realtedTextFields,
+          n: this.FacetsConfig.RELATEDDATA_COUNT,
+        });
+        var url = this.FacetsConfig.TRIPLESTORE_URL;
+        var params = {
+          query: "#hastoodsquery /n" + hasToolsQuery,
+        };
+        const config = {
+          url: url,
+          method: "get",
+          headers: {
+            Accept: "application/sparql-results+json",
+            "Content-Type": "application/json",
+          },
+          params: params,
+        };
+        console.log("relateddata:query:");
+        // console.log(params["query"]);
+        const response = await axios.request(config);
+        //self.webserviceTools =  response.data.results.bindings
+        var bindings = response.data.results.bindings;
+        let index = 0;
+        bindings.forEach((i) => (i.index = "relatedData-" + index++));
+        _.remove(bindings, (i) => i.g.value === self.d);
+        self.related = bindings;
       } catch (error) {
-        console.error('Failed to load related data query or process data:', error);
+        console.error(
+          "Failed to load related data query or process data:",
+          error
+        );
       } finally {
         this.running = false;
       }
