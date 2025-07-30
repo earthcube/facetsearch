@@ -6,7 +6,7 @@
       squared
     >
       {{ facetSetting.title }}
-      <b-badge pill variant="info">{{depthCount}}</b-badge>
+      <b-badge pill variant="info">{{ depthCount }}</b-badge>
       <b-icon
         icon="square"
         class="when-open"
@@ -20,11 +20,15 @@
         aria-hidden="true"
       ></b-icon>
     </b-button>
-    <b-collapse :id="'accordion_depthrange_' + facetSetting.field" @shown="onCollapseShown"
-                :visible="facetSetting.open">
-      <Slider v-if="depthCount > 0"
-        :model-value="sliderValue"
+    <b-collapse
+      :id="'accordion_depthrange_' + facetSetting.field"
+      :visible="facetSetting.open"
+      @shown="onCollapseShown"
+    >
+      <Slider
+        v-if="depthCount > 0"
         :key="sliderKey"
+        :model-value="sliderValue"
         class="slider mx-2 py-2"
         :min="minDepth"
         :max="maxDepth"
@@ -35,28 +39,39 @@
       />
       <div v-if="depthCount > 0" class="mt-0 px-2 py-0">
         <div v-if="sliderValue.length === 2" class="mt-0 px-2 py-0">
-          <span class="text-h2 font-weight-light">{{ formatNumber(sliderValue[0]) }}</span>
+          <span class="text-h2 font-weight-light">{{
+            formatNumber(sliderValue[0])
+          }}</span>
           <span class="subheading font-weight-light mx-1">to</span>
-          <span class="text-h2 font-weight-light">{{ formatNumber(sliderValue[1]) }}</span>
+          <span class="text-h2 font-weight-light">{{
+            formatNumber(sliderValue[1])
+          }}</span>
           <span class="subheading font-weight-light ml-1">m</span>
         </div>
       </div>
       <div v-else>No Depths</div>
-
     </b-collapse>
   </div>
 </template>
 
 <script>
-import Slider from '@vueform/slider'
-import { useStore } from 'vuex'
-import { NumericRange } from '@/components/facetsearch/range'
-import { computed, ref, watch, inject, nextTick, getCurrentInstance, onUnmounted } from 'vue'
-import '@vueform/slider/themes/default.css'
-import _ from 'lodash';
+import Slider from "@vueform/slider";
+import { useStore } from "vuex";
+import { NumericRange } from "@/components/facetsearch/range";
+import {
+  computed,
+  ref,
+  watch,
+  inject,
+  nextTick,
+  getCurrentInstance,
+  onUnmounted,
+} from "vue";
+import "@vueform/slider/themes/default.css";
+import _ from "lodash";
 
 export default {
-  name: 'RangeSliderDepth',
+  name: "RangeSliderDepth",
   components: {
     Slider,
   },
@@ -71,128 +86,166 @@ export default {
     },
   },
   setup(props) {
-    const store = useStore()
-    const toggleFilter = inject('toggleFilter')
-    const filtersState = inject('filtersState')
-    const currentResults = inject('currentResults')
+    const store = useStore();
+    const toggleFilter = inject("toggleFilter");
+    const filtersState = inject("filtersState");
+    const currentResults = inject("currentResults");
     const defaultMinDepth = -5000;
     const defaultMaxDepth = 5000;
-    const minDepth = ref(defaultMinDepth)
-    const maxDepth = ref(defaultMaxDepth)
-    const sliderValue = ref([-5000, 0])
-    const sliderKey = ref(0)
-    const disableDrag = ref(false)
+    const minDepth = ref(defaultMinDepth);
+    const maxDepth = ref(defaultMaxDepth);
+    const sliderValue = ref([-5000, 0]);
+    const sliderKey = ref(0);
+    const disableDrag = ref(false);
     const controlValue = new NumericRange(
       -5000,
       0,
-        props.facetSetting.range_fields[0], // minField
-      props.facetSetting.range_fields[1]  // maxField
+      props.facetSetting.range_fields[0], // minField
+      props.facetSetting.range_fields[1] // maxField
     ); // not reactive
-    const depthCount =ref(0)
-// Computed
-    const results = computed(() => store.state.results || [])
-    const filteredResults = computed(() => currentResults || [])
+    const depthCount = ref(0);
+    // Computed
+    const results = computed(() => store.state.results || []);
+    const filteredResults = computed(() => currentResults || []);
 
     const formatNumber = (value) => {
-      return new Intl.NumberFormat('en-US', {
-        maximumFractionDigits: 0
-      }).format(value)
-    }
+      return new Intl.NumberFormat("en-US", {
+        maximumFractionDigits: 0,
+      }).format(value);
+    };
 
     const numberFormat = (value) => {
-      return formatNumber(value)
-    }
+      return formatNumber(value);
+    };
 
     const tooltipFormat = (value) => {
-      return `${formatNumber(value)} m`
-    }
+      return `${formatNumber(value)} m`;
+    };
 
     const filtered = () => {
       if (sliderValue.value && sliderValue.value.length === 2) {
         controlValue.range = [...sliderValue.value];
-        toggleFilter(props.facetSetting.field, controlValue, false)
+        toggleFilter(props.facetSetting.field, controlValue, false);
       } else {
-        toggleFilter(props.facetSetting.field, controlValue, false)
+        toggleFilter(props.facetSetting.field, controlValue, false);
       }
-    }
+    };
 
     const onCollapseShown = () => {
-      sliderKey.value++
-    }
+      sliderKey.value++;
+    };
 
     const resetToFullRange = () => {
       if (minDepth.value !== null && maxDepth.value !== null) {
-        sliderValue.value = [minDepth.value, maxDepth.value]
-        sliderKey.value++
+        sliderValue.value = [minDepth.value, maxDepth.value];
+        sliderKey.value++;
         // Don't call filtered() here as it would add the default range to the URL
       }
-    }
+    };
 
-    const { proxy: { $root } } = getCurrentInstance()
+    const {
+      proxy: { $root },
+    } = getCurrentInstance();
 
-    $root.$on('refresh slider range', (action) => {
-      if (action === 'clear') {
-        resetToFullRange()
+    $root.$on("refresh slider range", (action) => {
+      if (action === "clear") {
+        resetToFullRange();
       }
-    })
+    });
 
     // Watch original results to set slider bounds and initial position
-    watch(results, (newResults) => {
-      if (!newResults) return
+    watch(
+      results,
+      (newResults) => {
+        if (!newResults) return;
 
-      const minDepthField = props.facetSetting.range_fields[0]
-      const maxDepthField = props.facetSetting.range_fields[1]
+        const minDepthField = props.facetSetting.range_fields[0];
+        const maxDepthField = props.facetSetting.range_fields[1];
 
-      const validMinDepths = newResults
-        .map(d => parseFloat(d[minDepthField]))
-        .filter(d => !isNaN(d))
+        const validMinDepths = newResults
+          .map((d) => parseFloat(d[minDepthField]))
+          .filter((d) => !isNaN(d));
 
-      const validMaxDepths = newResults
-        .map(d => parseFloat(d[maxDepthField]))
-        .filter(d => !isNaN(d))
+        const validMaxDepths = newResults
+          .map((d) => parseFloat(d[maxDepthField]))
+          .filter((d) => !isNaN(d));
 
-      minDepth.value = validMinDepths.length > 0 ? _.min(validMinDepths) : defaultMinDepth
-      maxDepth.value = validMinDepths.length > 0 ? _.max(validMaxDepths) : defaultMaxDepth
+        minDepth.value =
+          validMinDepths.length > 0 ? _.min(validMinDepths) : defaultMinDepth;
+        maxDepth.value =
+          validMinDepths.length > 0 ? _.max(validMaxDepths) : defaultMaxDepth;
 
-      // Only reset slider value if this is the initial load
-      if (sliderValue.value[0] === -5000 && sliderValue.value[1] === 0) {
-        sliderValue.value = [minDepth.value, maxDepth.value]
-      }
-    }, { immediate: true })
+        // Only reset slider value if this is the initial load
+        if (sliderValue.value[0] === -5000 && sliderValue.value[1] === 0) {
+          sliderValue.value = [minDepth.value, maxDepth.value];
+        }
+      },
+      { immediate: true }
+    );
 
-    // Watch filtered results to update count only
-    watch(filteredResults, (newResults) => {
-      if (!newResults) {
-        depthCount.value = 0
-        return
-      }
+    // Watch filtered results to update count and bounds
+    watch(
+      filteredResults,
+      (newResults) => {
+        if (!newResults) {
+          depthCount.value = 0;
+          return;
+        }
 
-      const minDepthField = props.facetSetting.range_fields[0]
-      const maxDepthField = props.facetSetting.range_fields[1]
+        const minDepthField = props.facetSetting.range_fields[0];
+        const maxDepthField = props.facetSetting.range_fields[1];
 
-      const validMinDepths = newResults
-        .map(d => parseFloat(d[minDepthField]))
-        .filter(d => !isNaN(d))
+        const validMinDepths = newResults
+          .map((d) => parseFloat(d[minDepthField]))
+          .filter((d) => !isNaN(d));
 
-      const validMaxDepths = newResults
-        .map(d => parseFloat(d[maxDepthField]))
-        .filter(d => !isNaN(d))
+        const validMaxDepths = newResults
+          .map((d) => parseFloat(d[maxDepthField]))
+          .filter((d) => !isNaN(d));
 
-      if (validMinDepths.length > 0 || validMaxDepths.length > 0 ){
-        depthCount.value = Math.max(validMinDepths.length, validMaxDepths.length);
-      } else {
-        depthCount.value = 0;
-      }
-    }, { immediate: true })
+        if (validMinDepths.length > 0 || validMaxDepths.length > 0) {
+          depthCount.value = Math.max(
+            validMinDepths.length,
+            validMaxDepths.length
+          );
+
+          // Update bounds based on filtered results
+          const newMinDepth =
+            validMinDepths.length > 0 ? _.min(validMinDepths) : defaultMinDepth;
+          const newMaxDepth =
+            validMaxDepths.length > 0 ? _.max(validMaxDepths) : defaultMaxDepth;
+
+          // Only update if bounds have actually changed
+          if (
+            minDepth.value !== newMinDepth ||
+            maxDepth.value !== newMaxDepth
+          ) {
+            minDepth.value = newMinDepth;
+            maxDepth.value = newMaxDepth;
+
+            // Reset slider to new full range if current values are outside new bounds
+            if (
+              sliderValue.value[0] < newMinDepth ||
+              sliderValue.value[1] > newMaxDepth
+            ) {
+              sliderValue.value = [newMinDepth, newMaxDepth];
+            }
+          }
+        } else {
+          depthCount.value = 0;
+        }
+      },
+      { immediate: true }
+    );
 
     onUnmounted(() => {
-      $root.$off('refresh slider range')
-    })
+      $root.$off("refresh slider range");
+    });
 
     const handleSliderUpdate = (newValue) => {
-      sliderValue.value = newValue
-      filtered()
-    }
+      sliderValue.value = newValue;
+      filtered();
+    };
 
     return {
       minDepth,
@@ -208,10 +261,10 @@ export default {
       numberFormat,
       tooltipFormat,
       resetToFullRange,
-      handleSliderUpdate
-    }
-  }
-}
+      handleSliderUpdate,
+    };
+  },
+};
 </script>
 
 <style scoped lang="scss">
@@ -265,7 +318,7 @@ export default {
   --slider-handle-height: 16px;
   --slider-handle-border-radius: 50%;
   --slider-handle-border: none;
-  --slider-handle-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --slider-handle-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   --slider-handle-ring-color: #18598b;
   margin: 20px 10px;
 }
