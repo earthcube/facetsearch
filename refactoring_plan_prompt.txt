@@ -1,0 +1,196 @@
+This app queries a sparql database.
+
+At present, it does a fulltext query, and users filter the results down.
+The filter in the client/src/components/facetsearch/Search.vue does the filtering.
+
+There are queries in
+* client/public/queries/blazegraph
+* client/public/queries/qlever
+
+The main query that is utilized are:
+* client/public/queries/qlever/sparql_query.rq
+* client/public/queries/blazegraph/sparql_query.txt
+
+In client/public/config are configuration files for various datastores. These are some basic parameters
+
+TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube/sparql
+QUERY_ENGINE: blazegraph
+SPARQL_QUERY: sparql_query.txt
+SPARQL_HASTOOLS: sparql_hastools.txt
+SPARQL_TOOLS_WEBSERVICE: sparql_gettools_webservice.txt
+SPARQL_TOOLS_DOWNLOAD: sparql_gettools_download.txt
+SPARQL_RELATED_DATA: sparql_relateddatafilename.txt
+
+These are embedded in client/src/state.js and  several components,
+client/src/components/dataset/relatedData
+client/src/components/dataset/connectedTools
+
+Query Fragments for Full Text Search:
+
+Blazegraph:
+           ?lit bds:search "${q}" .
+            ?lit bds:matchAllTerms "${exact}" .
+            ?lit bds:relevance ?score1 .
+            ${minRelevance}
+            ?g ?p ?lit .
+
+QLEVER:
+  ?subj ?o ?item .
+    ?text ql:contains-entity ?item .
+    ?text ql:contains-word "${q}"
+
+Query Fragements for keyword search
+  ?subj ?o ?item .
+  ?subj schema:keywords | sschema:keywords "Temperature"
+
+query fragment combined text and keyword:
+QLEVER:
+  ?subj ?o ?item .
+  # text
+  ?text ql:contains-entity ?item .
+  ?text ql:contains-word "water" .
+  # keyword
+  ?subj schema:keywords | sschema:keywords "Temperature" .
+
+
+Fragment to generate the body of the response:
+ graph ?g {
+        values ?sosType {
+            sschema:Dataset
+            #               sschema:DataCatalog
+            schema:Dataset
+            #               schema:DataCatalog
+        }
+        ?subj    a    ?sosType .
+        ?subj schema:name|sschema:name ?name .
+        ?subj schema:description|sschema:description ?description . }
+    values (?type ?resourceType_u) {
+        (schema:Dataset "data")
+        (sschema:Dataset "data")
+        (schema:ResearchProject "researchProject") #BCODMO- project
+        (sschema:ResearchProject  "researchProject")
+        (schema:SoftwareApplication  "tool")
+        (sschema:SoftwareApplication  "tool")
+        (schema:Person  "person") #BCODMO- Person
+        (sschema:Person  "person")
+        (schema:Event  "event") #BCODMO- deployment
+        (sschema:Event  "event")
+        (schema:Award  "award") #BCODMO- Award
+        (sschema:Award  "award")
+        (schema:DataCatalog  "DataCatalog")
+        (sschema:DataCatalog  "DataCatalog")
+        #(UNDEF "other")  # assume it's data. At least we should get  name.
+    } ?subj a ?type .
+    optional {?subj sschema:distribution/sschema:url|sschema:subjectOf/sschema:url|schema:distribution/schema:url|schema:subjectOf/schema:url ?url1 .}
+    OPTIONAL {?subj schema:datePublished|sschema:datePublished ?datep1 .}
+    OPTIONAL {?subj schema:dateCreated|sschema:dateCreated ?datec .}
+    OPTIONAL {?subj schema:dateModified|sschema:dateModified ?datem .}
+    OPTIONAL {?subj schema:temporalCoverage|sschema:temporalCoverage ?temporalCoverage .}
+    OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|schema:publisher/schema:legalName|sschema:publisher/sschema:legalName  ?pub_name .}
+    OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name|sschema:sdPublisher ?place_name .}
+    # OPTIONAL {?subj schema:spatialCoverage/schema:geo/schema:latitude|sschema:spatialCoverage/sschema:geo/sschema:latitude ?lat .}
+    # OPTIONAL {?subj sschema:spatialCoverage/sschema:geo ?geo .
+    #         ?geo a sschema:GeoCoordinates .
+    #		 ?geo sschema:longitude ?lon .
+    #		 ?geo sschema:llatitude ?lat .}
+
+    #OPTIONAL {?subj sschema:spatialCoverage/sschema:geo ?geo .
+    #         ?geo a sschema:GeoShape .
+    #		 ?geo sschema:box ?box .}
+    #     bind ( COALESCE(?box) As ?bbox)
+    OPTIONAL {?subj schema:keywords|sschema:keywords ?kw1 .}
+#    OPTIONAL {
+#        ?subj sschema:variableMeasured ?vm .
+#        ?vm a sschema:PropertyValue .
+#        ?vm sschema:name ?variableMeasured_a .
+#    }
+    # if there is more than one location, then coallese to get the versions.
+    OPTIONAL {?subj sschema:variableMeasured ?vm .
+              ?vm a  sschema:PropertyValue  .
+              ?vm sschema:name ?namedepth  .
+              FILTER (?namedepth IN ("depth", "CmpDep") ) .
+              ?vm sschema:maxValue ?maxDepth_d .
+              ?vm sschema:minValue ?minDepth_d
+    }
+    bind ( COALESCE(?maxDepth_d) As ?maxDepth)
+    bind ( COALESCE(?minDepth_d) As ?minDepth)
+
+    # temporal coverage.
+    bind ( COALESCE(?kw1, "") As ?kwu)
+    bind ( COALESCE(?url1) As ?url)
+    # pick one date
+    bind ( COALESCE(?datec,?datem,?datep1) As ?datep)
+    BIND ( IF ( BOUND(?pub_name), ?pub_name, "No Publisher") as ?pubname ) .
+    BIND ( IF ( BOUND(?place_name), ?place_name, "No Placenames") as ?placename ) .
+
+You would like to move the complexity of the filtering from client/src/components/facetsearch/Search.vue
+to the facet components:
+client/src/components/facetsearch/RangeSliderYear.vue
+client/src/components/facetsearch/RangeSliderDepth.vue
+client/src/components/facetsearch/GeoBoundingBoxPicker.vue
+client/src/components/facetsearch/FacetText.vue
+
+a list of facets and thier configurations is in the configruation, for example:
+client/public/config/config.yaml
+
+FACETS:
+FACETS:
+  - field: resourceType
+    title: Resource Type
+    sort: acs
+    open: false
+    type: text
+  - field: kw
+    title: Keywords
+    sort: acs
+    open: true
+    type: text
+  - field: placenames
+    title: Place
+    sort: acs
+    open: true
+    type: text
+  - field: pubname
+    title: Publisher/Repo
+    sort: acs
+    open: false
+    type: text
+#  - field: datep
+#    title: Year Published Range
+#    sort: acs
+#    open: true
+#    type: range
+  - field: depth
+    title: Depth Range
+    sort: acs
+    open: true
+    type: depthrange
+  - field: temporalCoverage
+    title: Temporal Coverage
+    sort: acs
+    open: true
+    type: depthyear
+  - field: spatialCoverage
+    title: Spatial Filter
+    sort: acs
+    open: true
+    type: geo
+
+
+These facets are not limited to those listed. We will add, or remove facets depending on the community needs.
+But let's start with the ones above.
+
+Rather than doing a single query at the start, we would like to submit sparql qeuires with the filters for a facet
+* A new ui would start with a search with no filters.
+* User can then filter using the configured facets, and when updated, the facets are locked, a new sparql query is submieeted
+* If a filter is not active, facet should provide the facet wrapped in an OPTIONAL{}
+* If a facet is active, then the OPTIONAL{} should be removed, and a filter applied to the result
+* we want to add a fulltext search option to the top of the facets list
+* the facetText should use the configuration facet
+  - field: kw
+    title: Keywords
+    type: text
+    sparql_property: "schema:keywords|sschema:keywords"
+
+
+Create a plan and write out to a file for review
