@@ -90,6 +90,7 @@ export default {
     const toggleFilter = inject("toggleFilter");
     const filtersState = inject("filtersState");
     const currentResults = inject("currentResults");
+    const filters = inject("filters");
     const defaultMinDepth = -5000;
     const defaultMaxDepth = 5000;
     const minDepth = ref(defaultMinDepth);
@@ -183,10 +184,10 @@ export default {
       { immediate: true }
     );
 
-    // Watch filtered results to update count and bounds
+    // Watch filtered results to update count and bounds (excluding own filter)
     watch(
-      filteredResults,
-      (newResults) => {
+      [filteredResults, () => filters],
+      ([newResults, currentFilters]) => {
         if (!newResults) {
           depthCount.value = 0;
           return;
@@ -208,27 +209,18 @@ export default {
             validMinDepths.length,
             validMaxDepths.length
           );
-
-          // Update bounds based on filtered results
-          const newMinDepth =
-            validMinDepths.length > 0 ? _.min(validMinDepths) : defaultMinDepth;
-          const newMaxDepth =
-            validMaxDepths.length > 0 ? _.max(validMaxDepths) : defaultMaxDepth;
-
-          // Only update if bounds have actually changed
-          if (
-            minDepth.value !== newMinDepth ||
-            maxDepth.value !== newMaxDepth
-          ) {
-            minDepth.value = newMinDepth;
-            maxDepth.value = newMaxDepth;
-
-            // Reset slider to new full range if current values are outside new bounds
-            if (
-              sliderValue.value[0] < newMinDepth ||
-              sliderValue.value[1] > newMaxDepth
-            ) {
-              sliderValue.value = [newMinDepth, newMaxDepth];
+          
+          // Update bounds only if this range filter is NOT currently active
+          // This prevents the circular dependency issue
+          const thisFilterActive = currentFilters && currentFilters[props.facetSetting.field];
+          if (!thisFilterActive) {
+            const newMinDepth = validMinDepths.length > 0 ? _.min(validMinDepths) : defaultMinDepth;
+            const newMaxDepth = validMaxDepths.length > 0 ? _.max(validMaxDepths) : defaultMaxDepth;
+            
+            // Update bounds if they've changed
+            if (minDepth.value !== newMinDepth || maxDepth.value !== newMaxDepth) {
+              minDepth.value = newMinDepth;
+              maxDepth.value = newMaxDepth;
             }
           }
         } else {
