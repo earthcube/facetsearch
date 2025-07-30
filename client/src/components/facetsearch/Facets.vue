@@ -68,7 +68,7 @@ export default {
     FacetNumericRangeSlider,
     RangeSliderDepth,
     RangeSliderYear,
-    GeoBoundingBoxPicker
+    GeoBoundingBoxPicker,
   },
   inject: ["toggleFilter", "filtersState"],
   props: {
