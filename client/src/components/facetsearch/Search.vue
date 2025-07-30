@@ -680,6 +680,7 @@ export default {
     },
 
     toggleFilter: function (key, value, skipUrlUpdate = false) {
+      let self = this;
       // const state = this.filtersState;
       const filters = this.filters;
       if (!skipUrlUpdate) {
@@ -726,18 +727,9 @@ export default {
       } else {
         // ignore that the dates should be encoded as timespan for now.
         // just reset the range.
-        // const filterArray = state.filters[key];
-        const filterArray = filters[key];
-        // if (filterArray != undefined) {
-        //   // TODO. test if range min and max == max value of the control for the result set
-        //   state.filters[key] = value;
-        //   state.filters = {...state.filters}
-        // }
-        if (filterArray != undefined) {
-          // TODO. test if range min and max == max value of the control for the result set
-          filters[key] = value;
-          self.filters = { ...filters };
-        }
+        // For range filters, we always want to set the value, regardless of whether the filter exists
+        filters[key] = value;
+        self.filters = { ...filters };
       }
 
       this.filter();
