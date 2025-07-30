@@ -1,10 +1,10 @@
 <template>
   <b-container fluid="md" class="mt-3">
     <b-overlay
-        rounded="sm"
-        :show="queryRunning"
-        variant="white"
-        :opacity="0.85"
+      rounded="sm"
+      :show="queryRunning"
+      variant="white"
+      :opacity="0.85"
     >
       <b-row>
         <!-- sidebar -->
@@ -20,14 +20,14 @@
         <b-col md="9" class="results">
           <!-- Here comes the demo, if you want to copy and paste, start here -->
           <ResultHeader
-              :current-count="currentResults.length"
-              :total-count="items.length"
-              :filters="filters"
+            :current-count="currentResults.length"
+            :total-count="items.length"
+            :filters="filters"
           ></ResultHeader>
 
           <Results
-              :current-results="currentResults"
-              :filters="filters"
+            :current-results="currentResults"
+            :filters="filters"
           ></Results>
 
           <!--                    <b-button variant="outline-primary" class="mt-5">Load More</b-button>-->
@@ -42,7 +42,7 @@
 //import { provide, reactive } from 'vue'
 import Results from "@/components/facetsearch/Results.vue";
 import Facets from "@/components/facetsearch/Facets.vue";
-import _, {isArray} from "underscore";
+import _, { isArray } from "underscore";
 //import axios from "axios";
 //import FacetsConfig from '../../config.js'
 
@@ -56,10 +56,10 @@ import {
   // mapGetters
 } from "vuex";
 import feedback from "@/components/feedback/feedback.vue";
-import {v5 as uuidv5} from "uuid";
-import {isProxy, toRaw} from 'vue';
-import {DateRange} from "@/components/facetsearch/range.js";
-import {DateTime, Interval} from "luxon";
+import { v5 as uuidv5 } from "uuid";
+import { isProxy, toRaw } from "vue";
+import { DateRange } from "@/components/facetsearch/range.js";
+import { DateTime, Interval } from "luxon";
 
 // import HistRangeSlider from "@/components/facetsearch/HistRangeSlider.vue"
 
@@ -78,6 +78,7 @@ export default {
       filter: this.filter,
       isRangeFilter: this.isRangeFilter,
       currentResults: this.currentResults,
+      filters: this.filters,
     };
   },
   computed: {
@@ -133,7 +134,7 @@ export default {
       //   orderBy: "score",
       //   filters: {},
       // },
-      "orderby":"score",
+      orderby: "score",
       filters: {},
       items: [],
       currentResults: [],
@@ -232,7 +233,7 @@ export default {
       };
       let string2uuid = JSON.stringify(queryObj);
       let uuid = uuidv5(string2uuid, uuidv5.URL); // any old 16 character namespace
-      return {uuid: uuid, query: queryObj};
+      return { uuid: uuid, query: queryObj };
     },
     //content.results.bindings
     newTextSearch: function () {
@@ -240,19 +241,19 @@ export default {
       //   this.$store.state.q = this.textQuery
       this.setTextQuery(this.textQuery);
       this.getResults(this.getQueryObj())
-          .then(() => {
-            this.queryRunning = false;
-          })
-          .catch((ex) => {
-            this.lastError = ex;
-            this.$bvToast.toast(`Query issue ` + ex, {
-              title: "Server issues with query to triplestore",
+        .then(() => {
+          this.queryRunning = false;
+        })
+        .catch((ex) => {
+          this.lastError = ex;
+          this.$bvToast.toast(`Query issue ` + ex, {
+            title: "Server issues with query to triplestore",
 
-              solid: true,
-              appendToast: false,
-              noAutoHide: true,
-            });
+            solid: true,
+            appendToast: false,
+            noAutoHide: true,
           });
+        });
       //this.queryRunning = false;
     },
 
@@ -299,8 +300,8 @@ export default {
                 return;
               }
               facetStore[facet.field][facetitem] = facetStore[facet.field][
-                  facetitem
-                  ] || {
+                facetitem
+              ] || {
                 count: 0,
                 id: _.uniqueId("facet_"),
                 isActive: false,
@@ -313,8 +314,8 @@ export default {
                 return;
               }
               facetStore[facet.field][item[facet.field]] = facetStore[
-                  facet.field
-                  ][item[facet.field]] || {
+                facet.field
+              ][item[facet.field]] || {
                 count: 0,
                 id: _.uniqueId("facet_"),
                 isActive: false,
@@ -344,8 +345,8 @@ export default {
       _.each(self.facetStore, function (items, facetname) {
         _.each(items, function (value, itemname) {
           self.facetStore[facetname][itemname].count = 0;
-         // if (_.indexOf(self.filtersState.filters[facetname], itemname) == -1) {
-            if (_.indexOf(self.filters[facetname], itemname) == -1) {
+          // if (_.indexOf(self.filtersState.filters[facetname], itemname) == -1) {
+          if (_.indexOf(self.filters[facetname], itemname) == -1) {
             self.facetStore[facetname][itemname].isActive = false;
           } else {
             self.facetStore[facetname][itemname].isActive = true;
@@ -355,7 +356,7 @@ export default {
     },
     isRangeFilter: function (filter) {
       let isRange = false;
-      let filterType = 'notRange'
+      let filterType = "notRange";
       if (filter !== undefined) {
         if (isProxy(filter) && _.isObject(filter)) {
           filter = toRaw(filter);
@@ -364,10 +365,10 @@ export default {
           filter = filter[0];
         }
         //isRangeFilter =  NoProxy.hasOwnProperty('range') ;
-        isRange = Object.hasOwn(filter, 'range')
-        filterType = filter.filtertype
+        isRange = Object.hasOwn(filter, "range");
+        filterType = filter.filtertype;
       }
-      return [isRange, filterType]
+      return [isRange, filterType];
     },
     /**
      * Filters all items from the settings according to the currently
@@ -391,13 +392,13 @@ export default {
       // self.currentResults = _.select(this.items, function (item) {
       let newResults = _.select(this.items, function (item) {
         let filtersApply = true;
-       // _.each(self.filtersState.filters, function (filter, facet) {
-          _.each(self.filters, function (filter, facet) {
-            const thisFacet = item[facet];
-            if (thisFacet == undefined) {
-              filtersApply = false;
-              return filtersApply;
-            }
+        // _.each(self.filtersState.filters, function (filter, facet) {
+        _.each(self.filters, function (filter, facet) {
+          const thisFacet = item[facet];
+          if (thisFacet == undefined) {
+            filtersApply = false;
+            return filtersApply;
+          }
           // if a filter is a range, the do a range check
           // this does not need to be custom for each. This is a range
           // these things need to ha able to have MORE THAN ONE
@@ -406,8 +407,8 @@ export default {
           // maybe check can be, if is object, and with min and max
           // change the range filters to pass that object to toggle filter
           let [isRange, filterType] = self.isRangeFilter(filter);
-          let isNumericRange = filterType === 'numericRange'
-          let isDateRange = filterType === 'dateRange'
+          let isNumericRange = filterType === "numericRange";
+          let isDateRange = filterType === "dateRange";
           // let isNumericRangeFilter = false; // depth uses
           // if (isProxy(filter) && _.isObject(toRaw(filter))) {
           //   const NoProxy = toRaw(filter)[0]; // no idea why this is an array
@@ -416,10 +417,9 @@ export default {
           //   isNumericRangeFilter = NoProxy.filtertype == 'numericRange'
           // }
 
-
           if (isRange) {
             if (isArray(filter)) {
-              filter = filter[0]
+              filter = filter[0];
             }
             if (isNumericRange) {
               // this is passed from the depth
@@ -428,35 +428,39 @@ export default {
               const maxFacet = filter.maxField;
               const minSlider = filter.range[0];
               const maxSlider = filter.range[1];
-              const minFacetValue = item[minFacet]
-              const maxFacetValue = item[maxFacet]
+              const minFacetValue = item[minFacet];
+              const maxFacetValue = item[maxFacet];
 
               // Function to check if two ranges overlap
-              function rangesOverlap(minFacetValue, maxFacetValue, minSlider, maxSlider) {
-                return (
-                    minFacetValue <= maxSlider &&
-                    maxFacetValue >= minSlider
-                );
+              function rangesOverlap(
+                minFacetValue,
+                maxFacetValue,
+                minSlider,
+                maxSlider
+              ) {
+                return minFacetValue <= maxSlider && maxFacetValue >= minSlider;
               }
 
               // Handle array case
               if (_.isArray(minFacetValue) || _.isArray(maxFacetValue)) {
                 // For arrays, check if any range overlaps
                 const ranges = _.zip(
-                    _.isArray(minFacetValue) ? minFacetValue : [minFacetValue],
-                    _.isArray(maxFacetValue) ? maxFacetValue : [maxFacetValue]
+                  _.isArray(minFacetValue) ? minFacetValue : [minFacetValue],
+                  _.isArray(maxFacetValue) ? maxFacetValue : [maxFacetValue]
                 );
 
                 const hasOverlap = ranges.some(([min, max]) => {
                   if (min === undefined || max === undefined) {
-                    console.log(`possible misconfiguraton of facetsConfig change names ${minFacet}  ${maxFacet}`);
+                    console.log(
+                      `possible misconfiguraton of facetsConfig change names ${minFacet}  ${maxFacet}`
+                    );
                     return false;
                   }
                   return rangesOverlap(
-                      parseFloat(min),
-                      parseFloat(max),
-                      parseFloat(minSlider),
-                      parseFloat(maxSlider)
+                    parseFloat(min),
+                    parseFloat(max),
+                    parseFloat(minSlider),
+                    parseFloat(maxSlider)
                   );
                 });
 
@@ -465,96 +469,114 @@ export default {
                 }
               }
               // Handle single value case
-              else if (minFacetValue !== undefined && maxFacetValue !== undefined) {
+              else if (
+                minFacetValue !== undefined &&
+                maxFacetValue !== undefined
+              ) {
                 const hasOverlap = rangesOverlap(
-                    parseFloat(minFacetValue),
-                    parseFloat(maxFacetValue),
-                    parseFloat(minSlider),
-                    parseFloat(maxSlider)
+                  parseFloat(minFacetValue),
+                  parseFloat(maxFacetValue),
+                  parseFloat(minSlider),
+                  parseFloat(maxSlider)
                 );
 
                 if (!hasOverlap) {
                   filtersApply = false;
                 }
               } else {
-                console.log(`possible misconfiguraton of facetsConfig change names ${minFacet}  ${maxFacet}`)
+                console.log(
+                  `possible misconfiguraton of facetsConfig change names ${minFacet}  ${maxFacet}`
+                );
               }
-            } else if (isDateRange){
+            } else if (isDateRange) {
               const thisYear = DateTime.now(thisFacet).toISODate();
-              const temporalFix = (facetData,thisYear) => {
-                if (typeof facetData === 'string' && facetData.endsWith('/..')) {
-                  return facetData.replace('/..', `/${thisYear}`);
+              const temporalFix = (facetData, thisYear) => {
+                if (
+                  typeof facetData === "string" &&
+                  facetData.endsWith("/..")
+                ) {
+                  return facetData.replace("/..", `/${thisYear}`);
                 }
                 return facetData;
-
               };
-              const temporalParse = (tc,thisYear) => {
+              const temporalParse = (tc, thisYear) => {
                 try {
                   const fixedFacet = temporalFix(thisFacet, thisYear);
                   let range = Interval.fromISO(fixedFacet);
                   if (!range.invalid) {
-                    return [range.start, range.end]
+                    return [range.start, range.end];
                   } else {
-
                     let date = DateTime.fromISO(tc);
 
                     if (!date.invalid) {
-                      return [date, date]
+                      return [date, date];
                     }
                   }
                 } catch (e) {
-
-                  console.log(` cannot parse temporal range ${tc}`)
+                  console.log(` cannot parse temporal range ${tc}`);
                   return null;
                 }
-              }
+              };
               if (_.isArray(thisFacet)) {
-                var hasMatches = _.filter(thisFacet, (num) => _.inRange(DateTime.fromISO(thisFacet).year, filter.range[0], filter.range[0]));
+                var hasMatches = _.filter(thisFacet, (num) =>
+                  _.inRange(
+                    DateTime.fromISO(thisFacet).year,
+                    filter.range[0],
+                    filter.range[0]
+                  )
+                );
                 if (hasMatches.length == 0) {
                   filtersApply = false;
                 }
               } else {
-
                 if (filter.range[0] && filter.range[1]) {
                   const theDate = temporalParse(thisFacet, thisYear);
-                  if (theDate.invalid ) {
+                  if (theDate.invalid) {
                     filtersApply = false;
                   }
                   if (_.isArray(theDate)) {
-                    if ( ( theDate[1].year < filter.range[0] || theDate[0].year  > filter.range[1]))
+                    if (
+                      theDate[1].year < filter.range[0] ||
+                      theDate[0].year > filter.range[1]
+                    )
                       filtersApply = false;
-
                   } else {
-                    if (theDate.invalid || (!theDate.invalid && ( theDate.year < filter.range[0] || theDate.year  > filter.range[1]))) {
+                    if (
+                      theDate.invalid ||
+                      (!theDate.invalid &&
+                        (theDate.year < filter.range[0] ||
+                          theDate.year > filter.range[1]))
+                    ) {
                       filtersApply = false;
                     }
                   }
-
-
                 }
               }
-            } else // range filter
-            {
-              const thisFacet = item[facet]
-              if (thisFacet == undefined ){
+            } // range filter
+            else {
+              const thisFacet = item[facet];
+              if (thisFacet == undefined) {
                 filtersApply = false;
               }
               if (_.isArray(item[facet])) {
-                var hasMatches = _.filter(thisFacet, (num) => _.inRange(thisFacet, filter.range[0], filter.range[0]));
+                var hasMatches = _.filter(thisFacet, (num) =>
+                  _.inRange(thisFacet, filter.range[0], filter.range[0])
+                );
                 if (hasMatches.length == 0) {
                   filtersApply = false;
                 }
               } else {
                 if (filter.range[0] && filter.range[1]) {
-                  if (thisFacet < filter.range[0] || thisFacet > filter.range[1]) {
+                  if (
+                    thisFacet < filter.range[0] ||
+                    thisFacet > filter.range[1]
+                  ) {
                     filtersApply = false;
                   }
                 }
               }
             }
-
           } else {
-
             if (_.isArray(item[facet])) {
               // this is if a facet has multiple selections, like keywords, or places
               var inters = _.intersection(item[facet], filter);
@@ -562,7 +584,7 @@ export default {
                 filtersApply = false;
               }
             }
-                // is Objec with facetType (Range, DateRange, NumericRange)
+            // is Objec with facetType (Range, DateRange, NumericRange)
             // filter based on min/max
             else {
               if (filter.length && _.indexOf(filter, item[facet]) == -1) {
@@ -573,7 +595,6 @@ export default {
         });
         return filtersApply;
       });
-
 
       // const minDepthFilter = getLatestFilterValue("minDepth");
       // const maxDepthFilter = getLatestFilterValue("maxDepth");
@@ -630,7 +651,7 @@ export default {
 
       const len = self.currentResults.length;
       self.currentResults.splice(0, len);
-      newResults.forEach(i => self.currentResults.push(i));
+      newResults.forEach((i) => self.currentResults.push(i));
 
       this.resetFacetCount();
 
@@ -638,7 +659,7 @@ export default {
         _.each(self.currentResults, function (item) {
           const val = item[facet.field];
           if (_.isArray(val)) {
-            val.forEach(facetitem => {
+            val.forEach((facetitem) => {
               if (_.isEmpty(facetitem)) return;
               self.facetStore[facet.field][facetitem].count += 1;
             });
@@ -648,8 +669,8 @@ export default {
         });
       });
 
-    //  _.each(self.filtersState.filters, function (filters, facettitle) {
-            _.each(self.filters, function (filters, facettitle) {
+      //  _.each(self.filtersState.filters, function (filters, facettitle) {
+      _.each(self.filters, function (filters, facettitle) {
         _.each(self.facetStore[facettitle], function (facet) {
           if (facet.count === 0 && filters.length) facet.count = "+";
         });
@@ -658,9 +679,8 @@ export default {
       self.shownResults = 0;
     },
 
-
     toggleFilter: function (key, value, skipUrlUpdate = false) {
-     // const state = this.filtersState;
+      // const state = this.filtersState;
       const filters = this.filters;
       if (!skipUrlUpdate) {
         this.updateUrlState(key, value);
@@ -674,8 +694,8 @@ export default {
         filters[key] = [];
       }
       let [isRange, filterType] = this.isRangeFilter(value);
-      let isNumericRange = filterType === 'numericRange'
-      let isDateRange = filterType === 'dateRange';
+      let isNumericRange = filterType === "numericRange";
+      let isDateRange = filterType === "dateRange";
       if (!isRange) {
         //const filterArray = state.filters[key];
         const filterArray = filters[key];
@@ -684,9 +704,9 @@ export default {
         if (valueIndex === -1) {
           // Add new value
           filterArray.push(value);
-          filters[key] = [...filterArray]
-         // state.filters = {...state.filters};
-          self.filters = {...filters};
+          filters[key] = [...filterArray];
+          // state.filters = {...state.filters};
+          self.filters = { ...filters };
         } else {
           // Remove existing value
           //state.filters[key] = _.without(filterArray, value);
@@ -700,13 +720,13 @@ export default {
           if (filters[key].length === 0) {
             delete filters[key];
             // Trigger reactivity by creating a new object
-            self.filters = {...filters};
+            self.filters = { ...filters };
           }
         }
       } else {
         // ignore that the dates should be encoded as timespan for now.
         // just reset the range.
-       // const filterArray = state.filters[key];
+        // const filterArray = state.filters[key];
         const filterArray = filters[key];
         // if (filterArray != undefined) {
         //   // TODO. test if range min and max == max value of the control for the result set
@@ -716,19 +736,18 @@ export default {
         if (filterArray != undefined) {
           // TODO. test if range min and max == max value of the control for the result set
           filters[key] = value;
-          self.filters = {...filters}
+          self.filters = { ...filters };
         }
       }
 
       this.filter();
     },
 
-
     updateUrlState: function (key, value) {
       const url = new URL(window.location.href);
-      const hashParts = url.hash.split('?');
+      const hashParts = url.hash.split("?");
       const basePath = hashParts[0];
-      const params = new URLSearchParams(hashParts[1] || '');
+      const params = new URLSearchParams(hashParts[1] || "");
 
       // Check if this exact parameter is already in the URL
       const existingValue = params.get(key);
@@ -738,8 +757,8 @@ export default {
       } else {
         // Handle range filters differently
         let [isRange, filterType] = this.isRangeFilter(toRaw(value));
-        let isNumericRange = filterType === 'numericRange'
-        let isDateRange = filterType === 'dateRange';
+        let isNumericRange = filterType === "numericRange";
+        let isDateRange = filterType === "dateRange";
         // let isRangeFilter = false;
         // let isNumericRangeFilter = false;
         // let isDateRangeFilter = false;
@@ -751,7 +770,6 @@ export default {
         //   isNumericRangeFilter = value?.filtertype == 'numericRange';
         //   isDateRangeFilter = value?.filtertype == 'dateRange';
         // }
-
 
         // If it's a range filter, convert to string format
         if (isRange) {
@@ -765,24 +783,23 @@ export default {
 
       // Update the URL
       url.hash = `${basePath}?${params.toString()}`;
-      history.pushState({key: value}, '', url.toString());
+      history.pushState({ key: value }, "", url.toString());
     },
-
 
     clearFilters: function () {
       // Get the current URL and split it to preserve the base path
       const url = new URL(window.location.href);
-      const hashParts = url.hash.split('?');
+      const hashParts = url.hash.split("?");
       const basePath = hashParts[0];
 
       // Create new URLSearchParams to preserve only essential parameters
-      const params = new URLSearchParams(hashParts[1] || '');
+      const params = new URLSearchParams(hashParts[1] || "");
 
       // Preserve only essential parameters (q, resourceType, searchExactMatch)
-      const essentialParams = ['q', 'resourceType', 'searchExactMatch'];
+      const essentialParams = ["q", "resourceType", "searchExactMatch"];
       const preservedParams = new URLSearchParams();
 
-      essentialParams.forEach(param => {
+      essentialParams.forEach((param) => {
         const value = params.get(param);
         if (value !== null) {
           preservedParams.append(param, value);
@@ -791,11 +808,11 @@ export default {
 
       // Update URL with preserved parameters
       const newHash = preservedParams.toString()
-          ? `${basePath}?${preservedParams.toString()}`
-          : basePath;
+        ? `${basePath}?${preservedParams.toString()}`
+        : basePath;
 
       url.hash = newHash;
-      history.pushState({}, '', url.toString());
+      history.pushState({}, "", url.toString());
 
       // Clear the filters state
       //this.filtersState.filters = {};
@@ -814,11 +831,11 @@ export default {
         //$('#orderby_'+self.filtersState.orderBy).addClass("activeorderby");
         self.currentResults = _.sortBy(self.currentResults, function (item) {
           //if (self.filtersState.orderBy == "RANDOM") {
-            if (self.orderBy == "RANDOM") {
+          if (self.orderBy == "RANDOM") {
             return Math.random() * 10000;
           } else {
-           // return item[self.filtersState.orderBy];
-              return item[self.orderBy];
+            // return item[self.filtersState.orderBy];
+            return item[self.orderBy];
           }
         });
         //if (this.orderByOptionsSort[self.filtersState.orderBy] === 'desc')

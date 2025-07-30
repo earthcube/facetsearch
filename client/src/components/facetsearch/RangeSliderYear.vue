@@ -74,7 +74,7 @@ export default {
   components: {
     Slider,
   },
-  inject: ["toggleFilter", "filtersState"],
+  inject: ["toggleFilter", "filtersState", "filters"],
   props: {
     facetSetting: {
       type: Object,
@@ -89,6 +89,7 @@ export default {
     const store = useStore();
     const toggleFilter = inject("toggleFilter");
     const currentResults = inject("currentResults");
+    const filters = inject("filters");
 
     // Reactive data
     const mydata = ref([]);
@@ -167,10 +168,10 @@ export default {
       { immediate: true }
     );
 
-    // Watch filtered results to update count and bounds
+    // Watch filtered results to update count and bounds (excluding own filter)
     watch(
-      filteredResults,
-      (newResults) => {
+      [filteredResults, () => filters],
+      ([newResults, currentFilters]) => {
         if (!Array.isArray(newResults)) {
           temporalCount.value = 0;
           return;
@@ -178,9 +179,11 @@ export default {
 
         const ranges = parseTemporalRanges(newResults);
         temporalCount.value = ranges.length;
-
-        // Update bounds based on filtered results
-        if (ranges.length > 0) {
+        
+        // Update bounds only if this range filter is NOT currently active
+        // This prevents the circular dependency issue
+        const thisFilterActive = currentFilters && currentFilters[props.facetSetting.field];
+        if (!thisFilterActive && ranges.length > 0) {
           const startYears = ranges
             .filter((r) => r != undefined || r != null)
             .map((r) => r[0].year);
@@ -190,24 +193,11 @@ export default {
 
           const newStartYear = startYears.length ? _.min(startYears) : yearNow;
           const newEndYear = endYears.length ? _.max(endYears) : yearNow;
-
-          // Only update if bounds have actually changed
-          if (
-            startYear.value !== newStartYear ||
-            endYear.value !== newEndYear
-          ) {
+          
+          // Update bounds if they've changed
+          if (startYear.value !== newStartYear || endYear.value !== newEndYear) {
             startYear.value = newStartYear;
             endYear.value = newEndYear;
-
-            // Reset slider to new full range if current values are outside new bounds
-            if (
-              sliderValue.value[0] < newStartYear ||
-              sliderValue.value[1] > newEndYear
-            ) {
-              controlValue.range[0] = newStartYear;
-              controlValue.range[1] = newEndYear;
-              sliderValue.value = [newStartYear, newEndYear];
-            }
           }
         }
       },
