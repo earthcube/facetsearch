@@ -314,8 +314,15 @@ article {
 }
 
 .keywords {
+  flex-shrink: 0;
   display: flex;
-
+  /* Remove: white-space: nowrap; */
+  flex-wrap: wrap;
+  overflow: hidden;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-height: 3em; // Approximately 2-3 lines of keywords
   font: {
     size: 80%;
   }
@@ -332,9 +339,26 @@ article {
   .values {
     display: flex;
     white-space: nowrap;
+
     flex-wrap: wrap;
+    scrollbar-width: thin;
+
+    // Hide scrollbar on webkit browsers but keep functionality
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.2);
+      border-radius: 2px;
+    }
 
     .keyword {
+
       padding: {
         left: $spacer / 2;
       }
