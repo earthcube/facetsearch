@@ -3,12 +3,10 @@ on:
   push:
     branches:
       - master
-      - dv_minrelevance
-      - 140-add-andor-option
-      - 148-year-published-range-bar-is-not-working-1
-      - 163-geochemistry-dataset-not-rendering-correctly
-      - 167-ecoforecast-s3-url
-      - 185-adding-creator-provider-publisher-and-keywords-in-the-metadata-block
+      - feature/*
+      - fix/*
+      - add-min-max-depth-facets
+
 
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
@@ -62,7 +60,7 @@ jobs:
           push: true
           context: ./client
           tags: ${{ steps.meta.outputs.tags }}
-#          tags: nsfearthcube/ec_facets_client:latest
+          #          tags: nsfearthcube/ec_facets_client:latest
           labels: ${{ steps.meta.outputs.labels }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}

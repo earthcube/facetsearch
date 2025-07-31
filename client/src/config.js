@@ -36,13 +36,15 @@ const facetConfigFunction = () => {
 };
 let FacetsConfig = facetConfigFunction();
 export const tenantDefault = {
-    tenant:[{
-        community: "none",
-        landing_introduction: "Missing FacetsConfig.TENANT_URL or community not found",
-        description:  "Missing FacetsConfig.TENANT_URL or community not found",
-        name: "MISSING FacetsConfig.TENANT_URL or community not found",
-        color: "blue"
-
-    }]
-}
+  tenant: [
+    {
+      community: "none",
+      landing_introduction:
+        "Missing FacetsConfig.TENANT_URL or community not found",
+      description: "Missing FacetsConfig.TENANT_URL or community not found",
+      name: "MISSING FacetsConfig.TENANT_URL or community not found",
+      color: "blue",
+    },
+  ],
+};
 export default FacetsConfig;

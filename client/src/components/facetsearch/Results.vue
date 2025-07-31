@@ -5,7 +5,7 @@
       v-for="item in currentResults"
       :key="item.row"
       :item="item"
-      :state="state"
+      :filters="filters"
     ></ResultItem>
   </div>
 </template>
@@ -19,7 +19,7 @@ export default {
   components: {
     ResultItem,
   },
-  props: ["currentResults", "state"],
+  props: ["currentResults", "filters"],
   computed: { ...mapState(["results"]) },
   // data() {
   // var items;

@@ -1,0 +1,28 @@
+PREFIX schema:  <https://schema.org/>
+	PREFIX schemaold:  <http://schema.org/>
+	ASK
+	WHERE                    {
+	  graph  <${g}>
+		  {
+			{
+			  ?s schemaold:distribution|schema:distribution ?dist .
+			  ?dist  schemaold:encodingFormat|schema:encodingFormat ?type .
+              ?dist schemaold:contentUrl|schema:contentUrl|schema:url|schemaold:url ?curl
+			}
+			UNION {
+			  VALUES (?dataset) { ( schema:Dataset ) ( schemaold:Dataset ) }
+			  ?s a ?dataset .
+			  ?s  schemaold:encodingFormat|schema:encodingFormat ?type .
+			  }
+		 }
+		 BIND (str(?type) as ?label)
+		 SERVICE <http://132.249.238.169:8080/fuseki/ecrr/query> {
+		  GRAPH <http://earthcube.org/gleaner-summoned>
+		   {
+			  ?rrs schema:supportingData ?df.
+				  ?df schema:encodingFormat  ?label ;
+					  schema:position "input".
+				  ?rrs schema:name ?name.
+		   }
+	   }
+	}

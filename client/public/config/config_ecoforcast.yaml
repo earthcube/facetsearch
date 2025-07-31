@@ -23,10 +23,12 @@ ECRR_GRAPH: http://earthcube.org/gleaner-summoned
 # Less common modifications needed
 ######
 THROUGHPUTDB_URL: https://throughputdb.com/api/ccdrs/annotations
-SPARQL_QUERY: queries/sparql_query.txt
-SPARQL_HASTOOLS: queries/sparql_hastools.txt
-SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
-SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
+QUERY_ENGINE: blazegraph
+SPARQL_QUERY: sparql_query.txt
+SPARQL_HASTOOLS: sparql_hastools.txt
+SPARQL_TOOLS_WEBSERVICE: sparql_gettools_webservice.txt
+SPARQL_TOOLS_DOWNLOAD: sparql_gettools_download.txt
+SPARQL_RELATED_DATA: sparql_relateddatafilename.txt
 #####
 # Not common to need to edit below
 ###

@@ -74,7 +74,7 @@
               />
               <b-tooltip target="checkbox" placement="right" triggers="hover">
                 {{
-                  this.searchExactMatch
+                  searchExactMatch
                     ? "Unselect to match any of the search terms"
                     : "Select to match all of the search terms"
                 }}
@@ -133,7 +133,7 @@ export default {
   watch: {
     q: "qUpdated",
     rt: "rtUpdated",
-    searchExactMatch: "exactUpdated"
+    searchExactMatch: "exactUpdated",
   },
   data() {
     return {

@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
-import { createVuetify } from 'vuetify'
+import { createApp } from "vue";
+import { createVuetify } from "vuetify";
 
-export default createVuetify()
+export default createVuetify();

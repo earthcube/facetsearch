@@ -10,13 +10,13 @@ import _, { isArray } from "underscore";
 //import {bus} from "./main";
 //import SpaqlQuery from 'raw-loader!./src/sparql_blaze/sparql_query.txt'
 //import SpaqlHasToolsQuery from 'raw-loader!./src/sparql_blaze/sparql_hastools.txt'
-import SpaqlQuery from "@/sparql_blaze/sparql_query.txt?raw";
-import SpaqlHasToolsQuery from "@/sparql_blaze/sparql_hastools.txt?raw";
+// Static imports removed - now using dynamic loading via queryService
+import queryService from "@/services/queryService.js";
 import { default as LRUCache } from "lru-cache";
 import localforage from "localforage";
 import yaml from "js-yaml";
-import {commit} from "lodash/seq.js"
-import {tenantDefault} from "@/config.js";
+// import { commit } from "lodash/seq.js";
+import { tenantDefault } from "@/config.js";
 
 let esTemplateOptions = { interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g };
 export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
@@ -38,7 +38,7 @@ export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
 export const store = _createStore({
   state: {
     packageVersion: import.meta.env.VITE_APP_PACKAGE_VERSION || "0",
-    date: import.meta.env.VITE_APP_DATE|| "2021-Unknown",
+    date: import.meta.env.VITE_APP_DATE || "2021-Unknown",
     jsonLdObj: {},
     jsonLdCompact: {},
     toolLdObj: {},
@@ -58,8 +58,8 @@ export const store = _createStore({
     // add them to simplify changes
     // should I just dump the facet config object in here/?
     esTemplateOptions: esTemplateOptions,
-    SpaqlQuery: SpaqlQuery,
-    SpaqlHasToolsQuery: SpaqlHasToolsQuery,
+    // Dynamic queries - loaded via queryService
+    queries: new Map(),
     TRIPLESTORE_URL: "https://localhost/blazegraph/namespace/earthcube/sparql'",
     // resultLimit: FacetsConfig.LIMIT_DEFAULT,
     resourceTypeList: new Map([
@@ -79,7 +79,7 @@ export const store = _createStore({
     }),
     collection: {}, // key: name,
     FacetsConfig: null,
-    tenantData: null
+    tenantData: null,
   },
   getters: {
     FacetsConfig: (state) => {
@@ -146,12 +146,21 @@ export const store = _createStore({
       return state.microCache.get(key);
     },
     getTenantData: (state) => {
-      return state.tenantData
-    }
+      return state.tenantData;
+    },
   },
   mutations: {
     setFacetsConfig: (state, obj) => {
       state.FacetsConfig = obj;
+      // Preload common queries when config is set
+      if (obj) {
+        queryService.preloadQueries(obj).catch((error) => {
+          console.warn("Failed to preload queries:", error);
+        });
+      }
+    },
+    setQuery: (state, { key, query }) => {
+      state.queries.set(key, query);
     },
     setNewCollection: (state, obj) => {
       localforage.getItem(obj.key, function (err, value) {
@@ -239,7 +248,7 @@ export const store = _createStore({
     },
     setTenantData(state, data) {
       state.tenantData = data;
-    }
+    },
   },
   actions: {
     async fetchTenantData({ commit }) {
@@ -250,8 +259,8 @@ export const store = _createStore({
         console.log(tenantData);
         commit("setTenantData", tenantData);
       } catch (error) {
-        console.error('Error loading Tenant YAML file:', error);
-        const tenantData = tenantDefault
+        console.error("Error loading Tenant YAML file:", error);
+        const tenantData = tenantDefault;
         commit("setTenantData", tenantData);
       }
     },
@@ -570,8 +579,7 @@ export const store = _createStore({
       if (resourceType !== undefined && resourceType !== "all") {
         rt = this.state.resourceTypeList.get(resourceType);
       }
-      if (exact == undefined)
-        exact = this.state.searchExactMatch;
+      if (exact == undefined) exact = this.state.searchExactMatch;
 
       event("search", {
         //'event_category': 'query',
@@ -584,9 +592,21 @@ export const store = _createStore({
       //     object: SpaqlQuery,
       //     name: template_name
       // })
-      const resultsTemplate = _.template(SpaqlQuery, esTemplateOptions);
+      // Load query dynamically from configuration
+      const queryText = await queryService.loadQuery(
+        "SPARQL_QUERY",
+        this.state.FacetsConfig
+      );
+      const resultsTemplate = _.template(queryText, esTemplateOptions);
       //var sparql = self.state.queryTemplates[template_name]({'n': n, 'o': o, 'q': q})
-      var sparql = resultsTemplate({ n: n, o: o, q: q, rt: rt, exact: exact, minRelevance: minRelevance });
+      var sparql = resultsTemplate({
+        n: n,
+        o: o,
+        q: q,
+        rt: rt,
+        exact: exact,
+        minRelevance: minRelevance,
+      });
       //var url = "https://graph.geodex.org/blazegraph/namespace/nabu/sparql";
       var url = this.state.FacetsConfig.SUMMARYSTORE_URL;
       var blazetimeout = this.state.FacetsConfig.BLAZEGRAPH_TIMEOUT || 60;
@@ -715,7 +735,12 @@ export const store = _createStore({
       //     object: SpaqlHasToolsQuery,
       //     name: template_name
       // })
-      const resultsTemplate = _.template(SpaqlHasToolsQuery, esTemplateOptions);
+      // Load query dynamically from configuration
+      const queryText = await queryService.loadQuery(
+        "SPARQL_HASTOOLS",
+        this.state.FacetsConfig
+      );
+      const resultsTemplate = _.template(queryText, esTemplateOptions);
 
       let hasToolsQuery = resultsTemplate({
         g: payload,
