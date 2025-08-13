@@ -74,13 +74,12 @@ WHERE {
         #        ?vm sschema:name ?variableMeasured_a .
         #    }
         # if there is more than one location, then coallese to get the versions.
-        OPTIONAL {?subj sschema:variableMeasured ?vm .
-                  ?vm a  sschema:PropertyValue  .
-                  ?vm sschema:name ?namedepth  .
+        OPTIONAL {?subj sschema:variableMeasured ?vmd .
+                  ?vmd a  sschema:PropertyValue  .
+                  ?vmd sschema:name ?namedepth  .
                   FILTER (?namedepth IN ("depth", "CmpDep") ) .
-                  ?vm sschema:maxValue ?maxDepth_d .
-                  ?vm sschema:minValue ?minDepth_d
-        }
+                  ?vmd sschema:maxValue ?maxDepth_d .
+                  ?vmd sschema:minValue ?minDepth_d
         bind ( COALESCE(?maxDepth_d) As ?maxDepth)
         bind ( COALESCE(?minDepth_d) As ?minDepth)
     }
