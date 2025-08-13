@@ -16,24 +16,25 @@ WHERE {
         schema:Dataset
         #               schema:DataCatalog
     }
-    ?subj    a    ?sosType .
+    ?subj a ?sosType .
     values (?type ?resourceType_u) {
         (schema:Dataset "data")
         (sschema:Dataset "data")
         (schema:ResearchProject "researchProject") #BCODMO- project
-        (sschema:ResearchProject  "researchProject")
-        (schema:SoftwareApplication  "tool")
-        (sschema:SoftwareApplication  "tool")
-        (schema:Person  "person") #BCODMO- Person
-        (sschema:Person  "person")
-        (schema:Event  "event") #BCODMO- deployment
-        (sschema:Event  "event")
-        (schema:Award  "award") #BCODMO- Award
-        (sschema:Award  "award")
-        (schema:DataCatalog  "DataCatalog")
-        (sschema:DataCatalog  "DataCatalog")
+        (sschema:ResearchProject "researchProject")
+        (schema:SoftwareApplication "tool")
+        (sschema:SoftwareApplication "tool")
+        (schema:Person "person") #BCODMO- Person
+        (sschema:Person "person")
+        (schema:Event "event") #BCODMO- deployment
+        (sschema:Event "event")
+        (schema:Award "award") #BCODMO- Award
+        (sschema:Award "award")
+        (schema:DataCatalog "DataCatalog")
+        (sschema:DataCatalog "DataCatalog")
         #(UNDEF "other")  # assume it's data. At least we should get  name.
-    } ?subj a ?type .
+    }
+    ?subj a ?type .
     ?subj ?o ?item .
 
     ?text ql:contains-entity ?item .
@@ -43,19 +44,26 @@ WHERE {
         ?subj schema:name|sschema:name ?name .
         ?subj schema:description|sschema:description ?description .
 
-        OPTIONAL {?subj schema:publisher/schema:legalName|sschema:publisher/sschema:legalName  ?legalName .}
-        OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name  ?publisher .}
-        bind ( COALESCE(?publisher,?legalName, "No Publisher") As ?pubname)
-        OPTIONAL {?subj schema:datePublished|sschema:datePublished ?datep1 .}
-        OPTIONAL {?subj schema:dateCreated|sschema:dateCreated ?datec .}
-        OPTIONAL {?subj schema:dateModified|sschema:dateModified ?datem .}
-        bind ( COALESCE(?datec,?datem,?datep1) As ?datep)
-        OPTIONAL {?subj schema:temporalCoverage|sschema:temporalCoverage ?temporalCoverage .}
+        OPTIONAL { ?subj schema:publisher/schema:legalName|sschema:publisher/sschema:legalName ?legalName . }
+        OPTIONAL { ?subj schema:publisher/schema:name|sschema:publisher/sschema:name ?publisher . }
+        bind (COALESCE(?publisher,?legalName, "No Publisher") As ?pubname)
+        OPTIONAL { ?subj schema:datePublished|sschema:datePublished ?datep1 . }
+        OPTIONAL { ?subj schema:dateCreated|sschema:dateCreated ?datec . }
+        OPTIONAL { ?subj schema:dateModified|sschema:dateModified ?datem . }
+        bind (COALESCE(?datec,?datem,?datep1) As ?datep)
+        OPTIONAL { ?subj schema:temporalCoverage|sschema:temporalCoverage ?temporalCoverage . }
         .
-        OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name|sschema:sdPublisher ?place_name .}
-        BIND ( IF ( BOUND(?place_name), ?place_name, "No Placenames") as ?placename ) .
-        optional {?subj sschema:distribution/sschema:url|sschema:subjectOf/sschema:url|schema:distribution/schema:url|schema:subjectOf/schema:url ?url .}
-        OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
+        OPTIONAL {
+            ?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name|sschema:sdPublisher
+                    ?place_name .
+        }
+        BIND (IF (BOUND(?place_name), ?place_name, "No Placenames") as ?placename) .
+        optional {
+            ?subj
+                sschema:distribution/sschema:url|sschema:subjectOf/sschema:url|schema:distribution/schema:url|schema:subjectOf/schema:url
+                    ?url .
+        }
+        OPTIONAL { ?subj schema:keywords|sschema:keywords ?kwu . }
 
         # OPTIONAL {?subj schema:spatialCoverage/schema:geo/schema:latitude|sschema:spatialCoverage/sschema:geo/sschema:latitude ?lat .}
         # OPTIONAL {?subj sschema:spatialCoverage/sschema:geo ?geo .
@@ -74,16 +82,18 @@ WHERE {
         #        ?vm sschema:name ?variableMeasured_a .
         #    }
         # if there is more than one location, then coallese to get the versions.
-        OPTIONAL {?subj sschema:variableMeasured ?vmd .
-                  ?vmd a  sschema:PropertyValue  .
-                  ?vmd sschema:name ?namedepth  .
-                  FILTER (?namedepth IN ("depth", "CmpDep") ) .
-                  ?vmd sschema:maxValue ?maxDepth_d .
-                  ?vmd sschema:minValue ?minDepth_d
-        bind ( COALESCE(?maxDepth_d) As ?maxDepth)
-        bind ( COALESCE(?minDepth_d) As ?minDepth)
-    }
+        OPTIONAL {
+            ?subj sschema:variableMeasured ?vmd .
+            ?vmd a sschema:PropertyValue .
+            ?vmd sschema:name ?namedepth .
+            FILTER (?namedepth IN ("depth", "CmpDep") ) .
+            ?vmd sschema:maxValue ?maxDepth_d .
+            ?vmd sschema:minValue ?minDepth_d
+            bind (COALESCE(?maxDepth_d) As ?maxDepth)
+            bind (COALESCE(?minDepth_d) As ?minDepth)
+        }
 
+    }
 }
 GROUP BY ?g ?subj   ?name ?description ?type ?pubname ?placename  ?datep ?maxDepth ?minDepth ?temporalCoverage ?url ?bbox
 ORDER BY DESC(?score)
