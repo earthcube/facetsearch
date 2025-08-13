@@ -57,7 +57,7 @@ jobs:
           push: true
           context: ./client
           tags: ${{ steps.meta.outputs.tags }}
-#          tags: nsfearthcube/ec_facets_client:latest
+          #          tags: nsfearthcube/ec_facets_client:latest
           labels: ${{ steps.meta.outputs.labels }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
