@@ -86,7 +86,7 @@ WHERE {
             ?subj sschema:variableMeasured ?vmd .
             ?vmd a sschema:PropertyValue .
             ?vmd sschema:name ?namedepth .
-            FILTER (?namedepth IN ("depth", "CmpDep") ) .
+            FILTER (LCASE(?namedepth) IN ("depth", "cmpdep",  "btm_depth", "collection_depth") ) .
             ?vmd sschema:maxValue ?maxDepth_d .
             ?vmd sschema:minValue ?minDepth_d
             bind (COALESCE(?maxDepth_d) As ?maxDepth)

@@ -13,7 +13,7 @@ PREFIX bds: <http://www.bigdata.com/rdf/search#>
         ?g schema:name ?name .
         ?g schema:description ?description .
 
-         BIND (IF (exists {?g a schema:Dataset .}  , "data", "tool") AS ?resourceType).
+         BIND (IF (exists {?g a schema:Dataset .}, "data", "tool") AS ?resourceType).
          OPTIONAL {?g schema:date ?datep .}
          OPTIONAL {?g schema:publisher ?pubname .}
          OPTIONAL {?g schema:place ?placenames .}
