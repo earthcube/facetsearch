@@ -1,0 +1,26 @@
+PREFIX bds: <http://www.bigdata.com/rdf/search#>
+ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ prefix schema: <https://schema.org/>
+ SELECT distinct ?g ?pubname ?placenames ?kw  ?datep
+ 	(MAX(?score1) as ?score)  ?name ?description ?resourceType
+          WHERE {
+            ?lit bds:search "${q}" .
+            ?lit bds:matchAllTerms "${exact}" .
+            ?lit bds:relevance ?score1 .
+            ${minRelevance}
+            ?g ?p ?lit .
+        ?g schema:name ?name .
+        ?g schema:description ?description .
+
+         BIND (IF (exists {?g a schema:Dataset .}, "data", "tool") AS ?resourceType).
+         OPTIONAL {?g schema:date ?datep .}
+         OPTIONAL {?g schema:publisher ?pubname .}
+         OPTIONAL {?g schema:place ?placenames .}
+         OPTIONAL {?g schema:keywords ?kw .}
+
+         }
+ GROUP BY ?g ?pubname ?placenames ?kw ?datep ?disurl ?score ?name ?description  ?resourceType
+         ORDER BY DESC(?score)
+ LIMIT ${n}
+

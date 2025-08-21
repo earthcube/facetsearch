@@ -1,0 +1,7 @@
+This app was originally written in vue2.
+
+it was migrated to vue3 using compatibility options.
+
+I would like to create a plan to remove those options and move towards vue3 compatibility.
+I would also like to move to pina as the state management tool.
+

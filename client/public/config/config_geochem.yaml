@@ -1,20 +1,19 @@
-COMMUNITY: ecoforecast
+COMMUNITY: geochemistry
 # https://geocodes.earthcube.org
-API_URL: https://ecoforecast.geocodes-aws.earthcube.org/ec/api
+API_URL: https://geochemistry.geocodes-aws.earthcube.org/ec/api
 MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
-TENANT_URL: https://oss.geocodes-aws-dev.earthcube.org/test/scheduler/configs/test/tenant.yaml
 # local development
 #API_URL: "${window_location_origin}/ec/api"
 S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/decoder/reports/
-TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/ecoforecast/sparql
-SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/ecoforecast_summary/sparql
+TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/geochemistry/sparql
+SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/geochemistry_summary/sparql
 BLAZEGRAPH_TIMEOUT: 20
 # JSONLD_PROXY needs qoutes... since it has a $
-JSONLD_PROXY: "https://ecoforecast.geocodes-aws.earthcube.org/ec/api/${o}"
+JSONLD_PROXY: "https://geochemistry.geocodes-aws.earthcube.org/ec/api/${o}"
 # oauth issues. need to add another auth app for additional 'proxies'
 # This is the one that will work: SPARQL_NB: https://geocodes.earthcube.org/notebook/mkQ?q=${q}
 SPARQL_NB: https://geocodes.geocodes-aws.earthcube.org/notebook/mkQ?q=${q}
-SPARQL_YASGUI: https://sparqlui.geocodes-aws.earthcube.org/?
+SPARQL_YASGUI: https://sparqlui.geocodes.earthcube.org/?
 
 ## ECRR need to use fuseki source, for now.
 ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
@@ -23,10 +22,12 @@ ECRR_GRAPH: http://earthcube.org/gleaner-summoned
 # Less common modifications needed
 ######
 THROUGHPUTDB_URL: https://throughputdb.com/api/ccdrs/annotations
-SPARQL_QUERY: queries/sparql_query.txt
-SPARQL_HASTOOLS: queries/sparql_hastools.txt
-SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
-SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
+QUERY_ENGINE: blazegraph
+SPARQL_QUERY: sparql_query.txt
+SPARQL_HASTOOLS: sparql_hastools.txt
+SPARQL_TOOLS_WEBSERVICE: sparql_gettools_webservice.txt
+SPARQL_TOOLS_DOWNLOAD: sparql_gettools_download.txt
+SPARQL_RELATED_DATA: sparql_relateddatafilename.txt
 #####
 # Not common to need to edit below
 ###
@@ -141,7 +142,7 @@ NOTEBOOKS:
       - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
   - name: Collab-Service
     badge: https://camo.githubusercontent.com/84f0493939e0c4de4e6dbe113251b4bfb5353e57134ffd9fcab6b8714514d4d1/68747470733a2f2f636f6c61622e72657365617263682e676f6f676c652e636f6d2f6173736574732f636f6c61622d62616467652e737667
-    baseurl: https://geocodes-aws.earthcube.org/notebook/mknb
+    baseurl: https://geocodes.earthcube.org/notebook/mknb
     binderEncodeParameters: false
     contentQuery: url=${contentUrl}&ext=${format}&urn=${urn}&encoding=${format}
     pageTemplate: ''

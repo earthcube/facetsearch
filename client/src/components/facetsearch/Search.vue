@@ -22,12 +22,12 @@
           <ResultHeader
             :current-count="currentResults.length"
             :total-count="items.length"
-            :filters="filtersState.filters"
+            :filters="filters"
           ></ResultHeader>
 
           <Results
             :current-results="currentResults"
-            :state="filtersState"
+            :filters="filters"
           ></Results>
 
           <!--                    <b-button variant="outline-primary" class="mt-5">Load More</b-button>-->
@@ -42,7 +42,7 @@
 //import { provide, reactive } from 'vue'
 import Results from "@/components/facetsearch/Results.vue";
 import Facets from "@/components/facetsearch/Facets.vue";
-import _ from "underscore";
+import _, { isArray } from "underscore";
 //import axios from "axios";
 //import FacetsConfig from '../../config.js'
 
@@ -57,6 +57,9 @@ import {
 } from "vuex";
 import feedback from "@/components/feedback/feedback.vue";
 import { v5 as uuidv5 } from "uuid";
+import { isProxy, toRaw } from "vue";
+import { DateRange } from "@/components/facetsearch/range.js";
+import { DateTime, Interval } from "luxon";
 
 // import HistRangeSlider from "@/components/facetsearch/HistRangeSlider.vue"
 
@@ -72,22 +75,12 @@ export default {
       setSearchExactmatch: this.setSearchExactmatch,
       facetStore: this.facetStore,
       filtersState: this.filtersState,
+      filter: this.filter,
+      isRangeFilter: this.isRangeFilter,
+      currentResults: this.currentResults,
+      filters: this.filters,
     };
   },
-  // setup() {
-  //
-  //   const facetStore = reactive({})
-  //   const filtersState = reactive(     {
-  //     orderBy: 'score',
-  //         filters: {}
-  //   })
-  //
-  //   provide("facetStore", facetStore)
-  //   provide("filtersState", filtersState)
-  //   provide('toggleFilter', this.toggleFilter)
-  //
-  //
-  // },
   computed: {
     ...mapState([
       "results",
@@ -116,7 +109,7 @@ export default {
     title: String,
     textQuery: String, // this needs to be here route passes as a prop
     resourceType: String,
-    exact: String
+    exact: String,
     // results:[]
   },
 
@@ -137,15 +130,18 @@ export default {
 
       esTemplateOptions: this.esTemplateOptions,
       queryTemplates: {},
-      filtersState: {
-        orderBy: "score",
-        filters: {},
-      },
+      // filtersState: {
+      //   orderBy: "score",
+      //   filters: {},
+      // },
+      orderby: "score",
+      filters: {},
       items: [],
       currentResults: [],
       facetStore: {}, ///  now defined using a provide
       //---- ok to edit facets
       facets: [],
+      shownResults: 0,
 
       // -- end edit  facets
       queryRunning: false,
@@ -183,6 +179,7 @@ export default {
       if (pair[0] === "searchExactMatch") continue;
       // console.log("Key is:" + pair[0]);
       // console.log("Value is:" + pair[1]);
+      // this will need to better handle RangeFilters and populate the toggle with an array
       this.toggleFilter(pair[0], pair[1], true);
     }
 
@@ -211,8 +208,17 @@ export default {
     // }
   },
   methods: {
-    ...mapMutations(["setTextQuery", "setResourceTypeQuery", "setSearchExactMatch"]),
+    ...mapMutations([
+      "setTextQuery",
+      "setResourceTypeQuery",
+      "setSearchExactMatch",
+    ]),
     ...mapActions(["getResults", "getQueryTemplate", "addtoMicroCache"]),
+    updateYearRange(start, end) {
+      this.$set(this.filtersState.filters, "startYear", [start]);
+      this.$set(this.filtersState.filters, "endYear", [end]);
+      this.filter();
+    },
     getQueryObj: function () {
       //let activeFilters = this.filtersState.filters|| []; // filters needs to be moved into actual filtersState in the future
       let activeFilters = [];
@@ -339,13 +345,30 @@ export default {
       _.each(self.facetStore, function (items, facetname) {
         _.each(items, function (value, itemname) {
           self.facetStore[facetname][itemname].count = 0;
-          if (_.indexOf(self.filtersState.filters[facetname], itemname) == -1) {
+          // if (_.indexOf(self.filtersState.filters[facetname], itemname) == -1) {
+          if (_.indexOf(self.filters[facetname], itemname) == -1) {
             self.facetStore[facetname][itemname].isActive = false;
           } else {
             self.facetStore[facetname][itemname].isActive = true;
           }
         });
       });
+    },
+    isRangeFilter: function (filter) {
+      let isRange = false;
+      let filterType = "notRange";
+      if (filter !== undefined) {
+        if (isProxy(filter) && _.isObject(filter)) {
+          filter = toRaw(filter);
+        }
+        if (isArray(filter)) {
+          filter = filter[0];
+        }
+        //isRangeFilter =  NoProxy.hasOwnProperty('range') ;
+        isRange = Object.hasOwn(filter, "range");
+        filterType = filter.filtertype;
+      }
+      return [isRange, filterType];
     },
     /**
      * Filters all items from the settings according to the currently
@@ -354,141 +377,457 @@ export default {
      */
     filter: function () {
       // first apply the filters to the items
-
+      const getLatestFilterValue = (key) => {
+        //const val = self.filtersState.filters[key];
+        const val = self.filters[key];
+        return Array.isArray(val) ? val.slice(-1)[0] : undefined;
+      };
+      const getRangeIsValid = (item, min, max) => {
+        //const val = self.filtersState.filters[key];
+        const val = self.filters[key];
+        return Array.isArray(val) ? val.slice(-1)[0] : undefined;
+      };
       // this.currentResults = [] // triggers reactive event and we are resetting it in the next lines, anyway
       let self = this;
       // self.currentResults = _.select(this.items, function (item) {
       let newResults = _.select(this.items, function (item) {
         let filtersApply = true;
-        _.each(self.filtersState.filters, function (filter, facet) {
-          if (_.isArray(item[facet])) {
-            var inters = _.intersection(item[facet], filter);
-            if (inters.length == 0) {
-              filtersApply = false;
+        // _.each(self.filtersState.filters, function (filter, facet) {
+        _.each(self.filters, function (filter, facet) {
+          const thisFacet = item[facet];
+          if (thisFacet == undefined) {
+            filtersApply = false;
+            return filtersApply;
+          }
+          // if a filter is a range, the do a range check
+          // this does not need to be custom for each. This is a range
+          // these things need to ha able to have MORE THAN ONE
+          // One Numberic, and one Date, m.
+          // AKA WRITE ONE RANGE FUNCTION
+          // maybe check can be, if is object, and with min and max
+          // change the range filters to pass that object to toggle filter
+          let [isRange, filterType] = self.isRangeFilter(filter);
+          let isNumericRange = filterType === "numericRange";
+          let isDateRange = filterType === "dateRange";
+          // let isNumericRangeFilter = false; // depth uses
+          // if (isProxy(filter) && _.isObject(toRaw(filter))) {
+          //   const NoProxy = toRaw(filter)[0]; // no idea why this is an array
+          //   //isRangeFilter =  NoProxy.hasOwnProperty('range') ;
+          //   isRangeFilter = Object.hasOwn(NoProxy, 'range')
+          //   isNumericRangeFilter = NoProxy.filtertype == 'numericRange'
+          // }
+
+          if (isRange) {
+            if (isArray(filter)) {
+              filter = filter[0];
+            }
+            if (isNumericRange) {
+              // this is passed from the depth
+              //const [minFacet, maxFacet] = filter.split(',');  // for some reason array becomes string
+              const minFacet = filter.minField;
+              const maxFacet = filter.maxField;
+              const minSlider = filter.range[0];
+              const maxSlider = filter.range[1];
+              const minFacetValue = item[minFacet];
+              const maxFacetValue = item[maxFacet];
+
+              // Function to check if two ranges overlap
+              function rangesOverlap(
+                minFacetValue,
+                maxFacetValue,
+                minSlider,
+                maxSlider
+              ) {
+                return minFacetValue <= maxSlider && maxFacetValue >= minSlider;
+              }
+
+              // Handle array case
+              if (_.isArray(minFacetValue) || _.isArray(maxFacetValue)) {
+                // For arrays, check if any range overlaps
+                const ranges = _.zip(
+                  _.isArray(minFacetValue) ? minFacetValue : [minFacetValue],
+                  _.isArray(maxFacetValue) ? maxFacetValue : [maxFacetValue]
+                );
+
+                const hasOverlap = ranges.some(([min, max]) => {
+                  if (min === undefined || max === undefined) {
+                    console.log(
+                      `possible misconfiguraton of facetsConfig change names ${minFacet}  ${maxFacet}`
+                    );
+                    return false;
+                  }
+                  return rangesOverlap(
+                    parseFloat(min),
+                    parseFloat(max),
+                    parseFloat(minSlider),
+                    parseFloat(maxSlider)
+                  );
+                });
+
+                if (!hasOverlap) {
+                  filtersApply = false;
+                }
+              }
+              // Handle single value case
+              else if (
+                minFacetValue !== undefined &&
+                maxFacetValue !== undefined
+              ) {
+                const hasOverlap = rangesOverlap(
+                  parseFloat(minFacetValue),
+                  parseFloat(maxFacetValue),
+                  parseFloat(minSlider),
+                  parseFloat(maxSlider)
+                );
+
+                if (!hasOverlap) {
+                  filtersApply = false;
+                }
+              } else {
+                console.log(
+                  `possible misconfiguraton of facetsConfig change names ${minFacet}  ${maxFacet}`
+                );
+              }
+            } else if (isDateRange) {
+              const thisYear = DateTime.now(thisFacet).toISODate();
+              const temporalFix = (facetData, thisYear) => {
+                if (
+                  typeof facetData === "string" &&
+                  facetData.endsWith("/..")
+                ) {
+                  return facetData.replace("/..", `/${thisYear}`);
+                }
+                return facetData;
+              };
+              const temporalParse = (tc, thisYear) => {
+                try {
+                  const fixedFacet = temporalFix(thisFacet, thisYear);
+                  let range = Interval.fromISO(fixedFacet);
+                  if (!range.invalid) {
+                    return [range.start, range.end];
+                  } else {
+                    let date = DateTime.fromISO(tc);
+
+                    if (!date.invalid) {
+                      return [date, date];
+                    }
+                  }
+                } catch (e) {
+                  console.log(` cannot parse temporal range ${tc}`);
+                  return null;
+                }
+              };
+              if (_.isArray(thisFacet)) {
+                var hasMatches = _.filter(thisFacet, (num) =>
+                  _.inRange(
+                    DateTime.fromISO(thisFacet).year,
+                    filter.range[0],
+                    filter.range[0]
+                  )
+                );
+                if (hasMatches.length == 0) {
+                  filtersApply = false;
+                }
+              } else {
+                if (filter.range[0] && filter.range[1]) {
+                  const theDate = temporalParse(thisFacet, thisYear);
+                  if (theDate.invalid) {
+                    filtersApply = false;
+                  }
+                  if (_.isArray(theDate)) {
+                    if (
+                      theDate[1].year < filter.range[0] ||
+                      theDate[0].year > filter.range[1]
+                    )
+                      filtersApply = false;
+                  } else {
+                    if (
+                      theDate.invalid ||
+                      (!theDate.invalid &&
+                        (theDate.year < filter.range[0] ||
+                          theDate.year > filter.range[1]))
+                    ) {
+                      filtersApply = false;
+                    }
+                  }
+                }
+              }
+            } // range filter
+            else {
+              const thisFacet = item[facet];
+              if (thisFacet == undefined) {
+                filtersApply = false;
+              }
+              if (_.isArray(item[facet])) {
+                var hasMatches = _.filter(thisFacet, (num) =>
+                  _.inRange(thisFacet, filter.range[0], filter.range[0])
+                );
+                if (hasMatches.length == 0) {
+                  filtersApply = false;
+                }
+              } else {
+                if (filter.range[0] && filter.range[1]) {
+                  if (
+                    thisFacet < filter.range[0] ||
+                    thisFacet > filter.range[1]
+                  ) {
+                    filtersApply = false;
+                  }
+                }
+              }
             }
           } else {
-            if (filter.length && _.indexOf(filter, item[facet]) == -1) {
-              filtersApply = false;
+            if (_.isArray(item[facet])) {
+              // this is if a facet has multiple selections, like keywords, or places
+              var inters = _.intersection(item[facet], filter);
+              if (inters.length == 0) {
+                filtersApply = false;
+              }
+            }
+            // is Objec with facetType (Range, DateRange, NumericRange)
+            // filter based on min/max
+            else {
+              if (filter.length && _.indexOf(filter, item[facet]) == -1) {
+                filtersApply = false;
+              }
             }
           }
         });
         return filtersApply;
       });
 
-      // the next two lines are needed to make the vue reactivity work.
-      // vue cannot easily detect array length changes, so.
-      //self.currentResults =self.currentResults.splice(0, 0);
-      let len = self.currentResults.length;
+      // const minDepthFilter = getLatestFilterValue("minDepth");
+      // const maxDepthFilter = getLatestFilterValue("maxDepth");
+      // const startYearFilter = getLatestFilterValue("startYear");
+      // const endYearFilter = getLatestFilterValue("endYear");
+
+      // let newResults = _.filter(this.items, function (item) {
+      //   const itemMin = parseFloat(item.minDepth);
+      //   const itemMax = parseFloat(item.maxDepth);
+      //
+      //   let itemStartYear = undefined;
+      //   let itemEndYear = undefined;
+      //   if (typeof item.temporalCoverage === "string" && item.temporalCoverage.includes("/")) {
+      //     const [start, end] = item.temporalCoverage.split("/");
+      //     itemStartYear = parseInt(start.trim(), 10);
+      //     itemEndYear = parseInt(end.trim(), 10);
+      //   }
+      //
+      //   const isValid = () => {
+      //     if (isNaN(itemMin) || isNaN(itemMax)) return false;
+      //
+      //     const overlapsDepthRange =
+      //       (minDepthFilter === undefined || itemMax >= minDepthFilter) &&
+      //       (maxDepthFilter === undefined || itemMin <= maxDepthFilter);
+      //
+      //     if (!overlapsDepthRange) return false;
+      //
+      //     if (isNaN(itemStartYear) && isNaN(itemEndYear)) return false;
+      //     if (isNaN(itemStartYear)) itemStartYear = itemEndYear;
+      //     if (isNaN(itemEndYear)) itemEndYear = itemStartYear;
+      //
+      //     const overlapsYearRange =
+      //       (startYearFilter === undefined || itemEndYear >= startYearFilter) &&
+      //       (endYearFilter === undefined || itemStartYear <= endYearFilter);
+      //
+      //     return overlapsYearRange;
+      //   };
+      //
+      //   if (!isValid()) return false;
+      //
+      //   for (const [facet, filter] of Object.entries(self.filtersState.filters)) {
+      //     if (["minDepth", "maxDepth", "startYear", "endYear"].includes(facet)) continue;
+      //
+      //     if (_.isArray(item[facet])) {
+      //       const inters = _.intersection(item[facet], filter);
+      //       if (inters.length === 0) return false;
+      //     } else {
+      //       if (filter.length && !filter.includes(item[facet])) return false;
+      //     }
+      //   }
+      //
+      //   return true;
+      // });
+
+      const len = self.currentResults.length;
       self.currentResults.splice(0, len);
       newResults.forEach((i) => self.currentResults.push(i));
 
-      /// console.log(data)
-      // console.log(data.map(d => new Date(d).valueOf()))
       this.resetFacetCount();
-      // then reduce the items to get the current count for each facet
+
       _.each(self.facets, function (facet) {
         _.each(self.currentResults, function (item) {
-          if (_.isArray(item[facet.field])) {
-            _.each(item[facet.field], function (facetitem) {
-              if (_.isEmpty(facetitem)) {
-                return;
-              }
-              //self.facetStore[facet.field][facetitem].count += 1;
-              let newcount = self.facetStore[facet.field][facetitem].count + 1;
-              self.facetStore[facet.field][facetitem].count = newcount;
+          const val = item[facet.field];
+          if (_.isArray(val)) {
+            val.forEach((facetitem) => {
+              if (_.isEmpty(facetitem)) return;
+              self.facetStore[facet.field][facetitem].count += 1;
             });
-          } else {
-            if (item[facet.field] !== undefined) {
-              if (_.isEmpty(item[facet.field])) {
-                return;
-              }
-              //self.facetStore[facet.field][item[facet.field]].count += 1;
-              let newcount =
-                self.facetStore[facet.field][item[facet.field]].count + 1;
-              self.facetStore[facet.field][item[facet.field]].count = newcount;
-            }
+          } else if (val !== undefined && !_.isEmpty(val)) {
+            self.facetStore[facet.field][val].count += 1;
           }
         });
       });
-      // remove confusing 0 from facets where a filter has been set
-      _.each(self.filtersState.filters, function (filters, facettitle) {
+
+      //  _.each(self.filtersState.filters, function (filters, facettitle) {
+      _.each(self.filters, function (filters, facettitle) {
         _.each(self.facetStore[facettitle], function (facet) {
-          if (facet.count == 0 && self.filtersState.filters[facettitle].length)
-            facet.count = "+";
+          if (facet.count === 0 && filters.length) facet.count = "+";
         });
       });
-      self.filtersState.shownResults = 0;
+
+      self.shownResults = 0;
     },
-    toggleFilter: function (key, value, skipfilterUrl = false) {
-      console.log(window.location.href);
-      var stateObj = { key: value };
-      if (!skipfilterUrl) {
-        if (window.location.href.includes(encodeURI("&" + key + "=" + value))) {
-          var href = window.location.href;
-          href = href.replace(encodeURI("&" + key + "=" + value), "");
-          history.pushState(stateObj, "", href);
+
+    toggleFilter: function (key, value, skipUrlUpdate = false) {
+      let self = this;
+      // const state = this.filtersState;
+      const filters = this.filters;
+      if (!skipUrlUpdate) {
+        this.updateUrlState(key, value);
+      }
+
+      // Initialize filters if needed
+      // if (!state.filters[key]) {
+      //   state.filters[key] = [];
+      // }
+      if (!filters[key]) {
+        filters[key] = [];
+      }
+      let [isRange, filterType] = this.isRangeFilter(value);
+      let isNumericRange = filterType === "numericRange";
+      let isDateRange = filterType === "dateRange";
+      if (!isRange) {
+        //const filterArray = state.filters[key];
+        const filterArray = filters[key];
+        const valueIndex = _.indexOf(filterArray, value);
+
+        if (valueIndex === -1) {
+          // Add new value
+          filterArray.push(value);
+          filters[key] = [...filterArray];
+          // state.filters = {...state.filters};
+          self.filters = { ...filters };
         } else {
-          history.pushState(
-            stateObj,
-            "",
-            window.location.href + "&" + key + "=" + value
-          );
+          // Remove existing value
+          //state.filters[key] = _.without(filterArray, value);
+          filters[key] = _.without(filterArray, value);
+          // Clean up empty filters
+          // if (state.filters[key].length === 0) {
+          //   delete state.filters[key];
+          //   // Trigger reactivity by creating a new object
+          //   state.filters = {...state.filters};
+          // }
+          if (filters[key].length === 0) {
+            delete filters[key];
+            // Trigger reactivity by creating a new object
+            self.filters = { ...filters };
+          }
         }
-      }
-      console.log(window.location.href);
-      console.log("toggleFilter");
-      var s_state = this.filtersState;
-      this.$set(s_state.filters, key, s_state.filters[key] || []);
-      if (_.indexOf(s_state.filters[key], value) == -1) {
-        s_state.filters[key].push(value);
-        this.$set(s_state.filters, key, s_state.filters[key]);
-        // don't do isActive here. resetFacetCount is called later
       } else {
-        var indx = _.indexOf(s_state.filters[key], value);
-        console.log(
-          "delete filter: " +
-            s_state.filters[key][indx] +
-            " from the key: " +
-            key
-        );
-        this.$set(s_state.filters, key, _.without(s_state.filters[key], value));
-        if (s_state.filters[key].length == 0) {
-          console.log("empty filter kw: " + key);
-          delete s_state.filters[key];
-          // this.$set(s_state.filters, key,  undefined)
-          // just setting to undefined does not work, and just delete does not work, so
-          s_state.filters = Object.assign({}, s_state.filters);
-          // don't do isActive here. resetFacetCount is called later
-        }
+        // ignore that the dates should be encoded as timespan for now.
+        // just reset the range.
+        // For range filters, we always want to set the value, regardless of whether the filter exists
+        filters[key] = value;
+        self.filters = { ...filters };
       }
+
       this.filter();
     },
-    clearFilters: function () {
-      console.log(window.location.href);
-      var href = window.location.href;
-      for (const [key, value] of Object.entries(this.filtersState.filters)) {
-        console.log(key, value);
-        for (let s of value) {
-          href = href.replace(encodeURI("&" + key + "=" + s), "");
-          console.log(href);
+
+    updateUrlState: function (key, value) {
+      const url = new URL(window.location.href);
+      const hashParts = url.hash.split("?");
+      const basePath = hashParts[0];
+      const params = new URLSearchParams(hashParts[1] || "");
+
+      // Check if this exact parameter is already in the URL
+      const existingValue = params.get(key);
+      if (existingValue === value.toString()) {
+        // If it exists, remove it
+        params.delete(key);
+      } else {
+        // Handle range filters differently
+        let [isRange, filterType] = this.isRangeFilter(toRaw(value));
+        let isNumericRange = filterType === "numericRange";
+        let isDateRange = filterType === "dateRange";
+        // let isRangeFilter = false;
+        // let isNumericRangeFilter = false;
+        // let isDateRangeFilter = false;
+        // if (isProxy(value) && _.isObject(toRaw(value))) {
+        //   value = toRaw(value);
+        // }
+        // isRangeFilter = Object.hasOwn(value, 'range');
+        // if (isRangeFilter) {
+        //   isNumericRangeFilter = value?.filtertype == 'numericRange';
+        //   isDateRangeFilter = value?.filtertype == 'dateRange';
+        // }
+
+        // If it's a range filter, convert to string format
+        if (isRange) {
+          value = value.range.toString();
         }
+
+        // Remove any existing value for this key before adding the new one
+        params.delete(key);
+        params.append(key, value);
       }
-      history.pushState("", "", href);
-      this.filtersState.filters = {};
+
+      // Update the URL
+      url.hash = `${basePath}?${params.toString()}`;
+      history.pushState({ key: value }, "", url.toString());
+    },
+
+    clearFilters: function () {
+      // Get the current URL and split it to preserve the base path
+      const url = new URL(window.location.href);
+      const hashParts = url.hash.split("?");
+      const basePath = hashParts[0];
+
+      // Create new URLSearchParams to preserve only essential parameters
+      const params = new URLSearchParams(hashParts[1] || "");
+
+      // Preserve only essential parameters (q, resourceType, searchExactMatch)
+      const essentialParams = ["q", "resourceType", "searchExactMatch"];
+      const preservedParams = new URLSearchParams();
+
+      essentialParams.forEach((param) => {
+        const value = params.get(param);
+        if (value !== null) {
+          preservedParams.append(param, value);
+        }
+      });
+
+      // Update URL with preserved parameters
+      const newHash = preservedParams.toString()
+        ? `${basePath}?${preservedParams.toString()}`
+        : basePath;
+
+      url.hash = newHash;
+      history.pushState({}, "", url.toString());
+
+      // Clear the filters state
+      //this.filtersState.filters = {};
+      this.filters = {};
       this.filter();
+
+      // Emit event to reset sliders - ensure this happens after filters are cleared
       this.$root.$emit("refresh slider range", "clear");
     },
     order: function (orderBy) {
       let self = this;
-      self.filtersState.orderBy = orderBy.field;
+      //self.filtersState.orderBy = orderBy.field;
+      self.orderBy = orderBy.field;
       if (this.filtersState.orderBy) {
         //$(".activeorderby").removeClass("activeorderby");
         //$('#orderby_'+self.filtersState.orderBy).addClass("activeorderby");
         self.currentResults = _.sortBy(self.currentResults, function (item) {
-          if (self.filtersState.orderBy == "RANDOM") {
+          //if (self.filtersState.orderBy == "RANDOM") {
+          if (self.orderBy == "RANDOM") {
             return Math.random() * 10000;
           } else {
-            return item[self.filtersState.orderBy];
+            // return item[self.filtersState.orderBy];
+            return item[self.orderBy];
           }
         });
         //if (this.orderByOptionsSort[self.filtersState.orderBy] === 'desc')

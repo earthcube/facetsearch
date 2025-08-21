@@ -1,3 +1,4 @@
+
 ---
 MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
 API_URL: https://deepoceans.geocodes-aws.earthcube.org/ec/api
@@ -12,10 +13,12 @@ COMMUNITY: deepoceans
 BLAZEGRAPH_TIMEOUT: 20
 ECRR_GRAPH: http://earthcube.org/gleaner-summoned
 THROUGHPUTDB_URL: https://throughputdb.com/api/ccdrs/annotations
-SPARQL_QUERY: queries/sparql_query.txt
-SPARQL_HASTOOLS: queries/sparql_hastools.txt
-SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
-SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
+QUERY_ENGINE: blazegraph
+SPARQL_QUERY: sparql_query.txt
+SPARQL_HASTOOLS: sparql_hastools.txt
+SPARQL_TOOLS_WEBSERVICE: sparql_gettools_webservice.txt
+SPARQL_TOOLS_DOWNLOAD: sparql_gettools_download.txt
+SPARQL_RELATED_DATA: sparql_relateddatafilename.txt
 JSONLD_PROXY: https://geocodes-aws.earthcube.org/ec/api${o}
 SPARQL_NB: https://geocodes-aws.earthcube.org/notebook/mkQ?q=${q}
 SPARQL_YASGUI: https://sparqlgui.geocodes-aws.earthcube.org/?
@@ -32,10 +35,10 @@ SPARQL_YASGUI: https://sparqlgui.geocodes-aws.earthcube.org/?
 #BLAZEGRAPH_TIMEOUT: 20
 #ECRR_GRAPH: http://earthcube.org/gleaner-summoned
 #THROUGHPUTDB_URL: https://throughputdb.com/api/ccdrs/annotations
-#SPARQL_QUERY: queries/sparql_query.txt
-#SPARQL_HASTOOLS: queries/sparql_hastools.txt
-#SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
-#SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
+#SPARQL_QUERY: sparql_query.txt
+#SPARQL_HASTOOLS: sparql_hastools.txt
+#SPARQL_TOOLS_WEBSERVICE: sparql_gettools_webservice.txt
+#SPARQL_TOOLS_DOWNLOAD: sparql_gettools_download.txt
 #JSONLD_PROXY: https://geocodes.wifire-data.sdsc.edu/ec/api/${o}
 #SPARQL_NB: https://geocodes.geocodes-1.earthcube.org/notebook/mkQ?q=${q}
 #SPARQL_YASGUI: https://geocodes.geocodes-1.earthcube.org/sparqlgui?
@@ -107,21 +110,24 @@ FACETS:
     sort: acs
     open: false
     type: text
-#  - field: datep
-#    title: Year Published Range
-#    sort: acs
-#    open: true
-#    type: range
-  - field: depth
+  - field: datep
+    title: Year Published Range
+    sort: acs
+    open: true
+    type: rangeyear
+  - field: minDepth
+    range_fields:
+      - minDepth
+      - maxDepth
     title: Depth Range
     sort: acs
     open: true
-    type: depthrange
+    type: rangedepth
   - field: temporalCoverage
     title: Temporal Coverage
     sort: acs
     open: true
-    type: depthyear
+    type: rangeyear
   - field: spatialCoverage
     title: Spatial Filter
     sort: acs
@@ -186,3 +192,4 @@ NOTEBOOKS:
 #    pageTemplate: ''
 #    formats:
 #      - "*"
+

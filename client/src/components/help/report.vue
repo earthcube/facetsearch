@@ -4,7 +4,7 @@
       <h2>Source: {{ source }}</h2>
       <div v-if="loadinfo">
         <b-card header="Description">
-          <p>{{ this.description }}</p>
+          <p>{{ description }}</p>
         </b-card>
         <b-card header="Load Report">
           <div v-if="loadinfo">
@@ -256,7 +256,7 @@ import { mapState } from "vuex";
 export default {
   name: "report.vue",
   props: {
-    source: String
+    source: String,
   },
   data() {
     return {
@@ -270,7 +270,7 @@ export default {
     ...mapState(["FacetsConfig"]),
     description() {
       return this.$route.query.description;
-    }
+    },
   },
   mounted() {
     //const description = "The Site Survey Data Bank (SSDB) is a repository for site survey data submitted in support of International Ocean Discovery Program (IODP) proposals and expeditions. SSDB serves different roles for different sets of users.";

@@ -5,7 +5,7 @@
       <template v-if="currentTenant">
         <span class="logo">{{ currentTenant.name }}</span>
       </template>
-       <template v-else>
+      <template v-else>
         <logoGeoCodes fill="#18598b" width="100%" />
       </template>
     </b-container>
@@ -79,12 +79,12 @@
         <b-carousel-slide>
           {{ currentTenant.landing_introduction }}
         </b-carousel-slide>
-<!--        <b-carousel-slide> a schema.org/Dataset search </b-carousel-slide>-->
-<!--        <b-carousel-slide>-->
-<!--          Geoscience Cyberinfrastructure-->
-<!--          <span class="text-nowrap">for Open Discovery</span>-->
-<!--          <span class="text-nowrap">in the Earth Sciences</span>-->
-<!--        </b-carousel-slide>-->
+        <!--        <b-carousel-slide> a schema.org/Dataset search </b-carousel-slide>-->
+        <!--        <b-carousel-slide>-->
+        <!--          Geoscience Cyberinfrastructure-->
+        <!--          <span class="text-nowrap">for Open Discovery</span>-->
+        <!--          <span class="text-nowrap">in the Earth Sciences</span>-->
+        <!--        </b-carousel-slide>-->
       </b-carousel>
       <b-container fluid="md" class="mt-5">
         <div class="d-flex justify-content-between align-items-center">
@@ -97,47 +97,65 @@
         </div>
       </b-container>
 
-    <b-card-group columns class="d-flex flex-wrap justify-content-start mt-4">
-      <b-card
-        v-for="(item, index) in reports"
-        :key="index"
-        no-body
-        class="text-center card-equal d-flex flex-column"
-        style="flex: 0 1 340px;"
-      >
-        <b-card-body v-if="item.source != 'geocodes_demo_datasets'" class = "d-flex flex-column flex-grow-1">
-          <b-card-title>
-            <b-link
-              target="_blank"
-              class="d-flex flex-column align-items-center"
-              :href="item.website"
-            >
-              <div v-if="visibleImages[index]"
-                class="logo d-flex justify-content-center align-items-center"
+      <b-card-group columns class="d-flex flex-wrap justify-content-start mt-4">
+        <b-card
+          v-for="(item, index) in reports"
+          :key="index"
+          no-body
+          class="text-center card-equal d-flex flex-column"
+          style="flex: 0 1 340px"
+        >
+          <b-card-body
+            v-if="item.source != 'geocodes_demo_datasets'"
+            class="d-flex flex-column flex-grow-1"
+          >
+            <b-card-title>
+              <b-link
+                target="_blank"
+                class="d-flex flex-column align-items-center"
+                :href="item.website"
               >
-                <b-img fluid :src="'/images/repo/' + item.image" class="card-logo"
-                @error="visibleImages[index] = false"></b-img>
-              </div>
+                <div
+                  v-if="visibleImages[index]"
+                  class="logo d-flex justify-content-center align-items-center"
+                >
+                  <b-img
+                    fluid
+                    :src="'/images/repo/' + item.image"
+                    class="card-logo"
+                    @error="visibleImages[index] = false"
+                  ></b-img>
+                </div>
 
-              <div class="mt-3">{{ item.title }}</div>
-            </b-link>
-          </b-card-title>
+                <div class="mt-3">{{ item.title }}</div>
+              </b-link>
+            </b-card-title>
 
-          <b-card-text class="d-flex flex-column flex-grow-1 justify-content-between">
-            <i v-if="item.records > 0"
-              >{{ item.records }} record{{ item.records == 1 ? "" : "s" }}</i
+            <b-card-text
+              class="d-flex flex-column flex-grow-1 justify-content-between"
             >
+              <i v-if="item.records > 0"
+                >{{ item.records }} record{{ item.records == 1 ? "" : "s" }}</i
+              >
 
-            <div class="mt-3 small text-left description-container" v-html="item.description"></div>
+              <div
+                class="mt-3 small text-left description-container"
+                v-html="item.description"
+              ></div>
 
-            <div class="mt-auto pt-3 text-left">
-              <router-link
-                :to="{ name: 'report', params: { source: item.source}, query: { description: item.description }}"
-                >Reports</router-link>
-            </div>
-          </b-card-text>
+              <div class="mt-auto pt-3 text-left">
+                <router-link
+                  :to="{
+                    name: 'report',
+                    params: { source: item.source },
+                    query: { description: item.description },
+                  }"
+                  >Reports</router-link
+                >
+              </div>
+            </b-card-text>
 
-          <!--
+            <!--
 //left this here in case the description was too much to be shown all the time (use collapse). problem is, sometimes expanding forces an item to move to a different column (feels like it disappears)
 //could use accordian option to only allow a single card to be expanded at a time...but still doesn't solve the issue completely and why this was moved to show the description by default
                     <b-card-text
@@ -157,9 +175,9 @@
                         </div>
                     </b-card-text>
 -->
-        </b-card-body>
-      </b-card>
-    </b-card-group>
+          </b-card-body>
+        </b-card>
+      </b-card-group>
     </b-container>
   </b-container>
 </template>
@@ -167,12 +185,11 @@
 <script>
 //import VueRouter from 'vue-router'
 import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
-import {mapGetters, mapMutations, mapState} from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import VueToggles from "vue-toggles";
 import axios from "axios";
 import yaml from "js-yaml";
-import {tenantDefault} from "@/config.js";
-
+import { tenantDefault } from "@/config.js";
 
 export default {
   name: "Landing",
@@ -189,7 +206,7 @@ export default {
       ],
       slide: 0,
       reports: null,
-      visibleImages: []
+      visibleImages: [],
     };
   },
   computed: {
@@ -199,13 +216,15 @@ export default {
     },
     currentTenant() {
       if (!this.tenantData?.tenant) return tenantDefault.tenant[0];
-      return this.tenantData.tenant.find(
-        t => t.community === this.currentCommunity
-      ) || tenantDefault.tenant[0];
+      return (
+        this.tenantData.tenant.find(
+          (t) => t.community === this.currentCommunity
+        ) || tenantDefault.tenant[0]
+      );
     },
     tenantData() {
       return this.$store.getters.getTenantData;
-    }
+    },
   },
   mounted() {
     const s3base = this.FacetsConfig.S3_REPORTS_URL;
@@ -224,7 +243,7 @@ export default {
     onSubmit() {
       var query = this.q;
       var resourceType = this.toolOptionsSelected;
-      var exact =  this.searchExactMatch
+      var exact = this.searchExactMatch;
       this.$router.push({
         name: "Search",
         query: {
@@ -238,15 +257,13 @@ export default {
       this.setTextQuery("");
     },
     fetchAllReports() {
-      axios
-        .get(this.reportsJson)
-        .then((response) => {
-          this.reports = response.data
-            .sort((a, b) => b.records - a.records) // Sort in descending order
-            .slice(0, 3)
-          this.visibleImages = this.reports.map(() => true);
-        });
-    }
+      axios.get(this.reportsJson).then((response) => {
+        this.reports = response.data
+          .sort((a, b) => b.records - a.records) // Sort in descending order
+          .slice(0, 3);
+        this.visibleImages = this.reports.map(() => true);
+      });
+    },
   },
 };
 </script>
@@ -312,15 +329,15 @@ export default {
 }
 
 .logo {
-    font-family: 'Open Sans', sans-serif;
-    font-size: 72px;
-    color: #2A5279;
-    letter-spacing: 2px;
-    display: inline-flex;
-    align-items: center;
+  font-family: "Open Sans", sans-serif;
+  font-size: 72px;
+  color: #2a5279;
+  letter-spacing: 2px;
+  display: inline-flex;
+  align-items: center;
 }
 
-.card-logo{
+.card-logo {
   max: {
     width: 100px;
   }
