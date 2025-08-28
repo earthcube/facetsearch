@@ -1,13 +1,17 @@
 <template>
   <b-container fluid="md" class="mt-5">
     <!-- allow logo to size according to container. fill with primary color from bootstrap variables -->
-    <b-container class="col-md-5 pt-5">
-      <template v-if="currentTenant">
-        <span class="logo">{{ currentTenant.name }}</span>
-      </template>
-       <template v-else>
-        <logoGeoCodes fill="#18598b" width="100%" />
-      </template>
+    <b-container class="pt-5">
+      <b-row class="justify-content-center">
+        <b-col md="5" class="text-center">
+          <template v-if="currentTenant">
+            <span class="logo">{{ currentTenant.name }}</span>
+          </template>
+          <template v-else>
+            <logoGeoCodes class="d-block mx-auto" fill="#18598b" style="max-width:260px;width:100%" />
+          </template>
+        </b-col>
+      </b-row>
     </b-container>
 
     <b-container class="col-md-5 mt-4">
