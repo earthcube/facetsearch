@@ -1,6 +1,6 @@
 {
   "name": "GeoCODES",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,7 +11,10 @@
     "build:ci": "vite build",
     "start:ci": "serve -s ./dist",
     "production": "vite build",
-    "lint": "eslint --fix \"./src/**/*.{ts,js,vue}\""
+    "lint": "eslint --fix \"./src/**/*.{ts,js,vue}\"",
+    "test": "NODE_ENV=test jest --config jest.config.cjs",
+    "test:watch": "NODE_ENV=test jest --config jest.config.cjs --watch",
+    "test:coverage": "NODE_ENV=test jest --config jest.config.cjs --coverage"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.35",
@@ -59,6 +62,7 @@
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
     "@babel/eslint-parser": "^7.23.3",
+    "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@fortawesome/fontawesome-free": "^6.5.1",
     "@mdi/font": "^7.4.47",
     "@types/jest": "^29.5.11",
@@ -77,10 +81,14 @@
     "@vue/test-utils": "^2.4.3",
     "@vue/vue3-jest": "^29.2.6",
     "@yarnpkg/cli": "^4.0.0",
+    "babel-jest": "^30.0.5",
     "core-js": "^3.8.3",
     "eslint": "^8.56.0",
     "eslint-plugin-vue": "^9.20.0",
     "execa": "^5.0.0",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
+    "jest-transform-stub": "^2.0.0",
     "prettier": "^2.6.2",
     "raw-loader": "^4.0.2",
     "sass": "^1.77.0",
