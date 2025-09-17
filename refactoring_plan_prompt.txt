@@ -187,10 +187,14 @@ Rather than doing a single query at the start, we would like to submit sparql qe
 * If a facet is active, then the OPTIONAL{} should be removed, and a filter applied to the result
 * we want to add a fulltext search option to the top of the facets list
 * the facetText should use the configuration facet
-  - field: kw
-    title: Keywords
+  - title: Keywords
+    field: kw
     type: text
     sparql_property: "schema:keywords|sschema:keywords"
-
+* a facet for a property value could have two options:
+  - title: depth
+    field: variableMeasured
+    type: propertyvalue
+    sparql_property: "schema:keywords|sschema:keywords"
 
 Create a plan and write out to a file for review
