@@ -182,19 +182,79 @@ But let's start with the ones above.
 
 Rather than doing a single query at the start, we would like to submit sparql qeuires with the filters for a facet
 * A new ui would start with a search with no filters.
-* User can then filter using the configured facets, and when updated, the facets are locked, a new sparql query is submieeted
+* User can then filter using the configured facets, and when updated, the facets are locked, a new sparql query is submitted
 * If a filter is not active, facet should provide the facet wrapped in an OPTIONAL{}
 * If a facet is active, then the OPTIONAL{} should be removed, and a filter applied to the result
 * we want to add a fulltext search option to the top of the facets list
-* the facetText should use the configuration facet
+* if a filter is default, then it has an optional sparql property added to the configuration.
+
+* the facetText might be use the configuration facet
   - title: Keywords
     field: kw
     type: text
-    sparql_property: "schema:keywords|sschema:keywords"
+    default: true
+    sparql_property:  ?subj schema:keywords|sschema:keywords ?kwu .
+    sparql_filter:  schema:keywords | sschema:keywords "${Keywords}" .
+* for the date fields, we need to have a configuration like:
+  - title: Date
+    field: datePublished
+    type: range
+    default: true
+    sparql_property:
+      - OPTIONAL { ?subj schema:datePublished|sschema:datePublished ?datep1 . }
+        OPTIONAL { ?subj schema:dateCreated|sschema:dateCreated ?datec . }
+        OPTIONAL { ?subj schema:dateModified|sschema:dateModified ?datem . }
+        BIND (COALESCE(?datec, ?dateM, ?datep1) AS ?datep)
+    sparql_filter:
+          ?subj ?property ?date .
+          VALUES ?property { sschema:dateCreated sschema:dateModified sschema:datePublished }
+          FILTER (
+                    ?date > "$startdate"
+                    &&
+                    ?date <= "$enddate"
+            )
+
 * a facet for a property value could have two options:
-  - title: depth
-    field: variableMeasured
+  - title: Depth
+    name: depth
+    type: propertyrange
+    default: false
+    sparql_property:
+      - BIND (COALESCE(?maxdepth_d) AS ?maxdepth)
+        BIND (COALESCE(?minDepth_d) AS ?minDepth)
+    sparql_filter:
+         - ?subj sschema:variableMeasured ?vm .
+           ?vm a sschema:PropertyValue .
+           ?vm sschema:name "depth" .
+           ?vm sschema:maxValue ?maxdepth_d .
+           ?vm sschema:minValue ?minDepth_d
+           BIND ($depthsearch AS ?search_value)
+           # Filter so ?search_value is within min/max (inclusive)
+           FILTER (?search_value >= ?minDepth_d && ?search_value <= ?maxdepth_d)
+
+  - title: nitrogen
+    field: nitrogen
     type: propertyvalue
-    sparql_property: "schema:keywords|sschema:keywords"
+    default: false
+    sparql_property:
+    sparql_filter:
+              - ?subj sschema:variableMeasured ?vm .
+                ?vm a sschema:PropertyValue .
+                ?vm sschema:name ?nameprop .
+                FILTER (?nameprop IN ("nitrogen")) .
+                ?vm sschema:Value ?propnitrogen_d .
+                FILTER(?propnitrogen_d >= ${minvalue} && ?propnitrogen_d <= ${maxvalue})
+
+
+Each facet component has its own state, and the current state is stored in the store, so each time you change a filter,
+the a new sparql query is submitted, the results are returned, and the rendering happens. Each facet gets a complete set of results
+and calculates how many items match the facet field, and updates the count accordingly
+the facet has a text feild that is designed to be passed as part of the url.
+so the search.vue component read the list of facets and for active fields, builds up the string of filters
+
+If a url as query components, the the search.vue passes them down to the facets, and they update their states based on the query params
+once all the facets are initially set, the component    queries the server for initial results, then renders the page
+
+The configuration for each  facet type will also have sparql_filter where the
 
 Create a plan and write out to a file for review
