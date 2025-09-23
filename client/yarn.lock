@@ -6204,6 +6204,7 @@ __metadata:
     vue-router: "npm:^4.2.5"
     vue-scrollbox: "npm:^1.0.1"
     vue-select: "npm:4.0.0-beta.6"
+    vue-slider-component: "npm:^3.2.24"
     vue-toggles: "npm:1.1.4"
     vue-tsc: "npm:^0.35.0"
     vuex: "npm:^4.1.0"
@@ -7680,6 +7681,13 @@ __metadata:
   dependencies:
     browserslist: "npm:^4.22.2"
   checksum: 8c4379240b8decb94b21e81d5ba6f768418721061923b28c9dfc97574680c35d778d39c010207402fc7c8308a68a4cf6d5e02bcbcb96e931c52e6e0dce29a68c
+  languageName: node
+  linkType: hard
+
+"core-js@npm:^3.6.5":
+  version: 3.45.1
+  resolution: "core-js@npm:3.45.1"
+  checksum: c38e5fae5a05ee3a129c45e10056aafe61dbb15fd35d27e0c289f5490387541c89741185e0aeb61acb558559c6697e016c245cca738fa169a73f2b06cd30e6b6
   languageName: node
   linkType: hard
 
@@ -16267,6 +16275,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"vue-class-component@npm:^7.1.0":
+  version: 7.2.6
+  resolution: "vue-class-component@npm:7.2.6"
+  peerDependencies:
+    vue: ^2.0.0
+  checksum: 2c187815e3569b4836929dc45ace5715398c4037312ef5fc27da9cb12fbbc21cabbdfc5fb678451ad45321ffabacbd184907e33db2539c13963c00883a6645c1
+  languageName: node
+  linkType: hard
+
 "vue-component-type-helpers@npm:^1.8.21":
   version: 1.8.27
   resolution: "vue-component-type-helpers@npm:1.8.27"
@@ -16380,6 +16397,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"vue-property-decorator@npm:^8.0.0":
+  version: 8.5.1
+  resolution: "vue-property-decorator@npm:8.5.1"
+  dependencies:
+    vue-class-component: "npm:^7.1.0"
+  peerDependencies:
+    vue: "*"
+  checksum: 947da307fb3a60e8fa7fd5c7026d1f1a6185713549f96e2b0d1846d487dbb242283bd29d24e4bf960e6240985838bf4a0a72b79d5c6793e15099e16215b0fdf3
+  languageName: node
+  linkType: hard
+
 "vue-range-component-fixed@npm:^1.0.3":
   version: 1.0.3
   resolution: "vue-range-component-fixed@npm:1.0.3"
@@ -16420,6 +16448,16 @@ __metadata:
   peerDependencies:
     vue: 3.x
   checksum: a6fc86537a4eb01d6c3b9339ce3daacd41d78dd66bacf06d632c886fd4b40a36f7762b6ee40a9abea377929cb2870935f1759ec3d920dd07c89529c0c30d2242
+  languageName: node
+  linkType: hard
+
+"vue-slider-component@npm:^3.2.24":
+  version: 3.2.24
+  resolution: "vue-slider-component@npm:3.2.24"
+  dependencies:
+    core-js: "npm:^3.6.5"
+    vue-property-decorator: "npm:^8.0.0"
+  checksum: 546505fb2aff56d35014b36d4600c002ecf579d32d22ebb126664bee67e27eb7bc2b1681b42623954119c6a2cbaeb980b33a6fc9e39b25efe24bd2a2a2a96d4c
   languageName: node
   linkType: hard
 

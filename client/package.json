@@ -56,6 +56,7 @@
     "vue-router": "^4.2.5",
     "vue-scrollbox": "^1.0.1",
     "vue-select": "4.0.0-beta.6",
+    "vue-slider-component": "^3.2.24",
     "vue-toggles": "1.1.4",
     "vuex": "^4.1.0"
   },

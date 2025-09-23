@@ -12,6 +12,7 @@ import about from "@/components/help/about.vue";
 import report from "@/components/help/report.vue";
 import collection from "@/components/collection/Collection.vue";
 import configuration from "@/components/configuration.vue";
+import Search2 from "@/components/facetsearch/Search2.vue";
 
 export function createRouter() {
   return _createRouter({
@@ -29,6 +30,16 @@ export function createRouter() {
         path: "/search/",
         name: "Search",
         component: Search,
+        props: (route) => ({
+          textQuery: route.query.q,
+          resourceType: route.query.resourceType,
+          exact: route.query.searchExactMatch,
+        }),
+      },
+      {
+        path: "/search2/",
+        name: "Search2",
+        component: Search2,
         props: (route) => ({
           textQuery: route.query.q,
           resourceType: route.query.resourceType,
