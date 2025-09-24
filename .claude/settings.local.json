@@ -8,7 +8,8 @@
       "Bash(mkdir:*)",
       "Bash(NODE_ENV=test yarn test --config jest.config.cjs src/__tests__/fixtures/setup.test.js)",
       "Bash(NODE_ENV=test yarn test --config jest.config.cjs src/__tests__/fixtures/basic-setup.test.js)",
-      "Bash(yarn test:*)"
+      "Bash(yarn test:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   }

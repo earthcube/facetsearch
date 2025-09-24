@@ -1,4 +1,7 @@
-This app queries a sparql database.
+You are re-architeching an app that want to do facet queries over a sparql triple store, in out case, qlever.
+but there may be customizations for graphdb and blazegraph.
+
+This app queries a sparql triple store
 
 At present, it does a fulltext query, and users filter the results down.
 The filter in the client/src/components/facetsearch/Search.vue does the filtering.

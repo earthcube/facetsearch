@@ -1,0 +1,486 @@
+``You are re-architeching an app that want to do facet queries over a sparql triple store, in out case, qlever.
+but there may be customizations for graphdb and blazegraph.
+
+There is a CLAUDE.md, and several attempts to plan rewrting the codebase.
+I am thinking that we need to rebuild the query archetecture from scratch, so it can support faceted search
+and dynamic facets.
+
+The current architecture has some problems, in that it only supports a single text query which is then used to filter results
+We want an architecture where you have multiple filters, and after each filter is applied, a new set of triples will be returned,
+
+My initial thoughts are to develop a javascript module that would be the query and results manager.
+Then build a UI on top of this. Since we use Vue presently, we think that https://quasar.dev/ will be UI toolkit.
+If you can suggest any other approaches or ideas please do.
+
+I plan on describing the problem space here:
+* The triples are based on schema.org, where the top level elements are either schema:Dataset or schema:DataCatalog
+* We want users to be able to begin a query from a facet like keywords, and full text search like the existing codebase
+  or a future spatial search.
+* we will want these searches to be displayed as a list of items rendered from the returned triples.
+* when a user clicks on an item they should go to a dataset page with more details about dataset rendered from jsonld that is taken from an api endpoint that retreives data from an s3 store.
+* the api to get the jsonld uses the graph ?g property.
+* there are also 'schema.org/DataCatalogs' which include schema.org/Datasets When a jsondld is a catalog, a page for catalog should
+ includes all datasets within datacatalog jsonld.
+
+
+The first focus is the facets. These are currently coded with logic in multiple locations, the goal of the rearchiteching is to
+move them into one place, and make
+
+There will be several types of facets:
+* full text - a query will return document that match the term in the text field.
+* Text Facets that match against values in the triples, like schema:Keywords
+* Date Facets that return dates between two date ranges. These will need to handle multiple properties
+* Spatial Facet that returns points within. This will need to be done later. GeoSparql is not fully implemented in qlever.
+* PropertyName Facet, when uses search for names of schema:PropertyValue
+* properyValue Facet, when you search by value of a schema:PropertyValue between two range values
+* propertyRange Facet, where properties have a Minimum Value and Maximum Values, and the facet allows searching for overlaping or contained in ranges.
+
+
+Defining facets:
+* name - the name to display in the ui
+* field - the name of the sparql variable that holds the value
+* variable - $varaiableName that will be substituted at runtime
+* type - the facet type from the list above
+* visibility - disabled, default, visible, info
+   * default - add sparql properties to the results, parse results to build list of future options
+   * visible - add sparql properties to the results, parse results to build list of future options. Allow to be disabled
+   * info - add sparql properties to the results. Do not show in facets, or pass results. Display on info card
+   * disabled - show in facets, do not add sparql properties to result sets, or all for filtering unless explicitly enabled
+
+* groupconcat_field - if this feilds is a GroupConcat in the select statement, what is its name of the property being concated. if this is not present, then the field with be in the groupby
+* sparql_property: the sparql string that defines what values are selectged and returned. If will wither be the field, or the group concat field
+* sparql_filter - the sparql string that defines how to filter. This will be a $variable template using the variables defined in the facet
+* groupby order - numeric rank of the fields in teh sqarql groupby clause
+* additional_prefixes: optional field.  prefixes to add to the start of the sparql statements
+
+
+ Base query:
+ ```text
+
+ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+ PREFIX schema: <https://schema.org/>
+ $engineSpecificPrefixes
+
+ SELECT DISTINCT $selectFields
+ WHERE {
+   $openingFragment
+   $textSearchFragment
+   $facetFilters
+   GRAPH ?g {
+       $responseBodyFragment
+       $facetPropertyFragments
+   }
+ }
+ $groupByClause
+ $orderByClause
+ LIMIT $limitValue
+ OFFSET $offsetValue
+
+ ```
+
+$openingFragment:
+This limits the scope of the query to just Dataset and DataCatalog.
+```
+    values ?sosType {
+        schema:DataCatalog
+        schema:Dataset
+    }
+    ?subj a ?sosType .
+```
+
+$responseBodyFragment
+```
+        ?subj schema:name ?name .
+        ?subj schema:description ?description .
+        OPTIONAL { ?subj schema:publisher/schema:legalName ?legalName . }
+        OPTIONAL { ?subj schema:publisher/schema:name ?publisher . }
+```
+
+
+```
+
+        bind (COALESCE(?publisher,?legalName, "No Publisher") As ?pubname)
+        OPTIONAL { ?subj schema:datePublished ?datep1 . }
+        OPTIONAL { ?subj schema:dateCreated ?datec . }
+        OPTIONAL { ?subj schema:dateModified ?datem . }
+        bind (COALESCE(?datec,?datem,?datep1) As ?datep)
+```
+---
+FullText query fragment
+filter for qlever:
+ ```
+          ?subj ?o ?item .
+          ?text ql:contains-entity ?item .
+          ?text ql:contains-word "$escapedQuery"
+```
+An example fulltext query is at: client/public/queries/qlever/sparql_query.rq
+name: FullText Search
+variable:  escapedQuery
+
+The full text query needs no field name.
+---
+info facet:
+```
+        optional {
+            ?subj
+                schema:distribution/schema:url|schema:distribution/schema:url|schema:subjectOf/schema:url
+                    ?url .
+        }
+```
+
+---
+Text Facet:
+# publisher
+ ```
+        OPTIONAL { ?subj schema:publisher/schema:legalName ?legalName . }
+        OPTIONAL { ?subj schema:publisher/schema:name ?publisher . }
+        bind (COALESCE(?publisher,?legalName, "No Publisher") As ?pubname)
+```
+
+filter:
+```
+        OPTIONAL { ?subj schema:publisher/schema:legalName $pubname . }
+        OPTIONAL { ?subj schema:publisher/schema:name $pubname . }
+
+        bind (COALESCE(?publisher,?legalName, "No Publisher") As ?pubname)
+        FILTER (LCASE(?pubname) IN ( $publisher) ) .
+
+```
+
+name: Publisher
+field: ?pubname
+variable: publisher
+groupby order: 9
+
+---
+Text Facet:
+In this case I want all the keywords to be returned
+
+keywords
+```
+  OPTIONAL { ?subj schema:keywords ?kwu . }
+```
+
+filter
+```
+ ?subj schema:keywords ?kws .
+ FILTER (LCASE(?kws) IN ( $keywords) ) .
+
+ ```
+name: Keywords
+field: kw
+groupconcat_field: kwu
+
+---
+Date facet
+
+```
+        OPTIONAL { ?subj schema:datePublished ?datep1 . }
+        OPTIONAL { ?subj schema:dateCreated ?datec . }
+        OPTIONAL { ?subj schema:dateModified ?datem . }
+        bind (COALESCE(?datec,?datem,?datep1) As ?datep)
+```
+
+```
+  FILTER (
+          ?datep > $datep_start
+          &&
+          ?datep <= $datep_end
+  )
+```
+Name: published dates
+field: datep
+group_by: 4
+variable:
+ - datep_start
+ - datep_end
+
+---
+propertyRange Facet:
+name: depth
+```
+OPTIONAL {
+            ?subj schema:variableMeasured ?vmd .
+            ?vmd a schema:PropertyValue .
+            ?vmd schema:name ?namedepth .
+            FILTER (LCASE(?namedepth) IN ( "cmpdep",  "package_depth", "collection_depth", "Bottle Depth","sample depth","tow depth") ) .
+            ?vmd schema:maxValue ?maxDepth_d .
+            ?vmd schema:minValue ?minDepth_d
+            bind (COALESCE(?maxDepth_d) As ?maxDepth)
+            bind (COALESCE(?minDepth_d) As ?minDepth)
+        }
+```
+
+```
+  ?subj schema:variableMeasured ?vm .
+  ?vm a schema:PropertyValue .
+  ?vm schema:name ?namedepth .
+  FILTER (LCASE(?namedepth) IN ( "cmpdep",  "package_depth", "collection_depth", "Bottle Depth","sample depth","tow depth") ) .
+  ?vm schema:maxValue ?maxdepth_d .
+  ?vm schema:minValue ?minDepth_d
+  FILTER ($mindepth >= ?minDepth_d && $maxdepth<= $maxdepth_d)
+
+```
+
+
+
+At present, it does a fulltext query, and users filter the results down.
+The filter in the client/src/components/facetsearch/Search.vue does the filtering.
+
+There are queries in
+* client/public/queries/blazegraph
+* client/public/queries/qlever
+
+The main query that is utilized are:
+* client/public/queries/qlever/sparql_query.rq
+* client/public/queries/blazegraph/sparql_query.txt
+
+In client/public/config are configuration files for various datastores. These are some basic parameters
+
+TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube/sparql
+QUERY_ENGINE: blazegraph
+SPARQL_QUERY: sparql_query.txt
+SPARQL_HASTOOLS: sparql_hastools.txt
+SPARQL_TOOLS_WEBSERVICE: sparql_gettools_webservice.txt
+SPARQL_TOOLS_DOWNLOAD: sparql_gettools_download.txt
+SPARQL_RELATED_DATA: sparql_relateddatafilename.txt
+
+These are embedded in client/src/state.js and  several components,
+client/src/components/dataset/relatedData
+client/src/components/dataset/connectedTools
+
+Query Fragments for Full Text Search:
+
+Blazegraph:
+           ?lit bds:search "${q}" .
+            ?lit bds:matchAllTerms "${exact}" .
+            ?lit bds:relevance ?score1 .
+            ${minRelevance}
+            ?g ?p ?lit .
+
+QLEVER:
+  ?subj ?o ?item .
+    ?text ql:contains-entity ?item .
+    ?text ql:contains-word "${q}"
+
+Query Fragements for keyword search
+  ?subj ?o ?item .
+  ?subj schema:keywords | schema:keywords "Temperature"
+
+query fragment combined text and keyword:
+QLEVER:
+  ?subj ?o ?item .
+  # text
+  ?text ql:contains-entity ?item .
+  ?text ql:contains-word "water" .
+  # keyword
+  ?subj schema:keywords | schema:keywords "Temperature" .
+
+
+Fragment to generate the body of the response:
+ graph ?g {
+        values ?sosType {
+            schema:Dataset
+            #               schema:DataCatalog
+            schema:Dataset
+            #               schema:DataCatalog
+        }
+        ?subj    a    ?sosType .
+        ?subj schema:name|schema:name ?name .
+        ?subj schema:description|schema:description ?description . }
+    values (?type ?resourceType_u) {
+        (schema:Dataset "data")
+        (schema:Dataset "data")
+        (schema:ResearchProject "researchProject") #BCODMO- project
+        (schema:ResearchProject  "researchProject")
+        (schema:SoftwareApplication  "tool")
+        (schema:SoftwareApplication  "tool")
+        (schema:Person  "person") #BCODMO- Person
+        (schema:Person  "person")
+        (schema:Event  "event") #BCODMO- deployment
+        (schema:Event  "event")
+        (schema:Award  "award") #BCODMO- Award
+        (schema:Award  "award")
+        (schema:DataCatalog  "DataCatalog")
+        (schema:DataCatalog  "DataCatalog")
+        #(UNDEF "other")  # assume it's data. At least we should get  name.
+    } ?subj a ?type .
+    optional {?subj schema:distribution/schema:url|schema:subjectOf/schema:url|schema:distribution/schema:url|schema:subjectOf/schema:url ?url1 .}
+    OPTIONAL {?subj schema:datePublished|schema:datePublished ?datep1 .}
+    OPTIONAL {?subj schema:dateCreated|schema:dateCreated ?datec .}
+    OPTIONAL {?subj schema:dateModified|schema:dateModified ?datem .}
+    OPTIONAL {?subj schema:temporalCoverage|schema:temporalCoverage ?temporalCoverage .}
+    OPTIONAL {?subj schema:publisher/schema:name|schema:publisher/schema:name|schema:publisher/schema:legalName|schema:publisher/schema:legalName  ?pub_name .}
+    OPTIONAL {?subj schema:spatialCoverage/schema:name|schema:spatialCoverage/schema:name|schema:sdPublisher ?place_name .}
+    # OPTIONAL {?subj schema:spatialCoverage/schema:geo/schema:latitude|schema:spatialCoverage/schema:geo/schema:latitude ?lat .}
+    # OPTIONAL {?subj schema:spatialCoverage/schema:geo ?geo .
+    #         ?geo a schema:GeoCoordinates .
+    #		 ?geo schema:longitude ?lon .
+    #		 ?geo schema:llatitude ?lat .}
+
+    #OPTIONAL {?subj schema:spatialCoverage/schema:geo ?geo .
+    #         ?geo a schema:GeoShape .
+    #		 ?geo schema:box ?box .}
+    #     bind ( COALESCE(?box) As ?bbox)
+    OPTIONAL {?subj schema:keywords|schema:keywords ?kw1 .}
+#    OPTIONAL {
+#        ?subj schema:variableMeasured ?vm .
+#        ?vm a schema:PropertyValue .
+#        ?vm schema:name ?variableMeasured_a .
+#    }
+    # if there is more than one location, then coallese to get the versions.
+    OPTIONAL {?subj schema:variableMeasured ?vm .
+              ?vm a  schema:PropertyValue  .
+              ?vm schema:name ?namedepth  .
+              FILTER (?namedepth IN ("depth", "CmpDep") ) .
+              ?vm schema:maxValue ?maxDepth_d .
+              ?vm schema:minValue ?minDepth_d
+    }
+    bind ( COALESCE(?maxDepth_d) As ?maxDepth)
+    bind ( COALESCE(?minDepth_d) As ?minDepth)
+
+    # temporal coverage.
+    bind ( COALESCE(?kw1, "") As ?kwu)
+    bind ( COALESCE(?url1) As ?url)
+    # pick one date
+    bind ( COALESCE(?datec,?datem,?datep1) As ?datep)
+    BIND ( IF ( BOUND(?pub_name), ?pub_name, "No Publisher") as ?pubname ) .
+    BIND ( IF ( BOUND(?place_name), ?place_name, "No Placenames") as ?placename ) .
+
+You would like to move the complexity of the filtering from client/src/components/facetsearch/Search.vue
+to the facet components:
+client/src/components/facetsearch/RangeSliderYear.vue
+client/src/components/facetsearch/RangeSliderDepth.vue
+client/src/components/facetsearch/GeoBoundingBoxPicker.vue
+client/src/components/facetsearch/FacetText.vue
+
+a list of facets and thier configurations is in the configruation, for example:
+client/public/config/config.yaml
+
+FACETS:
+FACETS:
+  - field: resourceType
+    title: Resource Type
+    sort: acs
+    open: false
+    type: text
+  - field: kw
+    title: Keywords
+    sort: acs
+    open: true
+    type: text
+  - field: placenames
+    title: Place
+    sort: acs
+    open: true
+    type: text
+  - field: pubname
+    title: Publisher/Repo
+    sort: acs
+    open: false
+    type: text
+#  - field: datep
+#    title: Year Published Range
+#    sort: acs
+#    open: true
+#    type: range
+  - field: depth
+    title: Depth Range
+    sort: acs
+    open: true
+    type: depthrange
+  - field: temporalCoverage
+    title: Temporal Coverage
+    sort: acs
+    open: true
+    type: depthyear
+  - field: spatialCoverage
+    title: Spatial Filter
+    sort: acs
+    open: true
+    type: geo
+
+
+These facets are not limited to those listed. We will add, or remove facets depending on the community needs.
+But let's start with the ones above.
+
+Rather than doing a single query at the start, we would like to submit sparql qeuires with the filters for a facet
+* A new ui would start with a search with no filters.
+* User can then filter using the configured facets, and when updated, the facets are locked, a new sparql query is submitted
+* If a filter is not active, facet should provide the facet wrapped in an OPTIONAL{}
+* If a facet is active, then the OPTIONAL{} should be removed, and a filter applied to the result
+* we want to add a fulltext search option to the top of the facets list
+* if a filter is default, then it has an optional sparql property added to the configuration.
+
+* the facetText might be use the configuration facet
+  - title: Keywords
+    field: kw
+    type: text
+    default: true
+    sparql_property:  ?subj schema:keywords|schema:keywords ?kwu .
+    sparql_filter:  schema:keywords | schema:keywords "${Keywords}" .
+* for the date fields, we need to have a configuration like:
+  - title: Date
+    field: datePublished
+    type: range
+    default: true
+    sparql_property:
+      - OPTIONAL { ?subj schema:datePublished|schema:datePublished ?datep1 . }
+        OPTIONAL { ?subj schema:dateCreated|schema:dateCreated ?datec . }
+        OPTIONAL { ?subj schema:dateModified|schema:dateModified ?datem . }
+        BIND (COALESCE(?datec, ?dateM, ?datep1) AS ?datep)
+    sparql_filter:
+          ?subj ?property ?date .
+          VALUES ?property { schema:dateCreated schema:dateModified schema:datePublished }
+          FILTER (
+                    ?date > "$startdate"
+                    &&
+                    ?date <= "$enddate"
+            )
+
+* a facet for a property value could have two options:
+  - title: Depth
+    name: depth
+    type: propertyrange
+    default: false
+    sparql_property:
+      - BIND (COALESCE(?maxdepth_d) AS ?maxdepth)
+        BIND (COALESCE(?minDepth_d) AS ?minDepth)
+    sparql_filter:
+         - ?subj schema:variableMeasured ?vm .
+           ?vm a schema:PropertyValue .
+           ?vm schema:name "depth" .
+           ?vm schema:maxValue ?maxdepth_d .
+           ?vm schema:minValue ?minDepth_d
+           BIND ($depthsearch AS ?search_value)
+           # Filter so ?search_value is within min/max (inclusive)
+           FILTER (?search_value >= ?minDepth_d && ?search_value <= ?maxdepth_d)
+
+  - title: nitrogen
+    field: nitrogen
+    type: propertyvalue
+    default: false
+    sparql_property:
+    sparql_filter:
+              - ?subj schema:variableMeasured ?vm .
+                ?vm a schema:PropertyValue .
+                ?vm schema:name ?nameprop .
+                FILTER (?nameprop IN ("nitrogen")) .
+                ?vm schema:Value ?propnitrogen_d .
+                FILTER(?propnitrogen_d >= ${minvalue} && ?propnitrogen_d <= ${maxvalue})
+
+
+Each facet component has its own state, and the current state is stored in the store, so each time you change a filter,
+the a new sparql query is submitted, the results are returned, and the rendering happens. Each facet gets a complete set of results
+and calculates how many items match the facet field, and updates the count accordingly
+the facet has a text feild that is designed to be passed as part of the url.
+so the search.vue component read the list of facets and for active fields, builds up the string of filters
+
+If a url as query components, the the search.vue passes them down to the facets, and they update their states based on the query params
+once all the facets are initially set, the component    queries the server for initial results, then renders the page
+
+The configuration for each  facet type will also have sparql_filter where the
+
+Create a plan and write out to a file for review
+``

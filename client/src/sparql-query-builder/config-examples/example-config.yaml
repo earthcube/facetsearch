@@ -1,0 +1,157 @@
+# Example Configuration with SPARQL Properties and Filters
+# Based on the original refactoring_plan_prompt.txt specifications
+
+COMMUNITY: example
+TRIPLESTORE_URL: https://qlever.geocodes-aws-dev.earthcube.org/graphspace/facetsearch
+QUERY_ENGINE: qlever
+
+FACETS:
+  # Text facet with configured SPARQL property and filter
+  - field: kw
+    title: Keywords
+    type: text
+    sort: asc
+    open: true
+    default: true
+    sparql_property: "?subj schema:keywords|sschema:keywords ?kwu ."
+    sparql_filter: "?subj schema:keywords|sschema:keywords ${values}"
+
+  # Publisher facet with complex property discovery
+  - field: pubname
+    title: Publisher/Repo
+    type: text
+    sort: asc
+    open: false
+    sparql_property:
+      - "OPTIONAL { ?subj schema:publisher/schema:legalName|sschema:publisher/sschema:legalName ?legalName . }"
+      - "OPTIONAL { ?subj schema:publisher/schema:name|sschema:publisher/sschema:name ?publisher . }"
+      - "BIND (COALESCE(?publisher, ?legalName, \"No Publisher\") AS ?pubname)"
+    sparql_filter:
+      - "{ ?subj schema:publisher/schema:name|sschema:publisher/sschema:name ?pub_name . FILTER(?pub_name IN ${values}) }"
+      - "UNION"
+      - "{ ?subj schema:publisher/schema:legalName|sschema:publisher/sschema:legalName ?legal_name . FILTER(?legal_name IN ${values}) }"
+
+  # Place names facet
+  - field: placenames
+    title: Place Names
+    type: text
+    sort: asc
+    open: false
+    sparql_property:
+      - "OPTIONAL { ?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name|sschema:sdPublisher ?place_name . }"
+      - "BIND (IF (BOUND(?place_name), ?place_name, \"No Placenames\") AS ?placename)"
+    sparql_filter: "?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name ?place_name . FILTER(?place_name IN ${values})"
+
+  # Date range facet with complex binding
+  - field: datep
+    title: Date Published Range
+    type: rangeyear
+    sort: asc
+    open: false
+    default: true
+    sparql_property:
+      - "OPTIONAL { ?subj schema:datePublished|sschema:datePublished ?datep1 . }"
+      - "OPTIONAL { ?subj schema:dateCreated|sschema:dateCreated ?datec . }"
+      - "OPTIONAL { ?subj schema:dateModified|sschema:dateModified ?datem . }"
+      - "BIND (COALESCE(?datec, ?datem, ?datep1) AS ?datep)"
+    sparql_filter:
+      - "?subj ?property ?date ."
+      - "VALUES ?property { sschema:dateCreated sschema:dateModified sschema:datePublished }"
+      - "FILTER (?date > \"${startdate}\" && ?date <= \"${enddate}\")"
+
+  # Depth range facet (property-based)
+  - field: depth
+    title: Depth Range
+    type: propertyrange
+    sort: asc
+    open: true
+    default: false
+    property_names: ["depth", "CmpDep"]
+    sparql_property:
+      - "OPTIONAL {"
+      - "  ?subj sschema:variableMeasured ?vm ."
+      - "  ?vm a sschema:PropertyValue ."
+      - "  ?vm sschema:name ?namedepth ."
+      - "  FILTER (LCASE(?namedepth) IN ${depth_properties}) ."
+      - "  ?vm sschema:maxValue ?maxDepth_d ."
+      - "  ?vm sschema:minValue ?minDepth_d"
+      - "}"
+      - "BIND (COALESCE(?maxDepth_d) AS ?maxDepth)"
+      - "BIND (COALESCE(?minDepth_d) AS ?minDepth)"
+    sparql_filter:
+      - "?subj sschema:variableMeasured ?vm ."
+      - "?vm a sschema:PropertyValue ."
+      - "?vm sschema:name ?namedepth ."
+      - "FILTER (LCASE(?namedepth) IN ${depth_properties}) ."
+      - "?vm sschema:maxValue ?maxDepth_d ."
+      - "?vm sschema:minValue ?minDepth_d"
+      - "FILTER (?minDepth_d <= ${maxvalue} && ?maxDepth_d >= ${minvalue})"
+
+  # Nitrogen property value facet (from original prompt)
+  - field: nitrogen
+    title: Nitrogen
+    type: propertyvalue
+    sort: asc
+    open: false
+    default: false
+    property_names: ["nitrogen"]
+    sparql_property: ""  # No discovery needed for property value
+    sparql_filter:
+      - "?subj sschema:variableMeasured ?vm ."
+      - "?vm a sschema:PropertyValue ."
+      - "?vm sschema:name ?nameprop ."
+      - "FILTER (?nameprop IN ${property_names}) ."
+      - "?vm sschema:Value ?propnitrogen_d ."
+      - "FILTER(?propnitrogen_d >= ${minvalue} && ?propnitrogen_d <= ${maxvalue})"
+
+  # Temperature property value facet
+  - field: temperature
+    title: Temperature
+    type: propertyvalue
+    sort: asc
+    open: false
+    default: false
+    property_names: ["temperature", "temp", "Temperature", "water temperature"]
+    sparql_property: ""
+    sparql_filter:
+      - "?subj sschema:variableMeasured ?vm ."
+      - "?vm a sschema:PropertyValue ."
+      - "?vm sschema:name ?nameprop ."
+      - "FILTER (?nameprop IN ${property_names}) ."
+      - "?vm sschema:value ?tempValue ."
+      - "FILTER(?tempValue >= ${minvalue} && ?tempValue <= ${maxvalue})"
+
+  # Spatial coverage facet
+  - field: spatialCoverage
+    title: Spatial Filter
+    type: geo
+    sort: asc
+    open: false
+    sparql_property:
+      - "OPTIONAL {"
+      - "  ?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCoverage ."
+      - "  ?spatialCoverage schema:geo|sschema:geo ?geo ."
+      - "  ?geo schema:latitude|sschema:latitude ?lat ."
+      - "  ?geo schema:longitude|sschema:longitude ?lon ."
+      - "}"
+    sparql_filter:
+      - "?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCoverage ."
+      - "?spatialCoverage schema:geo|sschema:geo ?geo ."
+      - "?geo schema:latitude|sschema:latitude ?lat ."
+      - "?geo schema:longitude|sschema:longitude ?lon ."
+      - "FILTER (?lat >= ${minlat} && ?lat <= ${maxlat} && ?lon >= ${minlon} && ?lon <= ${maxlon})"
+
+ORDER_BY_DEFAULT: score
+ORDER_BY_OPTIONS:
+  - field: score
+    title: Relevance
+    sort: desc
+  - field: name
+    title: Name
+    sort: asc
+  - field: date
+    title: Date
+    sort: desc
+
+LIMIT_DEFAULT: 50
+LIMIT_OPTIONS: [10, 50, 100, 500]
