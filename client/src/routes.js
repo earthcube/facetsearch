@@ -21,7 +21,7 @@ export function createRouter() {
     routes: [
       {
         path: "/",
-        redirect: "/landing",
+        redirect: "/Search2",
       },
       { path: "/landing", name: "landing", component: landing },
       // {path:'/search/?q=:q',name:'Search',component:Search,props:true},

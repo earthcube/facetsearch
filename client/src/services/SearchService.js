@@ -47,9 +47,11 @@ export class SearchService {
    */
   async sendToTriplestoreWithFallback(query) {
     const endpoint = this.config.TRIPLESTORE_URL;
-    const timeout = this.parseTimeout(this.config.BLAZEGRAPH_TIMEOUT) || 20_000;
+    let timeout = this.parseTimeout(this.config.BLAZEGRAPH_TIMEOUT) || 20000;
+
 
     if (this.usesQLever()) {
+        timeout = `${timeout}ms`
       try {
         return await this.sendDirectGET(endpoint, query, timeout);
       } catch (err) {

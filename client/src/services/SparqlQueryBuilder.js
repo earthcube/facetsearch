@@ -14,7 +14,13 @@ export class SparqlQueryBuilder {
       xsd: '<http://www.w3.org/2001/XMLSchema#>'
     };
   }
-
+    /**
+     * Basic engine check
+     * needs to be some utility code shared.
+     */
+    usesQLever() {
+        return String(this.config?.QUERY_ENGINE || '').toLowerCase() === 'qlever';
+    }
   /**
    * Build complete SPARQL query from search parameters and filters
    */
@@ -24,6 +30,7 @@ export class SparqlQueryBuilder {
     let query = this.buildPrefixes();
     query += this.buildSelectClause();
     query += this.buildWhereClause(textQuery, searchExactMatch, resourceType, filters);
+    query += this.buildGroupbyClause();
     query += this.buildOrderByClause();
     query += this.buildLimitClause(limit, offset);
 
@@ -39,9 +46,11 @@ export class SparqlQueryBuilder {
   buildSelectClause() {
     const selectVars = [
       '?subj', '?name', '?description', '?url', '?datep',
-      '?pubname', '?placename', '?kwu', '?resourceType_u',
-      '?maxDepth', '?minDepth', '?temporalCoverage'
+      '?pubname', '?placename', '?kw', '?resourceType',
+     // '?maxDepth', '?minDepth',
+        '?temporalCoverage'
     ];
+
 
     return `SELECT DISTINCT ${selectVars.join(' ')}\n`;
   }
@@ -214,33 +223,46 @@ export class SparqlQueryBuilder {
   OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|schema:publisher/schema:legalName|sschema:publisher/sschema:legalName ?pub_name .}
   OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name|sschema:sdPublisher ?place_name .}
   OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
-  OPTIONAL {
-    ?subj sschema:variableMeasured ?vm .
-    ?vm a sschema:PropertyValue .
-    ?vm sschema:name ?namedepth .
-    FILTER (?namedepth IN ("depth", "CmpDep")) .
-    ?vm sschema:maxValue ?maxDepth_d .
-    ?vm sschema:minValue ?minDepth_d
-  }
+
 `;
   }
+  // removed to fix memory issues
+//     OPTIONAL {
+// ?subj sschema:variableMeasured ?vm .
+// ?vm a sschema:PropertyValue .
+// ?vm sschema:name ?namedepth .
+//     FILTER (?namedepth IN ("depth", "CmpDep")) .
+// ?vm sschema:maxValue ?maxDepth_d .
+// ?vm sschema:minValue ?minDepth_d
+// }
 
   buildBindings() {
-    return `  BIND (COALESCE(?maxDepth_d) AS ?maxDepth)
-  BIND (COALESCE(?minDepth_d) AS ?minDepth)
-  BIND (COALESCE(?kwu, "") AS ?kwu)
+    return ` 
+  BIND (COALESCE(?kwu, "") AS ?kw)
   BIND (COALESCE(?url1) AS ?url)
   BIND (COALESCE(?datec,?datem,?datep1) AS ?datep)
+  BIND (COALESCE(?resourceType_u) AS ?resourceType)
   BIND (IF(BOUND(?pub_name), ?pub_name, "No Publisher") AS ?pubname)
   BIND (IF(BOUND(?place_name), ?place_name, "No Placenames") AS ?placename)
 `;
   }
+  // zapped for per issues
+  //   BIND (COALESCE(?maxDepth_d) AS ?maxDepth)
+  //   BIND (COALESCE(?minDepth_d) AS ?minDepth)
 
   buildOrderByClause() {
     // If QLever doesn’t provide score, order may be basic; adjust when scoring available
-    return 'ORDER BY DESC(?score1)\n';
-  }
+      if ( ! this.usesQLever() ){
 
+          return 'ORDER BY DESC(?score1)\n';
+      } else {
+          return ''
+      }
+  }
+    buildGroupbyClause(limit, offset) {
+       // return `GROUP BY ?subj ?pubname ?placename  ?datep ?url  ?name ?description ?type ?maxdepth ?minDepth ?temporalCoverage ?bbox ?g\n`;
+        return `GROUP BY ?g ?subj  ?placename  ?datep ?pubname ?url  ?name ?description ?type  ?temporalCoverage ?kw  ?resourceType\n`;
+    }
   buildLimitClause(limit, offset) {
     return `LIMIT ${limit}\nOFFSET ${offset}\n`;
   }
