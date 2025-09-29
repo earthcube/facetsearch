@@ -43,16 +43,30 @@ export class SparqlQueryBuilder {
       .join('\n') + '\n\n';
   }
 
+    buildSelecMinMaxClause(minMaxVars) {
+// future
+        return ''
+    }
+  buildSelectAggregateClause(aggVars) {
+        return Object.keys(aggVars).map( o => ` (GROUP_CONCAT(DISTINCT ?${aggVars[o]}; SEPARATOR=", ") AS ?${o}) ` )
+  }
   buildSelectClause() {
     const selectVars = [
       '?subj', '?name', '?description', '?url', '?datep',
-      '?pubname', '?placename', '?kw', '?resourceType',
+      '?pubname',
      // '?maxDepth', '?minDepth',
         '?temporalCoverage'
     ];
+      const aggVars = {
+          'disurl':'url',
+           'placenames':'placename', 'kw':'kw_u', 'resourceType':'resourceType_u',
+      };
+      const aggClause = this.buildSelectAggregateClause(aggVars);
+      const minmaxVars = [
+          'lat', 'lon'
+      ];
 
-
-    return `SELECT DISTINCT ${selectVars.join(' ')}\n`;
+    return `SELECT DISTINCT ${selectVars.join(' ')} ${aggClause.join(' ')} \n`;
   }
 
   buildWhereClause(textQuery, searchExactMatch, resourceType, filters) {
@@ -238,10 +252,8 @@ export class SparqlQueryBuilder {
 
   buildBindings() {
     return ` 
-  BIND (COALESCE(?kwu, "") AS ?kw)
-  BIND (COALESCE(?url1) AS ?url)
+
   BIND (COALESCE(?datec,?datem,?datep1) AS ?datep)
-  BIND (COALESCE(?resourceType_u) AS ?resourceType)
   BIND (IF(BOUND(?pub_name), ?pub_name, "No Publisher") AS ?pubname)
   BIND (IF(BOUND(?place_name), ?place_name, "No Placenames") AS ?placename)
 `;
