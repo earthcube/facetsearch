@@ -1,6 +1,6 @@
 FROM node:22-alpine
 
-RUN npm install -g http-server
+RUN yarn install -g http-server
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -10,14 +10,14 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 COPY ./package*.json ./
 
-RUN npm install
+RUN yarn install
 # If you are building your code for production
 # RUN npm ci --only=production
 
 # Bundle app source
 COPY . .
 
-RUN npm run build
+RUN yarn run build
 
 EXPOSE 8080
 CMD [ "http-server", "/usr/src/app/dist" ]
