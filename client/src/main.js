@@ -36,21 +36,17 @@ app.use(IconsPlugin); // // ,  IconsPlugin is BootstrapVueIcons
 app.use(VueAxios, axios);
 const router = createRouter();
 app.use(router);
-import VueGtag from "vue-gtag";
+
 
 import { default as VueSelect } from "vue-select";
 app.component("VSelect", VueSelect);
+import {configure} from "vue-gtag";
+const gtag = createGtag({
+    tagId: "\"G-15XD8YBF5L"
+})
+app.use(gtag);
 
-app.use(
-  VueGtag,
-  {
-    config: {
-      id: "G-15XD8YBF5L",
-      custom_map: { dimension2: "fulltext", metric2: "querytime" },
-    },
-  },
-  router
-);
+
 //router.replace(router.currentRoute.fullPath);
 //router.go(document.URL)
 // router.onReady(() => {

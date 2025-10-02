@@ -1,4 +1,6 @@
-FROM node:22
+FROM node:lts
+
+RUN corepack enable
 
 # Create app directory
 WORKDIR /usr/src/app
