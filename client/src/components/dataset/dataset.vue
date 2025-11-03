@@ -614,7 +614,7 @@ export default {
             mapping.s_citation = schemaItem("citation", dataset);
             mapping.has_citation = true;
           }
-          
+
           // Keywords
           if (hasSchemaProperty("keywords", dataset)) {
             const c = schemaItem("keywords", dataset);

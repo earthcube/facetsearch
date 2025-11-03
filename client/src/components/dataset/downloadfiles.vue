@@ -1,11 +1,11 @@
 <template>
-  <div class="buttons">
+  <div class="buttons mx-auto" style="max-width: 420px;">
     <b-button-group v-for="(dl, index) in m.s_downloads" :key="index">
       <b-button
         block
         size="sm"
         variant="primary"
-        class="p-3 text-left"
+        class="d-block w-100 mb-2"
         :href="dl.contentUrl"
       >
         {{ dl.linkName }}
@@ -26,21 +26,20 @@
           />
         </svg>
       </b-button>
-      <b-button-group vertical class="ml-1">
-        <b-button size="sm" variant="primary">Open in</b-button>
-        <b-button
-          v-for="(nb, nbindex) in notebooksservers"
-          v-show="nbBinderShow(nb, dl.contentUrl, dl.encodingFormat)"
-          :key="nbindex"
-          size="sm"
-          variant="primary"
-          :href="nbBinderUrl(nb, dl.contentUrl, dl.encodingFormat, d)"
-          target="_blank"
-        >
-          <span width="64">{{ nb.name }}</span>
-<!--          <b-img v-else :src="nb.badge" width="64" :alt="nb.name"></b-img>-->
-        </b-button>
-      </b-button-group>
+<!--      <b-button-group vertical class="ml-1">-->
+<!--        <b-button size="sm" variant="primary">Open in</b-button>-->
+<!--        <b-button-->
+<!--          v-for="(nb, nbindex) in notebooksservers"-->
+<!--          v-show="nbBinderShow(nb, dl.contentUrl, dl.encodingFormat)"-->
+<!--          :key="nbindex"-->
+<!--          size="sm"-->
+<!--          variant="primary"-->
+<!--          :href="nbBinderUrl(nb, dl.contentUrl, dl.encodingFormat, d)"-->
+<!--          target="_blank"-->
+<!--        >-->
+<!--          <span width="64">{{ nb.name }}</span>-->
+<!--        </b-button>-->
+<!--      </b-button-group>-->
     </b-button-group>
   </div>
 </template>
