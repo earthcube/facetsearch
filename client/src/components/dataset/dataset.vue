@@ -614,8 +614,16 @@ export default {
             mapping.s_citation = schemaItem("citation", dataset);
             mapping.has_citation = true;
           }
-
-          mapping.s_keywords = schemaItem("keywords", dataset);
+          
+          // Keywords
+          if (hasSchemaProperty("keywords", dataset)) {
+            const c = schemaItem("keywords", dataset);
+            if (Array.isArray(c)) {
+              mapping.s_keywords = c;
+            } else {
+              mapping.s_keywords = [c];
+            }
+          }
           mapping.s_landingpage = schemaItem("description", dataset);
           mapping.updated = schemaItem("updated", dataset);
           mapping.start_datetime = formatDateToYYYYMMDD(schemaItem("start_datetime", dataset));
