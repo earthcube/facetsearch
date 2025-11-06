@@ -3,9 +3,9 @@
 FROM node:22-alpine AS base
 
 # Enable Corepack, which is the standard way to use Yarn
-RUN corepack enable
 
 WORKDIR /usr/src/app
+RUN corepack enable
 
 # Yarn requires .yarnrc.yml, copy it with other project definition files.
 # Copying them separately allows for better layer caching.
