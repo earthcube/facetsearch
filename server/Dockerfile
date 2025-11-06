@@ -17,7 +17,7 @@ FROM base AS dependencies
 
 # Install only production dependencies to keep the final image lean.
 # Use Yarn 4 syntax for production installs
-RUN yarn install --immutable
+RUN yarn install
 
 # -----------------------------
 # ---- Release Stage ----
