@@ -34,7 +34,8 @@ RUN corepack enable
 # Switch to the non-root user before installing global dependencies
 # This ensures the http-server executable is in the user's PATH
 USER node
-RUN yarn dlx http-server
+
 
 EXPOSE 8080
-CMD [ "http-server", "dist" ]
+CMD ["yarn", "dlx", "http-server" ,"dist"]
+#CMD [ "http-server", "dist" ]
