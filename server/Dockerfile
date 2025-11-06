@@ -2,6 +2,9 @@
 # Use the specific Node.js version from your package.json engines field
 FROM node:22-alpine AS base
 
+# Enable Corepack, which is the standard way to use Yarn
+RUN corepack enable
+
 WORKDIR /usr/src/app
 
 # Yarn requires .yarnrc.yml, copy it with other project definition files.
@@ -11,15 +14,15 @@ COPY package.json yarn.lock .yarnrc.yml* ./
 # ---- Dependencies Stage ----
 FROM base AS dependencies
 
-# Enable Corepack, which is the standard way to use Yarn
-RUN corepack enable
+
+
 
 # Install only production dependencies to keep the final image lean.
 # The --frozen-lockfile flag ensures we use the exact versions from yarn.lock
 RUN yarn install
 # ---- Release Stage ----
 FROM base AS release
-RUN corepack enable
+
 WORKDIR /usr/src/app
 
 # Create a non-root user
