@@ -10,17 +10,18 @@ RUN corepack enable
 # Yarn requires .yarnrc.yml, copy it with other project definition files.
 # Copying them separately allows for better layer caching.
 COPY package.json yarn.lock .yarnrc.yml* ./
-
+# -----------------------------
 # ---- Dependencies Stage ----
+# -----------------------------
 FROM base AS dependencies
-
-
-
 
 # Install only production dependencies to keep the final image lean.
 # The --frozen-lockfile flag ensures we use the exact versions from yarn.lock
 RUN yarn install
+
+# -----------------------------
 # ---- Release Stage ----
+# -----------------------------
 FROM base AS release
 
 WORKDIR /usr/src/app
@@ -44,4 +45,4 @@ USER appuser
 EXPOSE 3000
 
 
-CMD ["node",  "--max-old-space-size=4096", "./bin/www"]
+CMD ["node",   "./bin/www"]
