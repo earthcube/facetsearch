@@ -35,8 +35,6 @@ RUN corepack enable
 # This ensures the http-server executable is in the user's PATH
 USER node
 
-# Install a static file server globally
-RUN yarn global add http-server
 
 EXPOSE 8080
 CMD [ "http-server", "dist" ]
