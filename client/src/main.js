@@ -40,7 +40,7 @@ app.use(router);
 
 import { default as VueSelect } from "vue-select";
 app.component("VSelect", VueSelect);
-import {configure} from "vue-gtag";
+import {configure, createGtag} from "vue-gtag";
 const gtag = createGtag({
     tagId: "\"G-15XD8YBF5L"
 })

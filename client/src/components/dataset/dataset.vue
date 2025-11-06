@@ -138,7 +138,7 @@
 
                   <div v-if="mapping.start_datetime" class="metadata">
                     <div class="label">Start Date</div>
-                    <div class="value">{{ mapping.start_datetime }}</div>
+                    <div class="va]lue">{{ mapping.start_datetime }}</div>
                   </div>
 
                   <div v-if="mapping.end_datetime" class="metadata">
