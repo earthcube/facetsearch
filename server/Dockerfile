@@ -43,5 +43,5 @@ USER appuser
 # Expose the port the app runs on
 EXPOSE 3000
 
-# Use the start script from package.json. Yarn will execute the node command.
-CMD [ "yarn", "start" ]
+
+CMD ["node",  "--max-old-space-size=4096", "./bin/www"]
