@@ -28,12 +28,15 @@ FROM node:lts-alpine
 COPY --from=builder  /app /app
 WORKDIR /app
 
+# Enable corepack to manage yarn
+RUN corepack enable
+
 # Switch to the non-root user before installing global dependencies
 # This ensures the http-server executable is in the user's PATH
 USER node
 
 # Install a static file server globally
-RUN npm install -g http-server
+RUN yarn global add http-server
 
 EXPOSE 8080
 CMD [ "http-server", "dist" ]
