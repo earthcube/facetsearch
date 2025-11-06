@@ -17,7 +17,7 @@ FROM base AS dependencies
 
 # Install only production dependencies to keep the final image lean.
 # The --frozen-lockfile flag ensures we use the exact versions from yarn.lock
-RUN yarn install
+RUN yarn install --production --immutable
 
 # -----------------------------
 # ---- Release Stage ----
