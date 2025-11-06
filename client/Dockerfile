@@ -20,16 +20,20 @@ COPY . .
 
 # Clean install to fix rollup native dependency issues
 RUN rm -rf node_modules && yarn install
-RUN yarn add http-server
+# http-server will be installed globally in the runtime image
 RUN yarn build
 
 FROM node:lts-alpine
 # copy built files from builder image to new clean node image without vite
 COPY --from=builder  /app /app
-#WORKDIR /app
+WORKDIR /app
 
+# Switch to the non-root user before installing global dependencies
+# This ensures the http-server executable is in the user's PATH
 USER node
 
+# Install a static file server globally
+RUN npm install -g http-server
 
 EXPOSE 8080
-CMD [ "http-server", "/app/dist" ]
+CMD [ "http-server", "dist" ]
