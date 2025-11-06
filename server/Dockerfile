@@ -29,8 +29,11 @@ WORKDIR /usr/src/app
 # Create a non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Copy production dependencies from the dependencies stage
+# Copy artifacts from the dependencies stage. This includes node_modules
+# and the package files to ensure consistency.
 COPY --from=dependencies /usr/src/app/node_modules ./node_modules
+COPY --from=dependencies /usr/src/app/package.json ./package.json
+COPY --from=dependencies /usr/src/app/yarn.lock ./yarn.lock
 
 # Copy application source code (respecting .dockerignore)
 COPY . .
@@ -45,4 +48,4 @@ USER appuser
 EXPOSE 3000
 
 
-CMD ["node",   "./bin/www"]
+CMD ["yarn", "start"]
