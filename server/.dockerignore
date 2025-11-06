@@ -5,5 +5,9 @@
 # Local dependencies
 node_modules
 
+# Package management files (handled by multi-stage build)
+package.json
+yarn.lock
+
 # Docker
 Dockerfile
