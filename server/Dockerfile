@@ -47,5 +47,5 @@ USER appuser
 # Expose the port the app runs on
 EXPOSE 3000
 
-
-CMD ["yarn", "start"]
+#CMD ["yarn", "start"]
+CMD ["node", "./bin/www"]
