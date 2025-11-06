@@ -16,8 +16,8 @@ COPY package.json yarn.lock .yarnrc.yml* ./
 FROM base AS dependencies
 
 # Install only production dependencies to keep the final image lean.
-# The --frozen-lockfile flag ensures we use the exact versions from yarn.lock
-RUN yarn workspaces focus --all --production
+# Use Yarn 4 syntax for production installs
+RUN yarn install --immutable
 
 # -----------------------------
 # ---- Release Stage ----
