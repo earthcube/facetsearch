@@ -19,6 +19,7 @@ RUN corepack enable
 RUN yarn install
 # ---- Release Stage ----
 FROM base AS release
+RUN corepack enable
 WORKDIR /usr/src/app
 
 # Create a non-root user
