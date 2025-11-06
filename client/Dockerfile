@@ -26,7 +26,7 @@ RUN yarn build
 FROM node:lts-alpine
 # copy built files from builder image to new clean node image without vite
 COPY --from=builder  /app /app
-WORKDIR /app
+#WORKDIR /app
 
 USER node
 
