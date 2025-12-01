@@ -127,12 +127,13 @@
                     <div class="value">{{ mapping.end_datetime }}</div>
                   </div>
 
-          <div v-if="mapping.has_citation" class="metadata">
-            <div class="label">Citation</div>
-            <div
-              class="value"
-              v-html="formatCitation(mapping)"
-            ></div>
+          <div v-if="mapping.s_providers?.length" class="metadata">
+            <div class="label">Providers</div>
+            <div class="value">
+              <div v-for="(p, i) in mapping.s_providers" :key="i">
+                <a :href="p.url" target="_blank" rel="noopener">{{ p.name }}</a>
+              </div>
+            </div>
           </div>
 
           <div v-if="mapping.s_keywords?.length" class="metadata">
@@ -335,9 +336,8 @@ export default {
       raw_json: "",
       mappings: [],
       geolink: "",
-
-
-      collapsedIndices: [] // keeps track of collapsed panels
+      providers: [],
+      collapsedIndices: [], // keeps track of collapsed panels
     };
   },
   watch: {
@@ -500,6 +500,7 @@ export default {
         s_citation: "",
         has_citation: "",
         s_keywords: [],
+        s_providers: [],
         s_landingpage: "",
         s_downloads: [],
         s_identifier: "",
@@ -624,6 +625,43 @@ export default {
               mapping.s_keywords = [c];
             }
           }
+
+          // Providers: keep only {name, url} (support provider/providers; string or object)
+          if (hasSchemaProperty("providers", dataset) || hasSchemaProperty("provider", dataset)) {
+            const raw = hasSchemaProperty("providers", dataset)
+              ? schemaItem("providers", dataset)
+              : schemaItem("provider", dataset);
+
+            const arr = Array.isArray(raw) ? raw : [raw];
+
+            const toProvider = (p) => {
+              if (!p) return null;
+
+              // if it ever comes in as a string, we can't reliably split name/url
+              if (typeof p === "string") {
+                return { name: p, url: p }; // best-effort: link to itself
+              }
+
+              const name =
+                (hasSchemaProperty("name", p) ? schemaItem("name", p) : "") ||
+                (hasSchemaProperty("legalName", p) ? schemaItem("legalName", p) : "") ||
+                p.name ||
+                p.legalName ||
+                "";
+
+              const url =
+                (hasSchemaProperty("url", p) ? schemaItem("url", p) : "") ||
+                p.url ||
+                p["@id"] ||
+                "";
+
+              if (!name && !url) return null;
+              return { name: name || url, url: url || name };
+            };
+
+            mapping.s_providers = arr.map(toProvider).filter(Boolean);
+          }
+
           mapping.s_landingpage = schemaItem("description", dataset);
           mapping.updated = schemaItem("updated", dataset);
           mapping.start_datetime = formatDateToYYYYMMDD(schemaItem("start_datetime", dataset));
