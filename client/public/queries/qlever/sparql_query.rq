@@ -83,10 +83,10 @@ WHERE {
         #    }
         # if there is more than one location, then coallese to get the versions.
         OPTIONAL {
-            ?subj sschema:variableMeasured ?vmd .
+            ?subj sschema:variableMeasured|sschema:additionalProperty ?vmd .
             ?vmd a sschema:PropertyValue .
             ?vmd sschema:name ?namedepth .
-            FILTER (LCASE(?namedepth) IN ( "cmpdep",  "package_depth", "collection_depth", "Bottle Depth","sample depth","tow depth") ) .
+            FILTER (LCASE(?namedepth) IN ( "cmpdep",  "package_depth", "collection_depth", "Bottle Depth","sample depth","tow depth","DepBelowSurf") ) .
             ?vmd sschema:maxValue ?maxDepth_d .
             ?vmd sschema:minValue ?minDepth_d
             bind (COALESCE(?maxDepth_d) As ?maxDepth)
