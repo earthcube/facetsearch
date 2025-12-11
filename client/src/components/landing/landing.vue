@@ -5,7 +5,7 @@
       <b-row class="justify-content-center">
         <b-col md="5" class="text-center">
           <template v-if="currentTenant">
-            <span class="logo">{{ currentTenant.name }}</span>
+            <span class="logo text-nowrap">{{ currentTenant.name }}</span>
           </template>
           <template v-else>
             <logoGeoCodes class="d-block mx-auto" fill="#18598b" style="max-width:260px;width:100%" />
@@ -326,7 +326,7 @@ export default {
 
 .card-logo{
   max: {
-    width: 100px;
+    width: 200px;
   }
   max: {
     height: 100px;
