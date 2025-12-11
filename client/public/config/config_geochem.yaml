@@ -1,13 +1,13 @@
-COMMUNITY: geochemistry
+COMMUNITY: earthsurface
 # https://geocodes.earthcube.org
 API_URL: https://geochemistry.geocodes-aws.earthcube.org/ec/api
 MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
-TENANT_URL: https://oss.geocodes-aws-dev.earthcube.org/test/scheduler/configs/test/tenant.yaml
+TENANT_URL: https://oss.geocodes-aws-dev.earthcube.org/geocodes/scheduler/configs/production/tenant.yaml
 # local development
 #API_URL: "${window_location_origin}/ec/api"
 S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/decoder/reports/
-TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/geochemistry/sparql
-SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/geochemistry_summary/sparql
+TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthsurface/sparql
+SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthsurface_summary/sparql
 BLAZEGRAPH_TIMEOUT: 20
 # JSONLD_PROXY needs qoutes... since it has a $
 JSONLD_PROXY: "https://geochemistry.geocodes-aws.earthcube.org/ec/api/${o}"
