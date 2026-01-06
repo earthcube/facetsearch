@@ -17,7 +17,13 @@ PREFIX bds: <http://www.bigdata.com/rdf/search#>
          OPTIONAL {?g schema:date ?datep .}
          OPTIONAL {?g schema:publisher ?pubname .}
          OPTIONAL {?g schema:place ?placenames .}
-         OPTIONAL {?g schema:keywords ?kw .}
+         OPTIONAL {
+           { ?g schema:keywords ?kw . 
+             FILTER (isLiteral(?kw)) }
+           UNION
+           { ?g schema:keywords ?kwTerm . 
+             ?kwTerm schema:name ?kw . }
+         }
 
          }
  GROUP BY ?g ?pubname ?placenames ?kw ?datep ?disurl ?score ?name ?description  ?resourceType
