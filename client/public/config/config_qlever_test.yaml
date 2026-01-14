@@ -1,0 +1,19 @@
+---
+MAPBOX_API_KEY: pk.eyJ1IjoidmFsZW50aW5lZHd2IiwiYSI6ImNscnNoNmFncjA3OHcycW8zNXJ4Z3BkNTAifQ.XvgsPncdJRXKsODCheRANA
+API_URL: https://qlever-test.geocodes-aws-dev.earthcube.org/ec/api
+TENANT_URL: https://oss.geocodes-aws-dev.earthcube.org/test/scheduler/configs/test/tenant.yaml
+TRIPLESTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube/sparql
+ECRR_TRIPLESTORE_URL: http://132.249.238.169:8080/fuseki/ecrr/query
+SUMMARYSTORE_URL: https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/earthcube_summary/sparql
+S3_REPORTS_URL: https://oss.geocodes-aws.earthcube.org/decoder/reports/
+COMMUNITY: all
+BLAZEGRAPH_TIMEOUT: 20
+ECRR_GRAPH: http://earthcube.org/gleaner-summoned
+THROUGHPUTDB_URL: https://throughputdb.com/api/ccdrs/annotations
+SPARQL_QUERY: queries/sparql_query.txt
+SPARQL_HASTOOLS: queries/sparql_hastools.txt
+SPARQL_TOOLS_WEBSERVICE: queries/sparql_gettools_webservice.txt
+SPARQL_TOOLS_DOWNLOAD: queries/sparql_gettools_download.txt
+JSONLD_PROXY: https://qlever-test.geocodes-aws-dev.earthcube.org/ec/api${o}
+SPARQL_NB: https://geocodes-aws.earthcube.org/notebook/mkQ?q=${q}
+SPARQL_YASGUI: https://sparqlgui.geocodes-aws.earthcube.org/?
