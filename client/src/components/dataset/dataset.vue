@@ -108,7 +108,7 @@
                   </div>
 
                   <div v-if="mapping.s_datePublished" class="metadata">
-                    <div class="label">Date</div>
+                    <div class="label">Publication Date</div>
                     <div class="value">{{ mapping.s_datePublished }}</div>
                   </div>
 
