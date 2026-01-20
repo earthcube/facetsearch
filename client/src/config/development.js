@@ -1,6 +1,6 @@
 export default {
   NODE_ENV: process.env.NODE_ENV || "unknown",
-  API_URL: "http://localhost:3000",
+  API_URL: process.env.VITE_APP_API_URL || "http://localhost:3000",
   TRIPLESTORE_URL:
     "https://graph.geocodes.earthcube.org/blazegraph/namespace/earthcube/sparql",
   //TRIPLESTORE_URL:'https://graphdb.geodex.org/repositories/geocodes',
@@ -15,7 +15,7 @@ export default {
   SPARQL_HASTOOLS: "queries/sparql_hastools.txt",
   SPARQL_TOOLS_WEBSERVICE: "queries/sparql_gettools_webservice.txt",
   SPARQL_TOOLS_DOWNLOAD: "queries/sparql_gettools_download.txt",
-  JSONLD_PROXY: "http://localhost:3000/${o}",
+  JSONLD_PROXY: process.env.VITE_APP_JSONLD_PROXY || "http://localhost:3000/${o}",
   SPARQL_NB: "https://beta.geocodes.earthcube.org/notebook/mkQ?q=${q}",
   SPARQL_YASGUI: "https://geocodes.earthcube.org/sparqlgui?",
   // allow us to use the same delimiters as lithtml
