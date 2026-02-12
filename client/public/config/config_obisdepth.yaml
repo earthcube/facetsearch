@@ -89,11 +89,11 @@ FACETS:
     sort: acs
     open: true
     type: text
-  - field: placenames
-    title: Place
-    sort: acs
-    open: true
-    type: text
+#  - field: placenames
+#    title: Place
+#    sort: acs
+#    open: true
+#    type: text
   - field: pubname
     title: Publisher/Repo
     sort: acs
@@ -109,11 +109,11 @@ FACETS:
     sort: acs
     open: true
     type: rangedepth
-#  - field: temporalCoverage
-#    title: Temporal Coverage
-#    sort: acs
-#    open: true
-#    type: rangeyeartemporal
+  - field: temporalCoverage
+    title: Temporal Coverage
+    sort: acs
+    open: true
+    type: rangeyeartemporal
   - field: spatialCoverage
     title: Spatial Filter
     sort: acs

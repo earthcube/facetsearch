@@ -188,6 +188,40 @@ export const store = _createStore({
     return minDepth <= max && maxDepth >= min;
   });
 },
+      filterByTemporalCoverage(state, { start, end }) {
+      // Backup original results ONLY ONCE when first filtering
+      if (!state.allResults || state.allResults.length === 0) {
+        state.allResults = [...(state.results || [])];
+      }
+
+      // Always filter from the original allResults
+      state.results = (state.allResults || []).filter(item => {
+        const tc = item.temporalCoverage;
+
+        // Skip items without temporal coverage
+        if (!tc) return false;
+
+        // Handle YYYY/YYYY format
+        if (tc.includes("/")) {
+          const [rawStart, rawEnd] = tc.split("/");
+          const tcStart = parseInt(rawStart.trim(), 10);
+          const tcEnd = parseInt(rawEnd.trim(), 10);
+
+          if (isNaN(tcStart) || isNaN(tcEnd)) return false;
+
+          // Check if temporal ranges overlap
+          return tcStart <= end && tcEnd >= start;
+        }
+
+        // Handle single YYYY format
+        const year = parseInt(tc.trim(), 10);
+        if (isNaN(year)) return false;
+
+        // Single year must fall within the selected range
+        return year >= start && year <= end;
+      });
+    },
+
     setNewCollection: (state, obj) => {
       localforage.getItem(obj.key, function (err, value) {
         if (value === null) {

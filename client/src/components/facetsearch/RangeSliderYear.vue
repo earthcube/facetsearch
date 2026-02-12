@@ -43,6 +43,7 @@
   </div>
 </template>
 
+
 <script>
 import "vue-range-component/dist/vue-range-slider.css";
 import VueRangeSlider from "vue-range-component-fixed";
@@ -72,20 +73,32 @@ export default {
       disableDrag: true,
       hasData: false,
       isReady: false,
+      isFiltering: false, // Track if we're currently filtering
+      initialRangeSet: false, // Track if initial range has been set
     };
   },
   computed: {
-    ...mapState(["results"]),
+    ...mapState(["results", "allResults"]),
   },
   watch: {
     results: {
       handler(newResults) {
-        if (!newResults || newResults.length === 0) {
+        // Don't reset the slider if we're actively filtering
+        if (this.isFiltering) {
+          return;
+        }
+
+        // Use allResults if available (original unfiltered data), otherwise use results
+        const dataToAnalyze = this.$store.state.allResults && this.$store.state.allResults.length > 0
+          ? this.$store.state.allResults
+          : newResults;
+
+        if (!dataToAnalyze || dataToAnalyze.length === 0) {
           this.hasData = false;
           return;
         }
 
-        const ranges = newResults
+        const ranges = dataToAnalyze
           .map(item => {
             const tc = item.temporalCoverage || "";
             if (!tc.includes("/")) return null;
@@ -115,17 +128,21 @@ export default {
           return;
         }
 
-        this.startYear = min;
-        this.endYear = max;
-        this.value = [min, max];
-        this.disableDrag = false;
-        this.hasData = true;
+        // Only update if this is the first time or if the range has changed significantly
+        if (!this.initialRangeSet || this.startYear !== min || this.endYear !== max) {
+          this.startYear = min;
+          this.endYear = max;
+          this.value = [min, max];
+          this.disableDrag = false;
+          this.hasData = true;
+          this.initialRangeSet = true;
 
-        // Delay slider rendering
-        this.$nextTick(() => {
-          this.isReady = true;
-          this.sliderKey++;
-        });
+          // Delay slider rendering
+          this.$nextTick(() => {
+            this.isReady = true;
+            this.sliderKey++;
+          });
+        }
       },
       immediate: true
     }
@@ -137,7 +154,18 @@ export default {
       }
 
       const [start, end] = this.value;
+
+      // Set flag to prevent watcher from resetting slider
+      this.isFiltering = true;
+
       this.$store.commit('filterByTemporalCoverage', { start, end });
+
+      // Reset flag after a short delay
+      this.$nextTick(() => {
+        setTimeout(() => {
+          this.isFiltering = false;
+        }, 100);
+      });
     },
     onCollapseShown() {
       if (this.$refs.rangeSlider && this.$refs.rangeSlider.refresh) {
