@@ -17,12 +17,14 @@
         v-if="facetSetting.type == 'rangedepth'"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
+          :key="filtersResetToken()"
       ></RangeSliderDepth>
 
       <RangeSliderYear
         v-if="facetSetting.type == 'rangeyeartemporal'"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
+        :key="filtersResetToken()"
       ></RangeSliderYear>
 
       <GeoBoundingBoxPicker
@@ -42,6 +44,7 @@ import RangeSliderYear from "@/components/facetsearch/RangeSliderYear.vue";
 import GeoBoundingBoxPicker from "@/components/facetsearch/GeoBoundingBoxPicker.vue";
 
 export default {
+  inject: ["filtersResetToken", "filtersState", "facetStore", "toggleFilter", "clearFilters"],
   name: "Facets",
   components: {
     FacetText,

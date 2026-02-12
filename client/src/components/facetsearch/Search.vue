@@ -55,6 +55,7 @@ export default {
       facetStore: this.facetStore,
       filtersState: this.filtersState,
       filter: this.filter,
+      filtersResetToken: () => this.filtersResetToken,
     };
   },
 
@@ -95,6 +96,7 @@ export default {
   data() {
     return {
       value: 1,
+      filtersResetToken: 0,
       isModalVisible: false,
       feedBackItemId: String,
       o: 0,
@@ -405,15 +407,19 @@ export default {
         });
       });
 
-      this.filtersState.filters = {};
+      // ✅ Vue2 reactive 更穩
+      this.$set(this.filtersState, "filters", {});
 
-      // Also reset depth filter in Vuex (keeping your existing behavior)
       if (this.$store.state.allResults && this.$store.state.allResults.length > 0) {
         this.$store.commit("resetFilters");
       }
 
+      // ✅ 觸發 sliders 重建
+      this.filtersResetToken++;
+
       this.filter();
     },
+
   },
 };
 </script>

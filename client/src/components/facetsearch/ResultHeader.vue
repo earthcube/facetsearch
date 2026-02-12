@@ -155,7 +155,7 @@ export default {
       //bus.$emit('facetupdate');
     },
     orderByChanged() {
-      this.order(this.orderByOptions.find((o) => (o.field = this.orderBy)));
+      this.order(this.orderByOptions.find((o) => (o.field === this.orderBy)));
     },
     limitChanged() {
       this.setResultLimit(this.limit);
