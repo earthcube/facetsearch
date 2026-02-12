@@ -48,6 +48,7 @@ export const store = _createStore({
     toolLdObj: {},
     toolLdCompact: {},
     results: [],
+      allResults: [],
     queryTemplates: new Map(),
     lastQueryResults: new Map(), // query, num results
     lastDatasetIds: [],
@@ -161,6 +162,32 @@ export const store = _createStore({
     setFacetsConfig: (state, obj) => {
       state.FacetsConfig = obj;
     },
+      resetFilters(state) {
+    // Reset results to original unfiltered data
+    if (state.allResults && state.allResults.length > 0) {
+      state.results = [...state.allResults];
+      state.allResults = [];
+    }
+  },
+
+    filterByDepth(state, { min, max }) {
+  // Backup original results ONLY ONCE when first filtering
+  if (!state.allResults || state.allResults.length === 0) {
+    state.allResults = [...(state.results || [])];
+  }
+
+  // Always filter from the original allResults, not from the current filtered results
+  state.results = (state.allResults || []).filter(item => {
+    const minDepth = parseFloat(item.minDepth);
+    const maxDepth = parseFloat(item.maxDepth);
+
+    // Skip items without valid depth data
+    if (isNaN(minDepth) || isNaN(maxDepth)) return false;
+
+    // Check if depth ranges overlap
+    return minDepth <= max && maxDepth >= min;
+  });
+},
     setNewCollection: (state, obj) => {
       localforage.getItem(obj.key, function (err, value) {
         if (value === null) {

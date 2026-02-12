@@ -1,3 +1,4 @@
+
 <template>
   <b-container fluid="md" class="mt-3">
     <b-overlay
@@ -12,13 +13,10 @@
           <Facets :facets="facets" :facet-store="facetStore"></Facets>
           <feedback subject="Search" :name="textQuery" :urn="feedBackItemId">
           </feedback>
-
-          <!--                  <HistRangeSlider></HistRangeSlider>-->
         </b-col>
 
         <!-- filter and results -->
         <b-col md="9" class="results">
-          <!-- Here comes the demo, if you want to copy and paste, start here -->
           <ResultHeader
             :current-count="currentResults.length"
             :total-count="items.length"
@@ -29,8 +27,6 @@
             :current-results="currentResults"
             :state="filtersState"
           ></Results>
-
-          <!--                    <b-button variant="outline-primary" class="mt-5">Load More</b-button>-->
         </b-col>
       </b-row>
     </b-overlay>
@@ -38,27 +34,18 @@
 </template>
 
 <script>
-//import Vue from 'vue'
-//import { provide, reactive } from 'vue'
 import Results from "@/components/facetsearch/Results.vue";
 import Facets from "@/components/facetsearch/Facets.vue";
 import _ from "underscore";
-//import axios from "axios";
-//import FacetsConfig from '../../config.js'
-
-//import {bus} from "../../main.js"
 import ResultHeader from "@/components/facetsearch/ResultHeader.vue";
 import {
   mapActions,
   mapGetters,
   mapState,
   mapMutations,
-  // mapGetters
 } from "vuex";
 import feedback from "@/components/feedback/feedback.vue";
 import { v5 as uuidv5 } from "uuid";
-
-// import HistRangeSlider from "@/components/facetsearch/HistRangeSlider.vue"
 
 export default {
   name: "Search",
@@ -84,7 +71,6 @@ export default {
       "esTemplateOptions",
       "q",
     ]),
-    //...mapGetters(['q',])
     ...mapGetters(["hasMicroCache", "getMicroCache"]),
   },
   watch: {
@@ -93,18 +79,13 @@ export default {
     n: "newTextSearch",
     searchExactMatch: "newTextSearch",
     resourceType: "newTextSearch",
-    // '$route.params.resourceType': function() {
-    //   this.newTextSearch()
-    //   // should get fanche and overlay a loading... then remove loading in toMetadata
-    // },
   },
 
   props: {
     title: String,
-    textQuery: String, // this needs to be here route passes as a prop
+    textQuery: String,
     resourceType: String,
     exact: String
-    // results:[]
   },
 
   components: {
@@ -121,7 +102,6 @@ export default {
       feedBackItemId: String,
       o: 0,
       n: 9,
-
       esTemplateOptions: this.esTemplateOptions,
       queryTemplates: {},
       filtersState: {
@@ -130,15 +110,10 @@ export default {
       },
       items: [],
       currentResults: [],
-      facetStore: {}, ///  now defined using a provide
-      //---- ok to edit facets
+      facetStore: {},
       facets: [],
-
-      // -- end edit  facets
       queryRunning: false,
       lastError: undefined,
-      // resourceType queries are in state.js
-      //   microCache: null
     };
   },
   created() {
@@ -146,71 +121,48 @@ export default {
     this.facets = this.FacetsConfig.FACETS;
     const facetsList = {};
     _.each(this.facets, function (facet) {
-      //function(facettitle, facet) {
       facetsList[facet.field] = {};
     });
     this.facetStore = facetsList;
   },
   mounted() {
-    //const self = this;
-    //const q = "water";
     console.log(window.location.href);
     this.o = 0;
     this.queryRunning = true;
-    // this.$store.state.q = this.textQuery
     this.setTextQuery(this.textQuery);
     this.setResourceTypeQuery("all");
     this.setSearchExactMatch(this.exact);
-    // for some reason, the set are in here, and the nav bar header,
+    
     let paramString = window.location.href.split("?")[1];
     let queryString = new URLSearchParams(paramString);
     for (let pair of queryString.entries()) {
       if (pair[0] === "q") continue;
       if (pair[0] === "resourceType" && pair[1] == "all") continue;
       if (pair[0] === "searchExactMatch") continue;
-      // console.log("Key is:" + pair[0]);
-      // console.log("Value is:" + pair[1]);
       this.toggleFilter(pair[0], pair[1], true);
     }
 
-    // const hit = this.getMicroCache.get(this.textQuery)
     let queryObj = this.getQueryObj();
 
     if (this.hasMicroCache(queryObj.uuid)) {
       console.log("lru has " + queryObj.uuid);
-
-      // caution, do not set results in this block, since results is watched,  so this ends up called twice
       this.search();
-
-      // }
-      // // console.log("hit: " + hit)
-      //
-      // let lastItems = this.$store.getters.getLastQueryResults(this.textQuery)
-      // if (lastItems){
-      //   this.$store.commit('setResults',lastItems)
-      //   //this.queryRunning = false;
-      //   this.search()
     }
-    // else {
-    //   this.$store.dispatch('getResults', queryObj
-    //   )
-    //    this.addtoMicroCache(queryObj, this.results)
-    // }
   },
   methods: {
     ...mapMutations(["setTextQuery", "setResourceTypeQuery", "setSearchExactMatch"]),
     ...mapActions(["getResults", "getQueryTemplate", "addtoMicroCache"]),
+    
     updateYearRange(start, end) {
       this.$set(this.filtersState.filters, "startYear", [start]);
       this.$set(this.filtersState.filters, "endYear", [end]);
       this.filter();
     },
+    
     getQueryObj: function () {
-      //let activeFilters = this.filtersState.filters|| []; // filters needs to be moved into actual filtersState in the future
       let activeFilters = [];
       let queryObj = {
         textQuery: this.textQuery,
-        //textMatchAll: this.textMatchAllButton,
         limit: this.n,
         offset: this.o,
         searchExactMatch: this.searchExactMatch,
@@ -218,13 +170,12 @@ export default {
         filters: activeFilters,
       };
       let string2uuid = JSON.stringify(queryObj);
-      let uuid = uuidv5(string2uuid, uuidv5.URL); // any old 16 character namespace
+      let uuid = uuidv5(string2uuid, uuidv5.URL);
       return { uuid: uuid, query: queryObj };
     },
-    //content.results.bindings
+    
     newTextSearch: function () {
       this.queryRunning = true;
-      //   this.$store.state.q = this.textQuery
       this.setTextQuery(this.textQuery);
       this.getResults(this.getQueryObj())
         .then(() => {
@@ -234,52 +185,41 @@ export default {
           this.lastError = ex;
           this.$bvToast.toast(`Query issue ` + ex, {
             title: "Server issues with query to triplestore",
-
             solid: true,
             appendToast: false,
             noAutoHide: true,
           });
         });
-      //this.queryRunning = false;
     },
 
     search: function () {
       let queryObj = this.getQueryObj();
-      // these are handles in the state getResults...
-      //this.$store.commit('setMicroCache', {'key':queryObj.uuid, 'value': this.results})
-      // this.$store.commit('setResults',  this.results)
       this.feedBackItemId = "search?q=" + queryObj.query?.textQuery;
       this.queryRunning = false;
+      
+      // Use Vuex results directly - this is the key change
       this.items = this.results;
-      // this.items = this.getResults(this.getQueryObj()) // just in case it's not the last query
-      this.initFacetCounts(); //items,facets, facetStore,  facetSortOption
+      
+      this.initFacetCounts();
       this.filter();
-      //vue3
-      //bus.$emit('facetupdate');
     },
+    
     setResultLimit(n) {
       this.n = n;
     },
+    
     setSearchExactmatch(b) {
       this.searchExactMatch = b;
     },
 
     initFacetCounts: function () {
       let items = this.items;
-
       let facets = this.facets;
       let facetStore = this.facetStore;
       let facetSortOption = this.facetSortOption;
 
-      // move into mount
-      // _.each(facets,
-      //     function (facet) { //function(facettitle, facet) {
-      //       facetStore[facet.field] = {};
-      //     });
       _.each(items, function (item) {
-        // intialize the count to be zero
         _.each(facets, function (facet) {
-          //function(facettitle, facet) {
           if (_.isArray(item[facet.field])) {
             _.each(item[facet.field], function (facetitem) {
               if (_.isEmpty(facetitem)) {
@@ -292,7 +232,6 @@ export default {
                 id: _.uniqueId("facet_"),
                 isActive: false,
               };
-              // Vue.observable(facetStore[facet.field][facetitem] )
             });
           } else {
             if (item[facet.field] !== undefined) {
@@ -306,12 +245,12 @@ export default {
                 id: _.uniqueId("facet_"),
                 isActive: false,
               };
-              //  Vue.observable(facetStore[facet.field][item[facet.field]]  )
             }
           }
         });
       });
-      // sort it:
+      
+      // Sort facets
       _.each(facetStore, function (facetData, facettitle) {
         var sorted = _.keys(facetStore[facettitle]).sort();
         if (facetSortOption && facetSortOption[facettitle]) {
@@ -321,204 +260,129 @@ export default {
         _.each(sorted, function (el) {
           sortedstore[el] = facetStore[facettitle][el];
         });
-        //settings.facetStore[facet.field] = sortedstore;
-        //Vue.set(facetStore, facettitle, sortedstore) //vue2
-        facetStore[facettitle] = sortedstore; // vue3
+        facetStore[facettitle] = sortedstore;
       });
     },
-    resetFacetCount: function () {
-      var self = this;
-      _.each(self.facetStore, function (items, facetname) {
-        _.each(items, function (value, itemname) {
-          self.facetStore[facetname][itemname].count = 0;
-          if (_.indexOf(self.filtersState.filters[facetname], itemname) == -1) {
-            self.facetStore[facetname][itemname].isActive = false;
-          } else {
-            self.facetStore[facetname][itemname].isActive = true;
-          }
-        });
-      });
-    },
-    /**
-     * Filters all items from the settings according to the currently
-     * set filters and stores the results in the settings.currentResults.
-     * The number of items in each filter from each facet is also updated
-     */
+
     filter: function () {
-      let self = this;
+      const self = this;
+      let facets = this.facets;
+      let activeFilters = this.filtersState.filters;
+      
+      // Start with items from Vuex store (which may already be filtered by depth)
+      self.currentResults = this.results;
 
-      const getLatestFilterValue = (key) => {
-        const val = self.filtersState.filters[key];
-        return Array.isArray(val) ? val.slice(-1)[0] : undefined;
-      };
-
-      const minDepthFilter = getLatestFilterValue("minDepth");
-      const maxDepthFilter = getLatestFilterValue("maxDepth");
-      const startYearFilter = getLatestFilterValue("startYear");
-      const endYearFilter = getLatestFilterValue("endYear");
-
-      let newResults = _.filter(this.items, function (item) {
-        const itemMin = parseFloat(item.minDepth);
-        const itemMax = parseFloat(item.maxDepth);
-
-        let itemStartYear = undefined;
-        let itemEndYear = undefined;
-        if (typeof item.temporalCoverage === "string" && item.temporalCoverage.includes("/")) {
-          const [start, end] = item.temporalCoverage.split("/");
-          itemStartYear = parseInt(start.trim(), 10);
-          itemEndYear = parseInt(end.trim(), 10);
+      // Filter by active facet filters
+      _.each(activeFilters, function (filtervalues, filter) {
+        if (_.isEmpty(filtervalues)) {
+          return;
         }
-
-        const isValid = () => {
-          if (isNaN(itemMin) || isNaN(itemMax)) return false;
-
-          const overlapsDepthRange =
-            (minDepthFilter === undefined || itemMax >= minDepthFilter) &&
-            (maxDepthFilter === undefined || itemMin <= maxDepthFilter);
-
-          if (!overlapsDepthRange) return false;
-
-          if (isNaN(itemStartYear) && isNaN(itemEndYear)) return false;
-          if (isNaN(itemStartYear)) itemStartYear = itemEndYear;
-          if (isNaN(itemEndYear)) itemEndYear = itemStartYear;
-
-          const overlapsYearRange =
-            (startYearFilter === undefined || itemEndYear >= startYearFilter) &&
-            (endYearFilter === undefined || itemStartYear <= endYearFilter);
-
-          return overlapsYearRange;
-        };
-
-        if (!isValid()) return false;
-
-        for (const [facet, filter] of Object.entries(self.filtersState.filters)) {
-          if (["minDepth", "maxDepth", "startYear", "endYear"].includes(facet)) continue;
-
-          if (_.isArray(item[facet])) {
-            const inters = _.intersection(item[facet], filter);
-            if (inters.length === 0) return false;
+        
+        self.currentResults = _.filter(self.currentResults, function (item) {
+          if (_.isArray(item[filter])) {
+            return _.intersection(filtervalues, item[filter]).length > 0;
           } else {
-            if (filter.length && !filter.includes(item[facet])) return false;
+            return _.contains(filtervalues, item[filter]);
           }
-        }
-
-        return true;
+        });
       });
 
-      const len = self.currentResults.length;
-      self.currentResults.splice(0, len);
-      newResults.forEach(i => self.currentResults.push(i));
+      // Update facet counts based on filtered results
+      _.each(facets, function (facet) {
+        _.each(self.facetStore[facet.field], function (facetData, facetitem) {
+          facetData.count = 0;
+        });
+      });
 
-      this.resetFacetCount();
-
-      _.each(self.facets, function (facet) {
-        _.each(self.currentResults, function (item) {
-          const val = item[facet.field];
-          if (_.isArray(val)) {
-            val.forEach(facetitem => {
-              if (_.isEmpty(facetitem)) return;
-              self.facetStore[facet.field][facetitem].count += 1;
+      _.each(self.currentResults, function (item) {
+        _.each(facets, function (facet) {
+          if (_.isArray(item[facet.field])) {
+            _.each(item[facet.field], function (facetitem) {
+              if (self.facetStore[facet.field][facetitem]) {
+                self.facetStore[facet.field][facetitem].count++;
+              }
             });
-          } else if (val !== undefined && !_.isEmpty(val)) {
-            self.facetStore[facet.field][val].count += 1;
-          }
-        });
-      });
-
-      _.each(self.filtersState.filters, function (filters, facettitle) {
-        _.each(self.facetStore[facettitle], function (facet) {
-          if (facet.count === 0 && filters.length) facet.count = "+";
-        });
-      });
-
-      self.filtersState.shownResults = 0;
-    },
-    toggleFilter: function (key, value, skipfilterUrl = false) {
-      var stateObj = { key: value };
-      if (!skipfilterUrl) {
-        if (window.location.href.includes(encodeURI("&" + key + "=" + value))) {
-          var href = window.location.href;
-          href = href.replace(encodeURI("&" + key + "=" + value), "");
-          history.pushState(stateObj, "", href);
-        } else {
-          history.pushState(
-            stateObj,
-            "",
-            window.location.href + "&" + key + "=" + value
-          );
-        }
-      }
-      var s_state = this.filtersState;
-
-      // Special case for range filters: overwrite instead of push
-      if (key === "minDepth" || key === "maxDepth") {
-        this.$set(s_state.filters, key, [value]); // replace with single-element array
-        this.filter();
-        return;
-      }
-
-      this.$set(s_state.filters, key, s_state.filters[key] || []);
-      if (_.indexOf(s_state.filters[key], value) == -1) {
-        s_state.filters[key].push(value);
-        this.$set(s_state.filters, key, s_state.filters[key]);
-        // don't do isActive here. resetFacetCount is called later
-      } else {
-        var indx = _.indexOf(s_state.filters[key], value);
-        console.log(
-          "delete filter: " +
-            s_state.filters[key][indx] +
-            " from the key: " +
-            key
-        );
-        this.$set(s_state.filters, key, _.without(s_state.filters[key], value));
-        if (s_state.filters[key].length == 0) {
-          console.log("empty filter kw: " + key);
-          delete s_state.filters[key];
-          // this.$set(s_state.filters, key,  undefined)
-          // just setting to undefined does not work, and just delete does not work, so
-          s_state.filters = Object.assign({}, s_state.filters);
-          // don't do isActive here. resetFacetCount is called later
-        }
-      }
-      this.filter();
-    },
-    clearFilters: function () {
-      console.log(window.location.href);
-      var href = window.location.href;
-      for (const [key, value] of Object.entries(this.filtersState.filters)) {
-        console.log(key, value);
-        for (let s of value) {
-          href = href.replace(encodeURI("&" + key + "=" + s), "");
-          console.log(href);
-        }
-      }
-      history.pushState("", "", href);
-      this.filtersState.filters = {};
-      this.filter();
-      this.$root.$emit("refresh slider range", "clear");
-    },
-    order: function (orderBy) {
-      let self = this;
-      self.filtersState.orderBy = orderBy.field;
-      if (this.filtersState.orderBy) {
-        //$(".activeorderby").removeClass("activeorderby");
-        //$('#orderby_'+self.filtersState.orderBy).addClass("activeorderby");
-        self.currentResults = _.sortBy(self.currentResults, function (item) {
-          if (self.filtersState.orderBy == "RANDOM") {
-            return Math.random() * 10000;
           } else {
-            return item[self.filtersState.orderBy];
+            if (
+              item[facet.field] &&
+              self.facetStore[facet.field][item[facet.field]]
+            ) {
+              self.facetStore[facet.field][item[facet.field]].count++;
+            }
           }
         });
-        //if (this.orderByOptionsSort[self.filtersState.orderBy] === 'desc')
-        if (orderBy.sort === "desc") {
-          // nice to be passing around objects
-          self.currentResults = self.currentResults.reverse();
-        }
+      });
+
+      // Sort results
+      if (self.filtersState.orderBy === "name") {
+        self.currentResults = _.sortBy(self.currentResults, function (item) {
+          return item.name;
+        });
+      } else if (self.filtersState.orderBy === "pubname") {
+        self.currentResults = _.sortBy(self.currentResults, function (item) {
+          return item.publisher;
+        });
+      } else if (self.filtersState.orderBy === "date") {
+        self.currentResults = _.sortBy(self.currentResults, function (item) {
+          return item.datePublished;
+        });
       }
+    },
+
+    order: function (orderBy) {
+      this.filtersState.orderBy = orderBy;
+      this.filter();
+    },
+
+    toggleFilter: function (facetKey, facetValue, isActive) {
+      if (isActive) {
+        this.filtersState.filters[facetKey] =
+          this.filtersState.filters[facetKey] || [];
+        this.filtersState.filters[facetKey].push(facetValue);
+      } else {
+        this.filtersState.filters[facetKey] = _.without(
+          this.filtersState.filters[facetKey],
+          facetValue
+        );
+      }
+      
+      if (this.facetStore[facetKey] && this.facetStore[facetKey][facetValue]) {
+        this.facetStore[facetKey][facetValue].isActive = isActive;
+      }
+      
+      this.filter();
+    },
+
+    clearFilters: function () {
+      const self = this;
+      _.each(this.filtersState.filters, function (filtervalues, filter) {
+        _.each(filtervalues, function (value) {
+          if (self.facetStore[filter] && self.facetStore[filter][value]) {
+            self.facetStore[filter][value].isActive = false;
+          }
+        });
+      });
+      this.filtersState.filters = {};
+      
+      // Also reset depth filter in Vuex
+      if (this.$store.state.allResults && this.$store.state.allResults.length > 0) {
+        this.$store.commit('resetFilters');
+      }
+      
+      this.filter();
     },
   },
 };
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+@import "@/assets/bootstrapcss/custom";
+
+.sidebar {
+  @include media-breakpoint-down(md) {
+    margin: {
+      bottom: $spacer * 2;
+    }
+  }
+}
+</style>

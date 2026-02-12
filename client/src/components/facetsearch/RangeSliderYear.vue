@@ -1,5 +1,5 @@
 <template>
-  <div class="filter_card">
+  <div class="filter_card" v-if="hasData">
     <b-button
       v-b-toggle="'accordion_range_' + facetSetting.field"
       block
@@ -21,13 +21,15 @@
     </b-button>
     <b-collapse :id="'accordion_range_' + facetSetting.field" @shown="onCollapseShown">
       <vue-range-slider
+        v-if="isReady"
         v-model="value"
         ref="rangeSlider"
         :key="sliderKey"
         class="mx-2 py-2"
         :tooltip="false"
-        :min="parseInt(startYear)"
-        :max="parseInt(endYear)"
+        :min="startYear"
+        :max="endYear"
+        :step="1"
         :disabled="disableDrag"
         @drag-end="filtered"
       ></vue-range-slider>
@@ -63,12 +65,13 @@ export default {
   },
   data() {
     return {
-      mydata: [],
-      startYear: null,
-      endYear: null,
-      value: [0, 0],
+      startYear: 1900,
+      endYear: new Date().getFullYear(),
+      value: [1900, new Date().getFullYear()],
       sliderKey: 0,
-      disableDrag: false,
+      disableDrag: true,
+      hasData: false,
+      isReady: false,
     };
   },
   computed: {
@@ -77,48 +80,75 @@ export default {
   watch: {
     results: {
       handler(newResults) {
-        const ranges = newResults.map(item => {
-          const tc = item.temporalCoverage || "";
-          if (!tc.includes("/")) return null;
+        if (!newResults || newResults.length === 0) {
+          this.hasData = false;
+          return;
+        }
 
-          const [rawStart, rawEnd] = tc.split("/");
-          const start = parseInt(rawStart.trim(), 10);
-          const end = parseInt(rawEnd.trim(), 10);
+        const ranges = newResults
+          .map(item => {
+            const tc = item.temporalCoverage || "";
+            if (!tc.includes("/")) return null;
 
-          return (!isNaN(start) && !isNaN(end)) ? { start, end } : null;
-        }).filter(Boolean);
+            const [rawStart, rawEnd] = tc.split("/");
+            const start = parseInt(rawStart.trim(), 10);
+            const end = parseInt(rawEnd.trim(), 10);
+
+            return (!isNaN(start) && !isNaN(end)) ? { start, end } : null;
+          })
+          .filter(Boolean);
+
+        if (ranges.length === 0) {
+          this.hasData = false;
+          return;
+        }
 
         const startYears = ranges.map(r => r.start);
         const endYears = ranges.map(r => r.end);
 
-        this.startYear = startYears.length ? Math.min(...startYears) : new Date().getFullYear();
-        this.endYear = endYears.length ? Math.max(...endYears) : new Date().getFullYear();
+        const min = Math.floor(Math.min(...startYears));
+        const max = Math.ceil(Math.max(...endYears));
 
-        this.value = [this.startYear, this.endYear];
+        // Ensure max > min
+        if (max <= min) {
+          this.hasData = false;
+          return;
+        }
+
+        this.startYear = min;
+        this.endYear = max;
+        this.value = [min, max];
+        this.disableDrag = false;
+        this.hasData = true;
+
+        // Delay slider rendering
+        this.$nextTick(() => {
+          this.isReady = true;
+          this.sliderKey++;
+        });
       },
       immediate: true
     }
   },
   methods: {
     filtered() {
-      const [start, end] = this.value;
-      this.toggleFilter("startYear", start, true);
-      this.toggleFilter("endYear", end, true);
-    },
-    onCollapseShown() {
-      // Option A: if the slider instance has a .refresh() API
-      if (this.$refs.rangeSlider && this.$refs.rangeSlider.refresh) {
-        this.$nextTick(() => this.$refs.rangeSlider.refresh());
+      if (this.value[0] === this.startYear && this.value[1] === this.endYear) {
         return;
       }
-      // Option B: force a remount via key
-      this.sliderKey++;
-   }
+
+      const [start, end] = this.value;
+      this.$store.commit('filterByTemporalCoverage', { start, end });
+    },
+    onCollapseShown() {
+      if (this.$refs.rangeSlider && this.$refs.rangeSlider.refresh) {
+        this.$nextTick(() => this.$refs.rangeSlider.refresh());
+      }
+    }
   },
 };
 </script>
 <style scoped lang="scss">
-@import "@/assets/bootstrapcss/custom";  // your custom Bootstrap overrides
+@import "@/assets/bootstrapcss/custom";
 
 .filter_card {
   background-color: #f5f5f5;
@@ -128,7 +158,6 @@ export default {
     margin-top: $spacer / 2;
   }
 
-  /* this targets the b-button inside filter_card */
   & > .btn {
     display: flex;
     justify-content: space-between;
@@ -147,16 +176,13 @@ export default {
   }
 }
 
-/* hide/show icons based on collapsed state */
 .collapsed > .when-open,
 .not-collapsed > .when-closed {
   display: none;
 }
 
-/* if you need flat secondary buttons everywhere */
 .btn-secondary,
 .btn-secondary:hover {
   background-image: none !important;
 }
 </style>
-

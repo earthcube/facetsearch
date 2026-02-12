@@ -1,5 +1,6 @@
+
 <template>
-  <div class="filter_card">
+  <div class="filter_card" v-if="hasData">
     <b-button
       v-b-toggle="'accordion_range_' + facetSetting.field"
       block
@@ -21,13 +22,15 @@
     </b-button>
     <b-collapse :id="'accordion_range_' + facetSetting.field" @shown="onCollapseShown">
       <vue-range-slider
+        v-if="isReady"
         v-model="value"
         ref="rangeSlider"
         :key="sliderKey"
         class="mx-2 py-2"
         :tooltip="false"
-        :min="parseInt(minDepth)"
-        :max="parseInt(maxDepth)"
+        :min="minDepth"
+        :max="maxDepth"
+        :step="stepSize"
         :disabled="disableDrag"
         @drag-end="filtered"
       ></vue-range-slider>
@@ -63,61 +66,132 @@ export default {
   },
   data() {
     return {
-      mydata: [],
-      minDepth: null,
-      maxDepth: null,
-      value: [0, 0],
+      minDepth: 0,
+      maxDepth: 100,
+      value: [0, 100],
+      stepSize: 1,
       sliderKey: 0,
-      disableDrag: false,
+      disableDrag: true,
+      hasData: false,
+      isReady: false,
+      isFiltering: false, // Track if we're currently filtering
+      initialRangeSet: false, // Track if initial range has been set
     };
   },
   computed: {
-    ...mapState(["results"]),
+    ...mapState(["results", "allResults"]),
   },
   watch: {
     results: {
       handler(newResults) {
-        const validMinDepths = newResults
+        // Don't reset the slider if we're actively filtering
+        if (this.isFiltering) {
+          return;
+        }
+
+        // Use allResults if available (original unfiltered data), otherwise use results
+        const dataToAnalyze = this.$store.state.allResults && this.$store.state.allResults.length > 0
+          ? this.$store.state.allResults
+          : newResults;
+
+        if (!dataToAnalyze || dataToAnalyze.length === 0) {
+          this.hasData = false;
+          return;
+        }
+
+        const validMinDepths = dataToAnalyze
           .map(d => parseFloat(d.minDepth))
-          .filter(d => !isNaN(d));
+          .filter(d => !isNaN(d) && d !== null && d !== undefined);
 
-        const validMaxDepths = newResults
+        const validMaxDepths = dataToAnalyze
           .map(d => parseFloat(d.maxDepth))
-          .filter(d => !isNaN(d));
+          .filter(d => !isNaN(d) && d !== null && d !== undefined);
 
-        const min = validMinDepths.length > 0 ? Math.min(...validMinDepths) : -10000;
-        const max = validMaxDepths.length > 0 ? Math.max(...validMaxDepths) : 10000;
+        if (validMinDepths.length === 0 && validMaxDepths.length === 0) {
+          this.hasData = false;
+          return;
+        }
 
-        this.minDepth = min;
-        this.maxDepth = max;
-        this.value = [min, max];
+        let min = validMinDepths.length > 0 ? Math.floor(Math.min(...validMinDepths)) : 0;
+        let max = validMaxDepths.length > 0 ? Math.ceil(Math.max(...validMaxDepths)) : 100;
+
+        // Ensure max > min and range is at least 2
+        if (max <= min) {
+          this.hasData = false;
+          return;
+        }
+
+        // Calculate a valid step size
+        const range = max - min;
+
+        // If range is very small, adjust it
+        if (range < 2) {
+          max = min + 2;
+        }
+
+        // Calculate step size that divides evenly into the range
+        let step = 1;
+        if (range > 1000) {
+          step = 10;
+        } else if (range > 100) {
+          step = 5;
+        }
+
+        // Adjust max to ensure it's divisible by step from min
+        const adjustedRange = Math.ceil(range / step) * step;
+        max = min + adjustedRange;
+
+        // Only update if this is the first time or if the range has changed significantly
+        if (!this.initialRangeSet || this.minDepth !== min || this.maxDepth !== max) {
+          this.minDepth = min;
+          this.maxDepth = max;
+          this.stepSize = step;
+          this.value = [min, max];
+          this.disableDrag = false;
+          this.hasData = true;
+          this.initialRangeSet = true;
+
+          // Force re-render with new key
+          this.isReady = false;
+          this.$nextTick(() => {
+            this.isReady = true;
+            this.sliderKey++;
+          });
+        }
       },
-      immediate: true // <-- run immediately if `results` already exists
+      immediate: true
     }
   },
   methods: {
     filtered() {
-      const [selectedMin, selectedMax] = this.value;
-      // pass values to toggleFilter
-      this.toggleFilter("minDepth", selectedMin, true);
-      this.toggleFilter("maxDepth", selectedMax, true);
-    },
-    onCollapseShown() {
-      // Option A: if the slider instance has a .refresh() API
-      if (this.$refs.rangeSlider && this.$refs.rangeSlider.refresh) {
-        this.$nextTick(() => this.$refs.rangeSlider.refresh());
+      if (this.value[0] === this.minDepth && this.value[1] === this.maxDepth) {
         return;
       }
-      // Option B: force a remount via key
-      this.sliderKey++;
-   }
+
+      const [selectedMin, selectedMax] = this.value;
+
+      // Set flag to prevent watcher from resetting slider
+      this.isFiltering = true;
+
+      this.$store.commit('filterByDepth', { min: selectedMin, max: selectedMax });
+
+      // Reset flag after a short delay
+      this.$nextTick(() => {
+        setTimeout(() => {
+          this.isFiltering = false;
+        }, 100);
+      });
+    },
+    onCollapseShown() {
+      if (this.$refs.rangeSlider && this.$refs.rangeSlider.refresh) {
+        this.$nextTick(() => this.$refs.rangeSlider.refresh());
+      }
+    }
   }
-
-
 };
 </script>
 <style scoped lang="scss">
-@import "@/assets/bootstrapcss/custom";  // your custom Bootstrap overrides
+@import "@/assets/bootstrapcss/custom";
 
 .filter_card {
   background-color: #f5f5f5;
@@ -127,7 +201,6 @@ export default {
     margin-top: $spacer / 2;
   }
 
-  /* this targets the b-button inside filter_card */
   & > .btn {
     display: flex;
     justify-content: space-between;
@@ -146,16 +219,13 @@ export default {
   }
 }
 
-/* hide/show icons based on collapsed state */
 .collapsed > .when-open,
 .not-collapsed > .when-closed {
   display: none;
 }
 
-/* if you need flat secondary buttons everywhere */
 .btn-secondary,
 .btn-secondary:hover {
   background-image: none !important;
 }
 </style>
-

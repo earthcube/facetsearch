@@ -1,49 +1,35 @@
-<template>
-  <div id="facets">
+ <template>
+  <div>
     <div v-for="facetSetting in facets" :key="facetSetting.title">
       <FacetText
         v-if="facetSetting.type == 'text'"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
-        :fieldname="facetSetting.field"
-      >
-      </FacetText>
-      <!--  <Facet v-for="facetkey in Object.keys(facetStore2)" v-bind:key="facetkey"-->
-      <!--         v-bind:facetSetting="facets.find( (obj) => obj.field === facetkey)"-->
-      <!--         v-bind:facetStore="facetStore2" >-->
-      <!--  </Facet>-->
+      ></FacetText>
 
       <FacetNumericRangeSlider
-        v-if="facetSetting.type == 'range'"
-        :field-name="facetSetting.field"
+        v-if="facetSetting.type == 'rangeyear'"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
-      >
-      </FacetNumericRangeSlider>
+      ></FacetNumericRangeSlider>
 
       <RangeSliderDepth
-        v-if="facetSetting.type == 'depthrange'"
-        :field-name="facetSetting.field"
+        v-if="facetSetting.type == 'rangedepth'"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
-      >
-      </RangeSliderDepth>
+      ></RangeSliderDepth>
 
       <RangeSliderYear
-        v-if="facetSetting.type == 'depthyear'"
-        :field-name="facetSetting.field"
+        v-if="facetSetting.type == 'rangeyeartemporal'"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
-      >
-      </RangeSliderYear>
+      ></RangeSliderYear>
 
       <GeoBoundingBoxPicker
         v-if="facetSetting.type == 'geo'"
-        :field-name="facetSetting.field"
         :facet-setting="facetSetting"
         :facet-store="facetStore"
-      >
-      </GeoBoundingBoxPicker>
+      ></GeoBoundingBoxPicker>
     </div>
   </div>
 </template>
@@ -54,40 +40,29 @@ import FacetNumericRangeSlider from "@/components/facetsearch/FacetNumericRangeS
 import RangeSliderDepth from "@/components/facetsearch/RangeSliderDepth.vue";
 import RangeSliderYear from "@/components/facetsearch/RangeSliderYear.vue";
 import GeoBoundingBoxPicker from "@/components/facetsearch/GeoBoundingBoxPicker.vue";
-//import { inject } from 'vue'
+
 export default {
   name: "Facets",
-  // setup(){
-  //   // eslint-disable-next-line
-  //   const toggleFilter = inject("toggleFilter")
-  //   // eslint-disable-next-line
-  //   const facetStore = inject('facetStore')
-  // },
   components: {
     FacetText,
     FacetNumericRangeSlider,
     RangeSliderDepth,
     RangeSliderYear,
-    GeoBoundingBoxPicker
+    GeoBoundingBoxPicker,
   },
-  inject: ["toggleFilter", "filtersState"],
   props: {
-    facetStore: Object,
-    facets: Array,
-    //  "state": Object,
-    //   "currentResults": Array
-  },
-  data: function () {
-    return {
-      facetStore2: this.facetStore,
-    };
-  },
-  methods: {
-    //  updateFacets(){
-    //   this.$forceUpdate();
-    // }
+    facets: {
+      type: Array,
+      required: true,
+    },
+    facetStore: {
+      type: Object,
+      required: true,
+    },
   },
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+/* Add any styles you need here */
+</style>
