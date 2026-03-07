@@ -19,7 +19,7 @@ COPY ./package*.json ./
 COPY . .
 
 # Clean install to fix rollup native dependency issues
-RUN rm -rf node_modules && rm yarn.lock && yarn install --immutable
+RUN rm -rf node_modules  && yarn install
 # http-server will be installed globally in the runtime image
 RUN yarn build
 

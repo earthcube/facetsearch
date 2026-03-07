@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: '22'
       #- run: npm install -g  yarn
-      - run: yarn install
+      - run: yarn install --immutable
       - run: yarn build
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
