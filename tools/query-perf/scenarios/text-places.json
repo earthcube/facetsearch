@@ -1,0 +1,27 @@
+{
+  "name": "Text facet: Place names filter",
+  "description": "Test place name facet filtering",
+  "tests": [
+    {
+      "name": "places: discovery only",
+      "search": "ocean",
+      "facets": [
+        { "type": "text", "field": "placenames", "active": false }
+      ]
+    },
+    {
+      "name": "places: single place",
+      "search": "ocean",
+      "facets": [
+        { "type": "text", "field": "placenames", "active": true, "values": ["Atlantic Ocean"] }
+      ]
+    },
+    {
+      "name": "places: multiple places",
+      "search": "ocean",
+      "facets": [
+        { "type": "text", "field": "placenames", "active": true, "values": ["Atlantic Ocean", "Pacific Ocean", "Arctic Ocean"] }
+      ]
+    }
+  ]
+}

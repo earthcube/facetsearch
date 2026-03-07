@@ -1,0 +1,41 @@
+{
+  "name": "Depth range facet",
+  "description": "Test depth range facet filtering with various min/max values",
+  "tests": [
+    {
+      "name": "depth: discovery only",
+      "search": "water",
+      "facets": [
+        { "type": "depthrange", "field": "minDepth", "active": false }
+      ]
+    },
+    {
+      "name": "depth: shallow (0 to -100m)",
+      "search": "water",
+      "facets": [
+        { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": -100, "max": 0 } }
+      ]
+    },
+    {
+      "name": "depth: mid-range (-100 to -1000m)",
+      "search": "water",
+      "facets": [
+        { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": -1000, "max": -100 } }
+      ]
+    },
+    {
+      "name": "depth: deep (-1000 to -5000m)",
+      "search": "water",
+      "facets": [
+        { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": -5000, "max": -1000 } }
+      ]
+    },
+    {
+      "name": "depth: full range (-5000 to 0m)",
+      "search": "water",
+      "facets": [
+        { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": -5000, "max": 0 } }
+      ]
+    }
+  ]
+}

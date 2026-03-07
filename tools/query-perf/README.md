@@ -1,6 +1,8 @@
 # Facet Query Performance Tester
 
-Standalone CLI tool for testing SPARQL query performance without the Vue.js interface. It loads the same config files and query templates used by the client, renders them with configurable parameters, executes them against the SPARQL endpoint, and reports detailed timing statistics.
+Standalone CLI tool for testing SPARQL facet query performance without the Vue.js interface. It composes queries from base templates + facet-specific SPARQL filter fragments, executes them against the configured endpoint, and reports timing statistics.
+
+Test scenarios are stored as JSON files so you can reproduce tests and investigate poor performance manually.
 
 **No dependencies required** — uses only Node.js built-ins (requires Node.js >= 18 for `fetch`).
 
@@ -9,142 +11,172 @@ Standalone CLI tool for testing SPARQL query performance without the Vue.js inte
 ```bash
 # From the repo root:
 
-# Basic search test (3 runs + 1 warmup)
+# Basic search test (no facet filters)
 node tools/query-perf/query-perf.js --search "ocean temperature"
 
-# See the rendered SPARQL and sample results
-node tools/query-perf/query-perf.js --search water --show-query --show-results
+# Test with a keyword facet filter active
+node tools/query-perf/query-perf.js --search water \
+  --facet '{"type":"text","field":"kw","active":true,"values":["Temperature","Ocean"]}'
 
-# Test a different query template
-node tools/query-perf/query-perf.js --query sparql_query_2 --search coral --runs 5
+# Test with depth range filter
+node tools/query-perf/query-perf.js --search water \
+  --facet '{"type":"depthrange","field":"minDepth","active":true,"values":{"min":-1000,"max":0}}'
 
-# Test with a different config/endpoint
-node tools/query-perf/query-perf.js --config client/public/config/config_aws_prod.yaml --search water
+# Combine multiple facets
+node tools/query-perf/query-perf.js --search water \
+  --facet '{"type":"text","field":"kw","active":true,"values":["Temperature"]}' \
+  --facet '{"type":"geo","field":"spatialCoverage","active":true,"values":{"minLat":20,"maxLat":60,"minLon":-80,"maxLon":0}}'
 
-# Override the endpoint directly
-node tools/query-perf/query-perf.js --endpoint "https://my-blazegraph:9999/sparql" --search water
+# See the generated SPARQL fragments and full query
+node tools/query-perf/query-perf.js --search water --show-fragments --show-query \
+  --facet '{"type":"depthrange","field":"minDepth","active":true,"values":{"min":-500,"max":0}}'
 ```
 
-## Performance Comparison
+## Stored Test Scenarios
 
-Save a baseline and compare later:
+Scenarios define reusable test suites for each facet type. They're stored as JSON in `scenarios/` and can be re-run for regression testing.
 
 ```bash
-# Record baseline
-node tools/query-perf/query-perf.js --search water --runs 10 --json > baseline.json
+# Run a single scenario file
+node tools/query-perf/query-perf.js --scenario tools/query-perf/scenarios/depth-range.json
 
-# ... make changes to queries or config ...
+# Run ALL scenarios in the directory
+node tools/query-perf/query-perf.js --scenario tools/query-perf/scenarios/
 
-# Compare against baseline
-node tools/query-perf/query-perf.js --search water --runs 10 --compare baseline.json
+# Save results for later comparison
+node tools/query-perf/query-perf.js --scenario tools/query-perf/scenarios/multi-facet.json \
+  --save results/baseline.json
+
+# Compare against a saved baseline
+node tools/query-perf/query-perf.js --scenario tools/query-perf/scenarios/multi-facet.json \
+  --compare results/baseline.json
 ```
 
-## Batch Testing
+### Available Scenarios
 
-Run a suite of tests from a plan file:
+| File | Facet Type | Tests |
+|------|-----------|-------|
+| `text-keywords.json` | text (kw) | Discovery, single value, multiple values, many values |
+| `text-publisher.json` | text (pubname) | Discovery, single publisher, multiple publishers |
+| `text-places.json` | text (placenames) | Discovery, single place, multiple places |
+| `text-resource-type.json` | text (resourceType) | No filter, data only, tools only, data+tools |
+| `depth-range.json` | depthrange | Discovery, shallow, mid, deep, full range |
+| `temporal-coverage.json` | rangeyear | Discovery, narrow/wide/historical/recent ranges |
+| `date-published.json` | rangeyear (datep) | Discovery, last 5 years, last decade |
+| `geo-spatial.json` | geo | Discovery, North Atlantic, Pacific, US west coast, small region, global |
+| `multi-facet.json` | combined | Multiple facets active simultaneously (the stress tests) |
 
-```bash
-# Run the example test plan
-node tools/query-perf/batch-perf.js tools/query-perf/example-test-plan.json
-
-# JSON output for CI/scripts
-node tools/query-perf/batch-perf.js tools/query-perf/example-test-plan.json --json
-```
-
-### Test Plan Format
+### Scenario File Format
 
 ```json
 {
-  "defaults": {
-    "runs": 3,
-    "warmup": 1,
-    "limit": 10,
-    "timeout": 30000
-  },
+  "name": "Depth range facet",
+  "description": "Test depth range filtering with various min/max values",
   "tests": [
-    { "name": "basic search", "search": "water" },
-    { "name": "large result set", "search": "water", "limit": 1000 },
-    { "name": "different config", "search": "water", "config": "client/public/config/config_aws_prod.yaml" },
-    { "name": "related data query", "query": "sparql_relateddatafilename", "vars": { "relatedData": "ocean" } }
+    {
+      "name": "depth: discovery only",
+      "search": "water",
+      "facets": [
+        { "type": "depthrange", "field": "minDepth", "active": false }
+      ]
+    },
+    {
+      "name": "depth: shallow (0 to -100m)",
+      "search": "water",
+      "facets": [
+        { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": -100, "max": 0 } }
+      ]
+    }
   ]
 }
 ```
+
+### Facet Types and Values
+
+| Type | Field | Values Format | Example |
+|------|-------|---------------|---------|
+| `text` | `kw` | `string[]` | `["Temperature", "Ocean"]` |
+| `text` | `pubname` | `string[]` | `["NOAA", "NASA"]` |
+| `text` | `placenames` | `string[]` | `["Atlantic Ocean"]` |
+| `text` | `resourceType` | `string[]` | `["data", "tool"]` |
+| `depthrange` | `minDepth` | `{min, max}` | `{"min": -1000, "max": 0}` |
+| `rangeyear` | `temporalCoverage` | `{min, max}` | `{"min": 2010, "max": 2025}` |
+| `rangeyear` | `datep` | `{min, max}` | `{"min": 2020, "max": 2026}` |
+| `geo` | `spatialCoverage` | `{minLat, maxLat, minLon, maxLon}` | `{"minLat": 20, "maxLat": 60, "minLon": -80, "maxLon": 0}` |
+
+## Investigating Poor Performance
+
+When a test shows poor performance, the saved results file contains all the information needed to investigate manually:
+
+1. **Save the results**: `--save results/slow_queries.json`
+2. **Inspect the generated SPARQL**: `--show-query --show-fragments`
+3. **Copy the SPARQL to YASGUI** for manual analysis at the configured `SPARQL_YASGUI` URL
+4. **Adjust the scenario** and re-run to isolate which facet combination causes the slowdown
 
 ## All Options
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--config <path>` | `client/public/config/config.yaml` | YAML config file path |
-| `--query <name>` | `sparql_query` | Query template name (without .txt) |
-| `--query-file <path>` | — | Path to a custom query template file |
-| `--endpoint <url>` | from config | Override SPARQL endpoint URL |
-| `--engine <name>` | from config | Query engine: `blazegraph` or `qlever` |
+| `--config <path>` | auto-detect | YAML config file path |
+| `--query <name>` | `sparql_query` | Query template name |
+| `--query-file <path>` | — | Custom query template file |
+| `--endpoint <url>` | from config | Override SPARQL endpoint |
+| `--engine <name>` | from config | `blazegraph` or `qlever` |
 | `--search <terms>` | `water` | Search terms |
 | `--exact <bool>` | `false` | Exact match mode |
-| `--resource-type <type>` | `all` | Filter: `data`, `tool`, or `all` |
+| `--resource-type <type>` | `all` | `data`, `tool`, or `all` |
 | `--limit <n>` | `10` | SPARQL LIMIT |
 | `--offset <n>` | `0` | SPARQL OFFSET |
+| `--facet <json>` | — | Inline facet filter JSON (repeatable) |
+| `--scenario <path>` | — | Scenario file or directory |
 | `--timeout <ms>` | `30000` | HTTP timeout per request |
-| `--runs <n>` | `3` | Number of measured runs |
+| `--runs <n>` | `3` | Measured runs per test |
 | `--warmup <n>` | `1` | Warmup runs (not measured) |
-| `--var <key=value>` | — | Set arbitrary template variable (repeatable) |
-| `--show-query` | — | Print the rendered SPARQL |
+| `--var <key=value>` | — | Arbitrary template variable (repeatable) |
+| `--show-query` | — | Print rendered SPARQL |
 | `--show-results` | — | Print first 5 result rows |
+| `--show-fragments` | — | Print generated facet SPARQL fragments |
 | `--json` | — | Machine-readable JSON output |
-| `--compare <path>` | — | Compare against previous JSON results |
+| `--compare <path>` | — | Compare against saved results |
+| `--save <path>` | — | Save results to JSON file |
 
-## Output
+## How Facet Filters Are Generated
 
-### Human-readable (default)
+Each facet type generates SPARQL fragments matching the patterns from the SPARQL filtering refactor plan:
 
-```
-Config:    client/public/config/config.yaml
-Endpoint:  https://graph.geocodes-aws.earthcube.org/blazegraph/namespace/obisdepth_summary/sparql
-Query:     sparql_query
-Search:    "water"
-Limit:     10  Offset: 0
-Runs:      3 (+ 1 warmup)
-Timeout:   30000ms
+**Text facets** (keywords, publishers, places) — use `VALUES` or `FILTER IN` clauses:
+```sparql
+# Active: filter to specific keywords
+?subj schema:keywords|sschema:keywords ?selectedKw .
+VALUES ?selectedKw { "Temperature" "Ocean" }
 
-Warmup 1/1... 1.234s
-Run 1/3... 856.2ms (10 results)
-Run 2/3... 743.1ms (10 results)
-Run 3/3... 801.5ms (10 results)
-
---- Performance Summary ---
-Results:   10
-Mean:      800.3ms
-Median:    801.5ms
-Min:       743.1ms
-Max:       856.2ms
-Std Dev:   46.2ms
-P95:       856.2ms
+# Discovery: OPTIONAL for facet value discovery
+OPTIONAL {?subj schema:keywords|sschema:keywords ?kw1 .}
 ```
 
-### JSON (`--json`)
-
-```json
-{
-  "config": "client/public/config/config.yaml",
-  "endpoint": "...",
-  "query": "sparql_query",
-  "search": "water",
-  "resultCount": 10,
-  "timings": [856.2, 743.1, 801.5],
-  "stats": { "mean": 800.3, "median": 801.5, "min": 743.1, "max": 856.2, "stddev": 46.2, "p95": 856.2 },
-  "timestamp": "2026-03-07T12:00:00.000Z"
-}
+**Depth range** — filters on `variableMeasured` min/max values:
+```sparql
+?subj sschema:variableMeasured ?vmd .
+?vmd a sschema:PropertyValue .
+?vmd sschema:name ?namedepth .
+FILTER (LCASE(?namedepth) IN ("cmpdep", "package_depth", ...)) .
+?vmd sschema:maxValue ?maxDepth_d .
+?vmd sschema:minValue ?minDepth_d .
+FILTER(?minDepth_d >= -1000 && ?maxDepth_d <= 0)
 ```
 
-## Available Query Templates
+**Temporal coverage** — filters on year from ISO date strings:
+```sparql
+?subj schema:temporalCoverage|sschema:temporalCoverage ?temporalCoverage .
+FILTER((xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) >= 2010 &&
+        xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) <= 2025))
+```
 
-These correspond to the query files in `client/public/queries/<engine>/`:
+**Geo/spatial** — bounding box coordinate filter:
+```sparql
+?subj schema:spatialCoverage/schema:geo/schema:latitude|... ?lat .
+?subj schema:spatialCoverage/schema:geo/schema:longitude|... ?lon .
+FILTER(?lat >= 20 && ?lat <= 60 && ?lon >= -80 && ?lon <= 0)
+```
 
-| Name | Description | Key Variables |
-|------|-------------|---------------|
-| `sparql_query` | Main full-text search | `q`, `exact`, `n`, `o`, `minRelevance` |
-| `sparql_query_2` | Extended search with resource types | `q`, `n`, `o` |
-| `sparql_hastools` | Check if dataset has tools (ASK) | `g`, `ecrr_service`, `ecrr_graph` |
-| `sparql_gettools_webservice` | Find processing tools | `g`, `ecrr_service`, `ecrr_graph` |
-| `sparql_gettools_download` | Find downloadable tools | `g`, `ecrr_service`, `ecrr_graph` |
-| `sparql_relateddatafilename` | Find related datasets | `relatedData`, `n` |
+Fragments are injected into the base query template just before the closing `}` of the WHERE clause.
