@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="aws client ecoforcast" type="js.build_tools.npm">
+  <configuration default="false" name="aws client ecoforcast" type="js.build_tools.npm" folderName="blaze">
     <package-json value="$PROJECT_DIR$/client/package.json" />
     <command value="run" />
     <scripts>
@@ -9,6 +9,9 @@
     <envs>
       <env name="VITE_FACETS_CONFIG_FILE" value="config/config_ecoforcast.yaml" />
     </envs>
+    <EXTENSION ID="com.intellij.javascript.debugger.execution.StartBrowserRunConfigurationExtension">
+      <browser with-js-debugger="true" />
+    </EXTENSION>
     <method v="2" />
   </configuration>
 </component>
