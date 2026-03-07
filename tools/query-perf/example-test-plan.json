@@ -1,0 +1,54 @@
+{
+  "defaults": {
+    "runs": 3,
+    "warmup": 1,
+    "limit": 10,
+    "timeout": 30000
+  },
+  "tests": [
+    {
+      "name": "water (default)",
+      "search": "water"
+    },
+    {
+      "name": "ocean temperature",
+      "search": "ocean temperature"
+    },
+    {
+      "name": "water (exact match)",
+      "search": "water",
+      "exact": true
+    },
+    {
+      "name": "water (limit 100)",
+      "search": "water",
+      "limit": 100
+    },
+    {
+      "name": "water (limit 1000)",
+      "search": "water",
+      "limit": 1000
+    },
+    {
+      "name": "water (data only)",
+      "search": "water",
+      "resourceType": "data"
+    },
+    {
+      "name": "water (tools only)",
+      "search": "water",
+      "resourceType": "tool"
+    },
+    {
+      "name": "coral (query_2)",
+      "search": "coral",
+      "query": "sparql_query_2"
+    },
+    {
+      "name": "related data: ocean",
+      "query": "sparql_relateddatafilename",
+      "search": "ocean",
+      "vars": { "relatedData": "ocean" }
+    }
+  ]
+}
