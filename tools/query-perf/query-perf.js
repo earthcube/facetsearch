@@ -232,6 +232,21 @@ function renderTemplate(template, vars) {
 // Query composition: base template + facet fragments
 // ---------------------------------------------------------------------------
 
+/**
+ * Ensure required prefixes are declared in the query.
+ * Checks for each prefix and prepends any that are missing.
+ */
+function ensurePrefixes(sparql, requiredPrefixes) {
+  let additions = "";
+  for (const [prefix, uri] of Object.entries(requiredPrefixes)) {
+    const regex = new RegExp(`PREFIX\\s+${prefix}\\s*:`, "i");
+    if (!regex.test(sparql)) {
+      additions += `PREFIX ${prefix}: ${uri}\n`;
+    }
+  }
+  return additions ? additions + sparql : sparql;
+}
+
 function composeQuery(template, templateVars, facetFragments) {
   let sparql = renderTemplate(template, templateVars);
 
@@ -249,6 +264,14 @@ function composeQuery(template, templateVars, facetFragments) {
           "\n\n  # === FACET FILTERS ===\n" + fragmentText + "\n\n" +
           sparql.slice(lastBrace);
       }
+    }
+
+    // Ensure xsd: prefix is declared when facet fragments use it
+    // (temporal coverage and date published filters use xsd:integer)
+    if (fragmentText.includes("xsd:")) {
+      sparql = ensurePrefixes(sparql, {
+        xsd: "<http://www.w3.org/2001/XMLSchema#>",
+      });
     }
   }
 
