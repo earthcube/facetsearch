@@ -249,7 +249,6 @@ in case more intro paragraph text is needed
 
 <script>
 import axios from "axios";
-import $ from "jquery";
 import { mapState, mapGetters, mapActions } from "vuex";
 import yaml from "js-yaml";
 import { tenantDefault } from "@/config.js";
@@ -301,12 +300,6 @@ export default {
     this.fetchAllReports();
   },
   methods: {
-    // try to avoid jquery hacks.
-    // do as a bootstrap modal. https://bootstrap-vue.org/docs/components/modal
-    showModal(t) {
-      console.log(t);
-      $("#" + t).modal("show");
-    },
     fetchAllReports() {
       axios.get(this.reportsJson).then((response) => {
         this.reports = response.data;

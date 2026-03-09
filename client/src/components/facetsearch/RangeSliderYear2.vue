@@ -13,15 +13,13 @@
     <b-collapse :visible="isOpen">
       <div class="facet-body">
         <div class="slider-container">
-          <vue-slider
-            v-model="localRange"
+          <Slider
+            :model-value="localRange"
             :min="minValue"
             :max="maxValue"
-            :interval="1"
-            :tooltip="'active'"
-            :tooltip-formatter="formatYear"
-            @change="onRangeChange"
+            :format="formatYear"
             :disabled="!hasYearData"
+            @update:model-value="handleSliderUpdate"
           />
 
           <div class="range-labels">
@@ -50,15 +48,15 @@
 
 <script>
 import { ref, computed, inject, watch } from 'vue';
-import VueSlider from 'vue-slider-component';
-import 'vue-slider-component/theme/default.css';
+import Slider from '@vueform/slider';
+import '@vueform/slider/themes/default.css';
 import { useRangeFacet } from '@/composables/useSearch.js';
 
 export default {
   name: "RangeSliderYear2",
 
   components: {
-    VueSlider
+    Slider
   },
 
   props: {
@@ -105,6 +103,11 @@ export default {
       return value.toString();
     };
 
+    const handleSliderUpdate = (val) => {
+      localRange.value = val;
+      onRangeChange(val);
+    };
+
     return {
       ...rangeFacet,
       isOpen,
@@ -112,7 +115,8 @@ export default {
       hasYearData,
       toggleOpen,
       onRangeChange,
-      formatYear
+      formatYear,
+      handleSliderUpdate
     };
   }
 };

@@ -5366,16 +5366,12 @@ __metadata:
     vite: "npm:^7.1.5"
     vite-raw-plugin: "npm:^1.0.2"
     vue: "npm:~3.5.22"
-    vue-3-slider-component: "npm:^1.0.2"
     vue-axios: "npm:^3.5.2"
     vue-eslint-parser: "npm:^8.3.0"
     vue-gtag: "npm:^3.6.1"
-    vue-histogram-slider: "npm:^0.3.8"
     vue-json-component: "npm:^0.4.1"
     vue-json-pretty: "npm:^2.3.0"
     vue-loader: "npm:^17.4.2"
-    vue-range-component: "npm:^1.0.3"
-    vue-range-component-fixed: "npm:^1.0.3"
     vue-router: "npm:^4.2.5"
     vue-scrollbox: "npm:^1.0.1"
     vue-select: "npm:4.0.0-beta.6"
@@ -7066,150 +7062,6 @@ __metadata:
   version: 3.1.3
   resolution: "csstype@npm:3.1.3"
   checksum: 10c0/80c089d6f7e0c5b2bd83cf0539ab41474198579584fa10d86d0cafe0642202343cbc119e076a0b1aece191989477081415d66c9fefbf3c957fc2fc4b7009f248
-  languageName: node
-  linkType: hard
-
-"d3-array@npm:2, d3-array@npm:^2.3.0, d3-array@npm:^2.3.2":
-  version: 2.12.1
-  resolution: "d3-array@npm:2.12.1"
-  dependencies:
-    internmap: "npm:^1.0.0"
-  checksum: 10c0/7eca10427a9f113a4ca6a0f7301127cab26043fd5e362631ef5a0edd1c4b2dd70c56ed317566700c31e4a6d88b55f3951aaba192291817f243b730cb2352882e
-  languageName: node
-  linkType: hard
-
-"d3-brush@npm:^1.1.3":
-  version: 1.1.6
-  resolution: "d3-brush@npm:1.1.6"
-  dependencies:
-    d3-dispatch: "npm:1"
-    d3-drag: "npm:1"
-    d3-interpolate: "npm:1"
-    d3-selection: "npm:1"
-    d3-transition: "npm:1"
-  checksum: 10c0/6c7eb9008c5370bdc8f60f3956d4db95e7bd3c5c511a8c4aeb844180dbecaa570c8f3b396779bb1376faac6d7c9167667bf410bc6517c74e7393e97c6e64eff7
-  languageName: node
-  linkType: hard
-
-"d3-color@npm:1":
-  version: 1.4.1
-  resolution: "d3-color@npm:1.4.1"
-  checksum: 10c0/668721dedc1d7e84aa9b3c51ccbaa1facd92ae9303d86ea0d5d0cf589dab892bc4cc7e155696537ed43e8f053d3ad0dde86363e1a789bad800a786f2ede527d7
-  languageName: node
-  linkType: hard
-
-"d3-color@npm:1 - 2":
-  version: 2.0.0
-  resolution: "d3-color@npm:2.0.0"
-  checksum: 10c0/5aa58dfb78e3db764373a904eabb643dc024ff6071128a41e86faafa100e0e17a796e06ac3f2662e9937242bb75b8286788629773d76936f11c17bd5fe5e15cd
-  languageName: node
-  linkType: hard
-
-"d3-dispatch@npm:1":
-  version: 1.0.6
-  resolution: "d3-dispatch@npm:1.0.6"
-  checksum: 10c0/6302554a019e2d75d4e3dc7e8757a00b4b12ac2a2952bccc66e4478ccd170f425e2b6a9443118d5feadcd2439f33582b63c7925e832104ff1978cadea2a30dc2
-  languageName: node
-  linkType: hard
-
-"d3-drag@npm:1":
-  version: 1.2.5
-  resolution: "d3-drag@npm:1.2.5"
-  dependencies:
-    d3-dispatch: "npm:1"
-    d3-selection: "npm:1"
-  checksum: 10c0/749cbeaab1867a10086c90467218365ab1967645878463074a63383d9de77fe8b6a7ebe6c5be8fd4e257575db87c9b99a2d76b4d3ebb8b937f3523414fbc9c2b
-  languageName: node
-  linkType: hard
-
-"d3-ease@npm:1":
-  version: 1.0.7
-  resolution: "d3-ease@npm:1.0.7"
-  checksum: 10c0/784de7696cc683f251b2186ae4e248761758bdbfab1f78f1a7bddb08a4832923033be765dba907485f8911270f9343c3068e543d33d77cca1182582b34cb4970
-  languageName: node
-  linkType: hard
-
-"d3-format@npm:1 - 2":
-  version: 2.0.0
-  resolution: "d3-format@npm:2.0.0"
-  checksum: 10c0/c869af459e20767dc3d9cbb2946ba79cc266ae4fb35d11c50c63fc89ea4ed168c702c7e3db94d503b3618de9609bf3bf2d855ef53e21109ddd7eb9c8f3fcf8a1
-  languageName: node
-  linkType: hard
-
-"d3-interpolate@npm:1":
-  version: 1.4.0
-  resolution: "d3-interpolate@npm:1.4.0"
-  dependencies:
-    d3-color: "npm:1"
-  checksum: 10c0/33274a06d5969f7cf8477f490dd9bea6cf2f5e89da800e0db17e1b6663dfcc288ebc34ae85f891e83f59f87086e9468db0614281b9fe8ba50162d8a45149ed0f
-  languageName: node
-  linkType: hard
-
-"d3-interpolate@npm:1.2.0 - 2":
-  version: 2.0.1
-  resolution: "d3-interpolate@npm:2.0.1"
-  dependencies:
-    d3-color: "npm:1 - 2"
-  checksum: 10c0/2a5725b0c9c7fef3e8878cf75ad67be851b1472de3dda1f694c441786a1a32e198ddfaa6880d6b280401c1af5b844b61ccdd63d85d1607c1e6bb3a3f0bf532ea
-  languageName: node
-  linkType: hard
-
-"d3-scale@npm:^3.1.0":
-  version: 3.3.0
-  resolution: "d3-scale@npm:3.3.0"
-  dependencies:
-    d3-array: "npm:^2.3.0"
-    d3-format: "npm:1 - 2"
-    d3-interpolate: "npm:1.2.0 - 2"
-    d3-time: "npm:^2.1.1"
-    d3-time-format: "npm:2 - 3"
-  checksum: 10c0/cb63c271ec9c5b632c245c63e0d0716b32adcc468247972c552f5be62fb34a17f71e4ac29fd8976704369f4b958bc6789c61a49427efe2160ae979d7843569dc
-  languageName: node
-  linkType: hard
-
-"d3-selection@npm:1, d3-selection@npm:^1.1.0, d3-selection@npm:^1.4.0":
-  version: 1.4.2
-  resolution: "d3-selection@npm:1.4.2"
-  checksum: 10c0/e755b6b62d794d0b968cc6264f37109e425de0d9fd306ce94414b07e46a2c6830d21c1fe0821a660d07e82069b6fe3b67da1b3b909e8f6af8f16f020cd25cae0
-  languageName: node
-  linkType: hard
-
-"d3-time-format@npm:2 - 3":
-  version: 3.0.0
-  resolution: "d3-time-format@npm:3.0.0"
-  dependencies:
-    d3-time: "npm:1 - 2"
-  checksum: 10c0/0abe3379f07d1c12ce8930cdddad1223c99cd3e4eac05cf409b5a7953e9ebed56a95a64b0977f63958cfb6101fa4a2a85533a5eae40df84f22c0117dbf5e8982
-  languageName: node
-  linkType: hard
-
-"d3-time@npm:1 - 2, d3-time@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "d3-time@npm:2.1.1"
-  dependencies:
-    d3-array: "npm:2"
-  checksum: 10c0/4a01770a857bc37d2bafb8f00250e0e6a1fcc8051aea93e5eed168d8ee93e92da508a75ab5e42fc5472aa37e2a83aac68afaf3f12d9167c184ce781faadf5682
-  languageName: node
-  linkType: hard
-
-"d3-timer@npm:1":
-  version: 1.0.10
-  resolution: "d3-timer@npm:1.0.10"
-  checksum: 10c0/7e77030a206861e4e626754c689795d43f036fb07a7f8ca6360eb8b7cbe6f52bf43c9c4297ae9a9a906e4de594212702f83c0cde23d4e20d8689a4211e438155
-  languageName: node
-  linkType: hard
-
-"d3-transition@npm:1, d3-transition@npm:^1.2.0":
-  version: 1.3.2
-  resolution: "d3-transition@npm:1.3.2"
-  dependencies:
-    d3-color: "npm:1"
-    d3-dispatch: "npm:1"
-    d3-ease: "npm:1"
-    d3-interpolate: "npm:1"
-    d3-selection: "npm:^1.1.0"
-    d3-timer: "npm:1"
-  checksum: 10c0/b78a34108b2514c2e5ce65837742027497ea36408ad19d725ec7d0cc9fcead3c40353d6d8640813210c9367d3e7ae7f4b608beed8cafb4e0cabaa56fd610e3f0
   languageName: node
   linkType: hard
 
@@ -9507,13 +9359,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"internmap@npm:^1.0.0":
-  version: 1.0.1
-  resolution: "internmap@npm:1.0.1"
-  checksum: 10c0/60942be815ca19da643b6d4f23bd0bf4e8c97abbd080fb963fe67583b60bdfb3530448ad4486bae40810e92317bded9995cc31411218acc750d72cd4e8646eee
-  languageName: node
-  linkType: hard
-
 "interpret@npm:^3.1.1":
   version: 3.1.1
   resolution: "interpret@npm:3.1.1"
@@ -10393,13 +10238,6 @@ __metadata:
     "@sideway/formula": "npm:^3.0.1"
     "@sideway/pinpoint": "npm:^2.0.0"
   checksum: 10c0/9262aef1da3f1bec5b03caf50c46368899fe03b8ff26cbe3d53af4584dd1049079fc97230bbf1500b6149db7cc765b9ee45f0deb24bb6fc3fa06229d7148c17f
-  languageName: node
-  linkType: hard
-
-"jquery@npm:3.5":
-  version: 3.5.1
-  resolution: "jquery@npm:3.5.1"
-  checksum: 10c0/93cc01405c47d5c1e151604066afc58f68ee3f2f7404d949eef3f9c34c77e484825ddfff68bbbe84e8b5c4844743f59e29a00e944e9ef24ccaeacd11af867c82
   languageName: node
   linkType: hard
 
@@ -14989,15 +14827,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-3-slider-component@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "vue-3-slider-component@npm:1.0.2"
-  peerDependencies:
-    vue: ^3.0.0
-  checksum: 10c0/8d7d51ef8ea8102004f61f4751457c2780723408b98ff8fb8bcdb2300205a3ff6c04eee87d7361fe8af1096ccc640bc192ee81a6cd62edd9dd6daa252df19ef2
-  languageName: node
-  linkType: hard
-
 "vue-axios@npm:^3.5.2":
   version: 3.5.2
   resolution: "vue-axios@npm:3.5.2"
@@ -15094,21 +14923,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-histogram-slider@npm:^0.3.8":
-  version: 0.3.8
-  resolution: "vue-histogram-slider@npm:0.3.8"
-  dependencies:
-    d3-array: "npm:^2.3.2"
-    d3-brush: "npm:^1.1.3"
-    d3-scale: "npm:^3.1.0"
-    d3-selection: "npm:^1.4.0"
-    d3-transition: "npm:^1.2.0"
-    jquery: "npm:3.5"
-    vue: "npm:^2.6.10"
-  checksum: 10c0/861dcc2c435bf352b32759d2a949c67e40bd840d42d2a417a85eab428bd17f8be37cb2eedf6ce6813ee504824bcada0e4f7ec80077fedaad27751fb097dc59dd
-  languageName: node
-  linkType: hard
-
 "vue-hot-reload-api@npm:^2.3.0":
   version: 2.3.4
   resolution: "vue-hot-reload-api@npm:2.3.4"
@@ -15158,20 +14972,6 @@ __metadata:
   peerDependencies:
     vue: "*"
   checksum: 10c0/947da307fb3a60e8fa7fd5c7026d1f1a6185713549f96e2b0d1846d487dbb242283bd29d24e4bf960e6240985838bf4a0a72b79d5c6793e15099e16215b0fdf3
-  languageName: node
-  linkType: hard
-
-"vue-range-component-fixed@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "vue-range-component-fixed@npm:1.0.3"
-  checksum: 10c0/d84cf2a34e1716c575551109332e73b56ef910935302f89a6bf677d5eefe6a4b3ae37b5a65e727d92162f499fefb84b7586f54970aaeaac12cee4bb569a5244b
-  languageName: node
-  linkType: hard
-
-"vue-range-component@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "vue-range-component@npm:1.0.3"
-  checksum: 10c0/8c2b38eb730a0987f98554658a4ca9768fb0eb2c51e3a8e966fd4e2850eff4e1995fe39db1ef3dbe47aa2b36b54b95d5d7ff5a657690038fd2ef1bea9ca1644b
   languageName: node
   linkType: hard
 
@@ -15254,7 +15054,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue@npm:^2.5.4, vue@npm:^2.6.10":
+"vue@npm:^2.5.4":
   version: 2.7.16
   resolution: "vue@npm:2.7.16"
   dependencies:
