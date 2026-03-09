@@ -43,7 +43,7 @@ export class SparqlQueryBuilder {
       .join('\n') + '\n\n';
   }
 
-    buildSelecMinMaxClause(minMaxVars) {
+    buildSelecMinMaxClause(_minMaxVars) {
 // future
         return ''
     }
@@ -62,9 +62,6 @@ export class SparqlQueryBuilder {
            'placenames':'placename', 'kw':'kw_u', 'resourceType':'resourceType_u',
       };
       const aggClause = this.buildSelectAggregateClause(aggVars);
-      const minmaxVars = [
-          'lat', 'lon'
-      ];
 
     return `SELECT DISTINCT ${selectVars.join(' ')} ${aggClause.join(' ')} \n`;
   }
@@ -156,7 +153,7 @@ export class SparqlQueryBuilder {
     return fragment;
   }
 
-  buildRangeFilter(field, values, facetConfig) {
+  buildRangeFilter(field, values, _facetConfig) {
     if (!Array.isArray(values) || values.length < 2) return '';
     const [min, max] = values;
 
@@ -171,13 +168,13 @@ export class SparqlQueryBuilder {
          xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) <= ${max}) .\n`;
   }
 
-  buildDepthFilter(field, values, facetConfig) {
+  buildDepthFilter(_field, values, _facetConfig) {
     if (!Array.isArray(values) || values.length < 2) return '';
     const [min, max] = values;
     return `  FILTER(?maxDepth >= ${min} && ?minDepth <= ${max}) .\n`;
   }
 
-  buildGeoFilter(field, values, facetConfig) {
+  buildGeoFilter(_field, values, _facetConfig) {
     // Expecting { bounds: { north, south, east, west } }
     const b = values?.bounds;
     if (!b) return '';
@@ -280,7 +277,7 @@ export class SparqlQueryBuilder {
           return ''
       }
   }
-    buildGroupbyClause(limit, offset) {
+    buildGroupbyClause(_limit, _offset) {
        // return `GROUP BY ?subj ?pubname ?placename  ?datep ?url  ?name ?description ?type ?maxdepth ?minDepth ?temporalCoverage ?bbox ?g\n`;
         return `GROUP BY ?g ?subj  ?placename  ?datep ?pubname ?url  ?name ?description ?type  ?temporalCoverage ?kw  ?resourceType\n`;
     }

@@ -185,10 +185,9 @@
 <script>
 //import VueRouter from 'vue-router'
 import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapMutations, mapState } from "vuex";
 import VueToggles from "vue-toggles";
 import axios from "axios";
-import yaml from "js-yaml";
 import { tenantDefault } from "@/config.js";
 
 export default {
@@ -245,7 +244,7 @@ export default {
       var resourceType = this.toolOptionsSelected;
       var exact = this.searchExactMatch;
       this.$router.push({
-        name: "Search",
+        name: "Search2",
         query: {
           q: query,
           searchExactMatch: exact,

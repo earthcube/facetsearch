@@ -37,28 +37,14 @@
 <script>
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import {
-  LMap,
-  LIcon,
-  LTileLayer,
-  LMarker,
-  LControlLayers,
-  LTooltip,
-  LPopup,
-  LPolyline,
-  LPolygon,
-  LRectangle,
-} from "@vue-leaflet/vue-leaflet";
 import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png?url";
 import iconUrl from "leaflet/dist/images/marker-icon.png?url";
 import shadowUrl from "leaflet/dist/images/marker-shadow.png?url";
 import { mapState } from "vuex";
 import {
-  schemaItem,
   getGeoCoordinates,
   geoplacename,
   getFirstGeoShape,
-  frameJsonLD,
 } from "@/api/jsonldObject";
 import { Icon } from "leaflet";
 //import jsonld from "jsonld";
@@ -71,18 +57,7 @@ Icon.Default.mergeOptions({
 });
 export default {
   name: "DatasetLocation",
-  components: {
-    LMap,
-    LIcon,
-    LTileLayer,
-    LMarker,
-    LControlLayers,
-    LTooltip,
-    LPopup,
-    LPolyline,
-    LPolygon,
-    LRectangle,
-  },
+  components: {},
   props: { m: Object, index: Number },
   data() {
     return {

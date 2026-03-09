@@ -249,8 +249,7 @@ in case more intro paragraph text is needed
 
 <script>
 import axios from "axios";
-import { mapState, mapGetters, mapActions } from "vuex";
-import yaml from "js-yaml";
+import { mapState, mapGetters } from "vuex";
 import { tenantDefault } from "@/config.js";
 
 export default {

@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import { onMounted, provide } from 'vue';
+import { onMounted, provide, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useSearch } from '@/composables/useSearch.js';
 import { useConfig } from '@/composables/useConfig.js';
@@ -124,6 +124,10 @@ export default {
       if (route.query) {
         search.updateFromUrl(route.query);
       }
+    });
+
+    watch(() => route.query, (newQuery) => {
+      search.updateFromUrl(newQuery);
     });
 
     return {

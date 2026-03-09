@@ -117,7 +117,6 @@
 import localforage from "localforage";
 import { toRaw } from "vue";
 import { mapState } from "vuex";
-import { without } from "lodash";
 
 // registed in app.components
 //import { default as VueSelect } from "vue-select";
@@ -182,7 +181,6 @@ export default {
       if (collectionNames.length === 0) return;
       console.log(item.collection);
       console.log(collectionNames);
-      var addedCollections = collectionNames;
       if ("assignedCollections" in item) {
         for (let i = 0; i < collectionNames.length; i++) {
           if (!item.assignedCollections.includes(collectionNames[i])) {

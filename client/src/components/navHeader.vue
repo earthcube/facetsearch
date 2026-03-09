@@ -169,7 +169,7 @@ export default {
       this.setSearchExactMatch(this.exact);
       this.$router
         .push({
-          name: "Search",
+          name: "Search2",
           query: {
             q: this.q,
             searchExactMatch: this.searchExactMatch,

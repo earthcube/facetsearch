@@ -59,11 +59,11 @@ const schemaItem = function (name, json_compacted, noSchemaMessage = "") {
 };
 const hasSchemaProperty = function (name, jsonObj) {
   if (jsonObj === undefined) return false;
-  // eslint-disable-next-line no-prototype-builtins
+   
   if (
-    jsonObj.hasOwnProperty("https://schema.org/" + name) ||
-    jsonObj.hasOwnProperty("http://schema.org/" + name) ||
-    jsonObj.hasOwnProperty(name)
+    Object.prototype.hasOwnProperty.call(jsonObj, "https://schema.org/" + name) ||
+    Object.prototype.hasOwnProperty.call(jsonObj, "http://schema.org/" + name) ||
+    Object.prototype.hasOwnProperty.call(jsonObj, name)
   )
     return true;
 };

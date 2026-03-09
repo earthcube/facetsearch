@@ -292,7 +292,7 @@ export default {
         try {
           this.graphinfo = JSON5.parse(response.data);
           console.log(this.graphinfo);
-        } catch (error) {
+        } catch {
           this.graphinfo = response.data;
           console.log(this.graphinfo);
         }

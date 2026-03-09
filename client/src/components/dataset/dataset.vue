@@ -316,7 +316,6 @@ import ConnectedTools from "@/components/dataset/connectedTools.vue";
 import Downloadfiles from "@/components/dataset/downloadfiles.vue";
 import relatedData from "@/components/dataset/relatedData.vue";
 import sampleInfo from "@/components/dataset/igsnSampleList.vue";
-import annotation from "@/components/dataset/annotation.vue";
 import feedback from "@/components/feedback/feedback.vue";
 import citationButton from "@/components/dataset/citationButton.vue";
 import backButton from "@/components/backButton.vue";
@@ -351,7 +350,6 @@ export default {
     // "json-view": JSONView,
     VueJsonPretty,
     relatedData,
-    annotation,
     feedback,
     citationButton,
     backButton,
@@ -420,8 +418,9 @@ export default {
     },
     ...mapActions(["fetchJsonLd"]),
     async dataAccessWindow(content) {
+      const scriptClose = '</' + 'script>';
       content = marked(content, {
-        highlight: function (code, language) {
+        highlight: function (code, _language) {
           return code; // Optionally highlight the code here
         },
       });
@@ -507,7 +506,7 @@ export default {
                     };
                     pre.appendChild(copyButton);
                   });
-                <\/script>
+                ${scriptClose}
               </body>
             </html>
           `);
@@ -529,42 +528,6 @@ export default {
     },
     toMetadata() {
       var self = this;
-      var mapping = {
-        s_name: "",
-        s_description: "",
-        s_url: "",
-        s_contributor: "",
-        s_datePublished: "",
-        s_sdPublisher: "",
-        s_citation: "",
-        has_citation: "",
-        s_keywords: [],
-        s_landingpage: "",
-        s_downloads: [],
-        s_identifier: "",
-        details: {},
-        raw_json: "",
-        html_name: "",
-        publisher: "",
-        description: "",
-        s_publisher: "",
-        s_publishedDate: "",
-        has_s_url: false,
-        downloads: [],
-        s_distribution: "",
-        s_variableMeasuredNames: [],
-        s_doiurl: "",
-        doi_citation: "", // s_ is schema... doi_citation not a schema element
-        doi_metadata: "",
-        s_spatialCoverage: false,
-        placenames: "",
-        box: "",
-        poly: "",
-        points: [],
-        updated: "",
-        start_datetime: "",
-        end_datetime: "",
-      };
       var jp = self.jsonLdObj; // framed dataset
       if (jp["@type"] == "DataCatalog") {
         this.isDataCatalog = true;

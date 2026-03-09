@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { createSearchService } from '@/services/SearchService.js';
 
 export function useSearch(config) {

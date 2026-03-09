@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, inject, watch, nextTick } from 'vue';
+import { ref, onUnmounted, inject, watch, nextTick } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useGeoFacet } from '@/composables/useSearch.js';

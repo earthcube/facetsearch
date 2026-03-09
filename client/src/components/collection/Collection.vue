@@ -108,7 +108,6 @@ import localforage from "localforage";
 //import FacetsConfig from "../../config";
 // import FacetTextItem from "./FacetTextItem";
 // import _ from "underscore";
-import Vue from "vue";
 import CreateCollection from "./CreateCollection.vue";
 
 import CollectionMenuItem from "./CollectionMenuItem.vue";
@@ -116,8 +115,6 @@ import sendCollectionToNotebook from "./sendCollectionToNotebook.vue";
 import CollectionCard from "./CollectionCard.vue";
 import backButton from "@/components/backButton.vue";
 import { mapGetters, mapState } from "vuex";
-import vSelect from "vue-select";
-import VueScrollbox from "vue-scrollbox";
 import "vue-select/dist/vue-select.css";
 // import ConfirmDialogue from './ConfirmDialogue.vue'
 
@@ -134,8 +131,6 @@ export default {
     sendCollectionToNotebook,
     CollectionCard,
     backButton,
-    vSelect,
-    VueScrollbox,
   },
   provide: function () {
     return {

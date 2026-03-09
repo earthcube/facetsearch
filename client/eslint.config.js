@@ -80,6 +80,7 @@ export default [
     },
     rules: {
       'no-console': 'off',
+      'no-unused-vars': ['error', { vars: 'all', args: 'after-used', argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
       'vue/multi-word-component-names': 'off',
       'vue/no-v-text-v-html-on-component': 'warn',
       'vue/no-mutating-props': 'warn',
