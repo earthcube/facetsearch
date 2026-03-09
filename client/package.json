@@ -102,24 +102,6 @@
     "webpack-cli": "^5.1.4",
     "webpack-version-file-plugin": "^0.4.0"
   },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "@babel/eslint-parser"
-    },
-    "rules": {
-      "vue/multi-word-component-names": "off",
-      "vue/no-v-text-v-html-on-component": "warn",
-      "vue/no-mutating-props": "warn"
-    }
-  },
   "browserslist": [
     "> 1%",
     "last 2 versions",

@@ -5,7 +5,6 @@ import {
 } from "vue-router";
 
 import landing from "@/components/landing/landing.vue";
-import Search from "@/components/facetsearch/Search.vue";
 import dataset from "@/components/dataset/dataset.vue";
 import tool from "@/components/tools/tool.vue";
 import about from "@/components/help/about.vue";
@@ -26,16 +25,6 @@ export function createRouter() {
       { path: "/landing", name: "landing", component: landing },
       // {path:'/search/?q=:q',name:'Search',component:Search,props:true},
       // {path:'/dataset/?o=id',name:'dataset',component:dataset,props:true,},
-      {
-        path: "/search/",
-        name: "Search",
-        component: Search,
-        props: (route) => ({
-          textQuery: route.query.q,
-          resourceType: route.query.resourceType,
-          exact: route.query.searchExactMatch,
-        }),
-      },
       {
         path: "/search2/",
         name: "Search2",
