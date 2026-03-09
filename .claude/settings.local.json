@@ -8,7 +8,9 @@
       "Bash(mkdir:*)",
       "Bash(NODE_ENV=test yarn test --config jest.config.cjs src/__tests__/fixtures/setup.test.js)",
       "Bash(NODE_ENV=test yarn test --config jest.config.cjs src/__tests__/fixtures/basic-setup.test.js)",
-      "Bash(yarn test:*)"
+      "Bash(yarn test:*)",
+      "Bash(VITE_FACETS_CONFIG_FILE=config/config_qlever_20.yaml yarn build:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   }
