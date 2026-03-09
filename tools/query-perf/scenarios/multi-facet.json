@@ -1,0 +1,82 @@
+{
+  "name": "Multi-facet combined filters",
+  "description": "Test combinations of multiple active facets to measure compound query performance",
+  "tests": [
+    {
+      "name": "combo: keywords + publisher",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "kw", "active": true, "values": ["Temperature"] },
+        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] }
+      ]
+    },
+    {
+      "name": "combo: keywords + depth range",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "kw", "active": true, "values": ["Temperature", "Salinity"] },
+        { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": -1000, "max": 0 } }
+      ]
+    },
+    {
+      "name": "combo: keywords + temporal",
+      "search": "ocean",
+      "facets": [
+        { "type": "text", "field": "kw", "active": true, "values": ["Climate"] },
+        { "type": "rangeyear", "field": "temporalCoverage", "active": true, "values": { "min": 2010, "max": 2025 } }
+      ]
+    },
+    {
+      "name": "combo: keywords + geo",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "kw", "active": true, "values": ["Temperature"] },
+        { "type": "geo", "field": "spatialCoverage", "active": true, "values": { "minLat": 20, "maxLat": 60, "minLon": -80, "maxLon": 0 } }
+      ]
+    },
+    {
+      "name": "combo: publisher + place + resource type",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] },
+        { "type": "text", "field": "placenames", "active": true, "values": ["Atlantic Ocean"] },
+        { "type": "text", "field": "resourceType", "active": true, "values": ["data"] }
+      ]
+    },
+    {
+      "name": "combo: all text facets active",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "kw", "active": true, "values": ["Temperature"] },
+        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] },
+        { "type": "text", "field": "placenames", "active": true, "values": ["Atlantic Ocean"] },
+        { "type": "text", "field": "resourceType", "active": true, "values": ["data"] }
+      ]
+    },
+    {
+      "name": "combo: all facet types active (kitchen sink)",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "kw", "active": true, "values": ["Temperature"] },
+        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] },
+        { "type": "text", "field": "resourceType", "active": true, "values": ["data"] },
+        { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": -1000, "max": 0 } },
+        { "type": "rangeyear", "field": "temporalCoverage", "active": true, "values": { "min": 2000, "max": 2025 } },
+        { "type": "geo", "field": "spatialCoverage", "active": true, "values": { "minLat": 20, "maxLat": 60, "minLon": -80, "maxLon": 0 } }
+      ]
+    },
+    {
+      "name": "combo: all facets in discovery mode (baseline)",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "kw", "active": false },
+        { "type": "text", "field": "pubname", "active": false },
+        { "type": "text", "field": "placenames", "active": false },
+        { "type": "text", "field": "resourceType", "active": false },
+        { "type": "depthrange", "field": "minDepth", "active": false },
+        { "type": "rangeyear", "field": "temporalCoverage", "active": false },
+        { "type": "geo", "field": "spatialCoverage", "active": false }
+      ]
+    }
+  ]
+}

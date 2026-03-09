@@ -1,0 +1,27 @@
+{
+  "name": "Text facet: Publisher filter",
+  "description": "Test publisher facet filtering",
+  "tests": [
+    {
+      "name": "publisher: discovery only",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "pubname", "active": false }
+      ]
+    },
+    {
+      "name": "publisher: single publisher",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] }
+      ]
+    },
+    {
+      "name": "publisher: multiple publishers",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA", "NASA", "USGS"] }
+      ]
+    }
+  ]
+}

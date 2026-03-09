@@ -1,0 +1,34 @@
+{
+  "name": "Text facet: Resource type filter",
+  "description": "Test resource type facet filtering (data, tool, etc.)",
+  "tests": [
+    {
+      "name": "resourceType: no filter (all types)",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "resourceType", "active": false }
+      ]
+    },
+    {
+      "name": "resourceType: data only",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "resourceType", "active": true, "values": ["data"] }
+      ]
+    },
+    {
+      "name": "resourceType: tools only",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "resourceType", "active": true, "values": ["tool"] }
+      ]
+    },
+    {
+      "name": "resourceType: data + tools",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "resourceType", "active": true, "values": ["data", "tool"] }
+      ]
+    }
+  ]
+}

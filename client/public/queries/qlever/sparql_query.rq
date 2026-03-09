@@ -1,4 +1,5 @@
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 prefix schema: <http://schema.org/>
 prefix sschema: <https://schema.org/>
 PREFIX ql: <http://qlever.cs.uni-freiburg.de/builtin-functions/>

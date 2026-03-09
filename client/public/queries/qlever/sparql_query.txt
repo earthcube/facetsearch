@@ -1,6 +1,7 @@
 PREFIX bds: <http://www.bigdata.com/rdf/search#>
  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
  prefix schema: <https://schema.org/>
  SELECT distinct ?g ?pubname ?placenames ?kw  ?datep
  	(MAX(?score1) as ?score)  ?name ?description ?resourceType

@@ -159,7 +159,16 @@ export class SparqlQueryBuilder {
   buildRangeFilter(field, values, facetConfig) {
     if (!Array.isArray(values) || values.length < 2) return '';
     const [min, max] = values;
-    return `  FILTER(?datep >= "${min}"^^xsd:gYear && ?datep <= "${max}"^^xsd:gYear) .\n`;
+
+    // Determine the SPARQL variable based on the field
+    if (field === 'datep' || field === 'datePublished') {
+      // ?datep comes from COALESCE and is a string — extract the year via SUBSTR
+      return `  FILTER(xsd:integer(SUBSTR(STR(?datep), 1, 4)) >= ${min} &&
+         xsd:integer(SUBSTR(STR(?datep), 1, 4)) <= ${max}) .\n`;
+    }
+    // temporalCoverage is also a string (e.g. "2010/2020" or "2015-01-01")
+    return `  FILTER(xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) >= ${min} &&
+         xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) <= ${max}) .\n`;
   }
 
   buildDepthFilter(field, values, facetConfig) {

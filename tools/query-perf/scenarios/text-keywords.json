@@ -1,0 +1,34 @@
+{
+  "name": "Text facet: Keywords filter",
+  "description": "Test keyword facet filtering with various selected values",
+  "tests": [
+    {
+      "name": "keywords: discovery only (no filter)",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "kw", "active": false }
+      ]
+    },
+    {
+      "name": "keywords: single value",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "kw", "active": true, "values": ["Temperature"] }
+      ]
+    },
+    {
+      "name": "keywords: multiple values",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "kw", "active": true, "values": ["Temperature", "Ocean", "Climate"] }
+      ]
+    },
+    {
+      "name": "keywords: many values (10)",
+      "search": "ocean",
+      "facets": [
+        { "type": "text", "field": "kw", "active": true, "values": ["Temperature", "Ocean", "Climate", "Sea Level", "Salinity", "Pressure", "Current", "Wind", "Bathymetry", "Sediment"] }
+      ]
+    }
+  ]
+}
