@@ -1,0 +1,33 @@
+{
+  "name": "Text facet: water",
+  "description": "Test water",
+  "tests": [
+    {
+      "name": "keywords: discovery only (no filter)",
+      "search": "water",
+      "facets": [
+
+      ]
+    },
+    {
+      "name": "water Temperature",
+      "search": "water Temperature",
+      "facets": [
+
+      ]
+    },
+
+    {
+      "name": "ocean",
+      "search": "ocean",
+      "facets": [
+       ]
+    },
+    {
+      "name": "water nitrogen oyxgen",
+      "search": "water nitrogen oyxgen",
+      "facets": [
+      ]
+    }
+  ]
+}

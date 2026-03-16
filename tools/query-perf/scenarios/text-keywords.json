@@ -4,7 +4,7 @@
   "tests": [
     {
       "name": "keywords: discovery only (no filter)",
-      "search": "water",
+
       "facets": [
         { "type": "text", "field": "kw", "active": false }
       ]
