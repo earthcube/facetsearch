@@ -12,6 +12,7 @@ import _, { isArray } from "underscore";
 //import SpaqlHasToolsQuery from 'raw-loader!./src/sparql_blaze/sparql_hastools.txt'
 // Static imports removed - now using dynamic loading via queryService
 import queryService from "@/services/queryService.js";
+import { parseQuery, buildTextSearchBlockBlazegraph, buildTextSearchBlockQlever } from "@/utils/queryParser.js";
 import { default as LRUCache } from "lru-cache";
 import localforage from "localforage";
 import yaml from "js-yaml";
@@ -598,7 +599,37 @@ export const store = _createStore({
         this.state.FacetsConfig
       );
       const resultsTemplate = _.template(queryText, esTemplateOptions);
-      //var sparql = self.state.queryTemplates[template_name]({'n': n, 'o': o, 'q': q})
+
+      let textSearchBlock = "";
+      const queryEngine = (this.state.FacetsConfig.QUERY_ENGINE || "").toLowerCase();
+      if (queryEngine === "blazegraph") {
+        const defaultBlock = (searchQ, matchAll) =>
+          `            ?lit bds:search "${String(searchQ).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}" .\n            ?lit bds:matchAllTerms "${matchAll}" .\n            ?lit bds:relevance ?score1 .\n            ?g ?p ?lit .`;
+        if (q && q.trim()) {
+          const parsed = parseQuery(q);
+          if (parsed.AND.length > 0 || parsed.OR_GROUPS.length > 0) {
+            textSearchBlock = buildTextSearchBlockBlazegraph(parsed);
+          } else {
+            textSearchBlock = defaultBlock(q, exact ? "true" : "false");
+          }
+        } else {
+          textSearchBlock = defaultBlock("", "true");
+        }
+      } else if (queryEngine === "qlever") {
+        const defaultBlockQlever = (searchQ) =>
+          `    ?subj ?o ?item .\n    ?text ql:contains-entity ?item .\n    ?text ql:contains-word "${String(searchQ).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}" .`;
+        if (q && q.trim()) {
+          const parsed = parseQuery(q);
+          if (parsed.AND.length > 0 || parsed.OR_GROUPS.length > 0) {
+            textSearchBlock = buildTextSearchBlockQlever(parsed);
+          } else {
+            textSearchBlock = defaultBlockQlever(q);
+          }
+        } else {
+          textSearchBlock = defaultBlockQlever("");
+        }
+      }
+
       var sparql = resultsTemplate({
         n: n,
         o: o,
@@ -606,6 +637,7 @@ export const store = _createStore({
         rt: rt,
         exact: exact,
         minRelevance: minRelevance,
+        textSearchBlock: textSearchBlock,
       });
       //var url = "https://graph.geodex.org/blazegraph/namespace/nabu/sparql";
       var url = this.state.FacetsConfig.SUMMARYSTORE_URL;

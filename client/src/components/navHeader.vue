@@ -62,23 +62,6 @@
                     /></svg
                 ></b-button>
               </b-input-group-append>
-              <VueToggles
-                :value="exact"
-                :height="30"
-                :width="75"
-                checked-text="AND"
-                unchecked-text="OR"
-                checked-bg="#777"
-                :disabled="false"
-                @click="exact = !exact"
-              />
-              <b-tooltip target="checkbox" placement="right" triggers="hover">
-                {{
-                  searchExactMatch
-                    ? "Unselect to match any of the search terms"
-                    : "Select to match all of the search terms"
-                }}
-              </b-tooltip>
             </b-input-group>
           </b-nav-form>
           <!--                <div class="badges mt-2">-->
@@ -110,13 +93,12 @@ import logoEarthcube from "@/components/logos/logoEarthcube.vue";
 import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
 import { stringify } from "query-string";
 import _ from "lodash";
-import VueToggles from "vue-toggles";
 //import FacetsConfig from "../config";
 
 export default {
   configureCompat: { ATTR_FALSE_VALUE: false },
   name: "NavHeader",
-  components: { logoEarthcube, logoGeoCodes, VueToggles },
+  components: { logoEarthcube, logoGeoCodes },
   computed: {
     ...mapState([
       "results",

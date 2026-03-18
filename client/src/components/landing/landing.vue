@@ -35,24 +35,6 @@
                   d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"
                 /></svg
             ></b-button>
-            <VueToggles
-              id="checkbox"
-              :value="searchExactMatch"
-              :height="35"
-              :width="75"
-              checked-text="AND"
-              unchecked-text="OR"
-              checked-bg="#777"
-              :disabled="false"
-              @click="searchExactMatch = !searchExactMatch"
-            />
-            <b-tooltip target="checkbox1" placement="right" triggers="hover">
-              {{
-                searchExactMatch
-                  ? "Unselect to match any of the search terms"
-                  : "Select to match all of the search terms"
-              }}
-            </b-tooltip>
           </b-input-group-append>
         </b-input-group>
 
@@ -186,13 +168,12 @@
 //import VueRouter from 'vue-router'
 import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
 import { mapMutations, mapState } from "vuex";
-import VueToggles from "vue-toggles";
 import axios from "axios";
 import { tenantDefault } from "@/config.js";
 
 export default {
   name: "Landing",
-  components: { logoGeoCodes, VueToggles },
+  components: { logoGeoCodes },
   data() {
     return {
       q: "",
