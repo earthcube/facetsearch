@@ -581,6 +581,8 @@ export const store = _createStore({
         rt = this.state.resourceTypeList.get(resourceType);
       }
       if (exact == undefined) exact = this.state.searchExactMatch;
+      // URL query params often provide "true"/"false" as strings; normalize to boolean.
+      exact = exact === true || exact === "true";
 
       event("search", {
         //'event_category': 'query',
@@ -621,7 +623,21 @@ export const store = _createStore({
         if (q && q.trim()) {
           const parsed = parseQuery(q);
           if (parsed.AND.length > 0 || parsed.OR_GROUPS.length > 0) {
-            textSearchBlock = buildTextSearchBlockQlever(parsed);
+            const hasExplicitOr = parsed.OR_GROUPS && parsed.OR_GROUPS.length > 0;
+            // When the user types the explicit ` or ` operator, we always honor it.
+            // Otherwise, use the existing "Match All Terms" option:
+            // - exact=true  => AND across all terms
+            // - exact=false => OR across all terms
+            if (hasExplicitOr || exact) {
+              textSearchBlock = buildTextSearchBlockQlever(parsed);
+            } else {
+              const orParsed = {
+                AND: [],
+                // Build: OR for each individual term.
+                OR_GROUPS: parsed.AND.map((t) => [t]),
+              };
+              textSearchBlock = buildTextSearchBlockQlever(orParsed);
+            }
           } else {
             textSearchBlock = defaultBlockQlever(q);
           }
