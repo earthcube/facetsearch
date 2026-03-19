@@ -120,7 +120,8 @@ export default {
   data() {
     return {
       textQuery: "",
-      exact: false,
+      // Default AND for multi-word Qlever search; navbar submit always forces true (see onSubmitNavbar).
+      exact: true,
       resourceType: "All",
     };
   },
@@ -148,13 +149,15 @@ export default {
       //  this.$store.state.rt = 'all' // for now
       this.setTextQuery(this.textQuery);
       this.setResourceTypeQuery("all"); // for now
-      this.setSearchExactMatch(this.exact);
+      // Magnifying-glass search: always AND for multi-word (ignore prior URL syncing this.exact to false).
+      this.setSearchExactMatch(true);
+      this.exact = true;
       this.$router
         .push({
           name: "Search2",
           query: {
             q: this.q,
-            searchExactMatch: this.searchExactMatch,
+            searchExactMatch: true,
             resourceType: "all",
           },
         })

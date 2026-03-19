@@ -55,7 +55,7 @@ export const store = _createStore({
     toolsMap: new Map(), // object id, hasConnectedTools
     q: "",
     rt: "all", // resourceType all
-    searchExactMatch: false,
+    searchExactMatch: true,
     // add them to simplify changes
     // should I just dump the facet config object in here/?
     esTemplateOptions: esTemplateOptions,
