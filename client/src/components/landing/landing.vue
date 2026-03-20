@@ -177,7 +177,7 @@ export default {
   data() {
     return {
       q: "",
-      searchExactMatch: false,
+      searchExactMatch: true,
       toolOptionsSelected: "all",
       toolOptions: [
         { value: "all", text: "All" },
