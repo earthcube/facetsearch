@@ -17,7 +17,22 @@ import { default as LRUCache } from "lru-cache";
 import localforage from "localforage";
 import yaml from "js-yaml";
 // import { commit } from "lodash/seq.js";
-import { tenantDefault } from "@/config.js";
+import { tenantDefault, tenantFetchFallback } from "@/config.js";
+
+/**
+ * Parse BLAZEGRAPH_TIMEOUT (seconds as number, "20s", etc.) to milliseconds for axios.
+ * Matches SearchService.parseTimeout semantics.
+ */
+function parseBlazeTimeoutMs(val, defaultSec = 60) {
+  if (val == null || val === "") return defaultSec * 1000;
+  if (typeof val === "number") return val * 1000;
+  const s = String(val).trim();
+  const m = s.match(/^(\d+)\s*s$/i);
+  if (m) return parseInt(m[1], 10) * 1000;
+  const n = Number(s);
+  if (!Number.isNaN(n)) return n * 1000;
+  return defaultSec * 1000;
+}
 
 let esTemplateOptions = { interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g };
 export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
@@ -252,17 +267,46 @@ export const store = _createStore({
     },
   },
   actions: {
-    async fetchTenantData({ commit }) {
-      console.log("Trying to fetch tenant data");
+    async fetchTenantData({ commit, state }) {
+      console.warn("Trying to fetch tenant data");
+      const cfg = state.FacetsConfig;
+      const community = (cfg?.COMMUNITY && String(cfg.COMMUNITY).trim()) || "";
+      const url = cfg?.TENANT_URL;
+
+      const applyFallback = (reason) => {
+        if (reason) console.warn("[fetchTenantData]", reason);
+        const fb =
+          community && tenantFetchFallback[community]
+            ? tenantFetchFallback[community]
+            : tenantDefault;
+        commit("setTenantData", fb);
+      };
+
+      if (!url) {
+        applyFallback("FacetsConfig.TENANT_URL is missing.");
+        return;
+      }
+
       try {
-        const response = await axios.get(this.state.FacetsConfig.TENANT_URL);
-        let tenantData = yaml.load(response.data);
-        console.log(tenantData);
+        const response = await axios.get(url, { timeout: 15000 });
+        const tenantData = yaml.load(response.data);
+        const list = tenantData?.tenant;
+        if (
+          community &&
+          Array.isArray(list) &&
+          !list.some((t) => t.community === community)
+        ) {
+          applyFallback(
+            `COMMUNITY "${community}" not found in tenant.yaml from ${url}`,
+          );
+          return;
+        }
         commit("setTenantData", tenantData);
       } catch (error) {
         console.error("Error loading Tenant YAML file:", error);
-        const tenantData = tenantDefault;
-        commit("setTenantData", tenantData);
+        applyFallback(
+          `Failed to load tenant YAML (timeout, CORS, or network). URL: ${url}`,
+        );
       }
     },
     // eslint-disable-next-line
@@ -655,9 +699,12 @@ export const store = _createStore({
         minRelevance: minRelevance,
         textSearchBlock: textSearchBlock,
       });
+      sparql = sparql.replace(/\r\n/g, "\n");
       //var url = "https://graph.geodex.org/blazegraph/namespace/nabu/sparql";
       var url = this.state.FacetsConfig.SUMMARYSTORE_URL;
       var blazetimeout = this.state.FacetsConfig.BLAZEGRAPH_TIMEOUT || 60;
+      const timeoutMs = parseBlazeTimeoutMs(blazetimeout, 60);
+      const axiosTimeoutMs = Math.max(timeoutMs + 30_000, 120_000);
       //sparql = "PREFIX%20con%3A%20%3Chttp%3A%2F%2Fwww.ontotext.com%2Fconnectors%2Flucene%23%3E%0APREFIX%20luc%3A%20%3Chttp%3A%2F%2Fwww.ontotext.com%2Fowlim%2Flucene%23%3E%0APREFIX%20con-inst%3A%20%3Chttp%3A%2F%2Fwww.ontotext.com%2Fconnectors%2Flucene%2Finstance%23%3E%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0Aprefix%20schema%3A%20%3Chttp%3A%2F%2Fschema.org%2F%3E%0Aprefix%20sschema%3A%20%3Chttps%3A%2F%2Fschema.org%2F%3E%0ASELECT%20distinct%20%3Fsubj%20%3Fpubname%20(GROUP_CONCAT(DISTINCT%20%3Fplacename%3B%20SEPARATOR%3D%22%2C%20%22)%20AS%20%3Fplacenames)%0A%20%20%20%20%20%20%20%20(GROUP_CONCAT(DISTINCT%20%3Fkwu%3B%20SEPARATOR%3D%22%2C%20%22)%20AS%20%3Fkw)%0A%20%20%20%20%20%20%20%20%3Fdatep%20%20(GROUP_CONCAT(DISTINCT%20%3Furl%3B%20SEPARATOR%3D%22%2C%20%22)%20AS%20%3Fdisurl)%20(MAX(%3Fscore1)%20as%20%3Fscore)%0A%20%20%20%20%20%20%20%20%3Fname%20%3Fdescription%20%3FresourceType%20%3Fg%0A%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%5B%5D%20a%20con-inst%3Ageocodes_fts%20%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20con%3Aquery%20%22water%22%20%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20con%3Aentities%20%3Fsubj%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20VALUES%20(%3Fdataset)%20%7B%20(%20schema%3ADataset%20)%20(%20sschema%3ADataset%20)%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fsubj%20a%20%3Fdataset%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20con%3Ascore%20%3Fscore1%7D%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20BIND%20(IF%20(exists%20%7B%3Fsubj%20a%20schema%3ADataset%20.%7D%20%7C%7Cexists%7B%3Fsubj%20a%20sschema%3ADataset%20.%7D%20%2C%20%22data%22%2C%20%22tool%22)%20AS%20%3FresourceType).%0A%0A%20%20%20%20%20%20%20%20%20%20graph%20%3Fg%20%7B%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fsubj%20schema%3Aname%7Csschema%3Aname%20%3Fname%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fsubj%20schema%3Adescription%7Csschema%3Adescription%20%3Fdescription%20.%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20optional%20%7B%3Fsubj%20schema%3Adistribution%2Fschema%3Aurl%7Cschema%3AsubjectOf%2Fschema%3Aurl%20%3Furl%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20schema%3AdatePublished%7Csschema%3AdatePublished%20%3Fdate_p%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20schema%3Apublisher%2Fschema%3Aname%7Csschema%3Apublisher%2Fsschema%3Aname%7Cschema%3Apublisher%2Fschema%3AlegalName%7Csschema%3Apublisher%2Fsschema%3AlegalName%20%20%3Fpub_name%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20schema%3AspatialCoverage%2Fschema%3Aname%7Csschema%3AspatialCoverage%2Fsschema%3Aname%7Csschema%3AsdPublisher%20%3Fplace_name%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20schema%3Akeywords%7Csschema%3Akeywords%20%3Fkwu%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20BIND%20(%20IF%20(%20BOUND(%3Fdate_p)%2C%20%3Fdate_p%2C%20%22No%20datePublished%22)%20as%20%3Fdatep%20)%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20BIND%20(%20IF%20(%20BOUND(%3Fpub_name)%2C%20%3Fpub_name%2C%20%22No%20Publisher%22)%20as%20%3Fpubname%20)%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20BIND%20(%20IF%20(%20BOUND(%3Fplace_name)%2C%20%3Fplace_name%2C%20%22No%20spatialCoverage%22)%20as%20%3Fplacename%20)%20.%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20GROUP%20BY%20%3Fsubj%20%3Fpubname%20%3Fplacename%20%3Fkwu%20%3Fdatep%20%3Furl%20%20%3Fname%20%3Fdescription%20%20%3FresourceType%20%3Fg%0A%20%20%20%20%20%20%20%20ORDER%20BY%20DESC(%3Fscore)%0ALIMIT%2010%0AOFFSET%200"
 
       // generate a UUID from the query string.
@@ -681,26 +728,41 @@ export const store = _createStore({
       //     context.commit('setResults', lastItems)
       //     return ;
       // }
-      var params = new URLSearchParams();
-      //  query: encodeURIComponent(sparql),
-      params.append("query", sparql);
-      params.append("queryLn", "sparql");
-      params.append("timeout", blazetimeout);
-
       //params.append("analytic", "true")
       //params.append("RTO", "true") runtime optimizer
-      const config = {
-        url: url,
-        method: "get",
-        headers: {
-          Accept: "application/sparql-results+json",
-          // 'Content-Type': 'application/sparql-query'
-          // 'X-BIGDATA-MAX-QUERY-MILLIS': 90000  // 90 seconds. can use causes cors error
-        },
-        params: params,
-        //data: sparql
-      };
-      console.log(params.get("query"));
+      /** @type {import('axios').AxiosRequestConfig} */
+      let config;
+      if (queryEngine === "qlever") {
+        const body = new URLSearchParams({
+          query: sparql,
+          format: "json",
+          timeout: String(timeoutMs),
+        });
+        config = {
+          url,
+          method: "post",
+          data: body,
+          timeout: axiosTimeoutMs,
+          headers: {
+            Accept: "application/sparql-results+json",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        };
+      } else {
+        var params = new URLSearchParams();
+        params.append("query", sparql);
+        params.append("queryLn", "sparql");
+        params.append("timeout", blazetimeout);
+        config = {
+          url: url,
+          method: "get",
+          headers: {
+            Accept: "application/sparql-results+json",
+          },
+          params: params,
+          timeout: axiosTimeoutMs,
+        };
+      }
       return axios
         .request(config)
         .then(function (response) {
