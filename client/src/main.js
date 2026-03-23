@@ -28,6 +28,7 @@ app.component("VSelect", VueSelect);
 import { createGtag } from "vue-gtag";
 const gtag = createGtag({
   tagId: "G-15XD8YBF5L",
+  pageTracker: { router },
 });
 app.use(gtag);
 

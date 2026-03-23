@@ -236,12 +236,17 @@ export default {
       this.setTextQuery("");
     },
     fetchAllReports() {
-      axios.get(this.reportsJson).then((response) => {
-        this.reports = response.data
-          .sort((a, b) => b.records - a.records) // Sort in descending order
-          .slice(0, 3);
-        this.visibleImages = this.reports.map(() => true);
-      });
+      axios
+        .get(this.reportsJson, { timeout: 10000 })
+        .then((response) => {
+          this.reports = response.data
+            .sort((a, b) => b.records - a.records) // Sort in descending order
+            .slice(0, 3);
+          this.visibleImages = this.reports.map(() => true);
+        })
+        .catch(() => {
+          this.reports = [];
+        });
     },
   },
 };
