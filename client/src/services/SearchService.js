@@ -6,7 +6,7 @@ import { createFilterStateManager } from './FilterStateManager.js';
 /**
  * Main Search Service (QLever-first)
  * - Builds SPARQL from active filters
- * - For QLever: try GET first, POST fallback
+ * - For QLever: GET only (POST often 404 on graphspace endpoints)
  * - For Blazegraph/Fuseki: POST first
  * - Normalizes results to a simple array of objects
  * - Provides facet option utilities (getFacetOptions)
@@ -42,26 +42,19 @@ export class SearchService {
 
   /**
    * Sends query to TRIPLESTORE_URL
-   * - QLever: GET first (reliable), then POST fallback
-   * - Blazegraph/Fuseki: POST first
+   * - QLever: GET only — many deployments (e.g. graphspace/facetsearch behind nginx)
+   *   do not expose POST on that path (404 + missing CORS on error). POST fallback removed.
+   * - Blazegraph/Fuseki: POST
    */
   async sendToTriplestoreWithFallback(query) {
     const endpoint = this.config.TRIPLESTORE_URL;
-    let timeout = this.parseTimeout(this.config.BLAZEGRAPH_TIMEOUT) || 20000;
-
+    const timeoutMs = this.parseTimeout(this.config.BLAZEGRAPH_TIMEOUT) || 20_000;
 
     if (this.usesQLever()) {
-        timeout = `${timeout}ms`
-      try {
-        return await this.sendDirectGET(endpoint, query, timeout);
-      } catch (err) {
-        console.warn('QLever GET failed; trying POST fallback:', err?.message || err);
-        return await this.sendDirectPOST(endpoint, query, timeout);
-      }
+      return await this.sendDirectGET(endpoint, query, timeoutMs);
     }
 
-    // Blazegraph/Fuseki
-    return await this.sendDirectPOST(endpoint, query, timeout);
+    return await this.sendDirectPOST(endpoint, query, timeoutMs);
   }
 
   /**
@@ -138,7 +131,9 @@ export class SearchService {
       }
       // Convenience fields used by UI
       out.id = out.subj;
-      out.keywords = out.kwu ? out.kwu.split(',').map(k => k.trim()) : [];
+      // Aggregated keywords: GROUP_CONCAT AS ?kw (inner var ?kw_u)
+      const kwRaw = out.kw ?? out.kwu;
+      out.keywords = kwRaw ? String(kwRaw).split(',').map((k) => k.trim()) : [];
       out.resourceType = out.resourceType_u;
       return out;
     });

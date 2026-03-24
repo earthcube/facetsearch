@@ -2,6 +2,8 @@
  * SPARQL Query Builder Service
  * Dynamically constructs SPARQL queries based on active filters and search parameters
  */
+import { parseQuery, buildTextSearchBlockQlever, buildTextSearchBlockBlazegraph } from '@/utils/queryParser.js';
+
 export class SparqlQueryBuilder {
   constructor(config) {
     this.config = config;
@@ -93,22 +95,76 @@ export class SparqlQueryBuilder {
     return whereClause;
   }
 
+  /**
+   * AND/OR text search — same rules as state.js getResults (parseQuery + explicit ` or `).
+   * Search2 previously passed the raw string to one bds:search / ql:contains-word, so
+   * e.g. "hmr2300 or KN209" never matched (literal phrase "hmr2300 or KN209").
+   */
   buildTextSearchFragment(textQuery, searchExactMatch) {
-    const q = this.escapeValue(textQuery);
+    const raw = typeof textQuery === 'string' ? textQuery : '';
+    const trimmed = raw.trim();
+    if (!trimmed) return '';
+
+    const parsed = parseQuery(raw);
+    const hasParsed = parsed.AND.length > 0 || parsed.OR_GROUPS.length > 0;
+    const hasExplicitOr = parsed.OR_GROUPS && parsed.OR_GROUPS.length > 0;
+
     if (this.queryEngine === 'blazegraph') {
-      const exactStr = searchExactMatch ? 'true' : 'false';
-      return `  ?lit bds:search "${q}" .
+      if (!hasParsed) {
+        const exactStr = searchExactMatch ? 'true' : 'false';
+        const q = this.escapeValue(raw);
+        return `  ?lit bds:search "${q}" .
   ?lit bds:matchAllTerms "${exactStr}" .
   ?lit bds:relevance ?score1 .
   GRAPH ?g { ?subj ?p ?lit . }
 `;
-    } else {
-      // QLever: bind the literal from the subject and match words
-      // This is a widely-compatible pattern with QLever index
-      return `  ?subj ?p ?text .
+      }
+      let effective = parsed;
+      if (!hasExplicitOr && !searchExactMatch) {
+        effective = {
+          AND: [],
+          OR_GROUPS: parsed.AND.map((t) => [t]),
+        };
+      }
+      const block = buildTextSearchBlockBlazegraph(effective);
+      const indented = block
+        .split('\n')
+        .map((ln) => {
+          const t = ln.trim();
+          if (!t) return '';
+          return `  ${t}`;
+        })
+        .filter((ln) => ln.length > 0)
+        .join('\n');
+      return `${indented}\n`;
+    }
+
+    // QLever
+    if (!hasParsed) {
+      const q = this.escapeValue(raw);
+      return `  ?subj ?o ?item .
+  ?text ql:contains-entity ?item .
   ?text ql:contains-word "${q}" .
 `;
     }
+    let effective = parsed;
+    if (!hasExplicitOr && !searchExactMatch) {
+      effective = {
+        AND: [],
+        OR_GROUPS: parsed.AND.map((t) => [t]),
+      };
+    }
+    const block = buildTextSearchBlockQlever(effective);
+    const indented = block
+      .split('\n')
+      .map((ln) => {
+        const t = ln.trim();
+        if (!t) return '';
+        return `  ${t}`;
+      })
+      .filter((ln) => ln.length > 0)
+      .join('\n');
+    return `${indented}\n`;
   }
 
   buildFilterFragments(filters) {
@@ -235,7 +291,7 @@ export class SparqlQueryBuilder {
   }
 
   buildOptionalProperties() {
-    return `  OPTIONAL {?subj sschema:distribution/sschema:url|sschema:subjectOf/sschema:url|schema:distribution/schema:url|schema:subjectOf/schema:url ?url1 .}
+    return `  OPTIONAL {?subj sschema:distribution/sschema:url|sschema:subjectOf/sschema:url|schema:distribution/schema:url|schema:subjectOf/schema:url ?url .}
   OPTIONAL {?subj schema:datePublished|sschema:datePublished ?datep1 .}
   OPTIONAL {?subj schema:dateCreated|sschema:dateCreated ?datec .}
   OPTIONAL {?subj schema:dateModified|sschema:dateModified ?datem .}
@@ -279,7 +335,8 @@ export class SparqlQueryBuilder {
   }
     buildGroupbyClause(_limit, _offset) {
        // return `GROUP BY ?subj ?pubname ?placename  ?datep ?url  ?name ?description ?type ?maxdepth ?minDepth ?temporalCoverage ?bbox ?g\n`;
-        return `GROUP BY ?g ?subj  ?placename  ?datep ?pubname ?url  ?name ?description ?type  ?temporalCoverage ?kw  ?resourceType\n`;
+        // Group by source variables, not aggregate aliases (?kw / ?resourceType come from GROUP_CONCAT AS …).
+        return `GROUP BY ?g ?subj ?placename ?datep ?pubname ?url ?name ?description ?type ?temporalCoverage ?kw_u ?resourceType_u\n`;
     }
   buildLimitClause(limit, offset) {
     return `LIMIT ${limit}\nOFFSET ${offset}\n`;
