@@ -207,6 +207,18 @@ export default {
   },
   mounted() {
     const s3base = this.FacetsConfig.S3_REPORTS_URL;
+    // Optional: skip OSS request (avoids console 403 when bucket is private / local dev).
+    if (
+      import.meta.env.VITE_SKIP_LANDING_REPORT_STATS === "true" ||
+      this.FacetsConfig.FETCH_LANDING_REPORT_STATS === false
+    ) {
+      this.reports = [];
+      return;
+    }
+    if (!s3base || String(s3base).trim() === "") {
+      this.reports = [];
+      return;
+    }
     let community = this.FacetsConfig.COMMUNITY;
     if (
       community === undefined ||
@@ -235,6 +247,11 @@ export default {
     onReset() {
       this.setTextQuery("");
     },
+    /**
+     * Loads "Top Repositories" cards from S3_REPORTS_URL/.../report_stats.json.
+     * A browser console 403/404 here means the OSS object is not publicly readable or missing —
+     * not a search/SPARQL issue. EarthCube ops must allow anonymous GET on that path (or proxy via API).
+     */
     fetchAllReports() {
       axios
         .get(this.reportsJson, { timeout: 10000 })
