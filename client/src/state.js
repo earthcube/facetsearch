@@ -18,6 +18,11 @@ import localforage from "localforage";
 import yaml from "js-yaml";
 // import { commit } from "lodash/seq.js";
 import { tenantDefault, tenantFetchFallback } from "@/config.js";
+import {
+  datasetJsonLdPathVariants,
+  normalizeDatasetGraphIri,
+} from "@/utils/datasetIdentifiers.js";
+import { fetchExpandedDatasetJsonLdViaSparql } from "@/services/datasetJsonLdSparqlFallback.js";
 
 /**
  * Parse BLAZEGRAPH_TIMEOUT (seconds as number, "20s", etc.) to milliseconds for axios.
@@ -35,6 +40,36 @@ function parseBlazeTimeoutMs(val, defaultSec = 60) {
 }
 
 let esTemplateOptions = { interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g };
+
+function axiosResponseDataToJsonLdObject(content) {
+  let s;
+  if (typeof content === "string") {
+    s = content.replace(/http:\/\/schema\.org\//g, "https://schema.org/");
+  } else {
+    s = JSON.stringify(content).replace(
+      /http:\/\/schema\.org\//g,
+      "https://schema.org/"
+    );
+  }
+  return JSON.parse(s);
+}
+
+async function commitJsonLdToStore(context, jsonLdobj) {
+  context.commit("setJsonLd", jsonLdobj);
+  try {
+    await jsonld.compact(jsonLdobj, {}).then((providers) => {
+      const j = JSON.stringify(providers, null, 2);
+      const jp = JSON.parse(j);
+      context.commit("setJsonLdCompact", jp);
+    });
+  } catch (ex) {
+    console.log(
+      "JSONLD transformation issue. JSON into JSONLDCompact. " + ex
+    );
+    context.commit("setJsonLdCompact", jsonLdobj);
+    throw "JSONLD transformation issue.";
+  }
+}
 export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
   return await fetch(import.meta.env.BASE_URL + remoteConfig)
     .then((response) => response.text())
@@ -365,11 +400,31 @@ export const store = _createStore({
         .finally(() => {});
       return collection;
     },
-    async fetchJsonLd(context, o) {
+    async fetchJsonLd(context, payload) {
+      const id =
+        typeof payload === "string" || payload == null
+          ? payload
+          : payload.id;
+      const graphFromPayload =
+        typeof payload === "object" &&
+        payload != null &&
+        payload.graph != null &&
+        String(payload.graph).trim() !== ""
+          ? String(payload.graph).trim()
+          : undefined;
+      const cfg = context.state.FacetsConfig || {};
+      const fallbackGraph =
+        typeof cfg.DATASET_JSONLD_FALLBACK_GRAPH === "string" &&
+        cfg.DATASET_JSONLD_FALLBACK_GRAPH.trim() !== ""
+          ? cfg.DATASET_JSONLD_FALLBACK_GRAPH.trim()
+          : undefined;
+      const graphRaw = graphFromPayload || fallbackGraph;
+      const graph = graphRaw ? normalizeDatasetGraphIri(graphRaw) : undefined;
+
       event("view_item", {
         items: [
           {
-            id: o,
+            id,
             category: "dataset",
             quantity: 1,
           },
@@ -377,7 +432,7 @@ export const store = _createStore({
         value: 1,
       });
       event("view_dataset", {
-        id: o,
+        id,
         category: "dataset",
       });
       // var self = this;
@@ -389,118 +444,123 @@ export const store = _createStore({
         this.state.FacetsConfig.API_URL,
         esTemplateOptions
       );
-      const fetchURL =
-        baseUrlt({ window_location_origin: window.location.origin }) +
-        `/dataset/${o}`;
-      console.log(fetchURL);
-      var url = new URL(fetchURL);
-      return axios
-        .get(url)
-        .then(
-          //const content = await rawResponse.json();
-          async function (r) {
-            var content = r.data;
-            //console.log(contentAsText);
-            if (typeof content === String) {
-              content = content.replace(
-                "http://schema.org/",
-                "https://schema.org/"
-              );
-            } else {
-              content = JSON.stringify(content);
-              content = content.replace(
-                "http://schema.org/",
-                "https://schema.org/"
-              );
-            }
+      const baseRoot = String(
+        baseUrlt({ window_location_origin: window.location.origin })
+      ).replace(/\/+$/, "");
+      const idStr = id == null ? "" : String(id);
+      const params = {};
+      if (graph) {
+        // Deployments differ: some gateways read ?g=, others ?graph=
+        params.g = graph;
+        params.graph = graph;
+      }
+      const axiosConfig =
+        Object.keys(params).length > 0 ? { params } : undefined;
 
-            // wifire uses jsonld flattened, so at load let's convert items to expanded
-            let jsonLdobj = JSON.parse(content);
-            context.commit("setJsonLd", jsonLdobj);
+      const getDataset = (segment) =>
+        axios.get(`${baseRoot}/dataset/${segment}`, axiosConfig);
 
-            // attempt to clean up below. Let's just pass the original
-            // const jsonLdContext = {"@vocab":"https://schema.org/"};
-            // try {
-            //
-            //
-            //     await jsonld.expand(jsonLdobj, jsonLdContext).then((providers) => {
-            //         var j = JSON.stringify(providers, null, 2);
-            //         var jp = JSON.parse(j);
-            //         //   console.log(j.toString());
-            //         context.commit('setJsonLd', jp)
-            //     })
-            // } catch (ex) {
-            //     console.log("JSONLD transformation issue. JSON into JSONLDCompact. " +  ex)
-            //
-            //     context.commit('setJsonLd', jsonLdobj)
-            //     throw "JSONLD transformation issue."
-            // }
-
-            try {
-              // this will return an array, if there is more than one type.
-              // empty context to get what was a mistake... prefix with https://schema.org
-              // do any framing in the component pages.
-
-              await jsonld.compact(jsonLdobj, {}).then((providers) => {
-                var j = JSON.stringify(providers, null, 2);
-                var jp = JSON.parse(j);
-                //   console.log(j.toString());
-                context.commit("setJsonLdCompact", jp);
-              });
-            } catch (ex) {
-              console.log(
-                "JSONLD transformation issue. JSON into JSONLDCompact. " + ex
-              );
-
-              context.commit("setJsonLdCompact", jsonLdobj);
-              throw "JSONLD transformation issue.";
-            }
+      const trySegmentVariants = async (logicalId) => {
+        const enc = encodeURIComponent(logicalId);
+        try {
+          return await getDataset(enc);
+        } catch (first) {
+          const st = first?.response?.status;
+          const canRetryRaw =
+            st === 404 && enc !== logicalId && logicalId.length > 0;
+          if (canRetryRaw) {
+            return await getDataset(logicalId);
           }
-        )
-        .catch((exception) => {
-          // Vue.$gtag.event('exception', {
-          event("exception", {
-            description: `${o} ${exception}`,
-            fatal: false,
-            items: [
-              {
-                id: o,
-                category: "dataset",
-              },
-            ],
-          });
-          //Vue.$gtag.event('exception_datasetld', {
-          event("exception_datasetld", {
-            description: exception,
-            error_datasetid: o,
-            category: "dataset",
-          });
-          if (exception.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.log(exception.response.data);
-            console.log(exception.response.status);
-            console.log(exception.response.headers);
-            if (exception.response.status === 404) {
-              throw "Issue with Identifier or stale reference in services";
-            } else {
-              throw (
-                "Issue with server responded with an error " +
-                exception.response.status
-              );
-            }
-          } else if (exception.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            console.log(exception.request);
-            throw "Issue with service possibly not running";
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log("Error", exception.message);
-            throw "Issue with service: " + exception.message;
+          throw first;
+        }
+      };
+
+      const pathVariants = datasetJsonLdPathVariants(idStr);
+      const runGet = async () => {
+        let lastErr;
+        for (const logicalId of pathVariants) {
+          try {
+            return await trySegmentVariants(logicalId);
+          } catch (e) {
+            lastErr = e;
+            if (e?.response?.status !== 404) throw e;
           }
+        }
+        throw lastErr;
+      };
+
+      const sparqlFallbackEnabled =
+        cfg.DATASET_JSONLD_SPARQL_FALLBACK !== false &&
+        String(cfg.QUERY_ENGINE || "").toLowerCase() === "qlever" &&
+        Boolean(graph) &&
+        Boolean(cfg.TRIPLESTORE_URL);
+
+      try {
+        const r = await runGet();
+        const jsonLdobj = axiosResponseDataToJsonLdObject(r.data);
+        await commitJsonLdToStore(context, jsonLdobj);
+      } catch (exception) {
+        event("exception", {
+          description: `${id} ${exception}`,
+          fatal: false,
+          items: [
+            {
+              id,
+              category: "dataset",
+            },
+          ],
         });
+        event("exception_datasetld", {
+          description: exception,
+          error_datasetid: id,
+          category: "dataset",
+        });
+
+        if (
+          exception?.response?.status === 404 &&
+          sparqlFallbackEnabled &&
+          idStr
+        ) {
+          const expanded = await fetchExpandedDatasetJsonLdViaSparql({
+            triplestoreUrl: cfg.TRIPLESTORE_URL,
+            subject: idStr,
+            graph,
+            timeoutMs: parseBlazeTimeoutMs(cfg.BLAZEGRAPH_TIMEOUT),
+          });
+          if (expanded?.length) {
+            try {
+              await commitJsonLdToStore(context, expanded);
+              return;
+            } catch (compactEx) {
+              event("exception", {
+                description: `${id} ${compactEx}`,
+                fatal: false,
+                items: [{ id, category: "dataset" }],
+              });
+            }
+          }
+        }
+
+        if (exception.response) {
+          console.log(exception.response.data);
+          console.log(exception.response.status);
+          console.log(exception.response.headers);
+          if (exception.response.status === 404) {
+            throw "Issue with Identifier or stale reference in services";
+          } else {
+            throw (
+              "Issue with server responded with an error " +
+              exception.response.status
+            );
+          }
+        } else if (exception.request) {
+          console.log(exception.request);
+          throw "Issue with service possibly not running";
+        } else {
+          console.log("Error", exception.message);
+          throw "Issue with service: " + exception.message;
+        }
+      }
     },
     async fetchToolJsonLd(context, toolArk) {
       event("view_tool", {

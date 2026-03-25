@@ -319,6 +319,7 @@ import sampleInfo from "@/components/dataset/igsnSampleList.vue";
 import feedback from "@/components/feedback/feedback.vue";
 import citationButton from "@/components/dataset/citationButton.vue";
 import backButton from "@/components/backButton.vue";
+import { normalizeDatasetGraphIri } from "@/utils/datasetIdentifiers.js";
 import { mapState, mapActions } from "vuex";
 import _ from "lodash";
 import {
@@ -356,6 +357,8 @@ export default {
   },
   props: {
     d: String,
+    g: String,
+    graph: String,
   },
   data() {
     return {
@@ -375,39 +378,55 @@ export default {
   },
   watch: {
     jsonLdObj: "toMetadata",
-    "$route.params.d": function (d) {
-      this.obscurePage = false;
-      // should get fanche and overlay a loading... then remove loading in toMetadata
-      this.$store.dispatch("fetchJsonLd", d);
+    "$route.fullPath"() {
+      if (this.$route.name !== "dataset") return;
+      this.loadDatasetPage();
     },
   },
-  async mounted() {
-    // async created() {
-    this.$store.commit("setJsonLd", {});
-    this.$store.commit("setJsonLdCompact", {});
-    this.obscurePage = true;
-    this.$store
-      .dispatch("fetchJsonLd", this.d)
-      .then(() => {
-        this.obscurePage = false;
-      })
-      .catch((ex) => {
-        this.obscurePage = false;
-        this.$bvToast.toast(
-          `This is probably an issue with stale data, or bad identifier: ` + ex,
-          {
-            title: "No JSONLD Metadata Found",
-
-            solid: true,
-            appendToast: false,
-          }
-        );
-      });
+  mounted() {
+    this.loadDatasetPage();
   },
   computed: {
     ...mapState(["jsonLdObj", "jsonLdCompact"]),
   },
   methods: {
+    loadDatasetPage() {
+      this.$store.commit("setJsonLd", {});
+      this.$store.commit("setJsonLdCompact", {});
+      this.obscurePage = true;
+      const id = this.d || "";
+      this.$store
+        .dispatch("fetchJsonLd", {
+          id,
+          graph: this.namedGraphForFetch(),
+        })
+        .then(() => {
+          this.obscurePage = false;
+        })
+        .catch((ex) => {
+          this.obscurePage = false;
+          this.$bvToast.toast(
+            `This is probably an issue with stale data, or bad identifier: ` + ex,
+            {
+              title: "No JSONLD Metadata Found",
+              solid: true,
+              appendToast: false,
+            }
+          );
+        });
+    },
+    namedGraphForFetch() {
+      const pick = (v) => {
+        if (v == null || v === "") return undefined;
+        return Array.isArray(v) ? v[0] : v;
+      };
+      const raw =
+        pick(this.g) ||
+        pick(this.graph) ||
+        pick(this.$route.query.g) ||
+        pick(this.$route.query.graph);
+      return raw ? normalizeDatasetGraphIri(raw) : undefined;
+    },
     toggleCollapse(index) {
       const i = this.collapsedIndices.indexOf(index);
       if (i > -1) {
@@ -624,7 +643,13 @@ export default {
             mapping.has_citation = true;
           }
 
-          mapping.s_keywords = schemaItem("keywords", dataset);
+          const rawKeywords = schemaItem("keywords", dataset);
+          mapping.s_keywords =
+            rawKeywords == null || rawKeywords === ""
+              ? []
+              : Array.isArray(rawKeywords)
+                ? rawKeywords
+                : [rawKeywords];
           mapping.s_landingpage = schemaItem("description", dataset);
           mapping.updated = schemaItem("updated", dataset);
           mapping.start_datetime = formatDateToYYYYMMDD(
@@ -646,8 +671,13 @@ export default {
           mapping.points = getGeoCoordinates(mapping.s_spatialCoverage);
 
           const variableMeasured = schemaItem("variableMeasured", dataset);
-          if (variableMeasured) {
-            mapping.s_variableMeasuredNames = variableMeasured.map((item) =>
+          const variableMeasuredList = variableMeasured
+            ? Array.isArray(variableMeasured)
+              ? variableMeasured
+              : [variableMeasured]
+            : null;
+          if (variableMeasuredList && variableMeasuredList.length) {
+            mapping.s_variableMeasuredNames = variableMeasuredList.map((item) =>
               _.truncate(schemaItem("name", item), {
                 length: 80,
                 omission: "***",

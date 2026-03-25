@@ -23,6 +23,8 @@ SPARQL_YASGUI: https://sparqlui.geocodes.earthcube.org/?
 ## ECRR need to use fuseki source, for now.
 ECRR_TRIPLESTORE_URL: 	https://qlever.geocodes-aws-dev.earthcube.org/graphspace/ecrr
 ECRR_GRAPH: http://earthcube.org/gleaner-summoned
+DATASET_JSONLD_FALLBACK_GRAPH: http://earthcube.org/gleaner-summoned
+DATASET_JSONLD_SPARQL_FALLBACK: true
 ######
 # Less common modifications needed
 ######

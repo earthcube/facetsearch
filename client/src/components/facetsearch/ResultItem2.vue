@@ -90,6 +90,8 @@
 </template>
 
 <script>
+import { normalizeDatasetGraphIri } from '@/utils/datasetIdentifiers.js';
+
 export default {
   name: "ResultItem2",
   props: {
@@ -110,7 +112,13 @@ export default {
       if (resourceType === 'tool') {
         return { name: 'tool', params: { t: id } };
       }
-      return { name: 'dataset', params: { d: id } };
+      const query = {};
+      const gNorm = result.g ? normalizeDatasetGraphIri(result.g) : undefined;
+      if (gNorm) {
+        query.g = gNorm;
+        query.graph = gNorm;
+      }
+      return { name: 'dataset', params: { d: id }, query };
     },
     getResourceTypeVariant(resourceType) {
       const variants = {
