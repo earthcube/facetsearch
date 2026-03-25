@@ -2,7 +2,7 @@
   <div id="app" class="pb-5">
     <navHeader></navHeader>
 
-    <router-view></router-view>
+    <router-view :key="routerViewKey"></router-view>
     <div class="fixed-bottom float-right font-weight-lighter">
       {{ title }} Version: {{ appVersion }} Date: {{ appDate }} {{ NODE_ENV }}
     </div>
@@ -29,6 +29,14 @@ export default {
   computed: {
     ...mapState(["FacetsConfig"]),
     ...mapGetters(["appVersion", "appDate"]),
+    routerViewKey() {
+      const r = this.$route;
+      if (!r?.name) return r?.fullPath ?? "";
+      if (r.name === "dataset" || r.name === "tool") {
+        return `${r.name}:${r.fullPath}`;
+      }
+      return r.name;
+    },
   },
 
   mounted() {

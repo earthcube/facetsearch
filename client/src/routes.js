@@ -13,6 +13,21 @@ import collection from "@/components/collection/Collection.vue";
 import configuration from "@/components/configuration.vue";
 import Search2 from "@/components/facetsearch/Search2.vue";
 
+function datasetParams(route) {
+  const raw = route.params.d;
+  const d =
+    raw == null
+      ? ""
+      : Array.isArray(raw)
+        ? raw.map(String).join("/")
+        : String(raw);
+  return {
+    d,
+    g: route.query.g,
+    graph: route.query.graph,
+  };
+}
+
 export function createRouter() {
   return _createRouter({
     history: createWebHashHistory(),
@@ -35,7 +50,12 @@ export function createRouter() {
           exact: route.query.searchExactMatch,
         }),
       },
-      { path: "/dataset/:d", name: "dataset", component: dataset, props: true },
+      {
+        path: "/dataset/:d+",
+        name: "dataset",
+        component: dataset,
+        props: (route) => datasetParams(route),
+      },
       // t tool object id, d dataset object id
       {
         path: "/tool/:t",
