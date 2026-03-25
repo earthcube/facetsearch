@@ -148,7 +148,13 @@ export class FilterStateManager {
     this.state.activeFilters = {};
 
     for (const [key, value] of params.entries()) {
-      if (key !== 'q' && key !== 'resourceType' && key !== 'searchExactMatch') {
+      if (
+        key !== 'q' &&
+        key !== 'resourceType' &&
+        key !== 'searchExactMatch' &&
+        key !== 'g' &&
+        key !== 'graph'
+      ) {
         if (this.state.activeFilters[key]) {
           if (!Array.isArray(this.state.activeFilters[key])) {
             this.state.activeFilters[key] = [this.state.activeFilters[key]];

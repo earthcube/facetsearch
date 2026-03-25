@@ -121,14 +121,19 @@ export default {
     provide('searchComposable', search);
 
     onMounted(() => {
-      if (route.query) {
+      if (route.name === "Search2" && route.query) {
         search.updateFromUrl(route.query);
       }
     });
 
-    watch(() => route.query, (newQuery) => {
-      search.updateFromUrl(newQuery);
-    });
+    watch(
+      () => route.query,
+      (newQuery) => {
+        if (route.name === "Search2") {
+          search.updateFromUrl(newQuery);
+        }
+      }
+    );
 
     return {
       ...search,

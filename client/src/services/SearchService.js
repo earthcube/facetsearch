@@ -122,21 +122,34 @@ export class SearchService {
     if (!response || !response.results || !response.results.bindings) {
       return [];
     }
-    return response.results.bindings.map(binding => {
+    const seen = new Set();
+    const rows = [];
+    for (const binding of response.results.bindings) {
       const out = {};
       for (const key of Object.keys(binding)) {
         if (binding[key] && binding[key].value !== undefined) {
           out[key] = binding[key].value;
         }
       }
-      // Convenience fields used by UI
       out.id = out.subj;
-      // Aggregated keywords: GROUP_CONCAT AS ?kw (inner var ?kw_u)
       const kwRaw = out.kw ?? out.kwu;
       out.keywords = kwRaw ? String(kwRaw).split(',').map((k) => k.trim()) : [];
       out.resourceType = out.resourceType_u;
-      return out;
-    });
+      if (out.disurl) {
+        const first = String(out.disurl).split(',')[0].trim();
+        if (first) out.url = first;
+      }
+      if (out.placenames) {
+        const first = String(out.placenames).split(',')[0].trim();
+        if (first) out.placename = first;
+      }
+      const subj = out.subj || out.id || '';
+      const dedupeKey = out.g ? `${out.g}\t${subj}` : subj;
+      if (dedupeKey && seen.has(dedupeKey)) continue;
+      if (dedupeKey) seen.add(dedupeKey);
+      rows.push(out);
+    }
+    return rows;
   }
 
   // -------------------------

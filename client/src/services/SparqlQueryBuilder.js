@@ -53,11 +53,16 @@ export class SparqlQueryBuilder {
         return Object.keys(aggVars).map( o => ` (GROUP_CONCAT(DISTINCT ?${aggVars[o]}; SEPARATOR=", ") AS ?${o}) ` )
   }
   buildSelectClause() {
+    // Do not SELECT raw ?url / ?placename: multiple OPTIONAL bindings would force them into GROUP BY
+    // and split one dataset into many rows; use disurl / placenames aggregates only.
     const selectVars = [
-      '?subj', '?name', '?description', '?url', '?datep',
+      '?g',
+      '?subj',
+      '?name',
+      '?description',
+      '?datep',
       '?pubname',
-     // '?maxDepth', '?minDepth',
-        '?temporalCoverage'
+      '?temporalCoverage',
     ];
       const aggVars = {
           'disurl':'url',
@@ -334,9 +339,7 @@ export class SparqlQueryBuilder {
       }
   }
     buildGroupbyClause(_limit, _offset) {
-       // return `GROUP BY ?subj ?pubname ?placename  ?datep ?url  ?name ?description ?type ?maxdepth ?minDepth ?temporalCoverage ?bbox ?g\n`;
-        // Group by source variables, not aggregate aliases (?kw / ?resourceType come from GROUP_CONCAT AS …).
-        return `GROUP BY ?g ?subj ?placename ?datep ?pubname ?url ?name ?description ?type ?temporalCoverage ?kw_u ?resourceType_u\n`;
+        return `GROUP BY ?g ?subj ?datep ?pubname ?name ?description ?temporalCoverage\n`;
     }
   buildLimitClause(limit, offset) {
     return `LIMIT ${limit}\nOFFSET ${offset}\n`;
