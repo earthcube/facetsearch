@@ -39,7 +39,7 @@ import { mapState } from "vuex";
 //import {schemaItem} from "@/api/jsonldObject";
 //const {JSONPath} = require('jsonpath-plus');
 //const jp = require('jsonpath')
-import jp from "jsonpath";
+import * as jp from "jsonpath";
 import _ from "lodash";
 import { frameJsonLD } from "@/api/jsonldObject";
 
