@@ -70,7 +70,11 @@
                 <!--                  <p>{{ mapping.description }}</p>-->
                 <!--                </b-col>-->
                 <b-col cols="right">
-                  <feedback subject="Dataset" :name="mapping.s_name" :urn="d" />
+                  <feedback
+                    subject="Dataset"
+                    :name="mapping.s_name"
+                    :urn="datasetSubjectForChildren"
+                  />
                 </b-col>
               </b-row>
               <b-row>
@@ -257,7 +261,10 @@
 
                   <b-card>
                     <b-card-title>Downloads</b-card-title>
-                    <downloadfiles :d="d" :m="mapping"></downloadfiles>
+                    <downloadfiles
+                      :d="datasetSubjectForChildren"
+                      :m="mapping"
+                    ></downloadfiles>
                   </b-card>
                 </b-col>
               </b-row>
@@ -268,7 +275,7 @@
 
       <connected-tools :d="d"></connected-tools>
 
-      <relatedData :d="d"></relatedData>
+      <relatedData :d="datasetSubjectForChildren"></relatedData>
       <sampleInfo></sampleInfo>
       <annotation></annotation>
 
@@ -334,7 +341,11 @@ import {
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { marked } from "marked";
-import { normalizeDatasetGraphIri } from "@/utils/datasetIdentifiers.js";
+import {
+  normalizeDatasetGraphIri,
+  isGleanerDatasetGraphUrn,
+} from "@/utils/datasetIdentifiers.js";
+import { fetchPrimaryDatasetSubjectInGraph } from "@/utils/datasetJsonLdSparqlFallback.js";
 
 /** Framed JSON-LD may use compact "Dataset" or full schema.org IRIs (or @type arrays). */
 function isSchemaDatasetType(t) {
@@ -409,6 +420,8 @@ export default {
       geolink: "",
 
       collapsedIndices: [], // keeps track of collapsed panels
+      /** When route `d` is a graph URN, SPARQL-resolved dataset subject for API/children. */
+      resolvedDatasetSubject: null,
     };
   },
   watch: {
@@ -422,7 +435,10 @@ export default {
     this.loadDatasetPage();
   },
   computed: {
-    ...mapState(["jsonLdObj", "jsonLdCompact"]),
+    ...mapState(["jsonLdObj", "jsonLdCompact", "FacetsConfig"]),
+    datasetSubjectForChildren() {
+      return this.resolvedDatasetSubject || this.d;
+    },
   },
   methods: {
     toggleCollapse(index) {
@@ -444,18 +460,50 @@ export default {
         pick(this.graph) ||
         pick(this.$route.query.g) ||
         pick(this.$route.query.graph);
-      return raw ? normalizeDatasetGraphIri(raw) ?? raw : undefined;
+      if (raw) return normalizeDatasetGraphIri(raw) ?? raw;
+      const d = String(this.d || "").trim();
+      if (isGleanerDatasetGraphUrn(d)) {
+        return normalizeDatasetGraphIri(d) ?? d;
+      }
+      return undefined;
     },
-    loadDatasetPage() {
+    async loadDatasetPage() {
       if (!this.d) return;
+      this.resolvedDatasetSubject = null;
       this.$store.commit("setJsonLd", {});
       this.$store.commit("setJsonLdCompact", {});
       this.obscurePage = true;
-      const id = this.d || "";
+
+      const graph = this.namedGraphForFetch();
+      let fetchId = String(this.d || "").trim();
+
+      if (isGleanerDatasetGraphUrn(fetchId)) {
+        const gNorm = normalizeDatasetGraphIri(fetchId) || fetchId;
+        const subject = await fetchPrimaryDatasetSubjectInGraph({
+          triplestoreUrl: this.FacetsConfig?.TRIPLESTORE_URL,
+          graph: gNorm,
+          timeoutMs: 60000,
+        });
+        if (!subject) {
+          this.obscurePage = false;
+          this.$bvToast.toast(
+            "Could not find a schema:Dataset subject in that named graph.",
+            {
+              title: "Dataset route",
+              solid: true,
+              appendToast: false,
+            }
+          );
+          return;
+        }
+        this.resolvedDatasetSubject = subject;
+        fetchId = subject;
+      }
+
       this.$store
         .dispatch("fetchJsonLd", {
-          id,
-          graph: this.namedGraphForFetch(),
+          id: fetchId,
+          graph,
         })
         .then(() => {
           this.obscurePage = false;
