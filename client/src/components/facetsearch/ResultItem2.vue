@@ -118,7 +118,6 @@ export default {
         : undefined;
       if (gNorm) {
         query.g = gNorm;
-        query.graph = gNorm;
       }
       return {
         name: 'dataset',

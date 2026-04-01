@@ -29,8 +29,20 @@ function datasetParams(route) {
   };
 }
 
+function stripDuplicateDatasetGraphQuery(to) {
+  if (to.name !== "dataset" || !to.query) return null;
+  const gv = to.query.g;
+  const graphv = to.query.graph;
+  const g = Array.isArray(gv) ? gv[0] : gv;
+  const graph = Array.isArray(graphv) ? graphv[0] : graphv;
+  if (g == null || g === "" || graph !== g) return null;
+  const q = { ...to.query };
+  delete q.graph;
+  return q;
+}
+
 export function createRouter() {
-  return _createRouter({
+  const router = _createRouter({
     history: createWebHashHistory(),
     hash: true,
     routes: [
@@ -86,4 +98,20 @@ export function createRouter() {
       return { x: 0, y: 0 };
     },
   });
+
+  router.beforeEach((to, _from, next) => {
+    const q = stripDuplicateDatasetGraphQuery(to);
+    if (q) {
+      next({
+        name: to.name,
+        params: to.params,
+        query: q,
+        replace: true,
+      });
+      return;
+    }
+    next();
+  });
+
+  return router;
 }
