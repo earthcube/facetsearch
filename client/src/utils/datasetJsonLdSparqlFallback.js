@@ -100,3 +100,46 @@ export async function fetchExpandedDatasetJsonLdViaSparql({
   }
   return null;
 }
+
+/**
+ * Find one schema:Dataset subject IRI inside a named graph (for graph-URN-only routes).
+ * @returns {Promise<string|null>} first ?s binding URI string
+ */
+export async function fetchPrimaryDatasetSubjectInGraph({
+  triplestoreUrl,
+  graph,
+  timeoutMs = 25000,
+}) {
+  const graphNorm = normalizeDatasetGraphIri(graph) || graph;
+  if (!triplestoreUrl || !graphNorm) return null;
+
+  const g = bracketIri(graphNorm);
+  const query = `PREFIX schema: <https://schema.org/>
+PREFIX sschema: <https://schema.org/>
+PREFIX schemahttp: <http://schema.org/>
+SELECT DISTINCT ?s WHERE {
+  GRAPH ${g} {
+    { ?s a schema:Dataset }
+    UNION { ?s a sschema:Dataset }
+    UNION { ?s a schemahttp:Dataset }
+  }
+} LIMIT 10`;
+
+  const url = new URL(triplestoreUrl);
+  url.searchParams.set("query", query);
+  const axiosTimeoutMs = Math.max(timeoutMs + 30_000, 120_000);
+
+  try {
+    const response = await axios.get(url.toString(), {
+      timeout: axiosTimeoutMs,
+      headers: { Accept: "application/sparql-results+json" },
+    });
+    const bindings = response.data?.results?.bindings || [];
+    if (!bindings.length) return null;
+    const v = bindings[0]?.s?.value;
+    return v && String(v).trim() ? String(v).trim() : null;
+  } catch (e) {
+    console.warn("fetchPrimaryDatasetSubjectInGraph:", e);
+  }
+  return null;
+}

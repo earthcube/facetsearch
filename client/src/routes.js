@@ -113,5 +113,20 @@ export function createRouter() {
     next();
   });
 
+  router.afterEach((to) => {
+    if (
+      to.name === "dataset" &&
+      typeof window !== "undefined" &&
+      window.location.search &&
+      window.location.search.length > 1
+    ) {
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${window.location.pathname}${window.location.hash}`
+      );
+    }
+  });
+
   return router;
 }

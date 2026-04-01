@@ -112,17 +112,18 @@ export default {
       if (resourceType === 'tool') {
         return { name: 'tool', params: { t: id } };
       }
-      const query = {};
       const gNorm = result.g
         ? normalizeDatasetGraphIri(result.g) ?? result.g
         : undefined;
       if (gNorm) {
-        query.g = gNorm;
+        return {
+          name: 'dataset',
+          params: { d: gNorm },
+        };
       }
       return {
         name: 'dataset',
         params: { d: id },
-        query: Object.keys(query).length ? query : undefined,
       };
     },
     getResourceTypeVariant(resourceType) {

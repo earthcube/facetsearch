@@ -11,6 +11,15 @@ export function normalizeDatasetGraphIri(g) {
   );
 }
 
+/**
+ * True if `d` is a Gleaner named-graph URN (used as /dataset/:d with no ?g=), not a DOI subject.
+ */
+export function isGleanerDatasetGraphUrn(s) {
+  const t = String(s || "").trim();
+  if (!/^urn:gleaner\.io:/i.test(t)) return false;
+  return /:data:[a-f0-9]{8,}/i.test(t);
+}
+
 /** When the route has no ?g=, QLever often uses the dataset IRI as the named graph. */
 export function fallbackGraphForSubject(idStr) {
   if (idStr == null || typeof idStr !== "string") return undefined;
