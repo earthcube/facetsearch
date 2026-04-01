@@ -231,6 +231,25 @@ const matchDistributions = function (s_distribution, s_encodingFormatArray) {
   // }
   return downloads;
 };
+/** Drop duplicate distribution rows (same URL + format), e.g. from expanded JSON-LD / SPARQL. */
+function dedupeDistributionDownloads(downloads) {
+  if (!Array.isArray(downloads) || downloads.length < 2) return downloads;
+  const seen = new Set();
+  const out = [];
+  for (const d of downloads) {
+    const url = String(d.contentUrl ?? "").trim();
+    const fmt = String(d.encodingFormat ?? "").trim();
+    const key =
+      url !== ""
+        ? `${url}\0${fmt}`
+        : `__nourl__\0${String(d.linkName ?? "")}\0${fmt}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(d);
+  }
+  return out;
+}
+
 const getDistributions = function (s_distribution) {
   var downloads = [];
   //if (! s_distribution &&  ! s_url) return [];
@@ -251,7 +270,7 @@ const getDistributions = function (s_distribution) {
   //     }
   //     downloads.push(link)
   // }
-  return downloads;
+  return dedupeDistributionDownloads(downloads);
 };
 
 const formatDateToYYYYMMDD = function (dateString) {
