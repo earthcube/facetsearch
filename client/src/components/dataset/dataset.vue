@@ -138,7 +138,7 @@
 
                   <div v-if="mapping.start_datetime" class="metadata">
                     <div class="label">Start Date</div>
-                    <div class="va]lue">{{ mapping.start_datetime }}</div>
+                    <div class="value">{{ mapping.start_datetime }}</div>
                   </div>
 
                   <div v-if="mapping.end_datetime" class="metadata">
@@ -334,6 +334,42 @@ import {
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { marked } from "marked";
+import { normalizeDatasetGraphIri } from "@/utils/datasetIdentifiers.js";
+
+/** Framed JSON-LD may use compact "Dataset" or full schema.org IRIs (or @type arrays). */
+function isSchemaDatasetType(t) {
+  if (t == null) return false;
+  const one = (x) =>
+    x === "Dataset" ||
+    x === "https://schema.org/Dataset" ||
+    x === "http://schema.org/Dataset" ||
+    (typeof x === "string" && /[/:]Dataset$/.test(x));
+  return Array.isArray(t) ? t.some(one) : one(t);
+}
+
+/** Coerce schema:keywords from SPARQL/expanded JSON-LD to string[] for the template. */
+function normalizeKeywordArray(kw) {
+  if (kw == null || kw === "") return [];
+  const toStr = (x) => {
+    if (x == null) return null;
+    if (
+      typeof x === "string" ||
+      typeof x === "number" ||
+      typeof x === "boolean"
+    ) {
+      return String(x);
+    }
+    if (typeof x === "object" && x["@value"] != null) {
+      return String(x["@value"]);
+    }
+    return null;
+  };
+  if (Array.isArray(kw)) {
+    return kw.map(toStr).filter(Boolean);
+  }
+  const one = toStr(kw);
+  return one ? [one] : [];
+}
 
 export default {
   compatConfig: {
@@ -356,6 +392,8 @@ export default {
   },
   props: {
     d: String,
+    g: String,
+    graph: String,
   },
   data() {
     return {
@@ -375,34 +413,13 @@ export default {
   },
   watch: {
     jsonLdObj: "toMetadata",
-    "$route.params.d": function (d) {
-      this.obscurePage = false;
-      // should get fanche and overlay a loading... then remove loading in toMetadata
-      this.$store.dispatch("fetchJsonLd", d);
+    "$route.fullPath"() {
+      if (this.$route.name !== "dataset") return;
+      this.loadDatasetPage();
     },
   },
-  async mounted() {
-    // async created() {
-    this.$store.commit("setJsonLd", {});
-    this.$store.commit("setJsonLdCompact", {});
-    this.obscurePage = true;
-    this.$store
-      .dispatch("fetchJsonLd", this.d)
-      .then(() => {
-        this.obscurePage = false;
-      })
-      .catch((ex) => {
-        this.obscurePage = false;
-        this.$bvToast.toast(
-          `This is probably an issue with stale data, or bad identifier: ` + ex,
-          {
-            title: "No JSONLD Metadata Found",
-
-            solid: true,
-            appendToast: false,
-          }
-        );
-      });
+  mounted() {
+    this.loadDatasetPage();
   },
   computed: {
     ...mapState(["jsonLdObj", "jsonLdCompact"]),
@@ -417,6 +434,44 @@ export default {
       }
     },
     ...mapActions(["fetchJsonLd"]),
+    namedGraphForFetch() {
+      const pick = (v) => {
+        if (v == null || v === "") return undefined;
+        return Array.isArray(v) ? v[0] : v;
+      };
+      const raw =
+        pick(this.g) ||
+        pick(this.graph) ||
+        pick(this.$route.query.g) ||
+        pick(this.$route.query.graph);
+      return raw ? normalizeDatasetGraphIri(raw) ?? raw : undefined;
+    },
+    loadDatasetPage() {
+      if (!this.d) return;
+      this.$store.commit("setJsonLd", {});
+      this.$store.commit("setJsonLdCompact", {});
+      this.obscurePage = true;
+      const id = this.d || "";
+      this.$store
+        .dispatch("fetchJsonLd", {
+          id,
+          graph: this.namedGraphForFetch(),
+        })
+        .then(() => {
+          this.obscurePage = false;
+        })
+        .catch((ex) => {
+          this.obscurePage = false;
+          this.$bvToast.toast(
+            `This is probably an issue with stale data, or bad identifier: ` + ex,
+            {
+              title: "No JSONLD Metadata Found",
+              solid: true,
+              appendToast: false,
+            }
+          );
+        });
+    },
     async dataAccessWindow(content) {
       const scriptClose = '</' + 'script>';
       content = marked(content, {
@@ -539,20 +594,23 @@ export default {
       this.geolink = jp["geolink"];
 
       if (JSON.stringify(jp) === "{}") return;
-      frameJsonLD(jp, "Dataset").then((jp) => {
+      frameJsonLD(jp, "Dataset")
+        .then((jp) => {
         if (jp === undefined) return;
 
         this.mappings = []; // Reset the array
 
         let datasets = [];
         if (jp["@graph"] !== undefined) {
-          datasets = jp["@graph"].filter((item) => item["@type"] === "Dataset");
-        } else if (jp["@type"] === "Dataset") {
+          datasets = jp["@graph"].filter((item) =>
+            isSchemaDatasetType(item["@type"])
+          );
+        } else if (isSchemaDatasetType(jp["@type"])) {
           datasets = [jp];
         }
 
         if (datasets.length === 0) {
-          console.warn("No datasets found.");
+          console.warn("No datasets found in framed JSON-LD (check @type).");
           return;
         }
         datasets.forEach((dataset) => {
@@ -624,7 +682,9 @@ export default {
             mapping.has_citation = true;
           }
 
-          mapping.s_keywords = schemaItem("keywords", dataset);
+          mapping.s_keywords = normalizeKeywordArray(
+            schemaItem("keywords", dataset)
+          );
           mapping.s_landingpage = schemaItem("description", dataset);
           mapping.updated = schemaItem("updated", dataset);
           mapping.start_datetime = formatDateToYYYYMMDD(
@@ -647,7 +707,10 @@ export default {
 
           const variableMeasured = schemaItem("variableMeasured", dataset);
           if (variableMeasured) {
-            mapping.s_variableMeasuredNames = variableMeasured.map((item) =>
+            const vmList = Array.isArray(variableMeasured)
+              ? variableMeasured
+              : [variableMeasured];
+            mapping.s_variableMeasuredNames = vmList.map((item) =>
               _.truncate(schemaItem("name", item), {
                 length: 80,
                 omission: "***",
@@ -671,7 +734,19 @@ export default {
         });
 
         this.obscurePage = false;
-      });
+      })
+        .catch((err) => {
+          console.error("frameJsonLD(Dataset)", err);
+          this.mappings = [];
+          this.$bvToast.toast(
+            err?.message || String(err),
+            {
+              title: "Could not render dataset metadata",
+              solid: true,
+              appendToast: false,
+            }
+          );
+        });
     },
     formatCitation(mapping) {
       const raw = mapping.s_citation;

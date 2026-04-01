@@ -134,7 +134,7 @@ export class SearchService {
       out.id = out.subj;
       const kwRaw = out.kw ?? out.kwu;
       out.keywords = kwRaw ? String(kwRaw).split(',').map((k) => k.trim()) : [];
-      out.resourceType = out.resourceType_u;
+      // SPARQL binds aggregates as ?resourceType (see SparqlQueryBuilder), not ?resourceType_u
       if (out.disurl) {
         const first = String(out.disurl).split(',')[0].trim();
         if (first) out.url = first;
