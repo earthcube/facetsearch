@@ -1085,4 +1085,5 @@ i {
   background-color: #003f8a; /* Even darker blue when clicked */
   transform: translateY(0); /* Reset the lift */
 }
+
 </style>
