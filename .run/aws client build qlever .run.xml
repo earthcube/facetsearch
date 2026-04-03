@@ -7,7 +7,7 @@
     </scripts>
     <node-interpreter value="project" />
     <envs>
-      <env name="VITE_FACETS_CONFIG_FILE" value="config/config_qlever.yaml" />
+      <env name="VITE_APP_FACETS_CONFIG_FILE" value="config/config_qlever.yaml" />
     </envs>
     <EXTENSION ID="com.intellij.javascript.debugger.execution.StartBrowserRunConfigurationExtension">
       <browser with-js-debugger="true" />

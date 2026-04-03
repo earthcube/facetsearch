@@ -1,7 +1,9 @@
 import { ref, computed, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { createSearchService } from '@/services/SearchService.js';
 
 export function useSearch(config) {
+  const router = useRouter();
   const searchService = createSearchService(config);
   const filterStateManager = searchService.getFilterStateManager();
 
@@ -65,8 +67,8 @@ export function useSearch(config) {
 
   const updateUrl = () => {
     const params = getUrlParams();
-    const newUrl = `${window.location.pathname}${params ? '?' + params : ''}`;
-    window.history.replaceState({}, '', newUrl);
+    const query = params ? Object.fromEntries(new URLSearchParams(params)) : {};
+    router.replace({ query });
   };
 
   watch(

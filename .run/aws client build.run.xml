@@ -1,17 +1,14 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="aws client qlever localhost" type="js.build_tools.npm" folderName="qlever">
+  <configuration default="false" name="aws client build" type="js.build_tools.npm" folderName="qlever">
     <package-json value="$PROJECT_DIR$/client/package.json" />
     <command value="run" />
     <scripts>
-      <script value="dev" />
+      <script value="build" />
     </scripts>
     <node-interpreter value="project" />
     <envs>
       <env name="VITE_APP_FACETS_CONFIG_FILE" value="config/config_dev.yaml" />
     </envs>
-    <EXTENSION ID="com.intellij.javascript.debugger.execution.StartBrowserRunConfigurationExtension">
-      <browser with-js-debugger="true" />
-    </EXTENSION>
     <method v="2" />
   </configuration>
 </component>
