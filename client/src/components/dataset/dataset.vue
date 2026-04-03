@@ -69,7 +69,7 @@
                 <!--                <b-col>-->
                 <!--                  <p>{{ mapping.description }}</p>-->
                 <!--                </b-col>-->
-                <b-col cols="right">
+                <b-col cols="12" class="text-md-right mb-2">
                   <feedback subject="Dataset" :name="mapping.s_name" :urn="d" />
                 </b-col>
               </b-row>
@@ -272,6 +272,40 @@
         </b-card>
       </div>
 
+      <b-card v-if="showFallbackDatasetCard" class="mb-3">
+        <b-card-body>
+          <b-row class="align-items-start">
+            <b-col md="8">
+              <h4 class="page_title mb-2">{{ fallbackDatasetTitle }}</h4>
+              <div class="mb-2">
+                <feedback
+                  subject="Dataset"
+                  :name="fallbackDatasetTitle"
+                  :urn="d"
+                />
+              </div>
+              <div
+                v-if="fallbackDatasetDescription"
+                class="text-muted"
+                v-html="fallbackDatasetDescription"
+              />
+              <b-alert show variant="warning" class="small mt-3 mb-0">
+                Structured metadata panels could not be built for this record (or
+                they are still loading). Use the Metadata section at the bottom to
+                inspect JSON-LD. Connected tools and related data below still use
+                this dataset id.
+              </b-alert>
+            </b-col>
+            <b-col md="4">
+              <b-card>
+                <b-card-title>Downloads</b-card-title>
+                <downloadfiles :d="d" :m="fallbackDownloadMapping" />
+              </b-card>
+            </b-col>
+          </b-row>
+        </b-card-body>
+      </b-card>
+
       <connected-tools :d="d"></connected-tools>
 
       <relatedData :d="d"></relatedData>
@@ -422,6 +456,42 @@ export default {
   },
   computed: {
     ...mapState(["jsonLdObj", "jsonLdCompact"]),
+    showFallbackDatasetCard() {
+      if (this.obscurePage) return false;
+      if (this.mappings.length > 0) return false;
+      if (this.isDataCatalog) return false;
+      const jp = this.jsonLdObj;
+      if (!jp || typeof jp !== "object") return false;
+      if (Object.keys(jp).length === 0) return false;
+      return matchesSchemaType(jp["@type"], "Dataset");
+    },
+    fallbackDatasetTitle() {
+      const n = this.jsonLdObj?.name;
+      if (typeof n === "string") return n;
+      if (n && typeof n === "object" && n["@value"] != null) {
+        return String(n["@value"]);
+      }
+      return "Dataset";
+    },
+    fallbackDatasetDescription() {
+      const d = this.jsonLdObj?.description;
+      if (typeof d === "string") return d;
+      if (d && typeof d === "object" && d["@value"] != null) {
+        return String(d["@value"]);
+      }
+      return "";
+    },
+    fallbackDownloadMapping() {
+      const jp = this.jsonLdObj;
+      if (!jp || typeof jp !== "object") {
+        return { s_downloads: [] };
+      }
+      const dist = schemaItem("distribution", jp);
+      const url = schemaItem("url", jp);
+      return {
+        s_downloads: getDistributions(dist, url),
+      };
+    },
   },
   methods: {
     toggleCollapse(index) {

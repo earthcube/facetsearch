@@ -76,6 +76,7 @@ const frameJsonLD = async function (jsonldObj, schemaType) {
 };
 
 const schemaItem = function (name, json_compacted, noSchemaMessage = "") {
+  if (json_compacted == null) return noSchemaMessage;
   let s_name = json_compacted["https://schema.org/" + name]
     ? json_compacted["https://schema.org/" + name]
     : json_compacted["http://schema.org/" + name]
@@ -101,7 +102,7 @@ const geoplacename = function (s_spatialCoverage) {
     var s_place = s_spatialCoverage.find((obj) =>
       hasSchemaProperty("name", obj)
     );
-    placename = schemaItem("name", s_place);
+    placename = s_place ? schemaItem("name", s_place) : "";
   } else {
     placename = hasSchemaProperty("name", s_spatialCoverage)
       ? schemaItem("name", s_spatialCoverage)
