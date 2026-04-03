@@ -1,5 +1,13 @@
 import { reactive, computed, watch } from 'vue';
 import _ from 'lodash';
+import { store } from '@/state.js';
+
+function resolveResultLimit(fallbackConfig) {
+  const raw =
+    store.state.FacetsConfig?.LIMIT_DEFAULT ?? fallbackConfig?.LIMIT_DEFAULT;
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : 10;
+}
 
 export class FilterStateManager {
   constructor(config, queryExecutor) {
@@ -43,7 +51,8 @@ export class FilterStateManager {
       searchExactMatch: this.state.searchExactMatch,
       resourceType: this.state.resourceType,
       filters: this.state.activeFilters,
-      limit: this.config.LIMIT_DEFAULT || 10,
+      // Always read from Vuex so LIMIT_DEFAULT YAML changes apply (Search2 passes a one-time config snapshot to useSearch).
+      limit: resolveResultLimit(this.config),
       offset: 0
     }));
   }
