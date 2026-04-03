@@ -52,6 +52,7 @@ export class SparqlQueryBuilder {
   }
   buildSelectClause() {
     const selectVars = [
+      '?g',
       '?subj', '?name', '?description', '?url', '?datep',
       '?pubname',
      // '?maxDepth', '?minDepth',
@@ -69,28 +70,49 @@ export class SparqlQueryBuilder {
   buildWhereClause(textQuery, searchExactMatch, resourceType, filters) {
     let whereClause = 'WHERE {\n';
 
-    // Add text search if present
-    if (textQuery) {
+    // QLever full-text must follow public/queries/qlever/sparql_query.rq: constrain ?subj as
+    // Dataset, then ?subj ?o ?item + ql:contains-entity + ql:contains-word, then GRAPH ?g { name, desc }.
+    const qleverFullText = this.usesQLever() && textQuery;
+
+    if (qleverFullText) {
+      whereClause += this.buildSubjDatasetHead();
+      whereClause += this.buildResourceTypeConstraints(resourceType);
       whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
+      whereClause += this.buildFilterFragments(filters);
+      whereClause += this.buildGraphNameDescOnly();
+    } else {
+      if (textQuery) {
+        whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
+      }
+      whereClause += this.buildFilterFragments(filters);
+      whereClause += this.buildBaseGraphPattern();
+      whereClause += this.buildResourceTypeConstraints(resourceType);
     }
 
-    // Add filter fragments
-    whereClause += this.buildFilterFragments(filters);
-
-    // Base graph pattern
-    whereClause += this.buildBaseGraphPattern();
-
-    // Resource type constraints
-    whereClause += this.buildResourceTypeConstraints(resourceType);
-
-    // Optional properties
     whereClause += this.buildOptionalProperties();
-
-    // Bindings
     whereClause += this.buildBindings();
 
     whereClause += '}\n';
     return whereClause;
+  }
+
+  /** Dataset type for ?subj (outside GRAPH), matches QLever sparql_query.rq */
+  buildSubjDatasetHead() {
+    return `  VALUES ?sosType {
+    sschema:Dataset
+    schema:Dataset
+  }
+  ?subj a ?sosType .
+`;
+  }
+
+  /** Name + description only inside GRAPH ?g (type triples already in buildSubjDatasetHead) */
+  buildGraphNameDescOnly() {
+    return `  GRAPH ?g {
+    ?subj schema:name|sschema:name ?name .
+    ?subj schema:description|sschema:description ?description .
+  }
+`;
   }
 
   buildTextSearchFragment(textQuery, searchExactMatch) {
@@ -103,10 +125,10 @@ export class SparqlQueryBuilder {
   GRAPH ?g { ?subj ?p ?lit . }
 `;
     } else {
-      // QLever: bind the literal from the subject and match words
-      // This is a widely-compatible pattern with QLever index
-      return `  ?subj ?p ?text .
-  ?text ql:contains-word "${q}" .
+      // QLever text index: ql:contains-entity links virtual ?txt to RDF term ?item (see sparql_query.rq)
+      return `  ?subj ?o ?item .
+  ?txt ql:contains-entity ?item .
+  ?txt ql:contains-word "${q}" .
 `;
     }
   }
