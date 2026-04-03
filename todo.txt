@@ -1,0 +1,50 @@
+FacetSearch — todo (starting from scratch)
+==========================================
+Parent branch was redone; treat this list as the full plan from the beginning.
+Work top to bottom; check items off as you go.
+
+----------------------------------------------------------------------
+Implementation
+----------------------------------------------------------------------
+
+[ ] 1. Branch from the new base; keep client/.env out of commits unless policy says otherwise.
+
+[ ] 2. Search2 / LIMIT_DEFAULT
+    - Pass the live FacetsConfig ref into useSearch (not a one-time snapshot).
+    - Sync SearchService when config changes (query builder + filter manager).
+    - SparqlQueryBuilder: if searchParams omit limit, use FacetsConfig.LIMIT_DEFAULT.
+    - FilterStateManager: safe numeric limit from config.
+    - Set LIMIT_DEFAULT / LIMIT_OPTIONS in the YAML you use for QLever dev.
+
+[ ] 3. Dataset links from search results
+    - SPARQL SELECT must expose the named graph ?g (with GROUP BY).
+    - Result id for datasets: prefer urn: from ?g over DOI / ?subj; tools keep ?subj.
+    - Confirm router links look like #/dataset/urn:…
+
+[ ] 4. Dataset detail page (URN in route)
+    - fetchJsonLd URL: API base + /dataset/${id} with literal URN (encoding the segment
+      breaks GeoCodes — 404).
+    - JSON-LD: match Dataset / DataCatalog @type in compact and expanded IRIs.
+    - Reliable toMetadata: watch jsonLdObj (deep), call after fetchJsonLd and on route id change;
+      frameJsonLD failures fall back to raw root Dataset document.
+
+[ ] 5. Optional: .cursor/AGENTS.md (or root AGENTS.md) for agent + FacetSearch notes.
+
+----------------------------------------------------------------------
+Verify
+----------------------------------------------------------------------
+
+[ ] Search2 result count matches LIMIT_DEFAULT / SPARQL LIMIT in DevTools.
+
+[ ] Open a record: API GET …/dataset/urn:… is 200 and the page shows title, abstract, metadata.
+
+[ ] cd client && yarn lint (and yarn build if required).
+
+----------------------------------------------------------------------
+Separate / later
+----------------------------------------------------------------------
+
+• QLever AND/OR text search (templates, queryParser, config) if still required.
+• API support for encoded dataset ids (only if product wants encoded URLs).
+
+Last updated: 2026-04-03
