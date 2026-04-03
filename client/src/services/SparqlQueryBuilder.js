@@ -25,14 +25,18 @@ export class SparqlQueryBuilder {
    * Build complete SPARQL query from search parameters and filters
    */
   buildQuery(searchParams) {
-    const { textQuery, searchExactMatch, resourceType, filters, limit = 10, offset = 0 } = searchParams;
+    const { textQuery, searchExactMatch, resourceType, filters, limit, offset = 0 } = searchParams;
+    const effectiveLimit =
+      limit != null && limit !== ''
+        ? Number(limit)
+        : Number(this.config?.LIMIT_DEFAULT ?? 10);
 
     let query = this.buildPrefixes();
     query += this.buildSelectClause();
     query += this.buildWhereClause(textQuery, searchExactMatch, resourceType, filters);
     query += this.buildGroupbyClause();
     query += this.buildOrderByClause();
-    query += this.buildLimitClause(limit, offset);
+    query += this.buildLimitClause(effectiveLimit, offset);
 
     return query;
   }

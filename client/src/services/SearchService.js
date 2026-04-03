@@ -26,6 +26,13 @@ export class SearchService {
     );
   }
 
+  /** Keep query builder and filter manager in sync when store config is replaced (e.g. hot reload). */
+  setConfig(config) {
+    this.config = config;
+    this.queryBuilder.config = config;
+    this.filterStateManager.config = config;
+  }
+
   /**
    * Execute a search with the current filters and parameters
    */

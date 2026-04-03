@@ -116,7 +116,7 @@ export default {
     const route = useRoute();
     const { config, facets } = useConfig();
 
-    const search = useSearch(config.value);
+    const search = useSearch(config);
 
     provide('searchComposable', search);
 
