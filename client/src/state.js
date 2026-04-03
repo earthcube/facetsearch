@@ -321,10 +321,19 @@ export const store = _createStore({
       return collection;
     },
     async fetchJsonLd(context, o) {
+      let datasetId = o;
+      let graphParam = null;
+      if (o != null && typeof o === "object" && !Array.isArray(o)) {
+        datasetId = o.id;
+        graphParam = o.graph || null;
+      }
+      const idStr = String(datasetId ?? "").trim();
+      const idForEvents = idStr || String(o);
+
       event("view_item", {
         items: [
           {
-            id: o,
+            id: idForEvents,
             category: "dataset",
             quantity: 1,
           },
@@ -332,7 +341,7 @@ export const store = _createStore({
         value: 1,
       });
       event("view_dataset", {
-        id: o,
+        id: idForEvents,
         category: "dataset",
       });
       // var self = this;
@@ -344,11 +353,19 @@ export const store = _createStore({
         this.state.FacetsConfig.API_URL,
         esTemplateOptions
       );
+      // Gleaner graph URNs must stay literal in the path (not encodeURIComponent) for EC API 200s.
+      const pathSeg = /^urn:/i.test(idStr)
+        ? idStr
+        : encodeURIComponent(idStr);
       const fetchURL =
         baseUrlt({ window_location_origin: window.location.origin }) +
-        `/dataset/${o}`;
+        `/dataset/${pathSeg}`;
       console.log(fetchURL);
       var url = new URL(fetchURL);
+      const gTrim = graphParam ? String(graphParam).trim() : "";
+      if (gTrim && gTrim !== idStr) {
+        url.searchParams.set("g", gTrim);
+      }
       return axios
         .get(url)
         .then(
@@ -415,11 +432,11 @@ export const store = _createStore({
         .catch((exception) => {
           // Vue.$gtag.event('exception', {
           event("exception", {
-            description: `${o} ${exception}`,
+            description: `${idForEvents} ${exception}`,
             fatal: false,
             items: [
               {
-                id: o,
+                id: idForEvents,
                 category: "dataset",
               },
             ],
@@ -427,7 +444,7 @@ export const store = _createStore({
           //Vue.$gtag.event('exception_datasetld', {
           event("exception_datasetld", {
             description: exception,
-            error_datasetid: o,
+            error_datasetid: idForEvents,
             category: "dataset",
           });
           if (exception.response) {

@@ -70,7 +70,7 @@
                 <!--                  <p>{{ mapping.description }}</p>-->
                 <!--                </b-col>-->
                 <b-col cols="right">
-                  <feedback subject="Dataset" :name="mapping.s_name" :urn="d" />
+                  <feedback subject="Dataset" :name="mapping.s_name" :urn="datasetSubjectForChildren" />
                 </b-col>
               </b-row>
               <b-row>
@@ -257,7 +257,7 @@
 
                   <b-card>
                     <b-card-title>Downloads</b-card-title>
-                    <downloadfiles :d="d" :m="mapping"></downloadfiles>
+                    <downloadfiles :d="datasetSubjectForChildren" :m="mapping"></downloadfiles>
                   </b-card>
                 </b-col>
               </b-row>
@@ -268,7 +268,7 @@
 
       <connected-tools :d="d"></connected-tools>
 
-      <relatedData :d="d"></relatedData>
+      <relatedData :d="datasetSubjectForChildren"></relatedData>
       <sampleInfo></sampleInfo>
       <annotation></annotation>
 
@@ -334,6 +334,11 @@ import {
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { marked } from "marked";
+import {
+  isGleanerDatasetGraphUrn,
+  normalizeDatasetGraphIri,
+} from "@/utils/datasetIdentifiers.js";
+import { fetchPrimaryDatasetSubjectInGraph } from "@/utils/datasetJsonLdSparqlFallback.js";
 
 export default {
   compatConfig: {
@@ -359,6 +364,7 @@ export default {
   },
   data() {
     return {
+      resolvedDatasetSubject: null,
       obscurePage: false,
       isDataCatalog: false,
       doiUrl: "",
@@ -375,39 +381,57 @@ export default {
   },
   watch: {
     jsonLdObj: "toMetadata",
-    "$route.params.d": function (d) {
-      this.obscurePage = false;
-      // should get fanche and overlay a loading... then remove loading in toMetadata
-      this.$store.dispatch("fetchJsonLd", d);
-    },
+    "$route.params.d": "loadDatasetView",
   },
   async mounted() {
-    // async created() {
-    this.$store.commit("setJsonLd", {});
-    this.$store.commit("setJsonLdCompact", {});
-    this.obscurePage = true;
-    this.$store
-      .dispatch("fetchJsonLd", this.d)
-      .then(() => {
+    await this.loadDatasetView();
+  },
+  computed: {
+    ...mapState(["jsonLdObj", "jsonLdCompact", "FacetsConfig"]),
+    datasetSubjectForChildren() {
+      return this.resolvedDatasetSubject || this.d;
+    },
+  },
+  methods: {
+    async loadDatasetView() {
+      this.$store.commit("setJsonLd", {});
+      this.$store.commit("setJsonLdCompact", {});
+      this.resolvedDatasetSubject = null;
+      const raw = this.d;
+      if (raw == null || String(raw).trim() === "") {
         this.obscurePage = false;
-      })
-      .catch((ex) => {
+        return;
+      }
+      this.obscurePage = true;
+      const dNorm = normalizeDatasetGraphIri(raw) || String(raw).trim();
+      try {
+        let payload = dNorm;
+        if (isGleanerDatasetGraphUrn(dNorm)) {
+          const ts = this.FacetsConfig?.TRIPLESTORE_URL;
+          if (ts) {
+            const subj = await fetchPrimaryDatasetSubjectInGraph({
+              triplestoreUrl: ts,
+              graph: dNorm,
+            });
+            if (subj) this.resolvedDatasetSubject = subj;
+          }
+          // EC JSON-LD API expects the graph URN in the path (literal colons), not subject + ?g=.
+          payload = dNorm;
+        }
+        await this.$store.dispatch("fetchJsonLd", payload);
+        this.obscurePage = false;
+      } catch (ex) {
         this.obscurePage = false;
         this.$bvToast.toast(
           `This is probably an issue with stale data, or bad identifier: ` + ex,
           {
             title: "No JSONLD Metadata Found",
-
             solid: true,
             appendToast: false,
           }
         );
-      });
-  },
-  computed: {
-    ...mapState(["jsonLdObj", "jsonLdCompact"]),
-  },
-  methods: {
+      }
+    },
     toggleCollapse(index) {
       const i = this.collapsedIndices.indexOf(index);
       if (i > -1) {

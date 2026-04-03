@@ -70,10 +70,12 @@ const hasSchemaProperty = function (name, jsonObj) {
 const geoplacename = function (s_spatialCoverage) {
   var placename = "";
   if (Array.isArray(s_spatialCoverage)) {
+    const strEl = s_spatialCoverage.find((x) => typeof x === "string");
+    if (strEl) return strEl;
     var s_place = s_spatialCoverage.find((obj) =>
       hasSchemaProperty("name", obj)
     );
-    placename = schemaItem("name", s_place);
+    placename = s_place ? schemaItem("name", s_place) : "";
   } else {
     placename = hasSchemaProperty("name", s_spatialCoverage)
       ? schemaItem("name", s_spatialCoverage)
