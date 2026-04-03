@@ -31,6 +31,27 @@ import jsonld from "jsonld";
 //
 // }
 
+/**
+ * JSON-LD @type may be compact ("Dataset"), expanded (https://schema.org/Dataset),
+ * schema:Dataset, or an array of types.
+ */
+const matchesSchemaType = function (typeVal, localName) {
+  if (typeVal == null) return false;
+  const candidates = new Set([
+    localName,
+    `schema:${localName}`,
+    `https://schema.org/${localName}`,
+    `http://schema.org/${localName}`,
+  ]);
+  const ok = (t) => {
+    if (typeof t !== "string") return false;
+    if (candidates.has(t)) return true;
+    return t.endsWith(`/${localName}`) || t.endsWith(`#${localName}`);
+  };
+  if (Array.isArray(typeVal)) return typeVal.some(ok);
+  return ok(typeVal);
+};
+
 const frameJsonLD = async function (jsonldObj, schemaType) {
   let frame = JSON.parse(`
 {
@@ -349,6 +370,7 @@ const makeLinkObj = function (obj_dist) {
 export {
   //  getJsonLD,
   frameJsonLD,
+  matchesSchemaType,
   schemaItem,
   hasSchemaProperty,
   getGeoCoordinates,

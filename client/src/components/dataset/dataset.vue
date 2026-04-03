@@ -329,6 +329,7 @@ import {
   hasSchemaProperty,
   schemaItem,
   frameJsonLD,
+  matchesSchemaType,
   formatDateToYYYYMMDD,
 } from "../../api/jsonldObject";
 import VueJsonPretty from "vue-json-pretty";
@@ -374,11 +375,18 @@ export default {
     };
   },
   watch: {
-    jsonLdObj: "toMetadata",
+    jsonLdObj: {
+      handler() {
+        this.toMetadata();
+      },
+      deep: true,
+    },
     "$route.params.d": function (d) {
       this.obscurePage = false;
-      // should get fanche and overlay a loading... then remove loading in toMetadata
-      this.$store.dispatch("fetchJsonLd", d);
+      this.$store
+        .dispatch("fetchJsonLd", d)
+        .then(() => this.$nextTick(() => this.toMetadata()))
+        .catch(() => {});
     },
   },
   async mounted() {
@@ -386,10 +394,12 @@ export default {
     this.$store.commit("setJsonLd", {});
     this.$store.commit("setJsonLdCompact", {});
     this.obscurePage = true;
+    const datasetId = this.d || this.$route.params.d;
     this.$store
-      .dispatch("fetchJsonLd", this.d)
+      .dispatch("fetchJsonLd", datasetId)
       .then(() => {
         this.obscurePage = false;
+        this.$nextTick(() => this.toMetadata());
       })
       .catch((ex) => {
         this.obscurePage = false;
@@ -528,8 +538,12 @@ export default {
     },
     toMetadata() {
       var self = this;
-      var jp = self.jsonLdObj; // framed dataset
-      if (jp["@type"] == "DataCatalog") {
+      var jp = self.jsonLdObj;
+      if (!jp || typeof jp !== "object") return;
+      if (JSON.stringify(jp) === "{}") return;
+
+      this.isDataCatalog = false;
+      if (matchesSchemaType(jp["@type"], "DataCatalog")) {
         this.isDataCatalog = true;
       }
       this.name = jp["name"];
@@ -538,19 +552,35 @@ export default {
       this.vocab = jp["@vocab"];
       this.geolink = jp["geolink"];
 
-      if (JSON.stringify(jp) === "{}") return;
-      frameJsonLD(jp, "Dataset").then((jp) => {
-        if (jp === undefined) return;
-
-        this.mappings = []; // Reset the array
-
+      const resolveDatasetNodes = (framed, raw) => {
         let datasets = [];
-        if (jp["@graph"] !== undefined) {
-          datasets = jp["@graph"].filter((item) => item["@type"] === "Dataset");
-        } else if (jp["@type"] === "Dataset") {
-          datasets = [jp];
+        if (
+          framed &&
+          typeof framed === "object" &&
+          framed["@graph"] !== undefined
+        ) {
+          datasets = framed["@graph"].filter((item) =>
+            matchesSchemaType(item["@type"], "Dataset")
+          );
+        } else if (
+          framed &&
+          typeof framed === "object" &&
+          matchesSchemaType(framed["@type"], "Dataset")
+        ) {
+          datasets = [framed];
         }
+        if (
+          datasets.length === 0 &&
+          raw &&
+          matchesSchemaType(raw["@type"], "Dataset")
+        ) {
+          datasets = [raw];
+        }
+        return datasets;
+      };
 
+      const buildMappingsFromDatasets = (datasets) => {
+        this.mappings = [];
         if (datasets.length === 0) {
           console.warn("No datasets found.");
           return;
@@ -671,7 +701,16 @@ export default {
         });
 
         this.obscurePage = false;
-      });
+      };
+
+      frameJsonLD(jp, "Dataset")
+        .then((framed) => {
+          buildMappingsFromDatasets(resolveDatasetNodes(framed, jp));
+        })
+        .catch((err) => {
+          console.warn("frameJsonLD failed:", err);
+          buildMappingsFromDatasets(resolveDatasetNodes(jp, jp));
+        });
     },
     formatCitation(mapping) {
       const raw = mapping.s_citation;

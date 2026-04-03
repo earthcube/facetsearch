@@ -344,9 +344,11 @@ export const store = _createStore({
         this.state.FacetsConfig.API_URL,
         esTemplateOptions
       );
-      const fetchURL =
-        baseUrlt({ window_location_origin: window.location.origin }) +
-        `/dataset/${o}`;
+      const base = baseUrlt({
+        window_location_origin: window.location.origin,
+      }).replace(/\/$/, "");
+      // Do not encode the URN segment: the GeoCodes API expects literal colons (encoding returns 404).
+      const fetchURL = `${base}/dataset/${o}`;
       console.log(fetchURL);
       var url = new URL(fetchURL);
       return axios
