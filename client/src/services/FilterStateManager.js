@@ -43,7 +43,7 @@ export class FilterStateManager {
       searchExactMatch: this.state.searchExactMatch,
       resourceType: this.state.resourceType,
       filters: this.state.activeFilters,
-      limit: this.config.LIMIT_DEFAULT || 10,
+      limit: Number(this.config?.LIMIT_DEFAULT ?? 10),
       offset: 0
     }));
   }

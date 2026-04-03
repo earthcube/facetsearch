@@ -26,6 +26,13 @@ export class SearchService {
     );
   }
 
+  /** Call when store FacetsConfig is replaced so LIMIT_DEFAULT and endpoints stay current. */
+  setConfig(config) {
+    this.config = config;
+    this.queryBuilder.config = config;
+    this.filterStateManager.config = config;
+  }
+
   /**
    * Execute a search with the current filters and parameters
    */

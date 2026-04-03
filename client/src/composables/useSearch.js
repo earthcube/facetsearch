@@ -1,11 +1,21 @@
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, unref } from 'vue';
 import { useRouter } from 'vue-router';
 import { createSearchService } from '@/services/SearchService.js';
 
-export function useSearch(config) {
+/** Pass the `config` computed ref from useConfig() so LIMIT_DEFAULT updates when FacetsConfig changes. */
+export function useSearch(configOrRef) {
   const router = useRouter();
-  const searchService = createSearchService(config);
+  const initial = unref(configOrRef) ?? {};
+  const searchService = createSearchService(initial);
   const filterStateManager = searchService.getFilterStateManager();
+
+  watch(
+    () => unref(configOrRef),
+    (cfg) => {
+      if (cfg) searchService.setConfig(cfg);
+    },
+    { deep: true }
+  );
 
   const state = filterStateManager.state;
 
