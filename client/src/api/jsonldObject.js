@@ -35,6 +35,13 @@ import jsonld from "jsonld";
  * JSON-LD @type may be compact ("Dataset"), expanded (https://schema.org/Dataset),
  * schema:Dataset, or an array of types.
  */
+/** True if @type is schema:GeoShape (data may use "Geoshape" vs "GeoShape"). */
+const isGeoShapeType = function (t) {
+  if (typeof t !== "string") return false;
+  const leaf = t.includes("#") ? t.split("#").pop() : t.split("/").pop();
+  return (leaf || "").toLowerCase() === "geoshape";
+};
+
 const matchesSchemaType = function (typeVal, localName) {
   if (typeVal == null) return false;
   const candidates = new Set([
@@ -124,15 +131,12 @@ const getFirstGeoShape = function (s_spatialCoverage, shapetype) {
     // get first match
     geo = geo.find(
       (obj) =>
-        obj["@type"].endsWith("GeoShape") && hasSchemaProperty(shapetype, obj)
+        isGeoShapeType(obj["@type"]) && hasSchemaProperty(shapetype, obj)
     );
   }
   if (geo) {
     //console.log(geo['@type'])
-    if (
-      geo["@type"].endsWith("GeoShape") &&
-      hasSchemaProperty(shapetype, geo)
-    ) {
+    if (isGeoShapeType(geo["@type"]) && hasSchemaProperty(shapetype, geo)) {
       var g = schemaItem(shapetype, geo);
       var coords = g
         .replaceAll(",", " ")
@@ -163,7 +167,8 @@ const getGeoCoordinates = function (s_spatialCoverage) {
     );
     let spatialCofType = spatialC.filter(function (obj) {
       let geoInternal = schemaItem("geo", obj);
-      return geoInternal["@type"].endsWith("GeoCoordinates");
+      const gt = geoInternal && geoInternal["@type"];
+      return typeof gt === "string" && gt.endsWith("GeoCoordinates");
     });
     if (spatialCofType) {
       spatialCofType = spatialCofType.map(function (obj) {

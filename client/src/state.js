@@ -358,7 +358,7 @@ export const store = _createStore({
           async function (r) {
             var content = r.data;
             //console.log(contentAsText);
-            if (typeof content === String) {
+            if (typeof content === "string") {
               content = content.replace(
                 "http://schema.org/",
                 "https://schema.org/"
@@ -410,7 +410,7 @@ export const store = _createStore({
               );
 
               context.commit("setJsonLdCompact", jsonLdobj);
-              throw "JSONLD transformation issue.";
+              // Do not reject the action: raw JSON-LD is already in state; UI depends on fetch settling.
             }
           }
         )

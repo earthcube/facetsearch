@@ -209,14 +209,20 @@
                         <div>
                           <!-- Show the URL if it does NOT start with 's3:' -->
                           <a
-                            v-if="!i.contentUrl.startsWith('s3:')"
+                            v-if="
+                              i.contentUrl &&
+                              !String(i.contentUrl).startsWith('s3:')
+                            "
                             target="_blank"
                             :href="i.contentUrl"
                             >{{ i.contentUrl }}</a
                           >
                           <!-- Show the button if the URL starts with 's3:' -->
                           <button
-                            v-else
+                            v-else-if="
+                              i.contentUrl &&
+                              String(i.contentUrl).startsWith('s3:')
+                            "
                             class="data-access-button"
                             @click="dataAccessWindow(i.description)"
                           >
@@ -654,7 +660,12 @@ export default {
             mapping.has_citation = true;
           }
 
-          mapping.s_keywords = schemaItem("keywords", dataset);
+          const rawKw = schemaItem("keywords", dataset);
+          mapping.s_keywords = Array.isArray(rawKw)
+            ? rawKw
+            : rawKw != null && rawKw !== ""
+              ? [String(rawKw)]
+              : [];
           mapping.s_landingpage = schemaItem("description", dataset);
           mapping.updated = schemaItem("updated", dataset);
           mapping.start_datetime = formatDateToYYYYMMDD(
@@ -677,7 +688,10 @@ export default {
 
           const variableMeasured = schemaItem("variableMeasured", dataset);
           if (variableMeasured) {
-            mapping.s_variableMeasuredNames = variableMeasured.map((item) =>
+            const vmArr = Array.isArray(variableMeasured)
+              ? variableMeasured
+              : [variableMeasured];
+            mapping.s_variableMeasuredNames = vmArr.map((item) =>
               _.truncate(schemaItem("name", item), {
                 length: 80,
                 omission: "***",
@@ -705,11 +719,21 @@ export default {
 
       frameJsonLD(jp, "Dataset")
         .then((framed) => {
-          buildMappingsFromDatasets(resolveDatasetNodes(framed, jp));
+          try {
+            buildMappingsFromDatasets(resolveDatasetNodes(framed, jp));
+          } catch (e) {
+            console.error("buildMappingsFromDatasets failed:", e);
+            this.obscurePage = false;
+          }
         })
         .catch((err) => {
           console.warn("frameJsonLD failed:", err);
-          buildMappingsFromDatasets(resolveDatasetNodes(jp, jp));
+          try {
+            buildMappingsFromDatasets(resolveDatasetNodes(jp, jp));
+          } catch (e) {
+            console.error("buildMappingsFromDatasets fallback failed:", e);
+            this.obscurePage = false;
+          }
         });
     },
     formatCitation(mapping) {
