@@ -56,6 +56,7 @@ export class SparqlQueryBuilder {
   }
   buildSelectClause() {
     const selectVars = [
+      '?g',
       '?subj', '?name', '?description', '?url', '?datep',
       '?pubname',
      // '?maxDepth', '?minDepth',
