@@ -90,6 +90,8 @@
 </template>
 
 <script>
+import { normalizeDatasetGraphIri } from "@/utils/datasetIdentifiers.js";
+
 export default {
   name: "ResultItem2",
   props: {
@@ -105,10 +107,16 @@ export default {
   methods: {
     getResultLink(result) {
       const resourceType = result.resourceType || 'data';
-      const id = result.id || result.subj;
+      const id = String(result.id || result.subj || "").trim();
       if (!id) return { name: 'dataset', params: { d: '' } };
       if (resourceType === 'tool') {
         return { name: 'tool', params: { t: id } };
+      }
+      const gNorm = result.g
+        ? normalizeDatasetGraphIri(result.g) ?? String(result.g).trim()
+        : "";
+      if (gNorm) {
+        return { name: 'dataset', params: { d: gNorm } };
       }
       return { name: 'dataset', params: { d: id } };
     },

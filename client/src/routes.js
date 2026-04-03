@@ -14,7 +14,7 @@ import configuration from "@/components/configuration.vue";
 import Search2 from "@/components/facetsearch/Search2.vue";
 
 export function createRouter() {
-  return _createRouter({
+  const router = _createRouter({
     history: createWebHashHistory(),
     hash: true,
     routes: [
@@ -65,4 +65,16 @@ export function createRouter() {
       return { x: 0, y: 0 };
     },
   });
+
+  router.afterEach((to) => {
+    if (to.name !== "dataset" || typeof window === "undefined") return;
+    const search = window.location.search;
+    if (search && search.length > 1) {
+      const path = window.location.pathname || "/";
+      const hash = window.location.hash || "";
+      window.history.replaceState({}, "", path + hash);
+    }
+  });
+
+  return router;
 }
