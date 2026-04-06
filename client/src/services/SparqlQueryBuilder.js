@@ -1,3 +1,13 @@
+import {
+  parseQuery,
+  ensureParsedTerms,
+  parsedHasTerms,
+  parseQueryWithExactFlag,
+  buildTextSearchBlazegraphGraph,
+  buildTextSearchBlockQlever,
+  indentSparqlLines,
+} from '@/utils/queryParser.js';
+
 /**
  * SPARQL Query Builder Service
  * Dynamically constructs SPARQL queries based on active filters and search parameters
@@ -119,22 +129,54 @@ export class SparqlQueryBuilder {
 `;
   }
 
+  /**
+   * Use structured token queries when: explicit ` or `, Exact match on, or multiple tokens (loose = OR tokens).
+   * Single-token + Exact off keeps legacy one-string behavior (QLever phrase / Blazegraph matchAllTerms).
+   */
+  shouldUseStructuredTextSearch(textQuery, searchExactMatch) {
+    const raw = String(textQuery || '').trim();
+    if (!raw) return false;
+    if (/\s+or\s+/i.test(raw)) return true;
+    if (searchExactMatch) return true;
+    const pq = parseQuery(raw);
+    if (pq.AND.length > 1) return true;
+    if (pq.OR_GROUPS && pq.OR_GROUPS.length > 0) return true;
+    return false;
+  }
+
   buildTextSearchFragment(textQuery, searchExactMatch) {
-    const q = this.escapeValue(textQuery);
+    const raw = String(textQuery || '').trim();
+    if (!raw) return '';
+
     if (this.queryEngine === 'blazegraph') {
+      if (this.shouldUseStructuredTextSearch(textQuery, searchExactMatch)) {
+        let parsed = parseQueryWithExactFlag(raw, searchExactMatch);
+        if (!parsedHasTerms(parsed)) parsed = ensureParsedTerms(raw, parsed);
+        const block = buildTextSearchBlazegraphGraph(parsed);
+        if (block) return `${block}\n`;
+      }
+      const q = this.escapeValue(raw);
       const exactStr = searchExactMatch ? 'true' : 'false';
       return `  ?lit bds:search "${q}" .
   ?lit bds:matchAllTerms "${exactStr}" .
   ?lit bds:relevance ?score1 .
   GRAPH ?g { ?subj ?p ?lit . }
 `;
-    } else {
-      // QLever text index: ql:contains-entity links virtual ?txt to RDF term ?item (see sparql_query.rq)
-      return `  ?subj ?o ?item .
-  ?txt ql:contains-entity ?item .
-  ?txt ql:contains-word "${q}" .
-`;
     }
+
+    // QLever
+    if (this.shouldUseStructuredTextSearch(textQuery, searchExactMatch)) {
+      let parsed = parseQueryWithExactFlag(raw, searchExactMatch);
+      if (!parsedHasTerms(parsed)) parsed = ensureParsedTerms(raw, parsed);
+      const block = buildTextSearchBlockQlever(parsed);
+      if (block) return `${indentSparqlLines(block, 2)}\n`;
+    }
+
+    const q = this.escapeValue(raw);
+    return `  ?subj ?o ?item .
+  ?text ql:contains-entity ?item .
+  ?text ql:contains-word "${q}" .
+`;
   }
 
   buildFilterFragments(filters) {

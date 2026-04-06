@@ -8,7 +8,7 @@ export class FilterStateManager {
 
     this.state = reactive({
       textQuery: '',
-      searchExactMatch: false,
+      searchExactMatch: true,
       resourceType: 'all',
       activeFilters: {},
       isLoading: false,
@@ -143,7 +143,11 @@ export class FilterStateManager {
 
     this.state.textQuery = params.get('q') || '';
     this.state.resourceType = params.get('resourceType') || 'all';
-    this.state.searchExactMatch = params.get('searchExactMatch') === 'true';
+    {
+      const ex = params.get('searchExactMatch');
+      // Default AND when param omitted (new links / landing); explicit false keeps OR-style search.
+      this.state.searchExactMatch = ex === null || ex === '' ? true : ex === 'true';
+    }
 
     this.state.activeFilters = {};
 
@@ -172,9 +176,10 @@ export class FilterStateManager {
       params.set('resourceType', this.state.resourceType);
     }
 
-    if (this.state.searchExactMatch) {
-      params.set('searchExactMatch', 'true');
-    }
+    params.set(
+      'searchExactMatch',
+      this.state.searchExactMatch ? 'true' : 'false'
+    );
 
     Object.entries(this.state.activeFilters).forEach(([key, values]) => {
       if (Array.isArray(values)) {

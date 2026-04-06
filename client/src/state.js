@@ -12,6 +12,14 @@ import _, { isArray } from "underscore";
 //import SpaqlHasToolsQuery from 'raw-loader!./src/sparql_blaze/sparql_hastools.txt'
 // Static imports removed - now using dynamic loading via queryService
 import queryService from "@/services/queryService.js";
+import {
+  ensureParsedTerms,
+  parsedHasTerms,
+  parseQueryWithExactFlag,
+  buildTextSearchBlockQlever,
+  buildTextSearchBlockBlazegraph,
+  indentSparqlLines,
+} from "@/utils/queryParser.js";
 import { default as LRUCache } from "lru-cache";
 import localforage from "localforage";
 import yaml from "js-yaml";
@@ -54,7 +62,7 @@ export const store = _createStore({
     toolsMap: new Map(), // object id, hasConnectedTools
     q: "",
     rt: "all", // resourceType all
-    searchExactMatch: false,
+    searchExactMatch: true,
     // add them to simplify changes
     // should I just dump the facet config object in here/?
     esTemplateOptions: esTemplateOptions,
@@ -600,15 +608,29 @@ export const store = _createStore({
         this.state.FacetsConfig
       );
       const resultsTemplate = _.template(queryText, esTemplateOptions);
-      //var sparql = self.state.queryTemplates[template_name]({'n': n, 'o': o, 'q': q})
-      var sparql = resultsTemplate({
+      const templatePayload = {
         n: n,
         o: o,
         q: q,
         rt: rt,
         exact: exact,
         minRelevance: minRelevance,
-      });
+      };
+      if (queryText.includes("${textSearchBlock}")) {
+        let parsed = parseQueryWithExactFlag(q || "", !!exact);
+        if (!parsedHasTerms(parsed)) parsed = ensureParsedTerms(q || "", parsed);
+        const engine = String(
+          this.state.FacetsConfig.QUERY_ENGINE || "blazegraph"
+        ).toLowerCase();
+        if (engine === "qlever") {
+          const block = buildTextSearchBlockQlever(parsed);
+          templatePayload.textSearchBlock = indentSparqlLines(block, 4);
+        } else {
+          templatePayload.textSearchBlock = buildTextSearchBlockBlazegraph(parsed);
+        }
+      }
+      //var sparql = self.state.queryTemplates[template_name]({'n': n, 'o': o, 'q': q})
+      var sparql = resultsTemplate(templatePayload);
       //var url = "https://graph.geodex.org/blazegraph/namespace/nabu/sparql";
       var url = this.state.FacetsConfig.SUMMARYSTORE_URL;
       var blazetimeout = this.state.FacetsConfig.BLAZEGRAPH_TIMEOUT || 60;
