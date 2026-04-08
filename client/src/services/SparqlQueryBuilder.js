@@ -104,8 +104,11 @@ export class SparqlQueryBuilder {
     }
 
     whereClause += this.buildOptionalProperties();
+    if (this.filtersNeedDepthVariableMeasured(filters)) {
+      whereClause += this.buildOptionalDepthVariableMeasured();
+    }
     whereClause += this.buildBindings();
-    // Range filters use ?temporalCoverage (OPTIONAL) and ?datep (BIND); must run after those bind.
+    // Range filters use ?temporalCoverage (OPTIONAL), ?datep (BIND), ?maxDepth/?minDepth (depth OPTIONAL); must run after those bind.
     whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
 
     whereClause += '}\n';
@@ -256,7 +259,11 @@ export class SparqlQueryBuilder {
   buildDepthFilter(_field, values, _facetConfig) {
     if (!Array.isArray(values) || values.length < 2) return '';
     const [min, max] = values;
-    return `  FILTER(?maxDepth >= ${min} && ?minDepth <= ${max}) .\n`;
+    // Interval overlap: dataset [minDepth,maxDepth] vs filter [min,max]; require both bounds from OPTIONAL.
+    return `  FILTER(
+    BOUND(?maxDepth) && BOUND(?minDepth) &&
+    ?maxDepth >= ${min} && ?minDepth <= ${max}
+  ) .\n`;
   }
 
   buildGeoFilter(_field, values, _facetConfig) {
@@ -331,15 +338,44 @@ export class SparqlQueryBuilder {
 
 `;
   }
-  // removed to fix memory issues
-//     OPTIONAL {
-// ?subj sschema:variableMeasured ?vm .
-// ?vm a sschema:PropertyValue .
-// ?vm sschema:name ?namedepth .
-//     FILTER (?namedepth IN ("depth", "CmpDep")) .
-// ?vm sschema:maxValue ?maxDepth_d .
-// ?vm sschema:minValue ?minDepth_d
-// }
+
+  /**
+   * True when a rangedepth facet is active with min/max so we can add variableMeasured OPTIONAL.
+   * Kept conditional (not in every query) to limit join size; see prior removal of global depth OPTIONAL.
+   */
+  filtersNeedDepthVariableMeasured(filters) {
+    if (!filters || typeof filters !== 'object') return false;
+    return Object.entries(filters).some(([field, values]) => {
+      const cfg = this.getFacetConfig(field);
+      return (
+        cfg?.type === 'rangedepth' &&
+        Array.isArray(values) &&
+        values.length >= 2
+      );
+    });
+  }
+
+  /**
+   * Depth from schema:variableMeasured / PropertyValue (aligned with public/queries/qlever/sparql_query.rq).
+   * Uses CONTAINS(LCASE(name),"depth") plus cmpdep so the pattern stays short vs a long IN list.
+   */
+  buildOptionalDepthVariableMeasured() {
+    return `  OPTIONAL {
+    ?subj schema:variableMeasured|sschema:variableMeasured ?vm .
+    ?vm a schema:PropertyValue|sschema:PropertyValue .
+    ?vm schema:name|sschema:name ?depth_prop_name .
+    FILTER(
+      CONTAINS(LCASE(STR(?depth_prop_name)), "depth") ||
+      LCASE(STR(?depth_prop_name)) = "cmpdep"
+    ) .
+    ?vm schema:maxValue|sschema:maxValue ?maxDepth_d .
+    ?vm schema:minValue|sschema:minValue ?minDepth_d .
+    BIND(COALESCE(?maxDepth_d) AS ?maxDepth)
+    BIND(COALESCE(?minDepth_d) AS ?minDepth)
+  }
+
+`;
+  }
 
   buildBindings() {
     return ` 
@@ -349,9 +385,6 @@ export class SparqlQueryBuilder {
   BIND (IF(BOUND(?place_name), ?place_name, "No Placenames") AS ?placename)
 `;
   }
-  // zapped for per issues
-  //   BIND (COALESCE(?maxDepth_d) AS ?maxDepth)
-  //   BIND (COALESCE(?minDepth_d) AS ?minDepth)
 
   buildOrderByClause() {
     // If QLever doesn’t provide score, order may be basic; adjust when scoring available
