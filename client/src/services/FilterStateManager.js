@@ -138,30 +138,77 @@ export class FilterStateManager {
            Object.keys(this.state.activeFilters).length > 0;
   }
 
+  /**
+   * @param {string | URLSearchParams | Record<string, unknown>} urlParams - route.query or search string
+   */
   updateFromUrl(urlParams) {
-    const params = new URLSearchParams(urlParams);
+    const reserved = new Set(['q', 'resourceType', 'searchExactMatch']);
 
-    this.state.textQuery = params.get('q') || '';
-    this.state.resourceType = params.get('resourceType') || 'all';
-    {
-      const ex = params.get('searchExactMatch');
-      // Default AND when param omitted (new links / landing); explicit false keeps OR-style search.
-      this.state.searchExactMatch = ex === null || ex === '' ? true : ex === 'true';
+    /** @type {Map<string, string[]>} */
+    const byKey = new Map();
+    const add = (k, v) => {
+      if (v === undefined || v === null || v === '') return;
+      const s = String(v);
+      if (!byKey.has(k)) byKey.set(k, []);
+      byKey.get(k).push(s);
+    };
+
+    if (typeof urlParams === 'string') {
+      const s = urlParams.startsWith('?') ? urlParams.slice(1) : urlParams;
+      const sp = new URLSearchParams(s);
+      for (const [k, v] of sp.entries()) add(k, v);
+    } else if (urlParams instanceof URLSearchParams) {
+      for (const [k, v] of urlParams.entries()) add(k, v);
+    } else if (urlParams && typeof urlParams === 'object') {
+      for (const [k, raw] of Object.entries(urlParams)) {
+        if (raw === undefined || raw === null) continue;
+        if (Array.isArray(raw)) {
+          for (const item of raw) add(k, item);
+        } else {
+          add(k, raw);
+        }
+      }
     }
+
+    this.state.textQuery = (byKey.get('q') || [''])[0] || '';
+    this.state.resourceType = (byKey.get('resourceType') || ['all'])[0] || 'all';
+    const exArr = byKey.get('searchExactMatch');
+    const ex = exArr && exArr[0];
+    this.state.searchExactMatch =
+      ex === undefined || ex === '' ? true : ex === 'true';
 
     this.state.activeFilters = {};
 
-    for (const [key, value] of params.entries()) {
-      if (key !== 'q' && key !== 'resourceType' && key !== 'searchExactMatch') {
-        if (this.state.activeFilters[key]) {
-          if (!Array.isArray(this.state.activeFilters[key])) {
-            this.state.activeFilters[key] = [this.state.activeFilters[key]];
-          }
-          this.state.activeFilters[key].push(value);
-        } else {
-          this.state.activeFilters[key] = [value];
+    for (const [key, arr] of byKey.entries()) {
+      if (reserved.has(key) || arr.length === 0) continue;
+
+      const facet = (this.config.FACETS || []).find((f) => f.field === key);
+      const isRange =
+        facet &&
+        ['range', 'rangeyear', 'rangedepth'].includes(facet.type);
+
+      if (isRange && arr.length >= 2) {
+        const min = Number(arr[0]);
+        const max = Number(arr[1]);
+        if (!Number.isNaN(min) && !Number.isNaN(max)) {
+          this.state.activeFilters[key] = [min, max];
+          continue;
         }
       }
+
+      if (isRange && arr.length === 1 && arr[0].includes(',')) {
+        const parts = arr[0].split(',').map((p) => p.trim());
+        if (parts.length === 2) {
+          const min = Number(parts[0]);
+          const max = Number(parts[1]);
+          if (!Number.isNaN(min) && !Number.isNaN(max)) {
+            this.state.activeFilters[key] = [min, max];
+            continue;
+          }
+        }
+      }
+
+      this.state.activeFilters[key] = [...arr];
     }
   }
 

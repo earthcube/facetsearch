@@ -92,19 +92,21 @@ export class SparqlQueryBuilder {
       whereClause += this.buildSubjDatasetHead();
       whereClause += this.buildResourceTypeConstraints(resourceType);
       whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
-      whereClause += this.buildFilterFragments(filters);
+      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
       whereClause += this.buildGraphNameDescOnly();
     } else {
       if (textQuery) {
         whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
       }
-      whereClause += this.buildFilterFragments(filters);
+      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
       whereClause += this.buildBaseGraphPattern();
       whereClause += this.buildResourceTypeConstraints(resourceType);
     }
 
     whereClause += this.buildOptionalProperties();
     whereClause += this.buildBindings();
+    // Range filters use ?temporalCoverage (OPTIONAL) and ?datep (BIND); must run after those bind.
+    whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
 
     whereClause += '}\n';
     return whereClause;
@@ -179,7 +181,18 @@ export class SparqlQueryBuilder {
 `;
   }
 
-  buildFilterFragments(filters) {
+  /**
+   * @param {Record<string, unknown>} filters
+   * @param {{ rangePlacement?: 'all' | 'early' | 'late' }} [options]
+   *   - all: every filter (default; e.g. facet-option queries that do not use late placement)
+   *   - early: text/geo/generic only — range filters bind vars from OPTIONAL/BIND below
+   *   - late: range/rangeyear/rangedepth only — append after buildOptionalProperties + buildBindings
+   */
+  buildFilterFragments(filters, options = {}) {
+    const rangePlacement = options.rangePlacement ?? 'all';
+    const isRangeFacet = (type) =>
+      type === 'range' || type === 'rangeyear' || type === 'rangedepth';
+
     if (!filters || Object.keys(filters).length === 0) {
       return '';
     }
@@ -189,6 +202,10 @@ export class SparqlQueryBuilder {
     Object.entries(filters).forEach(([field, values]) => {
       const facetConfig = this.getFacetConfig(field);
       if (!facetConfig || !values || (Array.isArray(values) && values.length === 0)) return;
+
+      const range = isRangeFacet(facetConfig.type);
+      if (rangePlacement === 'early' && range) return;
+      if (rangePlacement === 'late' && !range) return;
 
       switch (facetConfig.type) {
         case 'text':

@@ -2,6 +2,22 @@ import { ref, computed, onMounted, watch, unref } from 'vue';
 import { useRouter } from 'vue-router';
 import { createSearchService } from '@/services/SearchService.js';
 
+/**
+ * Build a vue-router query object from URLSearchParams string, preserving duplicate keys as string[].
+ * Object.fromEntries(URLSearchParams) drops the second value for the same key (breaks range sliders).
+ */
+function searchParamsStringToRouterQuery(paramString) {
+  if (!paramString) return {};
+  const sp = new URLSearchParams(paramString);
+  /** @type {Record<string, string | string[]>} */
+  const q = {};
+  for (const key of new Set(sp.keys())) {
+    const all = sp.getAll(key);
+    q[key] = all.length === 1 ? all[0] : all;
+  }
+  return q;
+}
+
 /** Pass the `config` computed ref from useConfig() so LIMIT_DEFAULT updates when FacetsConfig changes. */
 export function useSearch(configOrRef) {
   const router = useRouter();
@@ -77,7 +93,7 @@ export function useSearch(configOrRef) {
 
   const updateUrl = () => {
     const params = getUrlParams();
-    const query = params ? Object.fromEntries(new URLSearchParams(params)) : {};
+    const query = searchParamsStringToRouterQuery(params);
     router.replace({ query });
   };
 
