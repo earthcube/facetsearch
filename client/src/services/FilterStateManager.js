@@ -230,7 +230,7 @@ export class FilterStateManager {
 
     Object.entries(this.state.activeFilters).forEach(([key, values]) => {
       if (Array.isArray(values)) {
-        values.forEach(value => params.append(key, value));
+        values.forEach((value) => params.append(key, value));
       } else if (values) {
         params.set(key, values);
       }

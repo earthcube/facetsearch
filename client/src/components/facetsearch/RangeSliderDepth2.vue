@@ -5,7 +5,7 @@
         <i :class="isOpen ? 'fas fa-chevron-down' : 'fas fa-chevron-right'" class="me-2"></i>
         {{ facetConfig.title }}
         <b-badge v-if="hasActiveRange" variant="primary" class="ms-2">
-          {{ activeRange[0] }}m - {{ activeRange[1] }}m
+          {{ formatDepth(activeRange[0]) }} - {{ formatDepth(activeRange[1]) }}
         </b-badge>
       </h6>
     </div>
@@ -17,6 +17,7 @@
             :model-value="localRange"
             :min="minValue"
             :max="maxValue"
+            :step="1"
             :format="formatDepth"
             :disabled="!hasDepthData"
             @update:model-value="handleSliderUpdate"
@@ -75,18 +76,28 @@ export default {
     const maxValue = 11000;
 
     // Use range facet composable
-    const rangeFacet = useRangeFacet(props.facetConfig, searchComposable, minValue, maxValue);
+    const rangeFacet = useRangeFacet(props.facetConfig, searchComposable, minValue, maxValue, {
+      fullRangeSlop: 1
+    });
+
+    const roundPair = (r) => {
+      if (!Array.isArray(r) || r.length < 2) return [minValue, maxValue];
+      return [
+        Math.round(Number(r[0])),
+        Math.round(Number(r[1])),
+      ];
+    };
 
     // Local state
     const isOpen = ref(props.facetConfig.open !== false);
-    const localRange = ref([...rangeFacet.activeRange.value]);
+    const localRange = ref(roundPair(rangeFacet.activeRange.value));
 
     // Computed
     const hasDepthData = computed(() => minValue < maxValue);
 
     // Watchers
     watch(() => rangeFacet.activeRange.value, (newRange) => {
-      localRange.value = [...newRange];
+      localRange.value = roundPair(newRange);
     });
 
     // Methods
@@ -99,12 +110,16 @@ export default {
     };
 
     const formatDepth = (value) => {
-      return `${value}m`;
+      const n = Math.round(Number(value));
+      return `${Number.isFinite(n) ? n : 0}m`;
     };
 
     const handleSliderUpdate = (val) => {
-      localRange.value = val;
-      onRangeChange(val);
+      const lo = Math.min(maxValue, Math.max(minValue, Math.round(Number(val[0]))));
+      const hi = Math.min(maxValue, Math.max(minValue, Math.round(Number(val[1]))));
+      const rounded = lo <= hi ? [lo, hi] : [hi, lo];
+      localRange.value = rounded;
+      onRangeChange(rounded);
     };
 
     return {

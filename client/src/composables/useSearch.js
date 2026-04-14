@@ -29,8 +29,7 @@ export function useSearch(configOrRef) {
     () => unref(configOrRef),
     (cfg) => {
       if (cfg) searchService.setConfig(cfg);
-    },
-    { deep: true }
+    }
   );
 
   const state = filterStateManager.state;
@@ -240,9 +239,25 @@ export function useFacet(facetConfig, searchComposable) {
   };
 }
 
-export function useRangeFacet(facetConfig, searchComposable, minValue, maxValue) {
+export function useRangeFacet(
+  facetConfig,
+  searchComposable,
+  minValue,
+  maxValue,
+  options = {}
+) {
   const { activeFilters, setFilter, clearFilter } = searchComposable;
   const field = facetConfig.field;
+  const fullRangeSlop = options.fullRangeSlop ?? 0;
+
+  const isEffectivelyFullRange = (range) => {
+    if (!Array.isArray(range) || range.length < 2) return false;
+    const [lo, hi] = range;
+    return (
+      Math.abs(lo - minValue) <= fullRangeSlop &&
+      Math.abs(hi - maxValue) <= fullRangeSlop
+    );
+  };
 
   const activeRange = computed(() => {
     return activeFilters.value[field] || [minValue, maxValue];
@@ -250,12 +265,16 @@ export function useRangeFacet(facetConfig, searchComposable, minValue, maxValue)
 
   const hasActiveRange = computed(() => {
     const range = activeRange.value;
-    return Array.isArray(range) &&
-           (range[0] !== minValue || range[1] !== maxValue);
+    if (!Array.isArray(range)) return false;
+    if (isEffectivelyFullRange(range)) return false;
+    return range[0] !== minValue || range[1] !== maxValue;
   });
 
   const setRange = (range) => {
+    if (!Array.isArray(range) || range.length < 2) return;
     if (range[0] === minValue && range[1] === maxValue) {
+      clearFilter(field);
+    } else if (isEffectivelyFullRange(range)) {
       clearFilter(field);
     } else {
       setFilter(field, range);

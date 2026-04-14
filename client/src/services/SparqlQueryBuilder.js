@@ -362,11 +362,12 @@ export class SparqlQueryBuilder {
   buildOptionalDepthVariableMeasured() {
     return `  OPTIONAL {
     ?subj schema:variableMeasured|sschema:variableMeasured ?vm .
-    ?vm a schema:PropertyValue|sschema:PropertyValue .
-    ?vm schema:name|sschema:name ?depth_prop_name .
+    VALUES ?depthType { schema:PropertyValue sschema:PropertyValue }
+    ?vm a ?depthType .
+    ?vm schema:name|sschema:name ?propertyName .
     FILTER(
-      CONTAINS(LCASE(STR(?depth_prop_name)), "depth") ||
-      LCASE(STR(?depth_prop_name)) = "cmpdep"
+      CONTAINS(LCASE(STR(?propertyName)), "depth") ||
+      LCASE(STR(?propertyName)) = "cmpdep"
     ) .
     ?vm schema:maxValue|sschema:maxValue ?maxDepth_d .
     ?vm schema:minValue|sschema:minValue ?minDepth_d .

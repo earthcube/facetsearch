@@ -46,6 +46,11 @@ export class SearchService {
     this.config = config;
     this.queryBuilder.config = config;
     this.filterStateManager.config = config;
+    // First query can run before FACETS exist; rangedepth was skipped. Re-run once config is ready.
+    const hasFacets = Array.isArray(config?.FACETS) && config.FACETS.length > 0;
+    if (hasFacets && this.filterStateManager.shouldExecuteQuery()) {
+      void this.filterStateManager.executeQuery();
+    }
   }
 
   /**
