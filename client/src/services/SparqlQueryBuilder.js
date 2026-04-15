@@ -91,14 +91,22 @@ export class SparqlQueryBuilder {
     if (qleverFullText) {
       whereClause += this.buildSubjDatasetHead();
       whereClause += this.buildResourceTypeConstraints(resourceType);
-      whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
+      // Move safe (non-range) filters earlier so QLever can prune candidates before full-text expansion.
       whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+      // Original order kept for quick rollback:
+      // whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
+      whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
       whereClause += this.buildGraphNameDescOnly();
     } else {
+      // Move safe (non-range) filters earlier when possible.
+      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+      // Original order kept for quick rollback:
+      // if (textQuery) {
+      //   whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
+      // }
       if (textQuery) {
         whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
       }
-      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
       whereClause += this.buildBaseGraphPattern();
       whereClause += this.buildResourceTypeConstraints(resourceType);
     }
@@ -388,13 +396,14 @@ export class SparqlQueryBuilder {
   }
 
   buildOrderByClause() {
-    // If QLever doesn’t provide score, order may be basic; adjust when scoring available
-      if ( ! this.usesQLever() ){
-
-          return 'ORDER BY DESC(?score1)\n';
-      } else {
-          return ''
-      }
+    // Keep unsorted results to avoid extra sort work on heavy grouped queries.
+    // Original behavior kept for quick rollback:
+    // if (!this.usesQLever()) {
+    //   return 'ORDER BY DESC(?score1)\n';
+    // } else {
+    //   return '';
+    // }
+    return '';
   }
     buildGroupbyClause(_limit, _offset) {
        // return `GROUP BY ?subj ?pubname ?placename  ?datep ?url  ?name ?description ?type ?maxdepth ?minDepth ?temporalCoverage ?bbox ?g\n`;
