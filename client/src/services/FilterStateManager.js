@@ -14,18 +14,33 @@ export class FilterStateManager {
       isLoading: false,
       results: [],
       error: null,
-      lastQuery: null
+      lastQuery: null,
+      lastQuerySignature: '',
+      lastQueryAt: 0
     });
 
     this.debouncedExecuteQuery = _.debounce(this.executeQuery.bind(this), 300);
+    this.isSyncingFromUrl = false;
     this.setupWatchers();
   }
 
   setupWatchers() {
-    watch(() => this.state.textQuery, () => this.debouncedExecuteQuery());
-    watch(() => this.state.activeFilters, () => this.executeQuery(), { deep: true });
-    watch(() => this.state.resourceType, () => this.executeQuery());
-    watch(() => this.state.searchExactMatch, () => this.executeQuery());
+    watch(() => this.state.textQuery, () => {
+      if (this.isSyncingFromUrl) return;
+      this.debouncedExecuteQuery();
+    });
+    watch(() => this.state.activeFilters, () => {
+      if (this.isSyncingFromUrl) return;
+      this.executeQuery();
+    }, { deep: true });
+    watch(() => this.state.resourceType, () => {
+      if (this.isSyncingFromUrl) return;
+      this.executeQuery();
+    });
+    watch(() => this.state.searchExactMatch, () => {
+      if (this.isSyncingFromUrl) return;
+      this.executeQuery();
+    });
   }
 
   get hasActiveFilters() {
@@ -84,11 +99,13 @@ export class FilterStateManager {
         (Array.isArray(value) && value.length === 0)) {
       this.clearFilter(field);
     } else {
+      if (this.areFilterValuesEqual(this.state.activeFilters[field], value)) return;
       this.state.activeFilters[field] = value;
     }
   }
 
   clearFilter(field) {
+    if (!(field in this.state.activeFilters)) return;
     delete this.state.activeFilters[field];
   }
 
@@ -114,12 +131,23 @@ export class FilterStateManager {
       return;
     }
 
+    const params = this.searchParams.value;
+    const signature = this.buildQuerySignature(params);
+    const now = Date.now();
+    if (
+      signature === this.state.lastQuerySignature &&
+      now - this.state.lastQueryAt < 1000
+    ) {
+      return;
+    }
+
     this.state.isLoading = true;
     this.state.error = null;
 
     try {
-      const params = this.searchParams.value;
       this.state.lastQuery = params;
+      this.state.lastQuerySignature = signature;
+      this.state.lastQueryAt = now;
 
       const results = await this.queryExecutor(params);
       this.state.results = results || [];
@@ -170,14 +198,14 @@ export class FilterStateManager {
       }
     }
 
-    this.state.textQuery = (byKey.get('q') || [''])[0] || '';
-    this.state.resourceType = (byKey.get('resourceType') || ['all'])[0] || 'all';
+    const nextTextQuery = (byKey.get('q') || [''])[0] || '';
+    const nextResourceType = (byKey.get('resourceType') || ['all'])[0] || 'all';
     const exArr = byKey.get('searchExactMatch');
     const ex = exArr && exArr[0];
-    this.state.searchExactMatch =
+    const nextSearchExactMatch =
       ex === undefined || ex === '' ? true : ex === 'true';
 
-    this.state.activeFilters = {};
+    const nextActiveFilters = {};
 
     for (const [key, arr] of byKey.entries()) {
       if (reserved.has(key) || arr.length === 0) continue;
@@ -191,7 +219,7 @@ export class FilterStateManager {
         const min = Number(arr[0]);
         const max = Number(arr[1]);
         if (!Number.isNaN(min) && !Number.isNaN(max)) {
-          this.state.activeFilters[key] = [min, max];
+          nextActiveFilters[key] = [min, max];
           continue;
         }
       }
@@ -202,14 +230,69 @@ export class FilterStateManager {
           const min = Number(parts[0]);
           const max = Number(parts[1]);
           if (!Number.isNaN(min) && !Number.isNaN(max)) {
-            this.state.activeFilters[key] = [min, max];
+            nextActiveFilters[key] = [min, max];
             continue;
           }
         }
       }
 
-      this.state.activeFilters[key] = [...arr];
+      nextActiveFilters[key] = [...arr];
     }
+
+    const unchanged =
+      this.state.textQuery === nextTextQuery &&
+      this.state.resourceType === nextResourceType &&
+      this.state.searchExactMatch === nextSearchExactMatch &&
+      this.areFiltersEqual(this.state.activeFilters, nextActiveFilters);
+    if (unchanged) {
+      return;
+    }
+
+    this.isSyncingFromUrl = true;
+    this.state.textQuery = nextTextQuery;
+    this.state.resourceType = nextResourceType;
+    this.state.searchExactMatch = nextSearchExactMatch;
+    this.state.activeFilters = nextActiveFilters;
+    this.isSyncingFromUrl = false;
+    void this.executeQuery();
+  }
+
+  areFilterValuesEqual(a, b) {
+    if (Array.isArray(a) && Array.isArray(b)) {
+      if (a.length !== b.length) return false;
+      return a.every((v, i) => String(v) === String(b[i]));
+    }
+    if (a && b && typeof a === 'object' && typeof b === 'object') {
+      return JSON.stringify(a) === JSON.stringify(b);
+    }
+    return String(a) === String(b);
+  }
+
+  areFiltersEqual(current, next) {
+    const currentKeys = Object.keys(current || {}).sort();
+    const nextKeys = Object.keys(next || {}).sort();
+    if (currentKeys.length !== nextKeys.length) return false;
+    for (let i = 0; i < currentKeys.length; i += 1) {
+      const key = currentKeys[i];
+      if (key !== nextKeys[i]) return false;
+      if (!this.areFilterValuesEqual(current[key], next[key])) return false;
+    }
+    return true;
+  }
+
+  buildQuerySignature(params) {
+    const filters = params?.filters || {};
+    const orderedFilters = Object.entries(filters)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) => [k, Array.isArray(v) ? [...v] : v]);
+    return JSON.stringify({
+      textQuery: params?.textQuery || '',
+      searchExactMatch: !!params?.searchExactMatch,
+      resourceType: params?.resourceType || 'all',
+      limit: Number(params?.limit ?? 0),
+      offset: Number(params?.offset ?? 0),
+      filters: orderedFilters,
+    });
   }
 
   getUrlParams() {

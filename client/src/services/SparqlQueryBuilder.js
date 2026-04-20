@@ -87,23 +87,36 @@ export class SparqlQueryBuilder {
     // QLever full-text must follow public/queries/qlever/sparql_query.rq: constrain ?subj as
     // Dataset, then ?subj ?o ?item + ql:contains-entity + ql:contains-word, then GRAPH ?g { name, desc }.
     const qleverFullText = this.usesQLever() && textQuery;
+    const useDepthCandidateSubquery =
+      this.usesQLever() &&
+      qleverFullText &&
+      this.filtersNeedDepthVariableMeasured(filters);
+
+    if (useDepthCandidateSubquery) {
+      whereClause += this.buildQleverDepthCandidateSubquery(
+        textQuery,
+        searchExactMatch,
+        resourceType,
+        filters
+      );
+      whereClause += this.buildOptionalProperties();
+      whereClause += this.buildBindings();
+      whereClause += this.buildFilterFragments(filters, {
+        rangePlacement: 'late',
+        skipRangedepth: true,
+      });
+      whereClause += '}\n';
+      return whereClause;
+    }
 
     if (qleverFullText) {
       whereClause += this.buildSubjDatasetHead();
       whereClause += this.buildResourceTypeConstraints(resourceType);
-      // Move safe (non-range) filters earlier so QLever can prune candidates before full-text expansion.
       whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
-      // Original order kept for quick rollback:
-      // whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
       whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
       whereClause += this.buildGraphNameDescOnly();
     } else {
-      // Move safe (non-range) filters earlier when possible.
       whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
-      // Original order kept for quick rollback:
-      // if (textQuery) {
-      //   whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
-      // }
       if (textQuery) {
         whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
       }
@@ -194,13 +207,11 @@ export class SparqlQueryBuilder {
 
   /**
    * @param {Record<string, unknown>} filters
-   * @param {{ rangePlacement?: 'all' | 'early' | 'late' }} [options]
-   *   - all: every filter (default; e.g. facet-option queries that do not use late placement)
-   *   - early: text/geo/generic only — range filters bind vars from OPTIONAL/BIND below
-   *   - late: range/rangeyear/rangedepth only — append after buildOptionalProperties + buildBindings
+   * @param {{ rangePlacement?: 'all' | 'early' | 'late'; skipRangedepth?: boolean }} [options]
    */
   buildFilterFragments(filters, options = {}) {
     const rangePlacement = options.rangePlacement ?? 'all';
+    const skipRangedepth = options.skipRangedepth === true;
     const isRangeFacet = (type) =>
       type === 'range' || type === 'rangeyear' || type === 'rangedepth';
 
@@ -213,6 +224,7 @@ export class SparqlQueryBuilder {
     Object.entries(filters).forEach(([field, values]) => {
       const facetConfig = this.getFacetConfig(field);
       if (!facetConfig || !values || (Array.isArray(values) && values.length === 0)) return;
+      if (skipRangedepth && facetConfig.type === 'rangedepth') return;
 
       const range = isRangeFacet(facetConfig.type);
       if (rangePlacement === 'early' && range) return;
@@ -238,6 +250,49 @@ export class SparqlQueryBuilder {
     });
 
     return fragments;
+  }
+
+  buildRangedepthFilterFragments(filters) {
+    if (!filters || typeof filters !== 'object') return '';
+    let fragments = '';
+    Object.entries(filters).forEach(([field, values]) => {
+      const facetConfig = this.getFacetConfig(field);
+      if (!facetConfig || facetConfig.type !== 'rangedepth') return;
+      if (!values || (Array.isArray(values) && values.length < 2)) return;
+      fragments += this.buildDepthFilter(field, values, facetConfig);
+    });
+    return fragments;
+  }
+
+  /** QLever full-text + depth: core WHERE for inner SELECT (before fat OPTIONALs). */
+  buildQleverFullTextCoreForDepthSubquery(textQuery, searchExactMatch, resourceType, filters) {
+    let block = '';
+    block += this.buildSubjDatasetHead();
+    block += this.buildResourceTypeConstraints(resourceType);
+    block += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+    block += this.buildTextSearchFragment(textQuery, searchExactMatch);
+    block += this.buildGraphNameDescOnly();
+    block += this.buildOptionalDepthVariableMeasured();
+    block += this.buildRangedepthFilterFragments(filters);
+    return block;
+  }
+
+  /** Inner SELECT DISTINCT: shrink ?subj set before optional explosion (QLever + text + depth). */
+  buildQleverDepthCandidateSubquery(textQuery, searchExactMatch, resourceType, filters) {
+    const core = this.buildQleverFullTextCoreForDepthSubquery(
+      textQuery,
+      searchExactMatch,
+      resourceType,
+      filters
+    );
+    const inner = indentSparqlLines(core, 4);
+    return `  {
+    SELECT DISTINCT ?g ?subj ?name ?description ?type
+    WHERE {
+${inner}
+    }
+  }
+`;
   }
 
   buildTextFilter(field, values, facetConfig) {
@@ -396,17 +451,9 @@ export class SparqlQueryBuilder {
   }
 
   buildOrderByClause() {
-    // Keep unsorted results to avoid extra sort work on heavy grouped queries.
-    // Original behavior kept for quick rollback:
-    // if (!this.usesQLever()) {
-    //   return 'ORDER BY DESC(?score1)\n';
-    // } else {
-    //   return '';
-    // }
     return '';
   }
     buildGroupbyClause(_limit, _offset) {
-       // return `GROUP BY ?subj ?pubname ?placename  ?datep ?url  ?name ?description ?type ?maxdepth ?minDepth ?temporalCoverage ?bbox ?g\n`;
         return `GROUP BY ?g ?subj  ?placename  ?datep ?pubname ?url  ?name ?description ?type  ?temporalCoverage ?kw  ?resourceType\n`;
     }
   buildLimitClause(limit, offset) {

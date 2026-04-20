@@ -43,12 +43,15 @@ export class SearchService {
 
   /** Call when store FacetsConfig is replaced so LIMIT_DEFAULT and endpoints stay current. */
   setConfig(config) {
+    const hadFacets = Array.isArray(this.config?.FACETS) && this.config.FACETS.length > 0;
     this.config = config;
     this.queryBuilder.config = config;
     this.filterStateManager.config = config;
-    // First query can run before FACETS exist; rangedepth was skipped. Re-run once config is ready.
+    // Re-run only when we transition from no facets -> facets AND a query already ran.
+    // This avoids duplicate initial requests while still recovering from pre-config searches.
     const hasFacets = Array.isArray(config?.FACETS) && config.FACETS.length > 0;
-    if (hasFacets && this.filterStateManager.shouldExecuteQuery()) {
+    const hadPriorQuery = this.filterStateManager.state.lastQuery != null;
+    if (!hadFacets && hasFacets && hadPriorQuery && this.filterStateManager.shouldExecuteQuery()) {
       void this.filterStateManager.executeQuery();
     }
   }

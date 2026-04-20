@@ -20,7 +20,8 @@
             :step="1"
             :format="formatDepth"
             :disabled="!hasDepthData"
-            @update:model-value="handleSliderUpdate"
+            @update:model-value="handleSliderPreview"
+            @change="handleSliderChange"
           />
 
           <div class="range-labels">
@@ -114,10 +115,19 @@ export default {
       return `${Number.isFinite(n) ? n : 0}m`;
     };
 
-    const handleSliderUpdate = (val) => {
+    const normalizeRange = (val) => {
       const lo = Math.min(maxValue, Math.max(minValue, Math.round(Number(val[0]))));
       const hi = Math.min(maxValue, Math.max(minValue, Math.round(Number(val[1]))));
-      const rounded = lo <= hi ? [lo, hi] : [hi, lo];
+      return lo <= hi ? [lo, hi] : [hi, lo];
+    };
+
+    const handleSliderPreview = (val) => {
+      const rounded = normalizeRange(val);
+      localRange.value = rounded;
+    };
+
+    const handleSliderChange = (val) => {
+      const rounded = normalizeRange(val);
       localRange.value = rounded;
       onRangeChange(rounded);
     };
@@ -130,7 +140,8 @@ export default {
       toggleOpen,
       onRangeChange,
       formatDepth,
-      handleSliderUpdate
+      handleSliderPreview,
+      handleSliderChange
     };
   }
 };

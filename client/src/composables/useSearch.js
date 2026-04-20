@@ -1,5 +1,5 @@
-import { ref, computed, onMounted, watch, unref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted, onBeforeUnmount, watch, unref } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { createSearchService } from '@/services/SearchService.js';
 
 /**
@@ -18,9 +18,23 @@ function searchParamsStringToRouterQuery(paramString) {
   return q;
 }
 
+function routeQueryToSearchParamsString(query) {
+  const sp = new URLSearchParams();
+  Object.entries(query || {}).forEach(([key, raw]) => {
+    if (raw === undefined || raw === null || raw === '') return;
+    if (Array.isArray(raw)) {
+      raw.forEach((item) => sp.append(key, String(item)));
+    } else {
+      sp.set(key, String(raw));
+    }
+  });
+  return sp.toString();
+}
+
 /** Pass the `config` computed ref from useConfig() so LIMIT_DEFAULT updates when FacetsConfig changes. */
 export function useSearch(configOrRef) {
   const router = useRouter();
+  const route = useRoute();
   const initial = unref(configOrRef) ?? {};
   const searchService = createSearchService(initial);
   const filterStateManager = searchService.getFilterStateManager();
@@ -92,6 +106,8 @@ export function useSearch(configOrRef) {
 
   const updateUrl = () => {
     const params = getUrlParams();
+    const currentParams = routeQueryToSearchParamsString(route.query);
+    if (currentParams === params) return;
     const query = searchParamsStringToRouterQuery(params);
     router.replace({ query });
   };
@@ -202,10 +218,30 @@ export function useFacet(facetConfig, searchComposable) {
     return isFilterActive(field, value);
   };
 
+  const filtersKey = (obj) => {
+    const ordered = Object.entries(obj || {})
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) => [k, Array.isArray(v) ? [...v] : v]);
+    return JSON.stringify(ordered);
+  };
+
+  const lastLoadedKey = ref('');
+  let reloadTimer = null;
+
   const loadOptionsForCurrentState = async () => {
     const currentFilters = { ...activeFilters.value };
     delete currentFilters[field];
+    const key = filtersKey(currentFilters);
+    if (key === lastLoadedKey.value) return;
+    lastLoadedKey.value = key;
     await loadOptions(currentFilters);
+  };
+
+  const scheduleOptionsReload = () => {
+    if (reloadTimer) clearTimeout(reloadTimer);
+    reloadTimer = setTimeout(() => {
+      void loadOptionsForCurrentState();
+    }, 120);
   };
 
   watch(
@@ -215,13 +251,17 @@ export function useFacet(facetConfig, searchComposable) {
       return otherFilters;
     },
     () => {
-      loadOptionsForCurrentState();
+      scheduleOptionsReload();
     },
     { deep: true }
   );
 
   onMounted(() => {
-    loadOptionsForCurrentState();
+    void loadOptionsForCurrentState();
+  });
+
+  onBeforeUnmount(() => {
+    if (reloadTimer) clearTimeout(reloadTimer);
   });
 
   return {
