@@ -329,7 +329,7 @@ ${inner}
     return ` ?subj sschema:variableMeasured ?vm .
     ?vm a sschema:PropertyValue .
     ?vm sschema:name ?namedepth .
-    FILTER (?namedepth IN ("depth", "CmpDep", "btm_depth", "DepBelowSurf") ) .
+    FILTER (LCASE(?namedepth) IN ("cmpdep", "package_depth", "collection_depth", "bottle depth", "sample depth", "tow depth")) .
     ?vm sschema:maxValue ?maxdepth_f .
     ?vm sschema:minValue ?minDepth_f .
       FILTER(
