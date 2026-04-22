@@ -102,7 +102,7 @@ export class SparqlQueryBuilder {
       whereClause += this.buildOptionalProperties();
       whereClause += this.buildBindings();
       whereClause += this.buildFilterFragments(filters, {
-        rangePlacement: 'late',
+        rangePlacement: 'early',
         skipRangedepth: true,
       });
       whereClause += '}\n';
@@ -311,11 +311,14 @@ ${inner}
     // Determine the SPARQL variable based on the field
     if (field === 'datep' || field === 'datePublished') {
       // ?datep comes from COALESCE and is a string — extract the year via SUBSTR
-      return `  FILTER(xsd:integer(SUBSTR(STR(?datep), 1, 4)) >= ${min} &&
-         xsd:integer(SUBSTR(STR(?datep), 1, 4)) <= ${max}) .\n`;
+      return `?subj ?property ?date_f .
+    VALUES ?property { sschema:dateCreated sschema:dateModified sschema:datePublished } .
+    FILTER(xsd:integer(SUBSTR(STR(?date_f), 1, 4)) >= ${min} &&
+         xsd:integer(SUBSTR(STR(?date_f), 1, 4)) <= ${max}) .\n`;
     }
     // temporalCoverage is also a string (e.g. "2010/2020" or "2015-01-01")
-    return `  FILTER(xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) >= ${min} &&
+    return ` ?subj schema:temporalCoverage | sschema:temporalCoverage ?temporalCoverage_f .
+     FILTER(xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) >= ${min} &&
          xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) <= ${max}) .\n`;
   }
 
@@ -323,9 +326,14 @@ ${inner}
     if (!Array.isArray(values) || values.length < 2) return '';
     const [min, max] = values;
     // Interval overlap: dataset [minDepth,maxDepth] vs filter [min,max]; require both bounds from OPTIONAL.
-    return `  FILTER(
-    BOUND(?maxDepth) && BOUND(?minDepth) &&
-    ?maxDepth >= ${min} && ?minDepth <= ${max}
+    return ` ?subj sschema:variableMeasured ?vm .
+    ?vm a sschema:PropertyValue .
+    ?vm sschema:name "depth" .
+    ?vm sschema:maxValue ?maxdepth_f .
+    ?vm sschema:minValue ?minDepth_f .
+      FILTER(
+    BOUND(?maxDepth_f) && BOUND(?minDepth_f) &&
+    ?maxDepth_f >= ${min} && ?minDepth_f <= ${max}
   ) .\n`;
   }
 
@@ -333,12 +341,17 @@ ${inner}
     // Expecting { bounds: { north, south, east, west } }
     const b = values?.bounds;
     if (!b) return '';
-    return `  ?subj schema:spatialCoverage ?spatialCov .
-  ?spatialCov schema:geo ?geo .
-  ?geo schema:latitude ?lat .
-  ?geo schema:longitude ?lon .
-  FILTER(?lat >= ${b.south} && ?lat <= ${b.north} && ?lon >= ${b.west} && ?lon <= ${b.east}) .
-`;
+    // BIND("POLYGON((28 -145, 40 -145, 40 -116, 28 -116, 28 -145))"^^geo:wktLiteral as ?geom1)
+    return `     ?geom geo:asWKT ?wkt .
+    BIND("POLYGON((${b.south} ${b.west}, ${b.north} ${b.west}, ${b.north} ${b.east}, ${b.south} ${b.east}, ${b.south} ${b.west}))"^^geo:wktLiteral as ?geom1)
+    FILTER (geof:sfContains(?geom1, ?wkt)) .
+    `;
+//     return `  ?subj schema:spatialCoverage ?spatialCov .
+//   ?spatialCov schema:geo ?geo .
+//   ?geo schema:latitude ?lat .
+//   ?geo schema:longitude ?lon .
+//   FILTER(?lat >= ${b.south} && ?lat <= ${b.north} && ?lon >= ${b.west} && ?lon <= ${b.east}) .
+// `;
   }
 
   buildGenericFilter(field, values, facetConfig) {
