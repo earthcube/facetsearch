@@ -102,6 +102,7 @@ export default {
   computed: {
     ...mapState([
       "results",
+      "searchExactMatch",
       "q",
       "rt",
       "SpaqlQuery",
@@ -114,10 +115,13 @@ export default {
   watch: {
     q: "qUpdated",
     rt: "rtUpdated",
+    searchExactMatch: "exactUpdated",
   },
   data() {
     return {
       textQuery: "",
+      // Default AND for multi-word Qlever search; navbar submit always forces true (see onSubmitNavbar).
+      exact: true,
       resourceType: "All",
     };
   },
@@ -137,18 +141,23 @@ export default {
     rtUpdated() {
       this.resourceType = this.rt;
     },
+    exactUpdated() {
+      this.exact = this.searchExactMatch;
+    },
     onSubmitNavbar() {
       //  this.$store.state.q = this.textQuery;
       //  this.$store.state.rt = 'all' // for now
       this.setTextQuery(this.textQuery);
       this.setResourceTypeQuery("all"); // for now
+      // Magnifying-glass search: always AND for multi-word (ignore prior URL syncing this.exact to false).
       this.setSearchExactMatch(true);
+      this.exact = true;
       this.$router
         .push({
           name: "Search2",
           query: {
             q: this.q,
-            searchExactMatch: "true",
+            searchExactMatch: true,
             resourceType: "all",
           },
         })

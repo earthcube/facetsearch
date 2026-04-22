@@ -13,8 +13,36 @@ import collection from "@/components/collection/Collection.vue";
 import configuration from "@/components/configuration.vue";
 import Search2 from "@/components/facetsearch/Search2.vue";
 
+function datasetParams(route) {
+  const raw = route.params.d;
+  const d = (
+    raw == null
+      ? ""
+      : Array.isArray(raw)
+        ? raw.map(String).join("/")
+        : String(raw)
+  ).trim();
+  return {
+    d,
+    g: route.query.g,
+    graph: route.query.graph,
+  };
+}
+
+function stripDuplicateDatasetGraphQuery(to) {
+  if (to.name !== "dataset" || !to.query) return null;
+  const gv = to.query.g;
+  const graphv = to.query.graph;
+  const g = Array.isArray(gv) ? gv[0] : gv;
+  const graph = Array.isArray(graphv) ? graphv[0] : graphv;
+  if (g == null || g === "" || graph !== g) return null;
+  const q = { ...to.query };
+  delete q.graph;
+  return q;
+}
+
 export function createRouter() {
-  return _createRouter({
+  const router = _createRouter({
     history: createWebHashHistory(),
     hash: true,
     routes: [
@@ -35,7 +63,12 @@ export function createRouter() {
           exact: route.query.searchExactMatch,
         }),
       },
-      { path: "/dataset/:d", name: "dataset", component: dataset, props: true },
+      {
+        path: "/dataset/:d+",
+        name: "dataset",
+        component: dataset,
+        props: (route) => datasetParams(route),
+      },
       // t tool object id, d dataset object id
       {
         path: "/tool/:t",
@@ -65,4 +98,35 @@ export function createRouter() {
       return { x: 0, y: 0 };
     },
   });
+
+  router.beforeEach((to, _from, next) => {
+    const q = stripDuplicateDatasetGraphQuery(to);
+    if (q) {
+      next({
+        name: to.name,
+        params: to.params,
+        query: q,
+        replace: true,
+      });
+      return;
+    }
+    next();
+  });
+
+  router.afterEach((to) => {
+    if (
+      to.name === "dataset" &&
+      typeof window !== "undefined" &&
+      window.location.search &&
+      window.location.search.length > 1
+    ) {
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${window.location.pathname}${window.location.hash}`
+      );
+    }
+  });
+
+  return router;
 }

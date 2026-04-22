@@ -69,8 +69,12 @@
                 <!--                <b-col>-->
                 <!--                  <p>{{ mapping.description }}</p>-->
                 <!--                </b-col>-->
-                <b-col cols="12" class="text-md-right mb-2">
-                  <feedback subject="Dataset" :name="mapping.s_name" :urn="d" />
+                <b-col cols="right">
+                  <feedback
+                    subject="Dataset"
+                    :name="mapping.s_name"
+                    :urn="datasetSubjectForChildren"
+                  />
                 </b-col>
               </b-row>
               <b-row>
@@ -138,7 +142,7 @@
 
                   <div v-if="mapping.start_datetime" class="metadata">
                     <div class="label">Start Date</div>
-                    <div class="va]lue">{{ mapping.start_datetime }}</div>
+                    <div class="value">{{ mapping.start_datetime }}</div>
                   </div>
 
                   <div v-if="mapping.end_datetime" class="metadata">
@@ -209,20 +213,14 @@
                         <div>
                           <!-- Show the URL if it does NOT start with 's3:' -->
                           <a
-                            v-if="
-                              i.contentUrl &&
-                              !String(i.contentUrl).startsWith('s3:')
-                            "
+                            v-if="!i.contentUrl.startsWith('s3:')"
                             target="_blank"
                             :href="i.contentUrl"
                             >{{ i.contentUrl }}</a
                           >
                           <!-- Show the button if the URL starts with 's3:' -->
                           <button
-                            v-else-if="
-                              i.contentUrl &&
-                              String(i.contentUrl).startsWith('s3:')
-                            "
+                            v-else
                             class="data-access-button"
                             @click="dataAccessWindow(i.description)"
                           >
@@ -263,7 +261,10 @@
 
                   <b-card>
                     <b-card-title>Downloads</b-card-title>
-                    <downloadfiles :d="d" :m="mapping"></downloadfiles>
+                    <downloadfiles
+                      :d="datasetSubjectForChildren"
+                      :m="mapping"
+                    ></downloadfiles>
                   </b-card>
                 </b-col>
               </b-row>
@@ -272,43 +273,9 @@
         </b-card>
       </div>
 
-      <b-card v-if="showFallbackDatasetCard" class="mb-3">
-        <b-card-body>
-          <b-row class="align-items-start">
-            <b-col md="8">
-              <h4 class="page_title mb-2">{{ fallbackDatasetTitle }}</h4>
-              <div class="mb-2">
-                <feedback
-                  subject="Dataset"
-                  :name="fallbackDatasetTitle"
-                  :urn="d"
-                />
-              </div>
-              <div
-                v-if="fallbackDatasetDescription"
-                class="text-muted"
-                v-html="fallbackDatasetDescription"
-              />
-              <b-alert show variant="warning" class="small mt-3 mb-0">
-                Structured metadata panels could not be built for this record (or
-                they are still loading). Use the Metadata section at the bottom to
-                inspect JSON-LD. Connected tools and related data below still use
-                this dataset id.
-              </b-alert>
-            </b-col>
-            <b-col md="4">
-              <b-card>
-                <b-card-title>Downloads</b-card-title>
-                <downloadfiles :d="d" :m="fallbackDownloadMapping" />
-              </b-card>
-            </b-col>
-          </b-row>
-        </b-card-body>
-      </b-card>
-
       <connected-tools :d="d"></connected-tools>
 
-      <relatedData :d="d"></relatedData>
+      <relatedData :d="datasetSubjectForChildren"></relatedData>
       <sampleInfo></sampleInfo>
       <annotation></annotation>
 
@@ -369,12 +336,51 @@ import {
   hasSchemaProperty,
   schemaItem,
   frameJsonLD,
-  matchesSchemaType,
   formatDateToYYYYMMDD,
 } from "../../api/jsonldObject";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { marked } from "marked";
+import {
+  normalizeDatasetGraphIri,
+  isGleanerDatasetGraphUrn,
+} from "@/utils/datasetIdentifiers.js";
+import { fetchPrimaryDatasetSubjectInGraph } from "@/utils/datasetJsonLdSparqlFallback.js";
+
+/** Framed JSON-LD may use compact "Dataset" or full schema.org IRIs (or @type arrays). */
+function isSchemaDatasetType(t) {
+  if (t == null) return false;
+  const one = (x) =>
+    x === "Dataset" ||
+    x === "https://schema.org/Dataset" ||
+    x === "http://schema.org/Dataset" ||
+    (typeof x === "string" && /[/:]Dataset$/.test(x));
+  return Array.isArray(t) ? t.some(one) : one(t);
+}
+
+/** Coerce schema:keywords from SPARQL/expanded JSON-LD to string[] for the template. */
+function normalizeKeywordArray(kw) {
+  if (kw == null || kw === "") return [];
+  const toStr = (x) => {
+    if (x == null) return null;
+    if (
+      typeof x === "string" ||
+      typeof x === "number" ||
+      typeof x === "boolean"
+    ) {
+      return String(x);
+    }
+    if (typeof x === "object" && x["@value"] != null) {
+      return String(x["@value"]);
+    }
+    return null;
+  };
+  if (Array.isArray(kw)) {
+    return kw.map(toStr).filter(Boolean);
+  }
+  const one = toStr(kw);
+  return one ? [one] : [];
+}
 
 export default {
   compatConfig: {
@@ -397,6 +403,8 @@ export default {
   },
   props: {
     d: String,
+    g: String,
+    graph: String,
   },
   data() {
     return {
@@ -412,85 +420,24 @@ export default {
       geolink: "",
 
       collapsedIndices: [], // keeps track of collapsed panels
+      /** When route `d` is a graph URN, SPARQL-resolved dataset subject for API/children. */
+      resolvedDatasetSubject: null,
     };
   },
   watch: {
-    jsonLdObj: {
-      handler() {
-        this.toMetadata();
-      },
-      deep: true,
-    },
-    "$route.params.d": function (d) {
-      this.obscurePage = false;
-      this.$store
-        .dispatch("fetchJsonLd", d)
-        .then(() => this.$nextTick(() => this.toMetadata()))
-        .catch(() => {});
+    jsonLdObj: "toMetadata",
+    "$route.fullPath"() {
+      if (this.$route.name !== "dataset") return;
+      this.loadDatasetPage();
     },
   },
-  async mounted() {
-    // async created() {
-    this.$store.commit("setJsonLd", {});
-    this.$store.commit("setJsonLdCompact", {});
-    this.obscurePage = true;
-    const datasetId = this.d || this.$route.params.d;
-    this.$store
-      .dispatch("fetchJsonLd", datasetId)
-      .then(() => {
-        this.obscurePage = false;
-        this.$nextTick(() => this.toMetadata());
-      })
-      .catch((ex) => {
-        this.obscurePage = false;
-        this.$bvToast.toast(
-          `This is probably an issue with stale data, or bad identifier: ` + ex,
-          {
-            title: "No JSONLD Metadata Found",
-
-            solid: true,
-            appendToast: false,
-          }
-        );
-      });
+  mounted() {
+    this.loadDatasetPage();
   },
   computed: {
-    ...mapState(["jsonLdObj", "jsonLdCompact"]),
-    showFallbackDatasetCard() {
-      if (this.obscurePage) return false;
-      if (this.mappings.length > 0) return false;
-      if (this.isDataCatalog) return false;
-      const jp = this.jsonLdObj;
-      if (!jp || typeof jp !== "object") return false;
-      if (Object.keys(jp).length === 0) return false;
-      return matchesSchemaType(jp["@type"], "Dataset");
-    },
-    fallbackDatasetTitle() {
-      const n = this.jsonLdObj?.name;
-      if (typeof n === "string") return n;
-      if (n && typeof n === "object" && n["@value"] != null) {
-        return String(n["@value"]);
-      }
-      return "Dataset";
-    },
-    fallbackDatasetDescription() {
-      const d = this.jsonLdObj?.description;
-      if (typeof d === "string") return d;
-      if (d && typeof d === "object" && d["@value"] != null) {
-        return String(d["@value"]);
-      }
-      return "";
-    },
-    fallbackDownloadMapping() {
-      const jp = this.jsonLdObj;
-      if (!jp || typeof jp !== "object") {
-        return { s_downloads: [] };
-      }
-      const dist = schemaItem("distribution", jp);
-      const url = schemaItem("url", jp);
-      return {
-        s_downloads: getDistributions(dist, url),
-      };
+    ...mapState(["jsonLdObj", "jsonLdCompact", "FacetsConfig"]),
+    datasetSubjectForChildren() {
+      return this.resolvedDatasetSubject || this.d;
     },
   },
   methods: {
@@ -503,6 +450,76 @@ export default {
       }
     },
     ...mapActions(["fetchJsonLd"]),
+    namedGraphForFetch() {
+      const pick = (v) => {
+        if (v == null || v === "") return undefined;
+        return Array.isArray(v) ? v[0] : v;
+      };
+      const raw =
+        pick(this.g) ||
+        pick(this.graph) ||
+        pick(this.$route.query.g) ||
+        pick(this.$route.query.graph);
+      if (raw) return normalizeDatasetGraphIri(raw) ?? raw;
+      const d = String(this.d || "").trim();
+      if (isGleanerDatasetGraphUrn(d)) {
+        return normalizeDatasetGraphIri(d) ?? d;
+      }
+      return undefined;
+    },
+    async loadDatasetPage() {
+      if (!this.d) return;
+      this.resolvedDatasetSubject = null;
+      this.$store.commit("setJsonLd", {});
+      this.$store.commit("setJsonLdCompact", {});
+      this.obscurePage = true;
+
+      const graph = this.namedGraphForFetch();
+      let fetchId = String(this.d || "").trim();
+
+      if (isGleanerDatasetGraphUrn(fetchId)) {
+        const gNorm = normalizeDatasetGraphIri(fetchId) || fetchId;
+        const subject = await fetchPrimaryDatasetSubjectInGraph({
+          triplestoreUrl: this.FacetsConfig?.TRIPLESTORE_URL,
+          graph: gNorm,
+          timeoutMs: 60000,
+        });
+        if (!subject) {
+          this.obscurePage = false;
+          this.$bvToast.toast(
+            "Could not find a schema:Dataset subject in that named graph.",
+            {
+              title: "Dataset route",
+              solid: true,
+              appendToast: false,
+            }
+          );
+          return;
+        }
+        this.resolvedDatasetSubject = subject;
+        fetchId = subject;
+      }
+
+      this.$store
+        .dispatch("fetchJsonLd", {
+          id: fetchId,
+          graph,
+        })
+        .then(() => {
+          this.obscurePage = false;
+        })
+        .catch((ex) => {
+          this.obscurePage = false;
+          this.$bvToast.toast(
+            `This is probably an issue with stale data, or bad identifier: ` + ex,
+            {
+              title: "No JSONLD Metadata Found",
+              solid: true,
+              appendToast: false,
+            }
+          );
+        });
+    },
     async dataAccessWindow(content) {
       const scriptClose = '</' + 'script>';
       content = marked(content, {
@@ -614,12 +631,8 @@ export default {
     },
     toMetadata() {
       var self = this;
-      var jp = self.jsonLdObj;
-      if (!jp || typeof jp !== "object") return;
-      if (JSON.stringify(jp) === "{}") return;
-
-      this.isDataCatalog = false;
-      if (matchesSchemaType(jp["@type"], "DataCatalog")) {
+      var jp = self.jsonLdObj; // framed dataset
+      if (jp["@type"] == "DataCatalog") {
         this.isDataCatalog = true;
       }
       this.name = jp["name"];
@@ -628,37 +641,24 @@ export default {
       this.vocab = jp["@vocab"];
       this.geolink = jp["geolink"];
 
-      const resolveDatasetNodes = (framed, raw) => {
-        let datasets = [];
-        if (
-          framed &&
-          typeof framed === "object" &&
-          framed["@graph"] !== undefined
-        ) {
-          datasets = framed["@graph"].filter((item) =>
-            matchesSchemaType(item["@type"], "Dataset")
-          );
-        } else if (
-          framed &&
-          typeof framed === "object" &&
-          matchesSchemaType(framed["@type"], "Dataset")
-        ) {
-          datasets = [framed];
-        }
-        if (
-          datasets.length === 0 &&
-          raw &&
-          matchesSchemaType(raw["@type"], "Dataset")
-        ) {
-          datasets = [raw];
-        }
-        return datasets;
-      };
+      if (JSON.stringify(jp) === "{}") return;
+      frameJsonLD(jp, "Dataset")
+        .then((jp) => {
+        if (jp === undefined) return;
 
-      const buildMappingsFromDatasets = (datasets) => {
-        this.mappings = [];
+        this.mappings = []; // Reset the array
+
+        let datasets = [];
+        if (jp["@graph"] !== undefined) {
+          datasets = jp["@graph"].filter((item) =>
+            isSchemaDatasetType(item["@type"])
+          );
+        } else if (isSchemaDatasetType(jp["@type"])) {
+          datasets = [jp];
+        }
+
         if (datasets.length === 0) {
-          console.warn("No datasets found.");
+          console.warn("No datasets found in framed JSON-LD (check @type).");
           return;
         }
         datasets.forEach((dataset) => {
@@ -730,12 +730,9 @@ export default {
             mapping.has_citation = true;
           }
 
-          const rawKw = schemaItem("keywords", dataset);
-          mapping.s_keywords = Array.isArray(rawKw)
-            ? rawKw
-            : rawKw != null && rawKw !== ""
-              ? [String(rawKw)]
-              : [];
+          mapping.s_keywords = normalizeKeywordArray(
+            schemaItem("keywords", dataset)
+          );
           mapping.s_landingpage = schemaItem("description", dataset);
           mapping.updated = schemaItem("updated", dataset);
           mapping.start_datetime = formatDateToYYYYMMDD(
@@ -758,10 +755,10 @@ export default {
 
           const variableMeasured = schemaItem("variableMeasured", dataset);
           if (variableMeasured) {
-            const vmArr = Array.isArray(variableMeasured)
+            const vmList = Array.isArray(variableMeasured)
               ? variableMeasured
               : [variableMeasured];
-            mapping.s_variableMeasuredNames = vmArr.map((item) =>
+            mapping.s_variableMeasuredNames = vmList.map((item) =>
               _.truncate(schemaItem("name", item), {
                 length: 80,
                 omission: "***",
@@ -785,25 +782,18 @@ export default {
         });
 
         this.obscurePage = false;
-      };
-
-      frameJsonLD(jp, "Dataset")
-        .then((framed) => {
-          try {
-            buildMappingsFromDatasets(resolveDatasetNodes(framed, jp));
-          } catch (e) {
-            console.error("buildMappingsFromDatasets failed:", e);
-            this.obscurePage = false;
-          }
-        })
+      })
         .catch((err) => {
-          console.warn("frameJsonLD failed:", err);
-          try {
-            buildMappingsFromDatasets(resolveDatasetNodes(jp, jp));
-          } catch (e) {
-            console.error("buildMappingsFromDatasets fallback failed:", e);
-            this.obscurePage = false;
-          }
+          console.error("frameJsonLD(Dataset)", err);
+          this.mappings = [];
+          this.$bvToast.toast(
+            err?.message || String(err),
+            {
+              title: "Could not render dataset metadata",
+              solid: true,
+              appendToast: false,
+            }
+          );
         });
     },
     formatCitation(mapping) {
@@ -1155,5 +1145,4 @@ i {
   background-color: #003f8a; /* Even darker blue when clicked */
   transform: translateY(0); /* Reset the lift */
 }
-
 </style>

@@ -4,24 +4,9 @@ import { createSparqlQueryBuilder } from './SparqlQueryBuilder.js';
 import { createFilterStateManager } from './FilterStateManager.js';
 
 /**
- * Route/API id for datasets: prefer named graph URN (GeoCodes) over subject IRIs
- * such as https://gleaner.io/xid/... Tool rows keep ?subj for /tool/:t.
- */
-export function datasetRouteIdFromBinding(row) {
-  const subj = row.subj != null ? String(row.subj) : '';
-  const rt = row.resourceType_u || row.resourceType;
-  if (rt === 'tool') return subj;
-
-  const g = row.g != null ? String(row.g) : '';
-  if (g.startsWith('urn:')) return g;
-  if (subj.startsWith('urn:')) return subj;
-  return subj || g || '';
-}
-
-/**
  * Main Search Service (QLever-first)
  * - Builds SPARQL from active filters
- * - For QLever: try GET first, POST fallback
+ * - For QLever: GET only (POST often 404 on graphspace endpoints)
  * - For Blazegraph/Fuseki: POST first
  * - Normalizes results to a simple array of objects
  * - Provides facet option utilities (getFacetOptions)
@@ -41,21 +26,6 @@ export class SearchService {
     );
   }
 
-  /** Call when store FacetsConfig is replaced so LIMIT_DEFAULT and endpoints stay current. */
-  setConfig(config) {
-    const hadFacets = Array.isArray(this.config?.FACETS) && this.config.FACETS.length > 0;
-    this.config = config;
-    this.queryBuilder.config = config;
-    this.filterStateManager.config = config;
-    // Re-run only when we transition from no facets -> facets AND a query already ran.
-    // This avoids duplicate initial requests while still recovering from pre-config searches.
-    const hasFacets = Array.isArray(config?.FACETS) && config.FACETS.length > 0;
-    const hadPriorQuery = this.filterStateManager.state.lastQuery != null;
-    if (!hadFacets && hasFacets && hadPriorQuery && this.filterStateManager.shouldExecuteQuery()) {
-      void this.filterStateManager.executeQuery();
-    }
-  }
-
   /**
    * Execute a search with the current filters and parameters
    */
@@ -72,32 +42,26 @@ export class SearchService {
 
   /**
    * Sends query to TRIPLESTORE_URL
-   * - QLever: GET first (reliable), then POST fallback
-   * - Blazegraph/Fuseki: POST first
+   * - QLever: GET only — many deployments (e.g. graphspace/facetsearch behind nginx)
+   *   do not expose POST on that path (404 + missing CORS on error). POST fallback removed.
+   * - Blazegraph/Fuseki: POST
    */
   async sendToTriplestoreWithFallback(query) {
     const endpoint = this.config.TRIPLESTORE_URL;
-    let timeout = this.parseTimeout(this.config.BLAZEGRAPH_TIMEOUT) || 20000;
-
+    const timeoutMs = this.parseTimeout(this.config.BLAZEGRAPH_TIMEOUT) || 20_000;
 
     if (this.usesQLever()) {
-        timeout = `${timeout}ms`
-      try {
-        return await this.sendDirectGET(endpoint, query, timeout);
-      } catch (err) {
-        console.warn('QLever GET failed; trying POST fallback:', err?.message || err);
-        return await this.sendDirectPOST(endpoint, query, timeout);
-      }
+      return await this.sendDirectGET(endpoint, query, timeoutMs);
     }
 
-    // Blazegraph/Fuseki
-    return await this.sendDirectPOST(endpoint, query, timeout);
+    return await this.sendDirectPOST(endpoint, query, timeoutMs);
   }
 
   /**
    * POST to the SPARQL endpoint
    */
   async sendDirectPOST(endpoint, query, timeoutMs) {
+    const axiosTimeoutMs = Math.max(timeoutMs + 30_000, 120_000);
     const response = await axios.post(
       endpoint,
       new URLSearchParams({
@@ -106,7 +70,7 @@ export class SearchService {
         timeout: String(timeoutMs),
       }),
       {
-        timeout: timeoutMs,
+        timeout: axiosTimeoutMs,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/sparql-results+json',
@@ -122,8 +86,9 @@ export class SearchService {
   async sendDirectGET(endpoint, query, timeoutMs) {
     const url = new URL(endpoint);
     url.searchParams.set('query', query);
+    const axiosTimeoutMs = Math.max(timeoutMs + 30_000, 120_000);
     const response = await axios.get(url.toString(), {
-      timeout: timeoutMs,
+      timeout: axiosTimeoutMs,
       headers: { 'Accept': 'application/sparql-results+json' },
     });
     return response.data;
@@ -157,19 +122,34 @@ export class SearchService {
     if (!response || !response.results || !response.results.bindings) {
       return [];
     }
-    return response.results.bindings.map(binding => {
+    const seen = new Set();
+    const rows = [];
+    for (const binding of response.results.bindings) {
       const out = {};
       for (const key of Object.keys(binding)) {
         if (binding[key] && binding[key].value !== undefined) {
           out[key] = binding[key].value;
         }
       }
-      // Convenience fields used by UI (dataset links use graph URN when available)
-      out.id = datasetRouteIdFromBinding(out);
-      out.keywords = out.kwu ? out.kwu.split(',').map(k => k.trim()) : [];
-      out.resourceType = out.resourceType_u;
-      return out;
-    });
+      out.id = out.subj;
+      const kwRaw = out.kw ?? out.kwu;
+      out.keywords = kwRaw ? String(kwRaw).split(',').map((k) => k.trim()) : [];
+      // SPARQL binds aggregates as ?resourceType (see SparqlQueryBuilder), not ?resourceType_u
+      if (out.disurl) {
+        const first = String(out.disurl).split(',')[0].trim();
+        if (first) out.url = first;
+      }
+      if (out.placenames) {
+        const first = String(out.placenames).split(',')[0].trim();
+        if (first) out.placename = first;
+      }
+      const subj = out.subj || out.id || '';
+      const dedupeKey = out.g ? `${out.g}\t${subj}` : subj;
+      if (dedupeKey && seen.has(dedupeKey)) continue;
+      if (dedupeKey) seen.add(dedupeKey);
+      rows.push(out);
+    }
+    return rows;
   }
 
   // -------------------------
@@ -206,29 +186,18 @@ SELECT ?value (0 as ?count) WHERE { FILTER(false) } LIMIT 0
     const filtersCopy = { ...(currentFilters || {}) };
     delete filtersCopy[field];
 
-    const needDepthOptional =
-      this.queryBuilder.filtersNeedDepthVariableMeasured(filtersCopy);
-
     let q = '';
     q += this.queryBuilder.buildPrefixes();
     q += `SELECT DISTINCT ?value (COUNT(*) AS ?count)
 WHERE {
 `;
-    if (needDepthOptional) {
-      q += this.queryBuilder.buildOptionalDepthVariableMeasured();
-    }
-    q += this.queryBuilder.buildFilterFragments(filtersCopy, {
-      rangePlacement: needDepthOptional ? 'early' : 'all',
-    });
+    // Other active filters
+    q += this.queryBuilder.buildFilterFragments(filtersCopy);
+    // Base graph pattern (subject, name, description in a graph)
     q += this.queryBuilder.buildBaseGraphPattern();
+    // The facet value triple pattern
     q += `  ?subj ${sparqlProperty} ?value .
-`;
-    if (needDepthOptional) {
-      q += this.queryBuilder.buildFilterFragments(filtersCopy, {
-        rangePlacement: 'late',
-      });
-    }
-    q += `}
+}
 GROUP BY ?value
 ORDER BY DESC(?count) ?value
 LIMIT 200

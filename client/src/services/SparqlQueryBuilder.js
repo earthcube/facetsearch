@@ -1,17 +1,9 @@
-import {
-  parseQuery,
-  ensureParsedTerms,
-  parsedHasTerms,
-  parseQueryWithExactFlag,
-  buildTextSearchBlazegraphGraph,
-  buildTextSearchBlockQlever,
-  indentSparqlLines,
-} from '@/utils/queryParser.js';
-
 /**
  * SPARQL Query Builder Service
  * Dynamically constructs SPARQL queries based on active filters and search parameters
  */
+import { parseQuery, buildTextSearchBlockQlever, buildTextSearchBlockBlazegraph } from '@/utils/queryParser.js';
+
 export class SparqlQueryBuilder {
   constructor(config) {
     this.config = config;
@@ -35,18 +27,14 @@ export class SparqlQueryBuilder {
    * Build complete SPARQL query from search parameters and filters
    */
   buildQuery(searchParams) {
-    const { textQuery, searchExactMatch, resourceType, filters, limit, offset = 0 } = searchParams;
-    const effectiveLimit =
-      limit != null && limit !== ''
-        ? Number(limit)
-        : Number(this.config?.LIMIT_DEFAULT ?? 10);
+    const { textQuery, searchExactMatch, resourceType, filters, limit = 10, offset = 0 } = searchParams;
 
     let query = this.buildPrefixes();
     query += this.buildSelectClause();
     query += this.buildWhereClause(textQuery, searchExactMatch, resourceType, filters);
     query += this.buildGroupbyClause();
     query += this.buildOrderByClause();
-    query += this.buildLimitClause(effectiveLimit, offset);
+    query += this.buildLimitClause(limit, offset);
 
     return query;
   }
@@ -65,12 +53,16 @@ export class SparqlQueryBuilder {
         return Object.keys(aggVars).map( o => ` (GROUP_CONCAT(DISTINCT ?${aggVars[o]}; SEPARATOR=", ") AS ?${o}) ` )
   }
   buildSelectClause() {
+    // Do not SELECT raw ?url / ?placename: multiple OPTIONAL bindings would force them into GROUP BY
+    // and split one dataset into many rows; use disurl / placenames aggregates only.
     const selectVars = [
       '?g',
-      '?subj', '?name', '?description', '?url', '?datep',
+      '?subj',
+      '?name',
+      '?description',
+      '?datep',
       '?pubname',
-     // '?maxDepth', '?minDepth',
-        '?temporalCoverage'
+      '?temporalCoverage',
     ];
       const aggVars = {
           'disurl':'url',
@@ -84,137 +76,103 @@ export class SparqlQueryBuilder {
   buildWhereClause(textQuery, searchExactMatch, resourceType, filters) {
     let whereClause = 'WHERE {\n';
 
-    // QLever full-text must follow public/queries/qlever/sparql_query.rq: constrain ?subj as
-    // Dataset, then ?subj ?o ?item + ql:contains-entity + ql:contains-word, then GRAPH ?g { name, desc }.
-    const qleverFullText = this.usesQLever() && textQuery;
-    const useDepthCandidateSubquery =
-      this.usesQLever() &&
-      qleverFullText &&
-      this.filtersNeedDepthVariableMeasured(filters);
-
-    if (useDepthCandidateSubquery) {
-      whereClause += this.buildQleverDepthCandidateSubquery(
-        textQuery,
-        searchExactMatch,
-        resourceType,
-        filters
-      );
-      whereClause += this.buildOptionalProperties();
-      whereClause += this.buildBindings();
-      whereClause += this.buildFilterFragments(filters, {
-        rangePlacement: 'late',
-        skipRangedepth: true,
-      });
-      whereClause += '}\n';
-      return whereClause;
-    }
-
-    if (qleverFullText) {
-      whereClause += this.buildSubjDatasetHead();
-      whereClause += this.buildResourceTypeConstraints(resourceType);
-      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+    // Add text search if present
+    if (textQuery) {
       whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
-      whereClause += this.buildGraphNameDescOnly();
-    } else {
-      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
-      if (textQuery) {
-        whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
-      }
-      whereClause += this.buildBaseGraphPattern();
-      whereClause += this.buildResourceTypeConstraints(resourceType);
     }
 
+    // Add filter fragments
+    whereClause += this.buildFilterFragments(filters);
+
+    // Base graph pattern
+    whereClause += this.buildBaseGraphPattern();
+
+    // Resource type constraints
+    whereClause += this.buildResourceTypeConstraints(resourceType);
+
+    // Optional properties
     whereClause += this.buildOptionalProperties();
-    if (this.filtersNeedDepthVariableMeasured(filters)) {
-      whereClause += this.buildOptionalDepthVariableMeasured();
-    }
+
+    // Bindings
     whereClause += this.buildBindings();
-    // Range filters use ?temporalCoverage (OPTIONAL), ?datep (BIND), ?maxDepth/?minDepth (depth OPTIONAL); must run after those bind.
-    whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
 
     whereClause += '}\n';
     return whereClause;
   }
 
-  /** Dataset type for ?subj (outside GRAPH), matches QLever sparql_query.rq */
-  buildSubjDatasetHead() {
-    return `  VALUES ?sosType {
-    sschema:Dataset
-    schema:Dataset
-  }
-  ?subj a ?sosType .
-`;
-  }
-
-  /** Name + description only inside GRAPH ?g (type triples already in buildSubjDatasetHead) */
-  buildGraphNameDescOnly() {
-    return `  GRAPH ?g {
-    ?subj schema:name|sschema:name ?name .
-    ?subj schema:description|sschema:description ?description .
-  }
-`;
-  }
-
   /**
-   * Use structured token queries when: explicit ` or `, Exact match on, or multiple tokens (loose = OR tokens).
-   * Single-token + Exact off keeps legacy one-string behavior (QLever phrase / Blazegraph matchAllTerms).
+   * AND/OR text search — same rules as state.js getResults (parseQuery + explicit ` or `).
+   * Search2 previously passed the raw string to one bds:search / ql:contains-word, so
+   * e.g. "hmr2300 or KN209" never matched (literal phrase "hmr2300 or KN209").
    */
-  shouldUseStructuredTextSearch(textQuery, searchExactMatch) {
-    const raw = String(textQuery || '').trim();
-    if (!raw) return false;
-    if (/\s+or\s+/i.test(raw)) return true;
-    if (searchExactMatch) return true;
-    const pq = parseQuery(raw);
-    if (pq.AND.length > 1) return true;
-    if (pq.OR_GROUPS && pq.OR_GROUPS.length > 0) return true;
-    return false;
-  }
-
   buildTextSearchFragment(textQuery, searchExactMatch) {
-    const raw = String(textQuery || '').trim();
-    if (!raw) return '';
+    const raw = typeof textQuery === 'string' ? textQuery : '';
+    const trimmed = raw.trim();
+    if (!trimmed) return '';
+
+    const parsed = parseQuery(raw);
+    const hasParsed = parsed.AND.length > 0 || parsed.OR_GROUPS.length > 0;
+    const hasExplicitOr = parsed.OR_GROUPS && parsed.OR_GROUPS.length > 0;
 
     if (this.queryEngine === 'blazegraph') {
-      if (this.shouldUseStructuredTextSearch(textQuery, searchExactMatch)) {
-        let parsed = parseQueryWithExactFlag(raw, searchExactMatch);
-        if (!parsedHasTerms(parsed)) parsed = ensureParsedTerms(raw, parsed);
-        const block = buildTextSearchBlazegraphGraph(parsed);
-        if (block) return `${block}\n`;
-      }
-      const q = this.escapeValue(raw);
-      const exactStr = searchExactMatch ? 'true' : 'false';
-      return `  ?lit bds:search "${q}" .
+      if (!hasParsed) {
+        const exactStr = searchExactMatch ? 'true' : 'false';
+        const q = this.escapeValue(raw);
+        return `  ?lit bds:search "${q}" .
   ?lit bds:matchAllTerms "${exactStr}" .
   ?lit bds:relevance ?score1 .
   GRAPH ?g { ?subj ?p ?lit . }
 `;
+      }
+      let effective = parsed;
+      if (!hasExplicitOr && !searchExactMatch) {
+        effective = {
+          AND: [],
+          OR_GROUPS: parsed.AND.map((t) => [t]),
+        };
+      }
+      const block = buildTextSearchBlockBlazegraph(effective);
+      const indented = block
+        .split('\n')
+        .map((ln) => {
+          const t = ln.trim();
+          if (!t) return '';
+          return `  ${t}`;
+        })
+        .filter((ln) => ln.length > 0)
+        .join('\n');
+      return `${indented}\n`;
     }
 
     // QLever
-    if (this.shouldUseStructuredTextSearch(textQuery, searchExactMatch)) {
-      let parsed = parseQueryWithExactFlag(raw, searchExactMatch);
-      if (!parsedHasTerms(parsed)) parsed = ensureParsedTerms(raw, parsed);
-      const block = buildTextSearchBlockQlever(parsed);
-      if (block) return `${indentSparqlLines(block, 2)}\n`;
-    }
-
-    const q = this.escapeValue(raw);
-    return `  ?subj ?o ?item .
+    if (!hasParsed) {
+      const q = this.escapeValue(raw);
+      return `  ?subj ?o ?item .
   ?text ql:contains-entity ?item .
   ?text ql:contains-word "${q}" .
 `;
+    }
+    let effective = parsed;
+    if (!hasExplicitOr && !searchExactMatch) {
+      effective = {
+        AND: [],
+        OR_GROUPS: parsed.AND.map((t) => [t]),
+      };
+    }
+    const block = buildTextSearchBlockQlever(effective);
+    const indented = block
+      .split('\n')
+      .map((ln) => {
+        const t = ln.trim();
+        if (!t) return '';
+        return `  ${t}`;
+      })
+      .filter((ln) => ln.length > 0)
+      .join('\n');
+    return `${indented}\n`;
   }
 
-  /**
-   * @param {Record<string, unknown>} filters
-   * @param {{ rangePlacement?: 'all' | 'early' | 'late'; skipRangedepth?: boolean }} [options]
-   */
-  buildFilterFragments(filters, options = {}) {
-    const rangePlacement = options.rangePlacement ?? 'all';
-    const skipRangedepth = options.skipRangedepth === true;
-    const isRangeFacet = (type) =>
-      type === 'range' || type === 'rangeyear' || type === 'rangedepth';
-
+  buildFilterFragments(filters) {
     if (!filters || Object.keys(filters).length === 0) {
       return '';
     }
@@ -224,11 +182,6 @@ export class SparqlQueryBuilder {
     Object.entries(filters).forEach(([field, values]) => {
       const facetConfig = this.getFacetConfig(field);
       if (!facetConfig || !values || (Array.isArray(values) && values.length === 0)) return;
-      if (skipRangedepth && facetConfig.type === 'rangedepth') return;
-
-      const range = isRangeFacet(facetConfig.type);
-      if (rangePlacement === 'early' && range) return;
-      if (rangePlacement === 'late' && !range) return;
 
       switch (facetConfig.type) {
         case 'text':
@@ -250,49 +203,6 @@ export class SparqlQueryBuilder {
     });
 
     return fragments;
-  }
-
-  buildRangedepthFilterFragments(filters) {
-    if (!filters || typeof filters !== 'object') return '';
-    let fragments = '';
-    Object.entries(filters).forEach(([field, values]) => {
-      const facetConfig = this.getFacetConfig(field);
-      if (!facetConfig || facetConfig.type !== 'rangedepth') return;
-      if (!values || (Array.isArray(values) && values.length < 2)) return;
-      fragments += this.buildDepthFilter(field, values, facetConfig);
-    });
-    return fragments;
-  }
-
-  /** QLever full-text + depth: core WHERE for inner SELECT (before fat OPTIONALs). */
-  buildQleverFullTextCoreForDepthSubquery(textQuery, searchExactMatch, resourceType, filters) {
-    let block = '';
-    block += this.buildSubjDatasetHead();
-    block += this.buildResourceTypeConstraints(resourceType);
-    block += this.buildFilterFragments(filters, { rangePlacement: 'early' });
-    block += this.buildTextSearchFragment(textQuery, searchExactMatch);
-    block += this.buildGraphNameDescOnly();
-    block += this.buildOptionalDepthVariableMeasured();
-    block += this.buildRangedepthFilterFragments(filters);
-    return block;
-  }
-
-  /** Inner SELECT DISTINCT: shrink ?subj set before optional explosion (QLever + text + depth). */
-  buildQleverDepthCandidateSubquery(textQuery, searchExactMatch, resourceType, filters) {
-    const core = this.buildQleverFullTextCoreForDepthSubquery(
-      textQuery,
-      searchExactMatch,
-      resourceType,
-      filters
-    );
-    const inner = indentSparqlLines(core, 4);
-    return `  {
-    SELECT DISTINCT ?g ?subj ?name ?description ?type
-    WHERE {
-${inner}
-    }
-  }
-`;
   }
 
   buildTextFilter(field, values, facetConfig) {
@@ -322,11 +232,7 @@ ${inner}
   buildDepthFilter(_field, values, _facetConfig) {
     if (!Array.isArray(values) || values.length < 2) return '';
     const [min, max] = values;
-    // Interval overlap: dataset [minDepth,maxDepth] vs filter [min,max]; require both bounds from OPTIONAL.
-    return `  FILTER(
-    BOUND(?maxDepth) && BOUND(?minDepth) &&
-    ?maxDepth >= ${min} && ?minDepth <= ${max}
-  ) .\n`;
+    return `  FILTER(?maxDepth >= ${min} && ?minDepth <= ${max}) .\n`;
   }
 
   buildGeoFilter(_field, values, _facetConfig) {
@@ -390,7 +296,7 @@ ${inner}
   }
 
   buildOptionalProperties() {
-    return `  OPTIONAL {?subj sschema:distribution/sschema:url|sschema:subjectOf/sschema:url|schema:distribution/schema:url|schema:subjectOf/schema:url ?url1 .}
+    return `  OPTIONAL {?subj sschema:distribution/sschema:url|sschema:subjectOf/sschema:url|schema:distribution/schema:url|schema:subjectOf/schema:url ?url .}
   OPTIONAL {?subj schema:datePublished|sschema:datePublished ?datep1 .}
   OPTIONAL {?subj schema:dateCreated|sschema:dateCreated ?datec .}
   OPTIONAL {?subj schema:dateModified|sschema:dateModified ?datem .}
@@ -401,45 +307,15 @@ ${inner}
 
 `;
   }
-
-  /**
-   * True when a rangedepth facet is active with min/max so we can add variableMeasured OPTIONAL.
-   * Kept conditional (not in every query) to limit join size; see prior removal of global depth OPTIONAL.
-   */
-  filtersNeedDepthVariableMeasured(filters) {
-    if (!filters || typeof filters !== 'object') return false;
-    return Object.entries(filters).some(([field, values]) => {
-      const cfg = this.getFacetConfig(field);
-      return (
-        cfg?.type === 'rangedepth' &&
-        Array.isArray(values) &&
-        values.length >= 2
-      );
-    });
-  }
-
-  /**
-   * Depth from schema:variableMeasured / PropertyValue (aligned with public/queries/qlever/sparql_query.rq).
-   * Uses CONTAINS(LCASE(name),"depth") plus cmpdep so the pattern stays short vs a long IN list.
-   */
-  buildOptionalDepthVariableMeasured() {
-    return `  OPTIONAL {
-    ?subj schema:variableMeasured|sschema:variableMeasured ?vm .
-    VALUES ?depthType { schema:PropertyValue sschema:PropertyValue }
-    ?vm a ?depthType .
-    ?vm schema:name|sschema:name ?propertyName .
-    FILTER(
-      CONTAINS(LCASE(STR(?propertyName)), "depth") ||
-      LCASE(STR(?propertyName)) = "cmpdep"
-    ) .
-    ?vm schema:maxValue|sschema:maxValue ?maxDepth_d .
-    ?vm schema:minValue|sschema:minValue ?minDepth_d .
-    BIND(COALESCE(?maxDepth_d) AS ?maxDepth)
-    BIND(COALESCE(?minDepth_d) AS ?minDepth)
-  }
-
-`;
-  }
+  // removed to fix memory issues
+//     OPTIONAL {
+// ?subj sschema:variableMeasured ?vm .
+// ?vm a sschema:PropertyValue .
+// ?vm sschema:name ?namedepth .
+//     FILTER (?namedepth IN ("depth", "CmpDep")) .
+// ?vm sschema:maxValue ?maxDepth_d .
+// ?vm sschema:minValue ?minDepth_d
+// }
 
   buildBindings() {
     return ` 
@@ -449,12 +325,21 @@ ${inner}
   BIND (IF(BOUND(?place_name), ?place_name, "No Placenames") AS ?placename)
 `;
   }
+  // zapped for per issues
+  //   BIND (COALESCE(?maxDepth_d) AS ?maxDepth)
+  //   BIND (COALESCE(?minDepth_d) AS ?minDepth)
 
   buildOrderByClause() {
-    return '';
+    // If QLever doesn’t provide score, order may be basic; adjust when scoring available
+      if ( ! this.usesQLever() ){
+
+          return 'ORDER BY DESC(?score1)\n';
+      } else {
+          return ''
+      }
   }
     buildGroupbyClause(_limit, _offset) {
-        return `GROUP BY ?g ?subj  ?placename  ?datep ?pubname ?url  ?name ?description ?type  ?temporalCoverage ?kw  ?resourceType\n`;
+        return `GROUP BY ?g ?subj ?datep ?pubname ?name ?description ?temporalCoverage\n`;
     }
   buildLimitClause(limit, offset) {
     return `LIMIT ${limit}\nOFFSET ${offset}\n`;

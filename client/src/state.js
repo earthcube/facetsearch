@@ -12,19 +12,98 @@ import _, { isArray } from "underscore";
 //import SpaqlHasToolsQuery from 'raw-loader!./src/sparql_blaze/sparql_hastools.txt'
 // Static imports removed - now using dynamic loading via queryService
 import queryService from "@/services/queryService.js";
-import {
-  ensureParsedTerms,
-  parsedHasTerms,
-  parseQueryWithExactFlag,
-  buildTextSearchBlockQlever,
-  buildTextSearchBlockBlazegraph,
-  indentSparqlLines,
-} from "@/utils/queryParser.js";
+import { parseQuery, buildTextSearchBlockBlazegraph, buildTextSearchBlockQlever } from "@/utils/queryParser.js";
 import { default as LRUCache } from "lru-cache";
 import localforage from "localforage";
 import yaml from "js-yaml";
 // import { commit } from "lodash/seq.js";
-import { tenantDefault } from "@/config.js";
+import { tenantDefault, tenantFetchFallback } from "@/config.js";
+import {
+  normalizeDatasetGraphIri,
+  datasetJsonLdPathVariants,
+  fallbackGraphForSubject,
+} from "@/utils/datasetIdentifiers.js";
+import { fetchExpandedDatasetJsonLdViaSparql } from "@/utils/datasetJsonLdSparqlFallback.js";
+
+/**
+ * Parse BLAZEGRAPH_TIMEOUT (seconds as number, "20s", etc.) to milliseconds for axios.
+ * Matches SearchService.parseTimeout semantics.
+ */
+function parseBlazeTimeoutMs(val, defaultSec = 60) {
+  if (val == null || val === "") return defaultSec * 1000;
+  if (typeof val === "number") return val * 1000;
+  const s = String(val).trim();
+  const m = s.match(/^(\d+)\s*s$/i);
+  if (m) return parseInt(m[1], 10) * 1000;
+  const n = Number(s);
+  if (!Number.isNaN(n)) return n * 1000;
+  return defaultSec * 1000;
+}
+
+/** One path segment for /dataset/{id} or /tools/{id}; encodes IRIs so /, ?, # do not break URLs. */
+function apiResourceUrl(baseResolved, resourceKind, id) {
+  const root = new URL(baseResolved);
+  const p = root.pathname.replace(/\/$/, "");
+  root.pathname = `${p}/${resourceKind}/${encodeURIComponent(id)}`;
+  return root.href;
+}
+
+function axiosResponseDataToJsonLdObject(data) {
+  if (typeof data === "string") {
+    const c = data.replace(/http:\/\/schema.org\//g, "https://schema.org/");
+    return JSON.parse(c);
+  }
+  let str = JSON.stringify(data);
+  str = str.replace(/http:\/\/schema.org\//g, "https://schema.org/");
+  return JSON.parse(str);
+}
+
+async function commitJsonLdToStore(context, jsonLdInput) {
+  const toStore = Array.isArray(jsonLdInput)
+    ? { "@graph": jsonLdInput }
+    : jsonLdInput;
+  let str = JSON.stringify(toStore);
+  str = str.replace(/http:\/\/schema.org\//g, "https://schema.org/");
+  const jsonLdobj = JSON.parse(str);
+  context.commit("setJsonLd", jsonLdobj);
+  try {
+    await jsonld.compact(jsonLdobj, {}).then((providers) => {
+      const j = JSON.stringify(providers, null, 2);
+      const jp = JSON.parse(j);
+      context.commit("setJsonLdCompact", jp);
+    });
+  } catch (ex) {
+    console.log(
+      "JSONLD transformation issue. JSON into JSONLDCompact. " + ex
+    );
+    context.commit("setJsonLdCompact", jsonLdobj);
+    throw "JSONLD transformation issue.";
+  }
+}
+
+async function getDatasetAxios(baseResolved, pathSegment, graphParams) {
+  const root = new URL(baseResolved);
+  const p = root.pathname.replace(/\/$/, "");
+  root.pathname = `${p}/dataset/${pathSegment}`;
+  if (graphParams?.g) root.searchParams.set("g", graphParams.g);
+  if (graphParams?.graph) root.searchParams.set("graph", graphParams.graph);
+  return axios.get(root.href);
+}
+
+async function trySegmentVariants(logicalId, baseResolved, graphParams) {
+  const enc = encodeURIComponent(logicalId);
+  try {
+    return await getDatasetAxios(baseResolved, enc, graphParams);
+  } catch (first) {
+    const st = first?.response?.status;
+    const canRetryRaw =
+      st === 404 && enc !== logicalId && logicalId.length > 0;
+    if (canRetryRaw) {
+      return await getDatasetAxios(baseResolved, logicalId, graphParams);
+    }
+    throw first;
+  }
+}
 
 let esTemplateOptions = { interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g };
 export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
@@ -259,17 +338,46 @@ export const store = _createStore({
     },
   },
   actions: {
-    async fetchTenantData({ commit }) {
-      console.log("Trying to fetch tenant data");
+    async fetchTenantData({ commit, state }) {
+      console.warn("Trying to fetch tenant data");
+      const cfg = state.FacetsConfig;
+      const community = (cfg?.COMMUNITY && String(cfg.COMMUNITY).trim()) || "";
+      const url = cfg?.TENANT_URL;
+
+      const applyFallback = (reason) => {
+        if (reason) console.warn("[fetchTenantData]", reason);
+        const fb =
+          community && tenantFetchFallback[community]
+            ? tenantFetchFallback[community]
+            : tenantDefault;
+        commit("setTenantData", fb);
+      };
+
+      if (!url) {
+        applyFallback("FacetsConfig.TENANT_URL is missing.");
+        return;
+      }
+
       try {
-        const response = await axios.get(this.state.FacetsConfig.TENANT_URL);
-        let tenantData = yaml.load(response.data);
-        console.log(tenantData);
+        const response = await axios.get(url, { timeout: 15000 });
+        const tenantData = yaml.load(response.data);
+        const list = tenantData?.tenant;
+        if (
+          community &&
+          Array.isArray(list) &&
+          !list.some((t) => t.community === community)
+        ) {
+          applyFallback(
+            `COMMUNITY "${community}" not found in tenant.yaml from ${url}`,
+          );
+          return;
+        }
         commit("setTenantData", tenantData);
       } catch (error) {
         console.error("Error loading Tenant YAML file:", error);
-        const tenantData = tenantDefault;
-        commit("setTenantData", tenantData);
+        applyFallback(
+          `Failed to load tenant YAML (timeout, CORS, or network). URL: ${url}`,
+        );
       }
     },
     // eslint-disable-next-line
@@ -328,11 +436,39 @@ export const store = _createStore({
         .finally(() => {});
       return collection;
     },
-    async fetchJsonLd(context, o) {
+    async fetchJsonLd(context, payload) {
+      let idStr =
+        payload == null
+          ? ""
+          : typeof payload === "string"
+            ? payload
+            : String(payload.id ?? payload.d ?? "");
+      idStr = idStr.trim();
+
+      if (!idStr) {
+        const err = new Error("empty dataset id");
+        event("exception_datasetld", {
+          description: err,
+          error_datasetid: idStr,
+          category: "dataset",
+        });
+        throw "Issue with service: empty dataset id";
+      }
+
+      const graphFromPayload =
+        typeof payload === "object" && payload
+          ? payload.graph ?? payload.g
+          : undefined;
+      const graphRaw =
+        graphFromPayload ?? fallbackGraphForSubject(idStr);
+      const graph = graphRaw
+        ? normalizeDatasetGraphIri(graphRaw) || graphRaw
+        : undefined;
+
       event("view_item", {
         items: [
           {
-            id: o,
+            id: idStr,
             category: "dataset",
             quantity: 1,
           },
@@ -340,132 +476,109 @@ export const store = _createStore({
         value: 1,
       });
       event("view_dataset", {
-        id: o,
+        id: idStr,
         category: "dataset",
       });
-      // var self = this;
 
-      //const fetchURL = `https://dx.geodex.org/id/summoned${o}`
-      //const proxyLocation = _.template(FacetsConfig.JSONLD_PROXY, esTemplateOptions)
-      //const fetchURL = proxyLocation({o: o})
-      let baseUrlt = _.template(
-        this.state.FacetsConfig.API_URL,
-        esTemplateOptions
-      );
-      const base = baseUrlt({
+      const cfg = context.state.FacetsConfig;
+      let baseUrlt = _.template(cfg.API_URL, esTemplateOptions);
+      const baseResolved = baseUrlt({
         window_location_origin: window.location.origin,
-      }).replace(/\/$/, "");
-      // Do not encode the URN segment: the GeoCodes API expects literal colons (encoding returns 404).
-      const fetchURL = `${base}/dataset/${o}`;
-      console.log(fetchURL);
-      var url = new URL(fetchURL);
-      return axios
-        .get(url)
-        .then(
-          //const content = await rawResponse.json();
-          async function (r) {
-            var content = r.data;
-            //console.log(contentAsText);
-            if (typeof content === "string") {
-              content = content.replace(
-                "http://schema.org/",
-                "https://schema.org/"
-              );
-            } else {
-              content = JSON.stringify(content);
-              content = content.replace(
-                "http://schema.org/",
-                "https://schema.org/"
-              );
-            }
+      });
 
-            // wifire uses jsonld flattened, so at load let's convert items to expanded
-            let jsonLdobj = JSON.parse(content);
-            context.commit("setJsonLd", jsonLdobj);
+      const graphParams =
+        graph != null && graph !== ""
+          ? { g: graph, graph }
+          : undefined;
 
-            // attempt to clean up below. Let's just pass the original
-            // const jsonLdContext = {"@vocab":"https://schema.org/"};
-            // try {
-            //
-            //
-            //     await jsonld.expand(jsonLdobj, jsonLdContext).then((providers) => {
-            //         var j = JSON.stringify(providers, null, 2);
-            //         var jp = JSON.parse(j);
-            //         //   console.log(j.toString());
-            //         context.commit('setJsonLd', jp)
-            //     })
-            // } catch (ex) {
-            //     console.log("JSONLD transformation issue. JSON into JSONLDCompact. " +  ex)
-            //
-            //     context.commit('setJsonLd', jsonLdobj)
-            //     throw "JSONLD transformation issue."
-            // }
+      const pathVariants = datasetJsonLdPathVariants(idStr);
 
-            try {
-              // this will return an array, if there is more than one type.
-              // empty context to get what was a mistake... prefix with https://schema.org
-              // do any framing in the component pages.
+      const sparqlFallbackEnabled =
+        cfg.DATASET_JSONLD_SPARQL_FALLBACK !== false &&
+        String(cfg.QUERY_ENGINE || "").toLowerCase() === "qlever" &&
+        Boolean(graph) &&
+        Boolean(cfg.TRIPLESTORE_URL);
 
-              await jsonld.compact(jsonLdobj, {}).then((providers) => {
-                var j = JSON.stringify(providers, null, 2);
-                var jp = JSON.parse(j);
-                //   console.log(j.toString());
-                context.commit("setJsonLdCompact", jp);
-              });
-            } catch (ex) {
-              console.log(
-                "JSONLD transformation issue. JSON into JSONLDCompact. " + ex
-              );
+      let lastException = null;
 
-              context.commit("setJsonLdCompact", jsonLdobj);
-              // Do not reject the action: raw JSON-LD is already in state; UI depends on fetch settling.
-            }
+      for (const logicalId of pathVariants) {
+        try {
+          const r = await trySegmentVariants(
+            logicalId,
+            baseResolved,
+            graphParams
+          );
+          const jsonLdobj = axiosResponseDataToJsonLdObject(r.data);
+          await commitJsonLdToStore(context, jsonLdobj);
+          return;
+        } catch (exception) {
+          lastException = exception;
+          if (exception.response && exception.response.status === 404) {
+            continue;
           }
-        )
-        .catch((exception) => {
-          // Vue.$gtag.event('exception', {
-          event("exception", {
-            description: `${o} ${exception}`,
-            fatal: false,
-            items: [
-              {
-                id: o,
-                category: "dataset",
-              },
-            ],
-          });
-          //Vue.$gtag.event('exception_datasetld', {
-          event("exception_datasetld", {
-            description: exception,
-            error_datasetid: o,
+          break;
+        }
+      }
+
+      if (
+        lastException?.response?.status === 404 &&
+        sparqlFallbackEnabled &&
+        idStr
+      ) {
+        for (const subjectVariant of pathVariants) {
+          try {
+            const expanded = await fetchExpandedDatasetJsonLdViaSparql({
+              triplestoreUrl: cfg.TRIPLESTORE_URL,
+              subject: subjectVariant,
+              graph,
+              timeoutMs: parseBlazeTimeoutMs(cfg.BLAZEGRAPH_TIMEOUT, 60),
+            });
+            if (expanded?.length) {
+              await commitJsonLdToStore(context, expanded);
+              return;
+            }
+          } catch (ex) {
+            lastException = ex;
+          }
+        }
+      }
+
+      const exception =
+        lastException || new Error("Dataset metadata not found");
+      event("exception", {
+        description: `${idStr} ${exception}`,
+        fatal: false,
+        items: [
+          {
+            id: idStr,
             category: "dataset",
-          });
-          if (exception.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.log(exception.response.data);
-            console.log(exception.response.status);
-            console.log(exception.response.headers);
-            if (exception.response.status === 404) {
-              throw "Issue with Identifier or stale reference in services";
-            } else {
-              throw (
-                "Issue with server responded with an error " +
-                exception.response.status
-              );
-            }
-          } else if (exception.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-            console.log(exception.request);
-            throw "Issue with service possibly not running";
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log("Error", exception.message);
-            throw "Issue with service: " + exception.message;
-          }
-        });
+          },
+        ],
+      });
+      event("exception_datasetld", {
+        description: exception,
+        error_datasetid: idStr,
+        category: "dataset",
+      });
+      if (exception.response) {
+        console.log(exception.response.data);
+        console.log(exception.response.status);
+        console.log(exception.response.headers);
+        if (exception.response.status === 404) {
+          throw "Issue with Identifier or stale reference in services";
+        } else {
+          throw (
+            "Issue with server responded with an error " +
+            exception.response.status
+          );
+        }
+      } else if (exception.request) {
+        console.log(exception.request);
+        throw "Issue with service possibly not running";
+      } else {
+        console.log("Error", exception.message);
+        throw "Issue with service: " + exception.message;
+      }
     },
     async fetchToolJsonLd(context, toolArk) {
       event("view_tool", {
@@ -478,9 +591,10 @@ export const store = _createStore({
         this.state.FacetsConfig.API_URL,
         esTemplateOptions
       );
-      var url =
-        baseUrlt({ window_location_origin: window.location.origin }) +
-        `/tools/${toolArk}`;
+      const baseResolved = baseUrlt({
+        window_location_origin: window.location.origin,
+      });
+      const url = apiResourceUrl(baseResolved, "tools", toolArk);
 
       const config = {
         url: url,
@@ -590,6 +704,8 @@ export const store = _createStore({
         rt = this.state.resourceTypeList.get(resourceType);
       }
       if (exact == undefined) exact = this.state.searchExactMatch;
+      // URL query params often provide "true"/"false" as strings; normalize to boolean.
+      exact = exact === true || exact === "true";
 
       event("search", {
         //'event_category': 'query',
@@ -608,32 +724,66 @@ export const store = _createStore({
         this.state.FacetsConfig
       );
       const resultsTemplate = _.template(queryText, esTemplateOptions);
-      const templatePayload = {
+
+      let textSearchBlock = "";
+      const queryEngine = (this.state.FacetsConfig.QUERY_ENGINE || "").toLowerCase();
+      if (queryEngine === "blazegraph") {
+        const defaultBlock = (searchQ, matchAll) =>
+          `            ?lit bds:search "${String(searchQ).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}" .\n            ?lit bds:matchAllTerms "${matchAll}" .\n            ?lit bds:relevance ?score1 .\n            ?g ?p ?lit .`;
+        if (q && q.trim()) {
+          const parsed = parseQuery(q);
+          if (parsed.AND.length > 0 || parsed.OR_GROUPS.length > 0) {
+            textSearchBlock = buildTextSearchBlockBlazegraph(parsed);
+          } else {
+            textSearchBlock = defaultBlock(q, exact ? "true" : "false");
+          }
+        } else {
+          textSearchBlock = defaultBlock("", "true");
+        }
+      } else if (queryEngine === "qlever") {
+        const defaultBlockQlever = (searchQ) =>
+          `    ?subj ?o ?item .\n    ?text ql:contains-entity ?item .\n    ?text ql:contains-word "${String(searchQ).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}" .`;
+        if (q && q.trim()) {
+          const parsed = parseQuery(q);
+          if (parsed.AND.length > 0 || parsed.OR_GROUPS.length > 0) {
+            const hasExplicitOr = parsed.OR_GROUPS && parsed.OR_GROUPS.length > 0;
+            // When the user types the explicit ` or ` operator, we always honor it.
+            // Otherwise, use the existing "Match All Terms" option:
+            // - exact=true  => AND across all terms
+            // - exact=false => OR across all terms
+            if (hasExplicitOr || exact) {
+              textSearchBlock = buildTextSearchBlockQlever(parsed);
+            } else {
+              const orParsed = {
+                AND: [],
+                // Build: OR for each individual term.
+                OR_GROUPS: parsed.AND.map((t) => [t]),
+              };
+              textSearchBlock = buildTextSearchBlockQlever(orParsed);
+            }
+          } else {
+            textSearchBlock = defaultBlockQlever(q);
+          }
+        } else {
+          textSearchBlock = defaultBlockQlever("");
+        }
+      }
+
+      var sparql = resultsTemplate({
         n: n,
         o: o,
         q: q,
         rt: rt,
         exact: exact,
         minRelevance: minRelevance,
-      };
-      if (queryText.includes("${textSearchBlock}")) {
-        let parsed = parseQueryWithExactFlag(q || "", !!exact);
-        if (!parsedHasTerms(parsed)) parsed = ensureParsedTerms(q || "", parsed);
-        const engine = String(
-          this.state.FacetsConfig.QUERY_ENGINE || "blazegraph"
-        ).toLowerCase();
-        if (engine === "qlever") {
-          const block = buildTextSearchBlockQlever(parsed);
-          templatePayload.textSearchBlock = indentSparqlLines(block, 4);
-        } else {
-          templatePayload.textSearchBlock = buildTextSearchBlockBlazegraph(parsed);
-        }
-      }
-      //var sparql = self.state.queryTemplates[template_name]({'n': n, 'o': o, 'q': q})
-      var sparql = resultsTemplate(templatePayload);
+        textSearchBlock: textSearchBlock,
+      });
+      sparql = sparql.replace(/\r\n/g, "\n");
       //var url = "https://graph.geodex.org/blazegraph/namespace/nabu/sparql";
       var url = this.state.FacetsConfig.SUMMARYSTORE_URL;
       var blazetimeout = this.state.FacetsConfig.BLAZEGRAPH_TIMEOUT || 60;
+      const timeoutMs = parseBlazeTimeoutMs(blazetimeout, 60);
+      const axiosTimeoutMs = Math.max(timeoutMs + 30_000, 120_000);
       //sparql = "PREFIX%20con%3A%20%3Chttp%3A%2F%2Fwww.ontotext.com%2Fconnectors%2Flucene%23%3E%0APREFIX%20luc%3A%20%3Chttp%3A%2F%2Fwww.ontotext.com%2Fowlim%2Flucene%23%3E%0APREFIX%20con-inst%3A%20%3Chttp%3A%2F%2Fwww.ontotext.com%2Fconnectors%2Flucene%2Finstance%23%3E%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0Aprefix%20schema%3A%20%3Chttp%3A%2F%2Fschema.org%2F%3E%0Aprefix%20sschema%3A%20%3Chttps%3A%2F%2Fschema.org%2F%3E%0ASELECT%20distinct%20%3Fsubj%20%3Fpubname%20(GROUP_CONCAT(DISTINCT%20%3Fplacename%3B%20SEPARATOR%3D%22%2C%20%22)%20AS%20%3Fplacenames)%0A%20%20%20%20%20%20%20%20(GROUP_CONCAT(DISTINCT%20%3Fkwu%3B%20SEPARATOR%3D%22%2C%20%22)%20AS%20%3Fkw)%0A%20%20%20%20%20%20%20%20%3Fdatep%20%20(GROUP_CONCAT(DISTINCT%20%3Furl%3B%20SEPARATOR%3D%22%2C%20%22)%20AS%20%3Fdisurl)%20(MAX(%3Fscore1)%20as%20%3Fscore)%0A%20%20%20%20%20%20%20%20%3Fname%20%3Fdescription%20%3FresourceType%20%3Fg%0A%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%5B%5D%20a%20con-inst%3Ageocodes_fts%20%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20con%3Aquery%20%22water%22%20%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20con%3Aentities%20%3Fsubj%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20VALUES%20(%3Fdataset)%20%7B%20(%20schema%3ADataset%20)%20(%20sschema%3ADataset%20)%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fsubj%20a%20%3Fdataset%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20con%3Ascore%20%3Fscore1%7D%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20BIND%20(IF%20(exists%20%7B%3Fsubj%20a%20schema%3ADataset%20.%7D%20%7C%7Cexists%7B%3Fsubj%20a%20sschema%3ADataset%20.%7D%20%2C%20%22data%22%2C%20%22tool%22)%20AS%20%3FresourceType).%0A%0A%20%20%20%20%20%20%20%20%20%20graph%20%3Fg%20%7B%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fsubj%20schema%3Aname%7Csschema%3Aname%20%3Fname%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fsubj%20schema%3Adescription%7Csschema%3Adescription%20%3Fdescription%20.%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20optional%20%7B%3Fsubj%20schema%3Adistribution%2Fschema%3Aurl%7Cschema%3AsubjectOf%2Fschema%3Aurl%20%3Furl%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20schema%3AdatePublished%7Csschema%3AdatePublished%20%3Fdate_p%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20schema%3Apublisher%2Fschema%3Aname%7Csschema%3Apublisher%2Fsschema%3Aname%7Cschema%3Apublisher%2Fschema%3AlegalName%7Csschema%3Apublisher%2Fsschema%3AlegalName%20%20%3Fpub_name%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20schema%3AspatialCoverage%2Fschema%3Aname%7Csschema%3AspatialCoverage%2Fsschema%3Aname%7Csschema%3AsdPublisher%20%3Fplace_name%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OPTIONAL%20%7B%3Fsubj%20schema%3Akeywords%7Csschema%3Akeywords%20%3Fkwu%20.%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20BIND%20(%20IF%20(%20BOUND(%3Fdate_p)%2C%20%3Fdate_p%2C%20%22No%20datePublished%22)%20as%20%3Fdatep%20)%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20BIND%20(%20IF%20(%20BOUND(%3Fpub_name)%2C%20%3Fpub_name%2C%20%22No%20Publisher%22)%20as%20%3Fpubname%20)%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20BIND%20(%20IF%20(%20BOUND(%3Fplace_name)%2C%20%3Fplace_name%2C%20%22No%20spatialCoverage%22)%20as%20%3Fplacename%20)%20.%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20GROUP%20BY%20%3Fsubj%20%3Fpubname%20%3Fplacename%20%3Fkwu%20%3Fdatep%20%3Furl%20%20%3Fname%20%3Fdescription%20%20%3FresourceType%20%3Fg%0A%20%20%20%20%20%20%20%20ORDER%20BY%20DESC(%3Fscore)%0ALIMIT%2010%0AOFFSET%200"
 
       // generate a UUID from the query string.
@@ -657,26 +807,41 @@ export const store = _createStore({
       //     context.commit('setResults', lastItems)
       //     return ;
       // }
-      var params = new URLSearchParams();
-      //  query: encodeURIComponent(sparql),
-      params.append("query", sparql);
-      params.append("queryLn", "sparql");
-      params.append("timeout", blazetimeout);
-
       //params.append("analytic", "true")
       //params.append("RTO", "true") runtime optimizer
-      const config = {
-        url: url,
-        method: "get",
-        headers: {
-          Accept: "application/sparql-results+json",
-          // 'Content-Type': 'application/sparql-query'
-          // 'X-BIGDATA-MAX-QUERY-MILLIS': 90000  // 90 seconds. can use causes cors error
-        },
-        params: params,
-        //data: sparql
-      };
-      console.log(params.get("query"));
+      /** @type {import('axios').AxiosRequestConfig} */
+      let config;
+      if (queryEngine === "qlever") {
+        const body = new URLSearchParams({
+          query: sparql,
+          format: "json",
+          timeout: String(timeoutMs),
+        });
+        config = {
+          url,
+          method: "post",
+          data: body,
+          timeout: axiosTimeoutMs,
+          headers: {
+            Accept: "application/sparql-results+json",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        };
+      } else {
+        var params = new URLSearchParams();
+        params.append("query", sparql);
+        params.append("queryLn", "sparql");
+        params.append("timeout", blazetimeout);
+        config = {
+          url: url,
+          method: "get",
+          headers: {
+            Accept: "application/sparql-results+json",
+          },
+          params: params,
+          timeout: axiosTimeoutMs,
+        };
+      }
       return axios
         .request(config)
         .then(function (response) {
