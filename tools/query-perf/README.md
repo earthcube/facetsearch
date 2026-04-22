@@ -1,10 +1,10 @@
 # Facet Query Performance Tester
 
-Standalone CLI tool for testing SPARQL facet query performance without the Vue.js interface. It composes queries from base templates + facet-specific SPARQL filter fragments, executes them against the configured endpoint, and reports timing statistics.
+CLI tool for testing SPARQL facet query performance. Uses the **production `SparqlQueryBuilder`** from `client/src/services/SparqlQueryBuilder.js` to generate queries identical to what the Vue.js app produces, then executes them against the configured endpoint and reports timing statistics.
 
 Test scenarios are stored as JSON files so you can reproduce tests and investigate poor performance manually.
 
-**No dependencies required** — uses only Node.js built-ins (requires Node.js >= 18 for `fetch`).
+**No external dependencies** — uses only Node.js built-ins (requires Node.js >= 18 for `fetch`) and imports the client's query builder directly.
 
 ## Quick Start
 
@@ -27,10 +27,30 @@ node tools/query-perf/query-perf.js --search water \
   --facet '{"type":"text","field":"kw","active":true,"values":["Temperature"]}' \
   --facet '{"type":"geo","field":"spatialCoverage","active":true,"values":{"minLat":20,"maxLat":60,"minLon":-80,"maxLon":0}}'
 
-# See the generated SPARQL fragments and full query
-node tools/query-perf/query-perf.js --search water --show-fragments --show-query \
+# See the generated SPARQL query
+node tools/query-perf/query-perf.js --search water --show-query \
   --facet '{"type":"depthrange","field":"minDepth","active":true,"values":{"min":-500,"max":0}}'
 ```
+
+## How It Works
+
+```
+Scenario JSON / CLI args
+    |
+    v
+scenario-adapter.js  -->  searchParams (same format as client app)
+    |
+    v
+SparqlQueryBuilder.buildQuery(searchParams)  (from client/src/services/)
+    |
+    v
+SPARQL query string  -->  HTTP GET to SPARQL endpoint  -->  timing stats
+```
+
+The tool imports the same `SparqlQueryBuilder` class the client app uses. This means:
+- Queries are **identical** to what users see in the browser
+- Any query logic changes in the client are automatically picked up
+- No duplicate SPARQL generation code to maintain
 
 ## Stored Test Scenarios
 
@@ -109,7 +129,7 @@ node tools/query-perf/query-perf.js --scenario tools/query-perf/scenarios/multi-
 When a test shows poor performance, the saved results file contains all the information needed to investigate manually:
 
 1. **Save the results**: `--save results/slow_queries.json`
-2. **Inspect the generated SPARQL**: `--show-query --show-fragments`
+2. **Inspect the generated SPARQL**: `--show-query`
 3. **Copy the SPARQL to YASGUI** for manual analysis at the configured `SPARQL_YASGUI` URL
 4. **Adjust the scenario** and re-run to isolate which facet combination causes the slowdown
 
@@ -118,8 +138,6 @@ When a test shows poor performance, the saved results file contains all the info
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--config <path>` | auto-detect | YAML config file path |
-| `--query <name>` | `sparql_query` | Query template name |
-| `--query-file <path>` | — | Custom query template file |
 | `--endpoint <url>` | from config | Override SPARQL endpoint |
 | `--engine <name>` | from config | `blazegraph` or `qlever` |
 | `--search <terms>` | `water` | Search terms |
@@ -132,51 +150,8 @@ When a test shows poor performance, the saved results file contains all the info
 | `--timeout <ms>` | `30000` | HTTP timeout per request |
 | `--runs <n>` | `3` | Measured runs per test |
 | `--warmup <n>` | `1` | Warmup runs (not measured) |
-| `--var <key=value>` | — | Arbitrary template variable (repeatable) |
 | `--show-query` | — | Print rendered SPARQL |
 | `--show-results` | — | Print first 5 result rows |
-| `--show-fragments` | — | Print generated facet SPARQL fragments |
 | `--json` | — | Machine-readable JSON output |
 | `--compare <path>` | — | Compare against saved results |
 | `--save <path>` | — | Save results to JSON file |
-
-## How Facet Filters Are Generated
-
-Each facet type generates SPARQL fragments matching the patterns from the SPARQL filtering refactor plan:
-
-**Text facets** (keywords, publishers, places) — use `VALUES` or `FILTER IN` clauses:
-```sparql
-# Active: filter to specific keywords
-?subj schema:keywords|sschema:keywords ?selectedKw .
-VALUES ?selectedKw { "Temperature" "Ocean" }
-
-# Discovery: OPTIONAL for facet value discovery
-OPTIONAL {?subj schema:keywords|sschema:keywords ?kw1 .}
-```
-
-**Depth range** — filters on `variableMeasured` min/max values:
-```sparql
-?subj sschema:variableMeasured ?vmd .
-?vmd a sschema:PropertyValue .
-?vmd sschema:name ?namedepth .
-FILTER (LCASE(?namedepth) IN ("cmpdep", "package_depth", ...)) .
-?vmd sschema:maxValue ?maxDepth_d .
-?vmd sschema:minValue ?minDepth_d .
-FILTER(?minDepth_d >= -1000 && ?maxDepth_d <= 0)
-```
-
-**Temporal coverage** — filters on year from ISO date strings:
-```sparql
-?subj schema:temporalCoverage|sschema:temporalCoverage ?temporalCoverage .
-FILTER((xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) >= 2010 &&
-        xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) <= 2025))
-```
-
-**Geo/spatial** — bounding box coordinate filter:
-```sparql
-?subj schema:spatialCoverage/schema:geo/schema:latitude|... ?lat .
-?subj schema:spatialCoverage/schema:geo/schema:longitude|... ?lon .
-FILTER(?lat >= 20 && ?lat <= 60 && ?lon >= -80 && ?lon <= 0)
-```
-
-Fragments are injected into the base query template just before the closing `}` of the WHERE clause.

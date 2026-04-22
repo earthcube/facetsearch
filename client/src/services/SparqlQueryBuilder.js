@@ -2,7 +2,7 @@
  * SPARQL Query Builder Service
  * Dynamically constructs SPARQL queries based on active filters and search parameters
  */
-import { parseQuery, buildTextSearchBlockQlever, buildTextSearchBlockBlazegraph } from '@/utils/queryParser.js';
+import { parseQuery, buildTextSearchBlockQlever, buildTextSearchBlockBlazegraph } from '../utils/queryParser.js';
 
 export class SparqlQueryBuilder {
   constructor(config) {

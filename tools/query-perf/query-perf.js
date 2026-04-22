@@ -2,21 +2,19 @@
 /**
  * Facet Query Performance Tester
  *
- * Tests SPARQL query performance with facet filter composition. Loads query
- * templates, injects facet-specific SPARQL fragments, executes against the
- * configured endpoint, and reports timing statistics.
- *
- * Supports stored test scenarios (JSON files) that define facet filter
- * parameters for reproducible testing.
+ * Tests SPARQL query performance using the production SparqlQueryBuilder
+ * from the client app. Loads config, converts test parameters to the same
+ * searchParams format the app uses, and measures query execution time.
  *
  * Usage:
  *   node tools/query-perf/query-perf.js --help
  */
 
-const fs = require("fs");
-const path = require("path");
-const yaml = require("./lib/yaml-lite");
-const { buildFacetFragments, combineFacetFragments } = require("./lib/facet-filters");
+import fs from "fs";
+import path from "path";
+import yaml from "../../client/node_modules/js-yaml/index.js";
+import { scenarioToSearchParams, describeFacets } from "./lib/scenario-adapter.js";
+import { SparqlQueryBuilder } from "../../client/src/services/SparqlQueryBuilder.js";
 
 // ---------------------------------------------------------------------------
 // Argument parsing
@@ -27,8 +25,6 @@ Usage: node query-perf.js [options]
 
 Options:
   --config <path>        Path to a YAML config file (default: auto-detect)
-  --query <name>         Query template name (default: sparql_query)
-  --query-file <path>    Path to a custom query template file
   --endpoint <url>       Override SPARQL endpoint URL from config
   --engine <name>        Query engine: blazegraph | qlever (default: from config)
 
@@ -44,11 +40,9 @@ Options:
   --timeout <ms>         HTTP timeout per request (default: 30000)
   --runs <n>             Measured runs per test (default: 3)
   --warmup <n>           Warmup runs (default: 1)
-  --var <key=value>      Set arbitrary template variable (repeatable)
 
   --show-query           Print the rendered SPARQL query
   --show-results         Print first 5 result rows
-  --show-fragments       Print the generated facet SPARQL fragments
   --json                 Machine-readable JSON output
   --compare <path>       Compare against a previous JSON result file
   --save <path>          Save results to a JSON file for later comparison
@@ -67,9 +61,6 @@ Examples:
   # Test with keyword facet filter
   node query-perf.js --search water --facet '{"type":"text","field":"kw","active":true,"values":["Temperature","Ocean"]}'
 
-  # Test with depth range filter
-  node query-perf.js --search water --facet '{"type":"depthrange","field":"minDepth","active":true,"values":{"min":-1000,"max":0}}'
-
   # Run a stored scenario
   node query-perf.js --scenario tools/query-perf/scenarios/depth-range.json
 
@@ -86,8 +77,6 @@ Examples:
 function parseArgs(argv) {
   const args = {
     config: null,
-    query: "sparql_query",
-    queryFile: null,
     endpoint: null,
     engine: null,
     search: "water",
@@ -98,12 +87,10 @@ function parseArgs(argv) {
     timeout: 30000,
     runs: 3,
     warmup: 1,
-    vars: {},
     facets: [],
     scenario: null,
     showQuery: false,
     showResults: false,
-    showFragments: false,
     json: false,
     compare: null,
     save: null,
@@ -114,8 +101,6 @@ function parseArgs(argv) {
     const next = () => argv[++i];
     switch (arg) {
       case "--config": args.config = next(); break;
-      case "--query": args.query = next(); break;
-      case "--query-file": args.queryFile = next(); break;
       case "--endpoint": args.endpoint = next(); break;
       case "--engine": args.engine = next(); break;
       case "--search": args.search = next(); break;
@@ -126,13 +111,6 @@ function parseArgs(argv) {
       case "--timeout": args.timeout = parseInt(next(), 10); break;
       case "--runs": args.runs = parseInt(next(), 10); break;
       case "--warmup": args.warmup = parseInt(next(), 10); break;
-      case "--var": {
-        const kv = next();
-        const eq = kv.indexOf("=");
-        if (eq === -1) { console.error(`Invalid --var: ${kv} (expected key=value)`); process.exit(1); }
-        args.vars[kv.slice(0, eq)] = kv.slice(eq + 1);
-        break;
-      }
       case "--facet": {
         try { args.facets.push(JSON.parse(next())); }
         catch (e) { console.error(`Invalid --facet JSON: ${e.message}`); process.exit(1); }
@@ -141,7 +119,6 @@ function parseArgs(argv) {
       case "--scenario": args.scenario = next(); break;
       case "--show-query": args.showQuery = true; break;
       case "--show-results": args.showResults = true; break;
-      case "--show-fragments": args.showFragments = true; break;
       case "--json": args.json = true; break;
       case "--compare": args.compare = next(); break;
       case "--save": args.save = next(); break;
@@ -172,110 +149,11 @@ function resolveConfigPath(configArg) {
   process.exit(1);
 }
 
-function loadConfig(configPath) {
-  return yaml.parse(fs.readFileSync(configPath, "utf8"));
-}
-
-// ---------------------------------------------------------------------------
-// Query template loading and rendering
-// ---------------------------------------------------------------------------
-
-function loadQueryTemplate(args, config) {
-  if (args.queryFile) {
-    return fs.readFileSync(path.resolve(args.queryFile), "utf8");
-  }
-  const engine = args.engine || config.QUERY_ENGINE || "blazegraph";
-  let queryFileName = args.query;
-  const configKey = args.query.toUpperCase();
-  if (config[configKey]) queryFileName = config[configKey];
-
-  // Try both .txt and .rq extensions
-  const baseName = queryFileName.replace(/\.(txt|rq)$/, "");
-
-  const configDir = path.dirname(resolveConfigPath(args.config));
-  const searchDirs = [
-    path.resolve(configDir, "..", "queries", engine),
-    path.resolve("client/public/queries", engine),
-  ];
-
-  for (const dir of searchDirs) {
-    for (const ext of [".rq", ".txt", ""]) {
-      const candidate = path.join(dir, baseName + ext);
-      if (fs.existsSync(candidate)) return fs.readFileSync(candidate, "utf8");
-    }
-    // Also try the original filename as-is
-    const asIs = path.join(dir, queryFileName);
-    if (fs.existsSync(asIs)) return fs.readFileSync(asIs, "utf8");
-  }
-  console.error(`Query template not found: ${queryFileName} (engine: ${engine})`);
-  process.exit(1);
-}
-
-function buildResourceTypeFilter(resourceType) {
-  const rtMap = {
-    data: '{ ?subj rdf:type schema:Dataset . } UNION { ?subj rdf:type sschema:Dataset . }',
-    tool: '{ ?subj rdf:type schema:SoftwareApplication . } UNION { ?subj rdf:type sschema:SoftwareApplication . }',
-    all: "",
-  };
-  return rtMap[resourceType] || "";
-}
-
-function renderTemplate(template, vars) {
-  return template.replace(/\$\{([^}]+)\}/g, (match, key) => {
-    const k = key.trim();
-    if (k in vars) return vars[k];
-    return "";
-  });
-}
-
-// ---------------------------------------------------------------------------
-// Query composition: base template + facet fragments
-// ---------------------------------------------------------------------------
-
-/**
- * Ensure required prefixes are declared in the query.
- * Checks for each prefix and prepends any that are missing.
- */
-function ensurePrefixes(sparql, requiredPrefixes) {
-  let additions = "";
-  for (const [prefix, uri] of Object.entries(requiredPrefixes)) {
-    const regex = new RegExp(`PREFIX\\s+${prefix}\\s*:`, "i");
-    if (!regex.test(sparql)) {
-      additions += `PREFIX ${prefix}: ${uri}\n`;
-    }
-  }
-  return additions ? additions + sparql : sparql;
-}
-
-function composeQuery(template, templateVars, facetFragments) {
-  let sparql = renderTemplate(template, templateVars);
-
-  if (facetFragments && facetFragments.length > 0) {
-    const fragmentText = combineFacetFragments(facetFragments);
-
-    // Inject facet fragments before the closing } of the WHERE clause.
-    // Find the GROUP BY / ORDER BY / LIMIT to locate where WHERE ends.
-    const groupByIdx = sparql.search(/\n\s*(GROUP\s+BY|ORDER\s+BY|LIMIT)\b/i);
-    if (groupByIdx !== -1) {
-      const beforeGroupBy = sparql.slice(0, groupByIdx);
-      const lastBrace = beforeGroupBy.lastIndexOf("}");
-      if (lastBrace !== -1) {
-        sparql = sparql.slice(0, lastBrace) +
-          "\n\n  # === FACET FILTERS ===\n" + fragmentText + "\n\n" +
-          sparql.slice(lastBrace);
-      }
-    }
-
-    // Ensure xsd: prefix is declared when facet fragments use it
-    // (temporal coverage and date published filters use xsd:integer)
-    if (fragmentText.includes("xsd:")) {
-      sparql = ensurePrefixes(sparql, {
-        xsd: "<http://www.w3.org/2001/XMLSchema#>",
-      });
-    }
-  }
-
-  return sparql;
+function loadConfig(configPath, args) {
+  const config = yaml.load(fs.readFileSync(configPath, "utf8"));
+  // CLI overrides
+  if (args.engine) config.QUERY_ENGINE = args.engine;
+  return config;
 }
 
 // ---------------------------------------------------------------------------
@@ -375,50 +253,23 @@ function loadScenarios(scenarioPath) {
 // Single test execution
 // ---------------------------------------------------------------------------
 
-async function runSingleTest(testDef, args, config, configPath) {
+async function runSingleTest(testDef, args, config) {
   const endpointUrl = args.endpoint || config.SUMMARYSTORE_URL || config.TRIPLESTORE_URL;
-  const search = testDef.search || args.search;
-  const limit = testDef.limit || args.limit;
-  const offset = testDef.offset || args.offset;
+
+  // Convert scenario/CLI parameters to the same searchParams the client app uses
+  const searchParams = scenarioToSearchParams(testDef, args, config);
+
+  // Build SPARQL using the production SparqlQueryBuilder
+  const builder = new SparqlQueryBuilder(config);
+  const sparql = builder.buildQuery(searchParams);
+
   const facets = testDef.facets || args.facets;
-
-  const template = loadQueryTemplate(args, config);
-
-  const templateVars = {
-    q: search,
-    exact: testDef.exact || args.exact,
-    n: String(limit),
-    o: String(offset),
-    rt: buildResourceTypeFilter(testDef.resourceType || args.resourceType),
-    minRelevance: "",
-    relatedData: search,
-    g: "",
-    ecrr_service: config.ECRR_TRIPLESTORE_URL || "",
-    ecrr_graph: config.ECRR_GRAPH || "",
-    ...args.vars,
-    ...(testDef.vars || {}),
-  };
-
-  // Build facet fragments
-  const facetFragments = buildFacetFragments(facets);
-  const sparql = composeQuery(template, templateVars, facetFragments);
-
-  const activeFacets = facetFragments.filter((f) => f.active).map((f) => `${f.field}(${f.type})`);
-  const discoveryFacets = facetFragments.filter((f) => !f.active).map((f) => `${f.field}(${f.type})`);
+  const { active: activeFacets, discovery: discoveryFacets } = describeFacets(facets);
 
   if (!args.json) {
-    console.log(`  Search:    "${search}"  Limit: ${limit}`);
+    console.log(`  Search:    "${searchParams.textQuery}"  Limit: ${searchParams.limit}`);
     if (activeFacets.length) console.log(`  Active:    ${activeFacets.join(", ")}`);
     if (discoveryFacets.length) console.log(`  Discovery: ${discoveryFacets.join(", ")}`);
-  }
-
-  if (args.showFragments && facetFragments.length > 0) {
-    console.log("\n  --- Facet Fragments ---");
-    for (const f of facetFragments) {
-      console.log(`  [${f.field}] (${f.active ? "ACTIVE" : "discovery"}):`);
-      console.log(`    ${f.fragment.replace(/\n/g, "\n    ")}`);
-    }
-    console.log("  --- End Fragments ---\n");
   }
 
   if (args.showQuery) {
@@ -467,10 +318,10 @@ async function runSingleTest(testDef, args, config, configPath) {
   const stats = computeStats(timings);
 
   return {
-    search,
-    limit,
-    offset,
-    facets: facets.map((f) => ({ type: f.type, field: f.field, active: !!f.active, values: f.values })),
+    search: searchParams.textQuery,
+    limit: searchParams.limit,
+    offset: searchParams.offset,
+    facets: (facets || []).map((f) => ({ type: f.type, field: f.field, active: !!f.active, values: f.values })),
     activeFacets,
     runs,
     resultCount: lastResultCount,
@@ -509,7 +360,7 @@ function printTestComparison(current, baselineTest) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const configPath = resolveConfigPath(args.config);
-  const config = loadConfig(configPath);
+  const config = loadConfig(configPath, args);
   const endpointUrl = args.endpoint || config.SUMMARYSTORE_URL || config.TRIPLESTORE_URL;
 
   if (!endpointUrl) {
@@ -530,7 +381,7 @@ async function main() {
   const allResults = {
     config: path.relative(process.cwd(), configPath),
     endpoint: endpointUrl,
-    engine: args.engine || config.QUERY_ENGINE || "blazegraph",
+    engine: config.QUERY_ENGINE || "blazegraph",
     timestamp: new Date().toISOString(),
     tests: [],
   };
@@ -544,7 +395,6 @@ async function main() {
 
   // Determine what to run
   if (args.scenario) {
-    // Scenario mode: load and run all tests from scenario file(s)
     const scenarios = loadScenarios(args.scenario);
 
     for (const scenario of scenarios) {
@@ -561,7 +411,7 @@ async function main() {
           console.log(`\n--- ${testName} ---`);
         }
 
-        const result = await runSingleTest(test, args, config, configPath);
+        const result = await runSingleTest(test, args, config);
         result.name = testName;
         result.scenario = scenario.name || scenario._file;
         allResults.tests.push(result);
@@ -583,7 +433,7 @@ async function main() {
       console.log(`--- ${testName} ---`);
     }
 
-    const result = await runSingleTest({}, args, config, configPath);
+    const result = await runSingleTest({}, args, config);
     result.name = testName;
     allResults.tests.push(result);
 
@@ -627,7 +477,6 @@ async function main() {
 
   // JSON output
   if (args.json) {
-    // Strip sparql from JSON output to keep it manageable (use --show-query to see it)
     const output = JSON.parse(JSON.stringify(allResults));
     for (const t of output.tests) delete t.sparql;
     console.log(JSON.stringify(output, null, 2));
