@@ -312,7 +312,7 @@ ${inner}
     if (field === 'datep' || field === 'datePublished') {
       // ?datep comes from COALESCE and is a string — extract the year via SUBSTR
       return `?subj ?property ?date_f .
-    VALUES ?property { sschema:dateCreated sschema:dateModified sschema:datePublished } .
+    VALUES ?property { sschema:dateCreated sschema:dateModified sschema:datePublished schema:dateCreated schema:dateModified schema:datePublished} .
     FILTER(xsd:integer(SUBSTR(STR(?date_f), 1, 4)) >= ${min} &&
          xsd:integer(SUBSTR(STR(?date_f), 1, 4)) <= ${max}) .\n`;
     }
@@ -328,7 +328,8 @@ ${inner}
     // Interval overlap: dataset [minDepth,maxDepth] vs filter [min,max]; require both bounds from OPTIONAL.
     return ` ?subj sschema:variableMeasured ?vm .
     ?vm a sschema:PropertyValue .
-    ?vm sschema:name "depth" .
+    ?vm sschema:name ?namedepth .
+    FILTER (?namedepth IN ("depth", "CmpDep", "btm_depth", "DepBelowSurf") ) .
     ?vm sschema:maxValue ?maxdepth_f .
     ?vm sschema:minValue ?minDepth_f .
       FILTER(
