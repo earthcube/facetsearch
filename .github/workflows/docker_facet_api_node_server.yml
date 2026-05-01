@@ -3,8 +3,10 @@ on:
   push:
     branches:
       - master
+      - dev
       - feature/*
       - fix/*
+      - stable/*
 # https://github.com/marketplace/actions/publish-docker
 # https://github.com/docker/build-push-action
 defaults:

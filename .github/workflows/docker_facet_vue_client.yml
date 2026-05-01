@@ -3,9 +3,10 @@ on:
   push:
     branches:
       - master
+      - dev
       - feature/*
       - fix/*
-      - add-min-max-depth-facets
+      - stable/*
 
 
 # https://github.com/marketplace/actions/publish-docker
