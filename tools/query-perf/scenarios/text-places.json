@@ -17,7 +17,7 @@
       ]
     },
     {
-      "name": "places: multiple places",
+      "name": "places: multiple places (expect fail)",
       "search": "ocean",
       "facets": [
         { "type": "text", "field": "placenames", "active": true, "values": ["Atlantic Ocean", "Pacific Ocean", "Arctic Ocean"] }
