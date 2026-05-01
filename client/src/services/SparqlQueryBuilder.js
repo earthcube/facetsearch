@@ -21,7 +21,10 @@ export class SparqlQueryBuilder {
       sschema: '<https://schema.org/>',
       bds: '<http://www.bigdata.com/rdf/search#>',
       ql: '<http://qlever.cs.uni-freiburg.de/builtin-functions/>',
-      xsd: '<http://www.w3.org/2001/XMLSchema#>'
+      xsd: '<http://www.w3.org/2001/XMLSchema#>',
+      geo:  '<http://www.opengis.net/ont/geosparql#>',
+       geof: '<http://www.opengis.net/def/function/geosparql/>',
+       sf:   '<http://www.opengis.net/ont/sf#>'
     };
   }
     /**
@@ -311,21 +314,32 @@ ${inner}
     // Determine the SPARQL variable based on the field
     if (field === 'datep' || field === 'datePublished') {
       // ?datep comes from COALESCE and is a string — extract the year via SUBSTR
-      return `  FILTER(xsd:integer(SUBSTR(STR(?datep), 1, 4)) >= ${min} &&
-         xsd:integer(SUBSTR(STR(?datep), 1, 4)) <= ${max}) .\n`;
+      return `?subj ?property ?date_f .
+    VALUES ?property { sschema:dateCreated sschema:dateModified sschema:datePublished schema:dateCreated schema:dateModified schema:datePublished} .
+    FILTER(xsd:integer(SUBSTR(STR(?date_f), 1, 4)) >= ${min} &&
+         xsd:integer(SUBSTR(STR(?date_f), 1, 4)) <= ${max}) .\n`;
     }
+
     // temporalCoverage is also a string (e.g. "2010/2020" or "2015-01-01")
-    return `  FILTER(xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) >= ${min} &&
-         xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) <= ${max}) .\n`;
+    return ` ?subj schema:temporalCoverage | sschema:temporalCoverage ?temporalCoverage_f .
+        FILTER(xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) >= ${min} &&
+      xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) <= ${max}) .\n`;
+
   }
 
   buildDepthFilter(_field, values, _facetConfig) {
     if (!Array.isArray(values) || values.length < 2) return '';
     const [min, max] = values;
     // Interval overlap: dataset [minDepth,maxDepth] vs filter [min,max]; require both bounds from OPTIONAL.
-    return `  FILTER(
-    BOUND(?maxDepth) && BOUND(?minDepth) &&
-    ?maxDepth >= ${min} && ?minDepth <= ${max}
+    return ` ?subj sschema:variableMeasured ?vm .
+    ?vm a sschema:PropertyValue .
+    ?vm sschema:name ?namedepth .
+    FILTER (LCASE(?namedepth) IN ("cmpdep", "package_depth", "collection_depth", "bottle depth", "sample depth", "tow depth")) .
+    ?vm sschema:maxValue ?maxdepth_f .
+    ?vm sschema:minValue ?minDepth_f .
+      FILTER(
+    BOUND(?maxDepth_f) && BOUND(?minDepth_f) &&
+    ?maxDepth_f >= ${min} && ?minDepth_f <= ${max}
   ) .\n`;
   }
 
@@ -333,12 +347,27 @@ ${inner}
     // Expecting { bounds: { north, south, east, west } }
     const b = values?.bounds;
     if (!b) return '';
-    return `  ?subj schema:spatialCoverage ?spatialCov .
-  ?spatialCov schema:geo ?geo .
-  ?geo schema:latitude ?lat .
-  ?geo schema:longitude ?lon .
-  FILTER(?lat >= ${b.south} && ?lat <= ${b.north} && ?lon >= ${b.west} && ?lon <= ${b.east}) .
-`;
+// SEE WIKI https://github.com/earthcube/facetsearch/wiki/spatial
+    // BIND("POLYGON((28 -145, 40 -145, 40 -116, 28 -116, 28 -145))"^^geo:wktLiteral as ?geom1)
+    // long-lat (X-Y) order (same as inserted data)
+    // return `  ?subj geo:hasGeometry ?geom .
+    //   ?geom geo:asWKT ?wkt .
+    // BIND("POLYGON((${b.west} ${b.south}, ${b.west} ${b.north} ,${b.east} ${b.north} , ${b.east} ${b.south}, ${b.west} ${b.south}))"^^geo:wktLiteral as ?geom1) .
+    // FILTER(geof:distance(?wkt,?bbox) <= 180)
+    // `;
+    // geof:sfContainsideal query, but not yet supported
+    // return `     ?geom geo:asWKT ?wkt .
+    // BIND("POLYGON((${b.west} ${b.south}, ${b.west} ${b.north} ,${b.east} ${b.north} , ${b.east} ${b.south}, ${b.west} ${b.south}))"^^geo:wktLiteral as ?geom1) .
+    // FILTER (geof:sfContains(?geom1, ?wkt)) .
+    // `;
+
+    //there can be 1000 points.  use the Inserted WKT method above
+        return `  ?subj schema:spatialCoverage ?spatialCov .
+      ?spatialCov schema:geo ?geo .
+      ?geo schema:latitude ?lat .
+      ?geo schema:longitude ?lon .
+      FILTER(?lat >= ${b.south} && ?lat <= ${b.north} && ?lon >= ${b.west} && ?lon <= ${b.east}) .
+    `;
   }
 
   buildGenericFilter(field, values, facetConfig) {
@@ -442,7 +471,7 @@ ${inner}
   }
 
   buildBindings() {
-    return ` 
+    return `
 
   BIND (COALESCE(?datec,?datem,?datep1) AS ?datep)
   BIND (IF(BOUND(?pub_name), ?pub_name, "No Publisher") AS ?pubname)
