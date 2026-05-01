@@ -27,7 +27,7 @@
       ]
     },
     {
-      "name": "combo: keywords + geo",
+      "name": "combo: keywords + geo  (expect fail)",
       "search": "water",
       "facets": [
         { "type": "text", "field": "kw", "active": true, "values": ["Temperature"] },
@@ -44,7 +44,7 @@
       ]
     },
     {
-      "name": "combo: publisher + place + resource type",
+      "name": "combo: publisher + place + resource type (expect fail)",
       "search": "water",
       "facets": [
         { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] },
