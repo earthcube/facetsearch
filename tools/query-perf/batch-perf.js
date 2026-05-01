@@ -13,8 +13,12 @@
  * Default scenario directory: tools/query-perf/scenarios/
  */
 
-const { execFileSync } = require("child_process");
-const path = require("path");
+import { execFileSync } from "child_process";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const USAGE = `
 Usage: node batch-perf.js [scenario-dir] [options]
@@ -56,7 +60,7 @@ function main() {
       passthrough.push(arg);
       // Consume next arg if this is an option that takes a value
       if (arg.startsWith("--") && arg !== "--json" && arg !== "--show-query" &&
-          arg !== "--show-results" && arg !== "--show-fragments" && i + 1 < args.length &&
+          arg !== "--show-results" && i + 1 < args.length &&
           !args[i + 1].startsWith("--")) {
         passthrough.push(args[++i]);
       }

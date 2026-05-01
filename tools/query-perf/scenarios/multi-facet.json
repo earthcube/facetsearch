@@ -15,7 +15,7 @@
       "search": "water",
       "facets": [
         { "type": "text", "field": "kw", "active": true, "values": ["Temperature", "Salinity"] },
-        { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": -1000, "max": 0 } }
+        { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": 0, "max": 1000 } }
       ]
     },
     {
@@ -27,7 +27,7 @@
       ]
     },
     {
-      "name": "combo: keywords + geo",
+      "name": "combo: keywords + geo  (expect fail)",
       "search": "water",
       "facets": [
         { "type": "text", "field": "kw", "active": true, "values": ["Temperature"] },
@@ -35,7 +35,16 @@
       ]
     },
     {
-      "name": "combo: publisher + place + resource type",
+      "name": "combo: publisher + place ",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] },
+        { "type": "text", "field": "placenames", "active": true, "values": ["Atlantic Ocean"] }
+
+      ]
+    },
+    {
+      "name": "combo: publisher + place + resource type (expect fail)",
       "search": "water",
       "facets": [
         { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] },
@@ -60,7 +69,7 @@
         { "type": "text", "field": "kw", "active": true, "values": ["Temperature"] },
         { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] },
         { "type": "text", "field": "resourceType", "active": true, "values": ["data"] },
-        { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": -1000, "max": 0 } },
+        { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": 0, "max": 1000 } },
         { "type": "rangeyear", "field": "temporalCoverage", "active": true, "values": { "min": 2000, "max": 2025 } },
         { "type": "geo", "field": "spatialCoverage", "active": true, "values": { "minLat": 20, "maxLat": 60, "minLon": -80, "maxLon": 0 } }
       ]

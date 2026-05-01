@@ -98,6 +98,7 @@ export class SearchService {
    * POST to the SPARQL endpoint
    */
   async sendDirectPOST(endpoint, query, timeoutMs) {
+    const axiosTimeoutMs = Math.max(timeoutMs + 30_000, 120_000);
     const response = await axios.post(
       endpoint,
       new URLSearchParams({
@@ -106,7 +107,7 @@ export class SearchService {
         timeout: String(timeoutMs),
       }),
       {
-        timeout: timeoutMs,
+        timeout: axiosTimeoutMs,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/sparql-results+json',
@@ -122,8 +123,9 @@ export class SearchService {
   async sendDirectGET(endpoint, query, timeoutMs) {
     const url = new URL(endpoint);
     url.searchParams.set('query', query);
+    const axiosTimeoutMs = Math.max(timeoutMs + 30_000, 120_000);
     const response = await axios.get(url.toString(), {
-      timeout: timeoutMs,
+      timeout: axiosTimeoutMs,
       headers: { 'Accept': 'application/sparql-results+json' },
     });
     return response.data;

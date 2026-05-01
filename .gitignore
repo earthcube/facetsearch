@@ -8,6 +8,11 @@ yarn.lock
 # local env files
 .env.local
 .env.*.local
+# Never commit real secrets (local dev overrides)
+client/.env
+
+# Draft / internal docs — not pushed with app code
+docs/
 
 # Log files
 npm-debug.log*

@@ -22,6 +22,11 @@ export default defineConfig(({ command, mode }) => {
         build: {
             target: 'esnext'
         },
+        // Avoid pre-bundling vue-gtag: stale .vite/deps caches have caused
+        // "does not provide an export named 'createGtag'" despite vue-gtag 3.x exposing it.
+        optimizeDeps: {
+            exclude: ['vue-gtag'],
+        },
         resolve: {
             alias: {
                 vue: '@vue/compat',

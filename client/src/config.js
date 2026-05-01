@@ -35,15 +35,35 @@ const facetConfigFunction = () => {
     });
 };
 let FacetsConfig = facetConfigFunction();
+
+/** Used when tenant.yaml cannot be fetched or COMMUNITY is missing from it (common on slow/local networks). */
+export const tenantFetchFallback = {
+  geocodesall: {
+    tenant: [
+      {
+        community: "geocodesall",
+        name: "GeoCODES",
+        description:
+          "Discovery across EarthCube-indexed datasets and tools. (Using built-in tenant text because tenant.yaml could not be loaded or did not list this community.)",
+        landing_introduction:
+          "Search and explore geoscience datasets and tools. For full landing copy, ensure TENANT_URL in your config is reachable from the browser.",
+        color: "#18598b",
+        url: "https://geocodes.earthcube.org",
+      },
+    ],
+  },
+};
+
 export const tenantDefault = {
   tenant: [
     {
       community: "none",
       landing_introduction:
-        "Missing FacetsConfig.TENANT_URL or community not found",
-      description: "Missing FacetsConfig.TENANT_URL or community not found",
-      name: "MISSING FacetsConfig.TENANT_URL or community not found",
-      color: "blue",
+        "Check FacetsConfig.TENANT_URL (network / CORS) and that COMMUNITY exists in tenant.yaml.",
+      description: "Tenant metadata could not be loaded.",
+      name: "GeoCODES",
+      color: "#18598b",
+      url: "https://geocodes.earthcube.org",
     },
   ],
 };

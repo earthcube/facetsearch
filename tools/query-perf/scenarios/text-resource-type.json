@@ -24,7 +24,7 @@
       ]
     },
     {
-      "name": "resourceType: data + tools",
+      "name": "resourceType: data + tools (expect fail)",
       "search": "water",
       "facets": [
         { "type": "text", "field": "resourceType", "active": true, "values": ["data", "tool"] }

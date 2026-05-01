@@ -17,7 +17,7 @@
       ]
     },
     {
-      "name": "publisher: multiple publishers",
+      "name": "publisher: multiple publishers (expect fail need to find set_",
       "search": "water",
       "facets": [
         { "type": "text", "field": "pubname", "active": true, "values": ["NOAA", "NASA", "USGS"] }
