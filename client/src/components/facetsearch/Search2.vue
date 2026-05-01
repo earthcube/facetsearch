@@ -33,12 +33,12 @@
 
             <!-- Search Options -->
             <div class="mt-2">
-              <b-form-check
+              <b-form-checkbox
                 v-model="searchExactMatch"
                 class="small"
               >
                 Exact match
-              </b-form-check>
+              </b-form-checkbox>
             </div>
           </div>
 
@@ -116,7 +116,7 @@ export default {
     const route = useRoute();
     const { config, facets } = useConfig();
 
-    const search = useSearch(config.value);
+    const search = useSearch(config);
 
     provide('searchComposable', search);
 

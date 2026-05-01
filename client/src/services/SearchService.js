@@ -4,6 +4,21 @@ import { createSparqlQueryBuilder } from './SparqlQueryBuilder.js';
 import { createFilterStateManager } from './FilterStateManager.js';
 
 /**
+ * Route/API id for datasets: prefer named graph URN (GeoCodes) over subject IRIs
+ * such as https://gleaner.io/xid/... Tool rows keep ?subj for /tool/:t.
+ */
+export function datasetRouteIdFromBinding(row) {
+  const subj = row.subj != null ? String(row.subj) : '';
+  const rt = row.resourceType_u || row.resourceType;
+  if (rt === 'tool') return subj;
+
+  const g = row.g != null ? String(row.g) : '';
+  if (g.startsWith('urn:')) return g;
+  if (subj.startsWith('urn:')) return subj;
+  return subj || g || '';
+}
+
+/**
  * Main Search Service (QLever-first)
  * - Builds SPARQL from active filters
  * - For QLever: try GET first, POST fallback
@@ -24,6 +39,21 @@ export class SearchService {
       config,
       this.executeQuery.bind(this)
     );
+  }
+
+  /** Call when store FacetsConfig is replaced so LIMIT_DEFAULT and endpoints stay current. */
+  setConfig(config) {
+    const hadFacets = Array.isArray(this.config?.FACETS) && this.config.FACETS.length > 0;
+    this.config = config;
+    this.queryBuilder.config = config;
+    this.filterStateManager.config = config;
+    // Re-run only when we transition from no facets -> facets AND a query already ran.
+    // This avoids duplicate initial requests while still recovering from pre-config searches.
+    const hasFacets = Array.isArray(config?.FACETS) && config.FACETS.length > 0;
+    const hadPriorQuery = this.filterStateManager.state.lastQuery != null;
+    if (!hadFacets && hasFacets && hadPriorQuery && this.filterStateManager.shouldExecuteQuery()) {
+      void this.filterStateManager.executeQuery();
+    }
   }
 
   /**
@@ -134,8 +164,8 @@ export class SearchService {
           out[key] = binding[key].value;
         }
       }
-      // Convenience fields used by UI
-      out.id = out.subj;
+      // Convenience fields used by UI (dataset links use graph URN when available)
+      out.id = datasetRouteIdFromBinding(out);
       out.keywords = out.kwu ? out.kwu.split(',').map(k => k.trim()) : [];
       out.resourceType = out.resourceType_u;
       return out;
@@ -176,18 +206,29 @@ SELECT ?value (0 as ?count) WHERE { FILTER(false) } LIMIT 0
     const filtersCopy = { ...(currentFilters || {}) };
     delete filtersCopy[field];
 
+    const needDepthOptional =
+      this.queryBuilder.filtersNeedDepthVariableMeasured(filtersCopy);
+
     let q = '';
     q += this.queryBuilder.buildPrefixes();
     q += `SELECT DISTINCT ?value (COUNT(*) AS ?count)
 WHERE {
 `;
-    // Other active filters
-    q += this.queryBuilder.buildFilterFragments(filtersCopy);
-    // Base graph pattern (subject, name, description in a graph)
+    if (needDepthOptional) {
+      q += this.queryBuilder.buildOptionalDepthVariableMeasured();
+    }
+    q += this.queryBuilder.buildFilterFragments(filtersCopy, {
+      rangePlacement: needDepthOptional ? 'early' : 'all',
+    });
     q += this.queryBuilder.buildBaseGraphPattern();
-    // The facet value triple pattern
     q += `  ?subj ${sparqlProperty} ?value .
-}
+`;
+    if (needDepthOptional) {
+      q += this.queryBuilder.buildFilterFragments(filtersCopy, {
+        rangePlacement: 'late',
+      });
+    }
+    q += `}
 GROUP BY ?value
 ORDER BY DESC(?count) ?value
 LIMIT 200

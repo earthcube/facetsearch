@@ -1,11 +1,50 @@
-import { ref, computed, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted, onBeforeUnmount, watch, unref } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { createSearchService } from '@/services/SearchService.js';
 
-export function useSearch(config) {
+/**
+ * Build a vue-router query object from URLSearchParams string, preserving duplicate keys as string[].
+ * Object.fromEntries(URLSearchParams) drops the second value for the same key (breaks range sliders).
+ */
+function searchParamsStringToRouterQuery(paramString) {
+  if (!paramString) return {};
+  const sp = new URLSearchParams(paramString);
+  /** @type {Record<string, string | string[]>} */
+  const q = {};
+  for (const key of new Set(sp.keys())) {
+    const all = sp.getAll(key);
+    q[key] = all.length === 1 ? all[0] : all;
+  }
+  return q;
+}
+
+function routeQueryToSearchParamsString(query) {
+  const sp = new URLSearchParams();
+  Object.entries(query || {}).forEach(([key, raw]) => {
+    if (raw === undefined || raw === null || raw === '') return;
+    if (Array.isArray(raw)) {
+      raw.forEach((item) => sp.append(key, String(item)));
+    } else {
+      sp.set(key, String(raw));
+    }
+  });
+  return sp.toString();
+}
+
+/** Pass the `config` computed ref from useConfig() so LIMIT_DEFAULT updates when FacetsConfig changes. */
+export function useSearch(configOrRef) {
   const router = useRouter();
-  const searchService = createSearchService(config);
+  const route = useRoute();
+  const initial = unref(configOrRef) ?? {};
+  const searchService = createSearchService(initial);
   const filterStateManager = searchService.getFilterStateManager();
+
+  watch(
+    () => unref(configOrRef),
+    (cfg) => {
+      if (cfg) searchService.setConfig(cfg);
+    }
+  );
 
   const state = filterStateManager.state;
 
@@ -67,7 +106,9 @@ export function useSearch(config) {
 
   const updateUrl = () => {
     const params = getUrlParams();
-    const query = params ? Object.fromEntries(new URLSearchParams(params)) : {};
+    const currentParams = routeQueryToSearchParamsString(route.query);
+    if (currentParams === params) return;
+    const query = searchParamsStringToRouterQuery(params);
     router.replace({ query });
   };
 
@@ -177,10 +218,30 @@ export function useFacet(facetConfig, searchComposable) {
     return isFilterActive(field, value);
   };
 
+  const filtersKey = (obj) => {
+    const ordered = Object.entries(obj || {})
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) => [k, Array.isArray(v) ? [...v] : v]);
+    return JSON.stringify(ordered);
+  };
+
+  const lastLoadedKey = ref('');
+  let reloadTimer = null;
+
   const loadOptionsForCurrentState = async () => {
     const currentFilters = { ...activeFilters.value };
     delete currentFilters[field];
+    const key = filtersKey(currentFilters);
+    if (key === lastLoadedKey.value) return;
+    lastLoadedKey.value = key;
     await loadOptions(currentFilters);
+  };
+
+  const scheduleOptionsReload = () => {
+    if (reloadTimer) clearTimeout(reloadTimer);
+    reloadTimer = setTimeout(() => {
+      void loadOptionsForCurrentState();
+    }, 120);
   };
 
   watch(
@@ -190,13 +251,17 @@ export function useFacet(facetConfig, searchComposable) {
       return otherFilters;
     },
     () => {
-      loadOptionsForCurrentState();
+      scheduleOptionsReload();
     },
     { deep: true }
   );
 
   onMounted(() => {
-    loadOptionsForCurrentState();
+    void loadOptionsForCurrentState();
+  });
+
+  onBeforeUnmount(() => {
+    if (reloadTimer) clearTimeout(reloadTimer);
   });
 
   return {
@@ -214,9 +279,25 @@ export function useFacet(facetConfig, searchComposable) {
   };
 }
 
-export function useRangeFacet(facetConfig, searchComposable, minValue, maxValue) {
+export function useRangeFacet(
+  facetConfig,
+  searchComposable,
+  minValue,
+  maxValue,
+  options = {}
+) {
   const { activeFilters, setFilter, clearFilter } = searchComposable;
   const field = facetConfig.field;
+  const fullRangeSlop = options.fullRangeSlop ?? 0;
+
+  const isEffectivelyFullRange = (range) => {
+    if (!Array.isArray(range) || range.length < 2) return false;
+    const [lo, hi] = range;
+    return (
+      Math.abs(lo - minValue) <= fullRangeSlop &&
+      Math.abs(hi - maxValue) <= fullRangeSlop
+    );
+  };
 
   const activeRange = computed(() => {
     return activeFilters.value[field] || [minValue, maxValue];
@@ -224,12 +305,16 @@ export function useRangeFacet(facetConfig, searchComposable, minValue, maxValue)
 
   const hasActiveRange = computed(() => {
     const range = activeRange.value;
-    return Array.isArray(range) &&
-           (range[0] !== minValue || range[1] !== maxValue);
+    if (!Array.isArray(range)) return false;
+    if (isEffectivelyFullRange(range)) return false;
+    return range[0] !== minValue || range[1] !== maxValue;
   });
 
   const setRange = (range) => {
+    if (!Array.isArray(range) || range.length < 2) return;
     if (range[0] === minValue && range[1] === maxValue) {
+      clearFilter(field);
+    } else if (isEffectivelyFullRange(range)) {
       clearFilter(field);
     } else {
       setFilter(field, range);

@@ -1,6 +1,10 @@
 <template>
   <div class="buttons">
-    <b-button-group v-for="(dl, index) in m.s_downloads" :key="index">
+    <b-button-group
+      v-for="(dl, index) in m.s_downloads"
+      :key="index"
+      class="download-toolbar"
+    >
       <b-button
         block
         size="sm"
@@ -26,8 +30,7 @@
           />
         </svg>
       </b-button>
-      <b-button-group vertical class="ml-1">
-        <b-button size="sm" variant="primary">Open in</b-button>
+      <b-button-group vertical class="download-notebook-toolbar">
         <b-button
           v-for="(nb, nbindex) in notebooksservers"
           v-show="nbBinderShow(nb, dl.contentUrl, dl.encodingFormat)"
@@ -37,8 +40,7 @@
           :href="nbBinderUrl(nb, dl.contentUrl, dl.encodingFormat, d)"
           target="_blank"
         >
-          <span width="64">{{ nb.name }}</span>
-          <!--          <b-img v-else :src="nb.badge" width="64" :alt="nb.name"></b-img>-->
+          Open in {{ nb.name }}
         </b-button>
       </b-button-group>
     </b-button-group>
@@ -87,10 +89,16 @@ export default {
   },
   mounted() {
     //   this.toMetadata();
-    this.notebooksservers = this.FacetsConfig.NOTEBOOKS;
+    const n = this.FacetsConfig?.NOTEBOOKS;
+    this.notebooksservers = Array.isArray(n) ? n : [];
   },
   computed: {
-    ...mapState(["jsonLdObj", "jsonLdCompact", "FacetsConfig"]),
+    ...mapState([
+      "jsonLdObj",
+      "jsonLdCompact",
+      "FacetsConfig",
+      "esTemplateOptions",
+    ]),
   },
 
   methods: {
@@ -131,14 +139,10 @@ export default {
       const serverBase = NbConfig.baseurl;
       let dispatcherPage = NbConfig.dispatcherPage;
 
-      const nbParamsT = _.template(
-        NbConfig.contentQuery,
-        this.FacetsConfig.ES_TEMPLATE_OPTIONS
-      );
-      const nbPageT = _.template(
-        NbConfig.pageTemplate,
-        this.FacetsConfig.ES_TEMPLATE_OPTIONS
-      );
+      const tmplOpts =
+        this.FacetsConfig?.ES_TEMPLATE_OPTIONS || this.esTemplateOptions;
+      const nbParamsT = _.template(NbConfig.contentQuery, tmplOpts);
+      const nbPageT = _.template(NbConfig.pageTemplate, tmplOpts);
 
       let nbParams = nbParamsT({
         contentUrl: contentUrl,
@@ -227,6 +231,38 @@ export default {
 @import "@/assets/bootstrapcss/custom";
 
 .buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  /* One column per download: main link, then notebook actions below */
+  :deep(.download-toolbar) {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    width: 100%;
+    align-items: stretch;
+    gap: 0.35rem;
+  }
+
+  :deep(.download-toolbar > .btn:first-child) {
+    width: 100%;
+    flex: 0 0 auto;
+  }
+
+  :deep(.download-notebook-toolbar) {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0 !important;
+    align-self: stretch;
+  }
+
+  :deep(.download-notebook-toolbar .btn) {
+    white-space: nowrap;
+    text-align: center;
+    justify-content: center;
+  }
+
   .btn {
     display: flex;
     justify-content: space-between;

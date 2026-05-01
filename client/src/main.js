@@ -46,9 +46,11 @@ localForage.config({
 app.config.devtools = true;
 export const bus = createApp({});
 
-const configfile = import.meta.env.VITE_FACETS_CONFIG_FILE
-  ? import.meta.env.VITE_FACETS_CONFIG_FILE
-  : "config/config.yaml";
+// Prefer VITE_APP_* (project standard); keep legacy VITE_FACETS_CONFIG_FILE for old IDE/run configs.
+const configfile =
+  import.meta.env.VITE_APP_FACETS_CONFIG_FILE ||
+  import.meta.env.VITE_FACETS_CONFIG_FILE ||
+  "config/config.yaml";
 const store = await createStore(configfile);
 app.use(store);
 await store.dispatch("fetchTenantData");

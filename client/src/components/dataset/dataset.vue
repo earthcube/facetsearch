@@ -69,7 +69,7 @@
                 <!--                <b-col>-->
                 <!--                  <p>{{ mapping.description }}</p>-->
                 <!--                </b-col>-->
-                <b-col cols="right">
+                <b-col cols="12" class="text-md-right mb-2">
                   <feedback subject="Dataset" :name="mapping.s_name" :urn="d" />
                 </b-col>
               </b-row>
@@ -209,14 +209,20 @@
                         <div>
                           <!-- Show the URL if it does NOT start with 's3:' -->
                           <a
-                            v-if="!i.contentUrl.startsWith('s3:')"
+                            v-if="
+                              i.contentUrl &&
+                              !String(i.contentUrl).startsWith('s3:')
+                            "
                             target="_blank"
                             :href="i.contentUrl"
                             >{{ i.contentUrl }}</a
                           >
                           <!-- Show the button if the URL starts with 's3:' -->
                           <button
-                            v-else
+                            v-else-if="
+                              i.contentUrl &&
+                              String(i.contentUrl).startsWith('s3:')
+                            "
                             class="data-access-button"
                             @click="dataAccessWindow(i.description)"
                           >
@@ -265,6 +271,40 @@
           </b-collapse>
         </b-card>
       </div>
+
+      <b-card v-if="showFallbackDatasetCard" class="mb-3">
+        <b-card-body>
+          <b-row class="align-items-start">
+            <b-col md="8">
+              <h4 class="page_title mb-2">{{ fallbackDatasetTitle }}</h4>
+              <div class="mb-2">
+                <feedback
+                  subject="Dataset"
+                  :name="fallbackDatasetTitle"
+                  :urn="d"
+                />
+              </div>
+              <div
+                v-if="fallbackDatasetDescription"
+                class="text-muted"
+                v-html="fallbackDatasetDescription"
+              />
+              <b-alert show variant="warning" class="small mt-3 mb-0">
+                Structured metadata panels could not be built for this record (or
+                they are still loading). Use the Metadata section at the bottom to
+                inspect JSON-LD. Connected tools and related data below still use
+                this dataset id.
+              </b-alert>
+            </b-col>
+            <b-col md="4">
+              <b-card>
+                <b-card-title>Downloads</b-card-title>
+                <downloadfiles :d="d" :m="fallbackDownloadMapping" />
+              </b-card>
+            </b-col>
+          </b-row>
+        </b-card-body>
+      </b-card>
 
       <connected-tools :d="d"></connected-tools>
 
@@ -329,6 +369,7 @@ import {
   hasSchemaProperty,
   schemaItem,
   frameJsonLD,
+  matchesSchemaType,
   formatDateToYYYYMMDD,
 } from "../../api/jsonldObject";
 import VueJsonPretty from "vue-json-pretty";
@@ -374,11 +415,18 @@ export default {
     };
   },
   watch: {
-    jsonLdObj: "toMetadata",
+    jsonLdObj: {
+      handler() {
+        this.toMetadata();
+      },
+      deep: true,
+    },
     "$route.params.d": function (d) {
       this.obscurePage = false;
-      // should get fanche and overlay a loading... then remove loading in toMetadata
-      this.$store.dispatch("fetchJsonLd", d);
+      this.$store
+        .dispatch("fetchJsonLd", d)
+        .then(() => this.$nextTick(() => this.toMetadata()))
+        .catch(() => {});
     },
   },
   async mounted() {
@@ -386,10 +434,12 @@ export default {
     this.$store.commit("setJsonLd", {});
     this.$store.commit("setJsonLdCompact", {});
     this.obscurePage = true;
+    const datasetId = this.d || this.$route.params.d;
     this.$store
-      .dispatch("fetchJsonLd", this.d)
+      .dispatch("fetchJsonLd", datasetId)
       .then(() => {
         this.obscurePage = false;
+        this.$nextTick(() => this.toMetadata());
       })
       .catch((ex) => {
         this.obscurePage = false;
@@ -406,6 +456,42 @@ export default {
   },
   computed: {
     ...mapState(["jsonLdObj", "jsonLdCompact"]),
+    showFallbackDatasetCard() {
+      if (this.obscurePage) return false;
+      if (this.mappings.length > 0) return false;
+      if (this.isDataCatalog) return false;
+      const jp = this.jsonLdObj;
+      if (!jp || typeof jp !== "object") return false;
+      if (Object.keys(jp).length === 0) return false;
+      return matchesSchemaType(jp["@type"], "Dataset");
+    },
+    fallbackDatasetTitle() {
+      const n = this.jsonLdObj?.name;
+      if (typeof n === "string") return n;
+      if (n && typeof n === "object" && n["@value"] != null) {
+        return String(n["@value"]);
+      }
+      return "Dataset";
+    },
+    fallbackDatasetDescription() {
+      const d = this.jsonLdObj?.description;
+      if (typeof d === "string") return d;
+      if (d && typeof d === "object" && d["@value"] != null) {
+        return String(d["@value"]);
+      }
+      return "";
+    },
+    fallbackDownloadMapping() {
+      const jp = this.jsonLdObj;
+      if (!jp || typeof jp !== "object") {
+        return { s_downloads: [] };
+      }
+      const dist = schemaItem("distribution", jp);
+      const url = schemaItem("url", jp);
+      return {
+        s_downloads: getDistributions(dist, url),
+      };
+    },
   },
   methods: {
     toggleCollapse(index) {
@@ -528,8 +614,12 @@ export default {
     },
     toMetadata() {
       var self = this;
-      var jp = self.jsonLdObj; // framed dataset
-      if (jp["@type"] == "DataCatalog") {
+      var jp = self.jsonLdObj;
+      if (!jp || typeof jp !== "object") return;
+      if (JSON.stringify(jp) === "{}") return;
+
+      this.isDataCatalog = false;
+      if (matchesSchemaType(jp["@type"], "DataCatalog")) {
         this.isDataCatalog = true;
       }
       this.name = jp["name"];
@@ -538,19 +628,35 @@ export default {
       this.vocab = jp["@vocab"];
       this.geolink = jp["geolink"];
 
-      if (JSON.stringify(jp) === "{}") return;
-      frameJsonLD(jp, "Dataset").then((jp) => {
-        if (jp === undefined) return;
-
-        this.mappings = []; // Reset the array
-
+      const resolveDatasetNodes = (framed, raw) => {
         let datasets = [];
-        if (jp["@graph"] !== undefined) {
-          datasets = jp["@graph"].filter((item) => item["@type"] === "Dataset");
-        } else if (jp["@type"] === "Dataset") {
-          datasets = [jp];
+        if (
+          framed &&
+          typeof framed === "object" &&
+          framed["@graph"] !== undefined
+        ) {
+          datasets = framed["@graph"].filter((item) =>
+            matchesSchemaType(item["@type"], "Dataset")
+          );
+        } else if (
+          framed &&
+          typeof framed === "object" &&
+          matchesSchemaType(framed["@type"], "Dataset")
+        ) {
+          datasets = [framed];
         }
+        if (
+          datasets.length === 0 &&
+          raw &&
+          matchesSchemaType(raw["@type"], "Dataset")
+        ) {
+          datasets = [raw];
+        }
+        return datasets;
+      };
 
+      const buildMappingsFromDatasets = (datasets) => {
+        this.mappings = [];
         if (datasets.length === 0) {
           console.warn("No datasets found.");
           return;
@@ -624,7 +730,12 @@ export default {
             mapping.has_citation = true;
           }
 
-          mapping.s_keywords = schemaItem("keywords", dataset);
+          const rawKw = schemaItem("keywords", dataset);
+          mapping.s_keywords = Array.isArray(rawKw)
+            ? rawKw
+            : rawKw != null && rawKw !== ""
+              ? [String(rawKw)]
+              : [];
           mapping.s_landingpage = schemaItem("description", dataset);
           mapping.updated = schemaItem("updated", dataset);
           mapping.start_datetime = formatDateToYYYYMMDD(
@@ -647,7 +758,10 @@ export default {
 
           const variableMeasured = schemaItem("variableMeasured", dataset);
           if (variableMeasured) {
-            mapping.s_variableMeasuredNames = variableMeasured.map((item) =>
+            const vmArr = Array.isArray(variableMeasured)
+              ? variableMeasured
+              : [variableMeasured];
+            mapping.s_variableMeasuredNames = vmArr.map((item) =>
               _.truncate(schemaItem("name", item), {
                 length: 80,
                 omission: "***",
@@ -671,7 +785,26 @@ export default {
         });
 
         this.obscurePage = false;
-      });
+      };
+
+      frameJsonLD(jp, "Dataset")
+        .then((framed) => {
+          try {
+            buildMappingsFromDatasets(resolveDatasetNodes(framed, jp));
+          } catch (e) {
+            console.error("buildMappingsFromDatasets failed:", e);
+            this.obscurePage = false;
+          }
+        })
+        .catch((err) => {
+          console.warn("frameJsonLD failed:", err);
+          try {
+            buildMappingsFromDatasets(resolveDatasetNodes(jp, jp));
+          } catch (e) {
+            console.error("buildMappingsFromDatasets fallback failed:", e);
+            this.obscurePage = false;
+          }
+        });
     },
     formatCitation(mapping) {
       const raw = mapping.s_citation;
@@ -1022,4 +1155,5 @@ i {
   background-color: #003f8a; /* Even darker blue when clicked */
   transform: translateY(0); /* Reset the lift */
 }
+
 </style>

@@ -31,6 +31,34 @@ import jsonld from "jsonld";
 //
 // }
 
+/**
+ * JSON-LD @type may be compact ("Dataset"), expanded (https://schema.org/Dataset),
+ * schema:Dataset, or an array of types.
+ */
+/** True if @type is schema:GeoShape (data may use "Geoshape" vs "GeoShape"). */
+const isGeoShapeType = function (t) {
+  if (typeof t !== "string") return false;
+  const leaf = t.includes("#") ? t.split("#").pop() : t.split("/").pop();
+  return (leaf || "").toLowerCase() === "geoshape";
+};
+
+const matchesSchemaType = function (typeVal, localName) {
+  if (typeVal == null) return false;
+  const candidates = new Set([
+    localName,
+    `schema:${localName}`,
+    `https://schema.org/${localName}`,
+    `http://schema.org/${localName}`,
+  ]);
+  const ok = (t) => {
+    if (typeof t !== "string") return false;
+    if (candidates.has(t)) return true;
+    return t.endsWith(`/${localName}`) || t.endsWith(`#${localName}`);
+  };
+  if (Array.isArray(typeVal)) return typeVal.some(ok);
+  return ok(typeVal);
+};
+
 const frameJsonLD = async function (jsonldObj, schemaType) {
   let frame = JSON.parse(`
 {
@@ -48,6 +76,7 @@ const frameJsonLD = async function (jsonldObj, schemaType) {
 };
 
 const schemaItem = function (name, json_compacted, noSchemaMessage = "") {
+  if (json_compacted == null) return noSchemaMessage;
   let s_name = json_compacted["https://schema.org/" + name]
     ? json_compacted["https://schema.org/" + name]
     : json_compacted["http://schema.org/" + name]
@@ -73,7 +102,7 @@ const geoplacename = function (s_spatialCoverage) {
     var s_place = s_spatialCoverage.find((obj) =>
       hasSchemaProperty("name", obj)
     );
-    placename = schemaItem("name", s_place);
+    placename = s_place ? schemaItem("name", s_place) : "";
   } else {
     placename = hasSchemaProperty("name", s_spatialCoverage)
       ? schemaItem("name", s_spatialCoverage)
@@ -103,15 +132,12 @@ const getFirstGeoShape = function (s_spatialCoverage, shapetype) {
     // get first match
     geo = geo.find(
       (obj) =>
-        obj["@type"].endsWith("GeoShape") && hasSchemaProperty(shapetype, obj)
+        isGeoShapeType(obj["@type"]) && hasSchemaProperty(shapetype, obj)
     );
   }
   if (geo) {
     //console.log(geo['@type'])
-    if (
-      geo["@type"].endsWith("GeoShape") &&
-      hasSchemaProperty(shapetype, geo)
-    ) {
+    if (isGeoShapeType(geo["@type"]) && hasSchemaProperty(shapetype, geo)) {
       var g = schemaItem(shapetype, geo);
       var coords = g
         .replaceAll(",", " ")
@@ -142,7 +168,8 @@ const getGeoCoordinates = function (s_spatialCoverage) {
     );
     let spatialCofType = spatialC.filter(function (obj) {
       let geoInternal = schemaItem("geo", obj);
-      return geoInternal["@type"].endsWith("GeoCoordinates");
+      const gt = geoInternal && geoInternal["@type"];
+      return typeof gt === "string" && gt.endsWith("GeoCoordinates");
     });
     if (spatialCofType) {
       spatialCofType = spatialCofType.map(function (obj) {
@@ -349,6 +376,7 @@ const makeLinkObj = function (obj_dist) {
 export {
   //  getJsonLD,
   frameJsonLD,
+  matchesSchemaType,
   schemaItem,
   hasSchemaProperty,
   getGeoCoordinates,
