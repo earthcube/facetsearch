@@ -6,7 +6,7 @@ import {
   buildTextSearchBlazegraphGraph,
   buildTextSearchBlockQlever,
   indentSparqlLines,
-} from '@/utils/queryParser.js';
+} from '../utils/queryParser.js';
 
 /**
  * SPARQL Query Builder Service
