@@ -4,42 +4,56 @@
   "tests": [
     {
       "name": "geo: discovery only",
-      "search": "ocean",
+
       "facets": [
         { "type": "geo", "field": "spatialCoverage", "active": false }
       ]
     },
     {
       "name": "geo: North Atlantic",
-      "search": "ocean",
+
       "facets": [
         { "type": "geo", "field": "spatialCoverage", "active": true, "values": { "minLat": 20, "maxLat": 60, "minLon": -80, "maxLon": 0 } }
       ]
     },
     {
       "name": "geo: Pacific basin",
-      "search": "ocean",
+
+      "facets": [
+        { "type": "geo", "field": "spatialCoverage", "active": true, "values": { "minLat": -60, "maxLat": 60, "minLon": 120, "maxLon": -120 } }
+      ]
+    },
+    {
+      "name": "geo: Pacific basin + CTD",
+      "search": "ctd",
       "facets": [
         { "type": "geo", "field": "spatialCoverage", "active": true, "values": { "minLat": -60, "maxLat": 60, "minLon": 120, "maxLon": -120 } }
       ]
     },
     {
       "name": "geo: US west coast",
-      "search": "water",
+
+      "facets": [
+        { "type": "geo", "field": "spatialCoverage", "active": true, "values": { "minLat": 32, "maxLat": 49, "minLon": -125, "maxLon": -117 } }
+      ]
+    },
+    {
+      "name": "geo: US west coast  + CTD",
+      "search": "ctd",
       "facets": [
         { "type": "geo", "field": "spatialCoverage", "active": true, "values": { "minLat": 32, "maxLat": 49, "minLon": -125, "maxLon": -117 } }
       ]
     },
     {
       "name": "geo: small region (San Diego area)",
-      "search": "water",
+
       "facets": [
         { "type": "geo", "field": "spatialCoverage", "active": true, "values": { "minLat": 32.5, "maxLat": 33.3, "minLon": -117.5, "maxLon": -117.0 } }
       ]
     },
     {
-      "name": "geo: global",
-      "search": "ocean",
+      "name": "geo: global CTD",
+      "search": "ctd",
       "facets": [
         { "type": "geo", "field": "spatialCoverage", "active": true, "values": { "minLat": -90, "maxLat": 90, "minLon": -180, "maxLon": 180 } }
       ]
