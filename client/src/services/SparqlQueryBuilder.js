@@ -314,32 +314,21 @@ ${inner}
     // Determine the SPARQL variable based on the field
     if (field === 'datep' || field === 'datePublished') {
       // ?datep comes from COALESCE and is a string — extract the year via SUBSTR
-      return `?subj ?property ?date_f .
-    VALUES ?property { sschema:dateCreated sschema:dateModified sschema:datePublished schema:dateCreated schema:dateModified schema:datePublished} .
-    FILTER(xsd:integer(SUBSTR(STR(?date_f), 1, 4)) >= ${min} &&
-         xsd:integer(SUBSTR(STR(?date_f), 1, 4)) <= ${max}) .\n`;
+      return `  FILTER(xsd:integer(SUBSTR(STR(?datep), 1, 4)) >= ${min} &&
+         xsd:integer(SUBSTR(STR(?datep), 1, 4)) <= ${max}) .\n`;
     }
-
     // temporalCoverage is also a string (e.g. "2010/2020" or "2015-01-01")
-    return ` ?subj schema:temporalCoverage | sschema:temporalCoverage ?temporalCoverage_f .
-        FILTER(xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) >= ${min} &&
-      xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) <= ${max}) .\n`;
-
+    return `  FILTER(xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) >= ${min} &&
+         xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) <= ${max}) .\n`;
   }
 
   buildDepthFilter(_field, values, _facetConfig) {
     if (!Array.isArray(values) || values.length < 2) return '';
     const [min, max] = values;
     // Interval overlap: dataset [minDepth,maxDepth] vs filter [min,max]; require both bounds from OPTIONAL.
-    return ` ?subj sschema:variableMeasured ?vm .
-    ?vm a sschema:PropertyValue .
-    ?vm sschema:name ?namedepth .
-    FILTER (LCASE(?namedepth) IN ("cmpdep", "package_depth", "collection_depth", "bottle depth", "sample depth", "tow depth")) .
-    ?vm sschema:maxValue ?maxdepth_f .
-    ?vm sschema:minValue ?minDepth_f .
-      FILTER(
-    BOUND(?maxDepth_f) && BOUND(?minDepth_f) &&
-    ?maxDepth_f >= ${min} && ?minDepth_f <= ${max}
+    return `  FILTER(
+    BOUND(?maxDepth) && BOUND(?minDepth) &&
+    ?maxDepth >= ${min} && ?minDepth <= ${max}
   ) .\n`;
   }
 
