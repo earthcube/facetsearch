@@ -275,7 +275,7 @@ export class SparqlQueryBuilder {
     block += this.buildFilterFragments(filters, { rangePlacement: 'early' });
     block += this.buildTextSearchFragment(textQuery, searchExactMatch);
     block += this.buildGraphNameDescOnly();
-    block += this.buildOptionalDepthVariableMeasured();
+    // buildDepthFilter binds ?vmf directly; no OPTIONAL needed here (not projected by inner SELECT).
     block += this.buildRangedepthFilterFragments(filters);
     return block;
   }
@@ -330,17 +330,15 @@ ${inner}
   buildDepthFilter(_field, values, _facetConfig) {
     if (!Array.isArray(values) || values.length < 2) return '';
     const [min, max] = values;
-    // Interval overlap: dataset [minDepth,maxDepth] vs filter [min,max]; require both bounds from OPTIONAL.
-    return ` ?subj sschema:variableMeasured ?vm .
-    ?vm a sschema:PropertyValue .
-    ?vm sschema:name ?namedepth .
-    FILTER (LCASE(?namedepth) IN ("cmpdep", "package_depth", "collection_depth", "bottle depth", "sample depth", "tow depth")) .
-    ?vm sschema:maxValue ?maxdepth_f .
-    ?vm sschema:minValue ?minDepth_f .
-      FILTER(
-    BOUND(?maxDepth_f) && BOUND(?minDepth_f) &&
-    ?maxDepth_f >= ${min} && ?minDepth_f <= ${max}
-  ) .\n`;
+    // Use ?vmf to avoid conflicting with the discovery OPTIONAL that also binds ?vm.
+    // Interval overlap: dataset [minDepth_f, maxDepth_f] intersects filter [min, max].
+    return `  ?subj schema:variableMeasured|sschema:variableMeasured ?vmf .
+  ?vmf a sschema:PropertyValue .
+  ?vmf schema:name|sschema:name ?namedepth_f .
+  FILTER(CONTAINS(LCASE(STR(?namedepth_f)), "depth") || LCASE(STR(?namedepth_f)) = "cmpdep") .
+  ?vmf schema:maxValue|sschema:maxValue ?maxDepth_f .
+  ?vmf schema:minValue|sschema:minValue ?minDepth_f .
+  FILTER(?maxDepth_f >= ${min} && ?minDepth_f <= ${max}) .\n`;
   }
 
   buildGeoFilter(_field, values, _facetConfig) {
