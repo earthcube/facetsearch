@@ -85,6 +85,7 @@
           <Results2
             :results="results"
             :loading="isLoading"
+            :active-filters="activeFilters"
           />
         </b-col>
       </b-row>

@@ -1,95 +1,97 @@
 <template>
-  <b-card class="result-item">
-    <div class="d-flex">
-      <div class="flex-grow-1">
-        <h6 class="result-title">
-          <router-link
-            :to="getResultLink(result)"
-            class="text-decoration-none"
-          >
-            {{ result.name || 'Untitled' }}
-          </router-link>
-          <b-badge
-            :variant="getResourceTypeVariant(result.resourceType)"
-            class="ms-2"
-          >
-            {{ result.resourceType || 'data' }}
-          </b-badge>
-        </h6>
+  <b-card
+    tag="article"
+    class="rounded-0 result-item-master"
+    :class="['type_' + resourceTypeLower]"
+    @click="showDetails"
+  >
+    <router-link :to="resultLink" @click.stop>
+      <b-card-title class="name"><span v-html="displayName"></span></b-card-title>
+    </router-link>
+    <b-card-title
+      v-if="result.pubname"
+      class="publisher"
+      ><span v-html="result.pubname"></span></b-card-title
+    >
 
-        <p class="result-description text-muted">
-          {{ truncateText(result.description || 'No description available', 200) }}
-        </p>
+    <b-card-text
+      v-if="result.description"
+      class="description small mb-2"
+      ><span v-html="result.description"></span></b-card-text
+    >
 
-        <div class="result-metadata">
-          <small class="text-muted">
-            <span v-if="result.pubname" class="me-3">
-              <i class="fas fa-building me-1"></i>
-              {{ result.pubname }}
-            </span>
-            <span v-if="result.datep" class="me-3">
-              <i class="fas fa-calendar me-1"></i>
-              {{ formatDate(result.datep) }}
-            </span>
-            <span v-if="result.placename && result.placename !== 'No Placenames'" class="me-3">
-              <i class="fas fa-map-marker-alt me-1"></i>
-              {{ result.placename }}
-            </span>
-          </small>
-        </div>
-
-        <div v-if="result.keywords && result.keywords.length > 0" class="result-keywords mt-2">
-          <b-badge
-            v-for="keyword in result.keywords.slice(0, 5)"
-            :key="keyword"
-            variant="light"
-            class="me-1 mb-1"
-          >
-            {{ keyword }}
-          </b-badge>
-          <span v-if="result.keywords.length > 5" class="text-muted">
-            +{{ result.keywords.length - 5 }} more
-          </span>
-        </div>
+    <div v-if="keywordList.length" class="keywords">
+      <div class="label">Keywords</div>
+      <div class="values">
+        <span
+          v-for="(kw, idx) in highlightedKeywords"
+          :key="idx"
+          class="keyword mx-2 text-secondary"
+          v-html="kw"
+        ></span>
       </div>
+    </div>
+    <div v-if="collectionNames != null">
+      in collections {{ collectionNames }}
+    </div>
+    <div class="badges mt-2">
+      <b-badge variant="data" class="mr-1">
+        <b-icon class="mr-1" icon="server"></b-icon>
+        {{ result.resourceType || "data" }}
+      </b-badge>
 
-      <div class="result-actions ms-3">
-        <b-dropdown
-          right
-          variant="outline-secondary"
-          size="sm"
-          toggle-class="text-decoration-none"
-          no-caret
+      <b-badge v-if="connectedTools" variant="tool" class="mr-1">
+        <b-icon class="mr-1" icon="tools"></b-icon>Connected Tools
+      </b-badge>
+      <b-spinner v-if="connectedTools === undefined" size="small" />
+
+      <span v-if="disurlList.length">
+        <b-badge
+          v-for="i in disurlList"
+          :key="i"
+          variant="light"
+          class="mr-1"
+          :href="i"
         >
-          <template #button-content>
-            <i class="fas fa-ellipsis-v"></i>
-          </template>
+          <a v-if="i.length > 0" class="card-link" target="_blank" rel="noopener">{{ i }}</a>
+        </b-badge>
+      </span>
+    </div>
 
-          <b-dropdown-item
-            :href="result.url"
-            target="_blank"
-            v-if="result.url"
-          >
-            <i class="fas fa-external-link-alt me-2"></i>
-            View Source
-          </b-dropdown-item>
-
-          <b-dropdown-item @click="$emit('add-to-collection', result)">
-            <i class="fas fa-plus me-2"></i>
-            Add to Collection
-          </b-dropdown-item>
-
-          <b-dropdown-item @click="shareResult(result)">
-            <i class="fas fa-share me-2"></i>
-            Share
-          </b-dropdown-item>
-        </b-dropdown>
-      </div>
+    <div class="badges mt-2 d-flex flex-wrap align-items-center">
+      <b-button
+        v-if="result.resourceType === 'data'"
+        variant="primary"
+        size="sm"
+        class="ml-auto"
+        @click.stop="saveItems('data')"
+        >Save Dataset</b-button
+      >
+      <b-button
+        v-else-if="result.resourceType === 'tool'"
+        variant="primary"
+        size="sm"
+        class="ml-auto"
+        @click.stop="saveItems('tool')"
+        >Save Tool</b-button
+      >
+      <b-button
+        v-else
+        variant="primary"
+        size="sm"
+        class="ml-auto"
+        @click.stop="saveItems(result.resourceType || 'other')"
+        >Save Other</b-button
+      >
     </div>
   </b-card>
 </template>
 
 <script>
+import _ from "lodash";
+import { isProxy, toRaw } from "vue";
+import { mapActions, mapGetters } from "vuex";
+import localforage from "localforage";
 import { normalizeDatasetGraphIri } from "@/utils/datasetIdentifiers.js";
 
 export default {
@@ -97,111 +99,268 @@ export default {
   props: {
     result: {
       type: Object,
-      required: true
+      required: true,
     },
     index: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
+    /** From Search2 / useSearch — used to bold active keyword facets (field `kw`). */
+    activeFilters: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
+  data() {
+    return {
+      connectedTools: undefined,
+      clickToAddCollection: false,
+      collectionNames: undefined,
+    };
+  },
+  computed: {
+    ...mapGetters(["getConnectedTool"]),
+    resourceTypeLower() {
+      return String(this.result.resourceType || "data").toLowerCase();
+    },
+    displayName() {
+      return this.result.name || "Untitled";
+    },
+    resultLink() {
+      return this.buildResultLink(this.result);
+    },
+    keywordList() {
+      const k = this.result.keywords;
+      if (Array.isArray(k) && k.length) return k;
+      if (this.result.kw) {
+        if (Array.isArray(this.result.kw)) return this.result.kw;
+        return String(this.result.kw)
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+      return [];
+    },
+    disurlList() {
+      const d = this.result.disurl;
+      if (!d) return [];
+      if (Array.isArray(d)) return d.filter((x) => x && String(x).length > 0);
+      return [String(d)].filter((x) => x.length > 0);
+    },
+    kwFacetSelection() {
+      const raw = this.activeFilters?.kw;
+      if (!raw) return [];
+      return Array.isArray(raw) ? raw : [raw];
+    },
+    highlightedKeywords() {
+      const filters = this.kwFacetSelection;
+      const keywords = this.keywordList;
+      if (!keywords.length) return [];
+      return keywords.map((kw) => {
+        if (_.includes(filters, kw)) {
+          return `<b>${_.escape(kw)}</b>`;
+        }
+        return _.escape(kw);
+      });
+    },
+  },
+  mounted() {
+    this.hasTool();
+    this.inCollection();
   },
   methods: {
-    getResultLink(result) {
-      const resourceType = result.resourceType || 'data';
+    ...mapActions(["hasConnectedTools"]),
+    storageKey() {
+      return this.result.g || this.result.subj || "";
+    },
+    inCollection() {
+      const key = this.storageKey();
+      if (!key) return;
+      const self = this;
+      localforage
+        .getItem(key, function (err, value) {
+          if (err != null || value === null) {
+            return;
+          }
+          if (value?.assignedCollections) {
+            self.collectionNames = value.assignedCollections;
+          }
+        })
+        .catch((error) => console.log(error));
+    },
+    saveItems(type) {
+      this.clickToAddCollection = true;
+      let item = this.result;
+      if (isProxy(this.result)) {
+        item = toRaw(this.result);
+      }
+      const key = item.g || item.subj;
+      if (!key) {
+        this.clickToAddCollection = false;
+        return;
+      }
+      localforage.getItem(key, (err, value) => {
+        if (value === null) {
+          localforage
+            .setItem(key, {
+              type,
+              collection: "unassigned",
+              value: item,
+            })
+            .then(() => {
+              console.log("store " + key + " to localstorage");
+            })
+            .catch((e) => {
+              console.log(e);
+            });
+        }
+      });
+    },
+    buildResultLink(result) {
+      const resourceType = result.resourceType || "data";
       const id = String(result.id || result.subj || "").trim();
-      if (!id) return { name: 'dataset', params: { d: '' } };
-      if (resourceType === 'tool') {
-        return { name: 'tool', params: { t: id } };
+      if (!id) return { name: "dataset", params: { d: "" } };
+      if (resourceType === "tool") {
+        return { name: "tool", params: { t: id } };
       }
       const gNorm = result.g
         ? normalizeDatasetGraphIri(result.g) ?? result.g
         : undefined;
       if (gNorm) {
         return {
-          name: 'dataset',
+          name: "dataset",
           params: { d: gNorm },
         };
       }
       return {
-        name: 'dataset',
+        name: "dataset",
         params: { d: id },
       };
     },
-    getResourceTypeVariant(resourceType) {
-      const variants = {
-        data: 'primary',
-        tool: 'success',
-        person: 'info',
-        researchProject: 'warning',
-        event: 'secondary'
-      };
-      return variants[resourceType] || 'primary';
-    },
-    truncateText(text, maxLength) {
-      if (!text || text.length <= maxLength) return text;
-      return text.substring(0, maxLength) + '...';
-    },
-    formatDate(dateString) {
-      // Fallback-safe formatting
-      try {
-        const d = new Date(dateString);
-        if (isNaN(d.getTime())) return dateString;
-        return d.toLocaleDateString();
-      } catch {
-        return dateString;
+    showDetails() {
+      if (this.clickToAddCollection) {
+        this.clickToAddCollection = false;
+        return;
       }
+      const rt = this.result.resourceType || "data";
+      if (rt !== "data" && rt !== "tool") {
+        this.makeToast(this.result.subj);
+        return;
+      }
+      this.$router.push(this.resultLink);
     },
-    async shareResult(result) {
-      const url = window.location.href;
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: result.name || 'Result',
-            text: result.description || '',
-            url
-          });
-        } catch {
-          // ignore cancellation
-        }
+    makeToast(mesg = "Error") {
+      const message = `Unknown type. Send us this identifier ${mesg}`;
+      this.$bvToast.toast(message, {
+        title: "Cannot locate item",
+        autoHideDelay: 5000,
+        appendToast: false,
+      });
+    },
+    hasTool() {
+      const self = this;
+      const gg = self.result.g;
+      if (!gg) {
+        self.connectedTools = false;
+        return;
+      }
+      if (self.getConnectedTool(gg)) {
+        self.connectedTools = self.getConnectedTool(gg);
       } else {
-        try {
-          await navigator.clipboard.writeText(url);
-        } catch {
-          // ignore clipboard issues
-        }
+        self
+          .hasConnectedTools(gg)
+          .then(function (o) {
+            self.connectedTools = o;
+          })
+          .catch((err) => {
+            self.connectedTools = false;
+            console.info(err);
+          });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style scoped>
-.result-item {
-  transition: box-shadow 0.2s ease;
+<style scoped lang="scss">
+@import "@/assets/bootstrapcss/custom";
+
+article.result-item-master {
+  cursor: pointer;
+  margin-top: 0.5em;
+
+  border: {
+    right: 0px;
+    left: 0px;
+  }
+  box-shadow: 0 0 10px 1px black;
+
+  &:hover {
+    background: {
+      color: $gray-300;
+    }
+  }
+
+  .card-body {
+    padding: ($spacer * 1.5) $spacer;
+  }
 }
-.result-item:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+
+.keywords {
+  display: flex;
+
+  font: {
+    size: 80%;
+  }
+
+  .label {
+    font: {
+      weight: bold;
+    }
+    text: {
+      transform: uppercase;
+    }
+  }
+
+  .values {
+    display: flex;
+    white-space: nowrap;
+    flex-wrap: wrap;
+
+    .keyword {
+      padding: {
+        left: $spacer / 2;
+      }
+    }
+  }
 }
-.result-title {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+
+.name {
+  color: $gray-800;
+
+  font: {
+    weight: 600;
+    size: 120%;
+  }
+  line: {
+    height: 120%;
+  }
 }
-.result-title a {
-  color: #0d6efd;
+
+.publisher {
+  color: $gray-500;
+
+  margin: {
+    top: -($spacer * 0.4);
+  }
+
+  font: {
+    style: italic;
+    size: 90%;
+  }
 }
-.result-title a:hover {
-  color: #0a58ca;
-}
-.result-description {
-  line-height: 1.4;
-  margin-bottom: 0.5rem;
-}
-.result-metadata {
-  margin-bottom: 0.5rem;
-}
-.result-keywords .badge {
-  font-size: 0.75em;
-}
-.result-actions {
-  flex-shrink: 0;
+
+.description {
+  color: $gray-500;
 }
 </style>
