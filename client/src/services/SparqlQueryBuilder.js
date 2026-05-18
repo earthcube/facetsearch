@@ -127,12 +127,11 @@ export class SparqlQueryBuilder {
       whereClause += this.buildResourceTypeConstraints(resourceType);
     }
 
+    // Standalone range constraints once ?subj is narrowed (FILTER EXISTS — not late FILTER on OPTIONAL binds).
+    whereClause += this.buildConstraintRangeFragments(filters);
+
     whereClause += this.buildOptionalProperties();
-    if (this.filtersNeedDepthVariableMeasured(filters)) {
-      whereClause += this.buildOptionalDepthVariableMeasured();
-    }
     whereClause += this.buildBindings();
-    // Range filters use ?temporalCoverage (OPTIONAL), ?datep (BIND), ?maxDepth/?minDepth (depth OPTIONAL); must run after those bind.
     whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
 
     whereClause += '}\n';
@@ -239,16 +238,43 @@ export class SparqlQueryBuilder {
           break;
         case 'range':
         case 'rangeyear':
-          fragments += this.buildRangeFilter(field, values, facetConfig);
-          break;
         case 'rangedepth':
-          fragments += this.buildDepthFilter(field, values, facetConfig);
           break;
         case 'geo':
           fragments += this.buildGeoFilter(field, values, facetConfig);
           break;
         default:
           fragments += this.buildGenericFilter(field, Array.isArray(values) ? values : [values], facetConfig);
+      }
+    });
+
+    return fragments;
+  }
+
+  /**
+   * Standalone range constraints (FILTER EXISTS) applied after ?subj is bound by text/graph.
+   * Satisfies "filters as explicit, self-contained blocks" without a heavy required join before full-text.
+   */
+  buildConstraintRangeFragments(filters) {
+    if (!filters || Object.keys(filters).length === 0) {
+      return '';
+    }
+
+    let fragments = '';
+    Object.entries(filters).forEach(([field, values]) => {
+      const facetConfig = this.getFacetConfig(field);
+      if (!facetConfig || !values || (Array.isArray(values) && values.length === 0)) return;
+
+      switch (facetConfig.type) {
+        case 'range':
+        case 'rangeyear':
+          fragments += this.buildRangeFilterExists(field, values, facetConfig);
+          break;
+        case 'rangedepth':
+          fragments += this.buildDepthFilterExists(field, values, facetConfig);
+          break;
+        default:
+          break;
       }
     });
 
@@ -267,7 +293,7 @@ export class SparqlQueryBuilder {
     return fragments;
   }
 
-  /** QLever full-text + depth: core WHERE for inner SELECT (before fat OPTIONALs). */
+  /** QLever full-text + depth: text/graph, then OPTIONAL depth + overlap FILTER inside candidate subquery. */
   buildQleverFullTextCoreForDepthSubquery(textQuery, searchExactMatch, resourceType, filters) {
     let block = '';
     block += this.buildSubjDatasetHead();
@@ -307,29 +333,67 @@ ${inner}
     return fragment;
   }
 
-  buildRangeFilter(field, values, _facetConfig) {
+  buildRangeFilterExists(field, values, _facetConfig) {
     if (!Array.isArray(values) || values.length < 2) return '';
-    const [min, max] = values;
+    const fMin = Math.min(Number(values[0]), Number(values[1]));
+    const fMax = Math.max(Number(values[0]), Number(values[1]));
+    if (!Number.isFinite(fMin) || !Number.isFinite(fMax)) return '';
 
-    // Determine the SPARQL variable based on the field
     if (field === 'datep' || field === 'datePublished') {
-      // ?datep comes from COALESCE and is a string — extract the year via SUBSTR
-      return `  FILTER(xsd:integer(SUBSTR(STR(?datep), 1, 4)) >= ${min} &&
-         xsd:integer(SUBSTR(STR(?datep), 1, 4)) <= ${max}) .\n`;
+      return `  FILTER EXISTS {
+    ?subj schema:datePublished|sschema:datePublished|schema:dateCreated|sschema:dateCreated|schema:dateModified|sschema:dateModified ?datep_f .
+    FILTER(xsd:integer(SUBSTR(STR(?datep_f), 1, 4)) >= ${fMin} &&
+           xsd:integer(SUBSTR(STR(?datep_f), 1, 4)) <= ${fMax})
+  } .\n`;
     }
-    // temporalCoverage is also a string (e.g. "2010/2020" or "2015-01-01")
-    return `  FILTER(xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) >= ${min} &&
-         xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) <= ${max}) .\n`;
+
+    return `  FILTER EXISTS {
+    ?subj schema:temporalCoverage|sschema:temporalCoverage ?temporalCoverage_f .
+    FILTER(xsd:integer(SUBSTR(STR(?temporalCoverage_f), 1, 4)) >= ${fMin} &&
+           xsd:integer(SUBSTR(STR(?temporalCoverage_f), 1, 4)) <= ${fMax})
+  } .\n`;
   }
 
+  /**
+   * Depth overlap after buildOptionalDepthVariableMeasured (?minDepth / ?maxDepth bound).
+   * Uses ABS so UI positive depths match RDF values stored as negative meters.
+   */
   buildDepthFilter(_field, values, _facetConfig) {
     if (!Array.isArray(values) || values.length < 2) return '';
-    const [min, max] = values;
-    // Interval overlap: dataset [minDepth,maxDepth] vs filter [min,max]; require both bounds from OPTIONAL.
+    const fMin = Math.min(Number(values[0]), Number(values[1]));
+    const fMax = Math.max(Number(values[0]), Number(values[1]));
+    if (!Number.isFinite(fMin) || !Number.isFinite(fMax)) return '';
+
     return `  FILTER(
     BOUND(?maxDepth) && BOUND(?minDepth) &&
-    ?maxDepth >= ${min} && ?minDepth <= ${max}
+    IF(ABS(xsd:float(?minDepth)) < ABS(xsd:float(?maxDepth)), ABS(xsd:float(?maxDepth)), ABS(xsd:float(?minDepth))) >= ${fMin} &&
+    IF(ABS(xsd:float(?minDepth)) < ABS(xsd:float(?maxDepth)), ABS(xsd:float(?minDepth)), ABS(xsd:float(?maxDepth))) <= ${fMax}
   ) .\n`;
+  }
+
+  buildDepthFilterExists(_field, values, _facetConfig) {
+    if (!Array.isArray(values) || values.length < 2) return '';
+    const fMin = Math.min(Number(values[0]), Number(values[1]));
+    const fMax = Math.max(Number(values[0]), Number(values[1]));
+    if (!Number.isFinite(fMin) || !Number.isFinite(fMax)) return '';
+
+    return `  FILTER EXISTS {
+    ?subj schema:variableMeasured|sschema:variableMeasured ?vm_depth .
+    VALUES ?depthType { schema:PropertyValue sschema:PropertyValue }
+    ?vm_depth a ?depthType .
+    ?vm_depth schema:name|sschema:name ?depthPropertyName .
+    FILTER(
+      CONTAINS(LCASE(STR(?depthPropertyName)), "depth") ||
+      LCASE(STR(?depthPropertyName)) = "cmpdep"
+    ) .
+    ?vm_depth schema:maxValue|sschema:maxValue ?maxDepth_f .
+    ?vm_depth schema:minValue|sschema:minValue ?minDepth_f .
+    BIND(ABS(xsd:float(?minDepth_f)) AS ?absMinDepth)
+    BIND(ABS(xsd:float(?maxDepth_f)) AS ?absMaxDepth)
+    BIND(IF(?absMinDepth < ?absMaxDepth, ?absMinDepth, ?absMaxDepth) AS ?dsDepthShallow)
+    BIND(IF(?absMinDepth < ?absMaxDepth, ?absMaxDepth, ?absMinDepth) AS ?dsDepthDeep)
+    FILTER(?dsDepthDeep >= ${fMin} && ?dsDepthShallow <= ${fMax})
+  } .\n`;
   }
 
   buildGeoFilter(_field, values, _facetConfig) {
@@ -421,8 +485,7 @@ ${inner}
   }
 
   /**
-   * True when a rangedepth facet is active with min/max so we can add variableMeasured OPTIONAL.
-   * Kept conditional (not in every query) to limit join size; see prior removal of global depth OPTIONAL.
+   * True when a rangedepth facet is active with min/max (enables QLever candidate subquery path).
    */
   filtersNeedDepthVariableMeasured(filters) {
     if (!filters || typeof filters !== 'object') return false;
