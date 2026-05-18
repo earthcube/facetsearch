@@ -260,6 +260,18 @@ function sanitizeName(name) {
   return name.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 80);
 }
 
+function scenarioErrorsDir(baseDir, scenario) {
+  const slug = sanitizeName(scenario.name || path.basename(scenario._file || "misc", ".json"));
+  return path.join(path.resolve(baseDir), slug);
+}
+
+function cleanErrorsDir(dir) {
+  const resolved = path.resolve(dir);
+  if (!fs.existsSync(resolved)) return;
+  const files = fs.readdirSync(resolved).filter((f) => f.endsWith(".rq"));
+  for (const f of files) fs.unlinkSync(path.join(resolved, f));
+}
+
 function saveErrorQuery(errorsDir, testName, sparql, errors) {
   const dir = path.resolve(errorsDir);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -360,7 +372,7 @@ function loadScenarios(scenarioPath) {
 // Single test execution
 // ---------------------------------------------------------------------------
 
-async function runSingleTest(testDef, args, config, testName = "unnamed") {
+async function runSingleTest(testDef, args, config, testName = "unnamed", errorsDir = null) {
   const endpointUrl = args.endpoint || config.SUMMARYSTORE_URL || config.TRIPLESTORE_URL;
 
   // Convert scenario/CLI parameters to the same searchParams the client app uses
@@ -426,7 +438,7 @@ async function runSingleTest(testDef, args, config, testName = "unnamed") {
 
   let errorFile = null;
   if (errors.length > 0) {
-    errorFile = saveErrorQuery(args.errorsDir, testName, sparql, errors);
+    errorFile = saveErrorQuery(errorsDir ?? args.errorsDir, testName, sparql, errors);
     if (!args.json) {
       console.log(`\n  !! ${errors.length} error(s) in this test:`);
       for (const e of errors) console.log(`     Run ${e.run}: ${e.error}`);
@@ -516,6 +528,9 @@ async function main() {
     const scenarios = loadScenarios(args.scenario);
 
     for (const scenario of scenarios) {
+      const errDir = scenarioErrorsDir(args.errorsDir, scenario);
+      cleanErrorsDir(errDir);
+
       if (!args.json) {
         console.log(`${"=".repeat(70)}`);
         console.log(`Scenario: ${scenario.name || scenario._file}`);
@@ -529,7 +544,7 @@ async function main() {
           console.log(`\n--- ${testName} ---`);
         }
 
-        const result = await runSingleTest(test, args, config, testName);
+        const result = await runSingleTest(test, args, config, testName, errDir);
         result.name = testName;
         result.scenario = scenario.name || scenario._file;
         allResults.tests.push(result);
@@ -542,7 +557,8 @@ async function main() {
       }
     }
   } else {
-    // Single test mode: use CLI args
+    // Single test mode
+    cleanErrorsDir(args.errorsDir);
     const testName = args.facets.length > 0
       ? `search:"${args.search}" + ${args.facets.map((f) => f.field).join("+")}`
       : `search:"${args.search}"`;
