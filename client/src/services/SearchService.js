@@ -208,23 +208,28 @@ SELECT ?value (0 as ?count) WHERE { FILTER(false) } LIMIT 0
     const filtersCopy = { ...(currentFilters || {}) };
     delete filtersCopy[field];
 
+    const needDepthOptional =
+      this.queryBuilder.filtersNeedDepthVariableMeasured(filtersCopy);
+
     let q = '';
     q += this.queryBuilder.buildPrefixes();
     q += `SELECT DISTINCT ?value (COUNT(*) AS ?count)
 WHERE {
 `;
-    // All active filters first — same model as SparqlQueryBuilder.buildWhereClause
-    q += this.queryBuilder.buildFilterFragments(filtersCopy, { rangePlacement: 'top' });
-
-    if (this.queryBuilder.usesQLever()) {
-      q += this.queryBuilder.buildSubjDatasetHead();
-      q += this.queryBuilder.buildResourceTypeConstraints();
-      q += this.queryBuilder.buildGraphNameDescOnly();
-    } else {
-      q += this.queryBuilder.buildBaseGraphPattern();
+    if (needDepthOptional) {
+      q += this.queryBuilder.buildOptionalDepthVariableMeasured();
     }
+    q += this.queryBuilder.buildFilterFragments(filtersCopy, {
+      rangePlacement: needDepthOptional ? 'early' : 'all',
+    });
+    q += this.queryBuilder.buildBaseGraphPattern();
     q += `  ?subj ${sparqlProperty} ?value .
 `;
+    if (needDepthOptional) {
+      q += this.queryBuilder.buildFilterFragments(filtersCopy, {
+        rangePlacement: 'late',
+      });
+    }
     q += `}
 GROUP BY ?value
 ORDER BY DESC(?count) ?value

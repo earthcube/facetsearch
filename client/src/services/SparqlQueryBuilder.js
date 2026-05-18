@@ -87,37 +87,54 @@ export class SparqlQueryBuilder {
   buildWhereClause(textQuery, searchExactMatch, resourceType, filters) {
     let whereClause = 'WHERE {\n';
 
-    if (this.usesQLever()) {
-      // Selective filters first (depth, text facets, geo) — high selectivity, constrain ?subj tightly.
-      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'top' });
-      whereClause += this.buildSubjDatasetHead();
-      whereClause += this.buildResourceTypeConstraints(resourceType);
-      if (textQuery) {
-        whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
-      }
-      // Date/temporal range filters after text search — they scan all date properties (low selectivity)
-      // and would cause OOM if run before text search narrows the candidate set.
-      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'date-range' });
-      whereClause += this.buildGraphNameDescOnly();
+    // QLever full-text must follow public/queries/qlever/sparql_query.rq: constrain ?subj as
+    // Dataset, then ?subj ?o ?item + ql:contains-entity + ql:contains-word, then GRAPH ?g { name, desc }.
+    const qleverFullText = this.usesQLever() && textQuery;
+    const useDepthCandidateSubquery =
+      this.usesQLever() &&
+      qleverFullText &&
+      this.filtersNeedDepthVariableMeasured(filters);
+
+    if (useDepthCandidateSubquery) {
+      whereClause += this.buildQleverDepthCandidateSubquery(
+        textQuery,
+        searchExactMatch,
+        resourceType,
+        filters
+      );
       whereClause += this.buildOptionalProperties();
       whereClause += this.buildBindings();
+      whereClause += this.buildFilterFragments(filters, {
+        rangePlacement: 'late',
+        skipRangedepth: true,
+      });
       whereClause += '}\n';
       return whereClause;
     }
 
-    // Blazegraph path — unchanged
-    whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
-    if (textQuery) {
+    if (qleverFullText) {
+      whereClause += this.buildSubjDatasetHead();
+      whereClause += this.buildResourceTypeConstraints(resourceType);
+      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
       whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
+      whereClause += this.buildGraphNameDescOnly();
+    } else {
+      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+      if (textQuery) {
+        whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
+      }
+      whereClause += this.buildBaseGraphPattern();
+      whereClause += this.buildResourceTypeConstraints(resourceType);
     }
-    whereClause += this.buildBaseGraphPattern();
-    whereClause += this.buildResourceTypeConstraints(resourceType);
+
     whereClause += this.buildOptionalProperties();
     if (this.filtersNeedDepthVariableMeasured(filters)) {
       whereClause += this.buildOptionalDepthVariableMeasured();
     }
     whereClause += this.buildBindings();
+    // Range filters use ?temporalCoverage (OPTIONAL), ?datep (BIND), ?maxDepth/?minDepth (depth OPTIONAL); must run after those bind.
     whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
+
     whereClause += '}\n';
     return whereClause;
   }
@@ -193,20 +210,13 @@ export class SparqlQueryBuilder {
 
   /**
    * @param {Record<string, unknown>} filters
-   * @param {{ rangePlacement?: 'all' | 'early' | 'late' | 'top' | 'date-range'; skipRangedepth?: boolean }} [options]
-   *
-   * rangePlacement values:
-   *  'top'        — selective filters only (text, rangedepth, geo, generic). Put before text search.
-   *  'date-range' — non-selective scan filters only (range, rangeyear). Put after text search.
-   *  'early'      — non-range filters (Blazegraph path)
-   *  'late'       — range filters (Blazegraph path)
-   *  'all'        — everything
+   * @param {{ rangePlacement?: 'all' | 'early' | 'late'; skipRangedepth?: boolean }} [options]
    */
   buildFilterFragments(filters, options = {}) {
     const rangePlacement = options.rangePlacement ?? 'all';
     const skipRangedepth = options.skipRangedepth === true;
-    const isDateRangeFacet = (type) => type === 'range' || type === 'rangeyear';
-    const isRangeFacet = (type) => isDateRangeFacet(type) || type === 'rangedepth';
+    const isRangeFacet = (type) =>
+      type === 'range' || type === 'rangeyear' || type === 'rangedepth';
 
     if (!filters || Object.keys(filters).length === 0) {
       return '';
@@ -220,14 +230,8 @@ export class SparqlQueryBuilder {
       if (skipRangedepth && facetConfig.type === 'rangedepth') return;
 
       const range = isRangeFacet(facetConfig.type);
-      const dateRange = isDateRangeFacet(facetConfig.type);
       if (rangePlacement === 'early' && range) return;
       if (rangePlacement === 'late' && !range) return;
-      // 'top': selective filters only — skip non-selective date/temporal range scans
-      if (rangePlacement === 'top' && dateRange) return;
-      // 'date-range': only date/temporal range scans
-      if (rangePlacement === 'date-range' && !dateRange) return;
-      // 'all' passes everything through
 
       switch (facetConfig.type) {
         case 'text':
@@ -248,13 +252,50 @@ export class SparqlQueryBuilder {
       }
     });
 
-    if (rangePlacement === 'top' && fragments) {
-      return `  # === ACTIVE FILTERS ===\n${fragments}  # === END ACTIVE FILTERS ===\n`;
-    }
-    if (rangePlacement === 'date-range' && fragments) {
-      return `  # === DATE/RANGE FILTERS ===\n${fragments}  # === END DATE/RANGE FILTERS ===\n`;
-    }
     return fragments;
+  }
+
+  buildRangedepthFilterFragments(filters) {
+    if (!filters || typeof filters !== 'object') return '';
+    let fragments = '';
+    Object.entries(filters).forEach(([field, values]) => {
+      const facetConfig = this.getFacetConfig(field);
+      if (!facetConfig || facetConfig.type !== 'rangedepth') return;
+      if (!values || (Array.isArray(values) && values.length < 2)) return;
+      fragments += this.buildDepthFilter(field, values, facetConfig);
+    });
+    return fragments;
+  }
+
+  /** QLever full-text + depth: core WHERE for inner SELECT (before fat OPTIONALs). */
+  buildQleverFullTextCoreForDepthSubquery(textQuery, searchExactMatch, resourceType, filters) {
+    let block = '';
+    block += this.buildSubjDatasetHead();
+    block += this.buildResourceTypeConstraints(resourceType);
+    block += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+    block += this.buildTextSearchFragment(textQuery, searchExactMatch);
+    block += this.buildGraphNameDescOnly();
+    block += this.buildOptionalDepthVariableMeasured();
+    block += this.buildRangedepthFilterFragments(filters);
+    return block;
+  }
+
+  /** Inner SELECT DISTINCT: shrink ?subj set before optional explosion (QLever + text + depth). */
+  buildQleverDepthCandidateSubquery(textQuery, searchExactMatch, resourceType, filters) {
+    const core = this.buildQleverFullTextCoreForDepthSubquery(
+      textQuery,
+      searchExactMatch,
+      resourceType,
+      filters
+    );
+    const inner = indentSparqlLines(core, 4);
+    return `  {
+    SELECT DISTINCT ?g ?subj ?name ?description ?type
+    WHERE {
+${inner}
+    }
+  }
+`;
   }
 
   buildTextFilter(field, values, facetConfig) {
@@ -272,31 +313,23 @@ export class SparqlQueryBuilder {
 
     // Determine the SPARQL variable based on the field
     if (field === 'datep' || field === 'datePublished') {
-      return `  ?subj ?property ?date_f .
-  VALUES ?property { sschema:dateCreated sschema:dateModified sschema:datePublished schema:dateCreated schema:dateModified schema:datePublished } .
-  FILTER(xsd:integer(SUBSTR(STR(?date_f), 1, 4)) >= ${min} &&
-         xsd:integer(SUBSTR(STR(?date_f), 1, 4)) <= ${max}) .\n`;
+      // ?datep comes from COALESCE and is a string — extract the year via SUBSTR
+      return `  FILTER(xsd:integer(SUBSTR(STR(?datep), 1, 4)) >= ${min} &&
+         xsd:integer(SUBSTR(STR(?datep), 1, 4)) <= ${max}) .\n`;
     }
-
     // temporalCoverage is also a string (e.g. "2010/2020" or "2015-01-01")
-    return `  ?subj schema:temporalCoverage|sschema:temporalCoverage ?temporalCoverage_f .
-  FILTER(xsd:integer(SUBSTR(STR(?temporalCoverage_f), 1, 4)) >= ${min} &&
-         xsd:integer(SUBSTR(STR(?temporalCoverage_f), 1, 4)) <= ${max}) .\n`;
-
+    return `  FILTER(xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) >= ${min} &&
+         xsd:integer(SUBSTR(STR(?temporalCoverage), 1, 4)) <= ${max}) .\n`;
   }
 
   buildDepthFilter(_field, values, _facetConfig) {
     if (!Array.isArray(values) || values.length < 2) return '';
     const [min, max] = values;
-    // Use ?vmf to avoid conflicting with the discovery OPTIONAL that also binds ?vm.
-    // Interval overlap: dataset [minDepth_f, maxDepth_f] intersects filter [min, max].
-    return `  ?subj schema:variableMeasured|sschema:variableMeasured ?vmf .
-  ?vmf a sschema:PropertyValue .
-  ?vmf schema:name|sschema:name ?namedepth_f .
-  FILTER(CONTAINS(LCASE(STR(?namedepth_f)), "depth") || LCASE(STR(?namedepth_f)) = "cmpdep") .
-  ?vmf schema:maxValue|sschema:maxValue ?maxDepth_f .
-  ?vmf schema:minValue|sschema:minValue ?minDepth_f .
-  FILTER(?maxDepth_f >= ${min} && ?minDepth_f <= ${max}) .\n`;
+    // Interval overlap: dataset [minDepth,maxDepth] vs filter [min,max]; require both bounds from OPTIONAL.
+    return `  FILTER(
+    BOUND(?maxDepth) && BOUND(?minDepth) &&
+    ?maxDepth >= ${min} && ?minDepth <= ${max}
+  ) .\n`;
   }
 
   buildGeoFilter(_field, values, _facetConfig) {
@@ -375,8 +408,7 @@ export class SparqlQueryBuilder {
   }
 
   buildOptionalProperties() {
-    return `  # === OPTIONAL PROPERTY DISCOVERY (for SELECT output) ===
-  OPTIONAL {?subj sschema:distribution/sschema:url|sschema:subjectOf/sschema:url|schema:distribution/schema:url|schema:subjectOf/schema:url ?url1 .}
+    return `  OPTIONAL {?subj sschema:distribution/sschema:url|sschema:subjectOf/sschema:url|schema:distribution/schema:url|schema:subjectOf/schema:url ?url1 .}
   OPTIONAL {?subj schema:datePublished|sschema:datePublished ?datep1 .}
   OPTIONAL {?subj schema:dateCreated|sschema:dateCreated ?datec .}
   OPTIONAL {?subj schema:dateModified|sschema:dateModified ?datem .}
@@ -389,7 +421,8 @@ export class SparqlQueryBuilder {
   }
 
   /**
-   * @deprecated Blazegraph path only. QLever uses buildDepthFilter directly via rangePlacement:'top'.
+   * True when a rangedepth facet is active with min/max so we can add variableMeasured OPTIONAL.
+   * Kept conditional (not in every query) to limit join size; see prior removal of global depth OPTIONAL.
    */
   filtersNeedDepthVariableMeasured(filters) {
     if (!filters || typeof filters !== 'object') return false;
@@ -404,7 +437,8 @@ export class SparqlQueryBuilder {
   }
 
   /**
-   * @deprecated Blazegraph path only. QLever depth filtering handled by buildDepthFilter.
+   * Depth from schema:variableMeasured / PropertyValue (aligned with public/queries/qlever/sparql_query.rq).
+   * Uses CONTAINS(LCASE(name),"depth") plus cmpdep so the pattern stays short vs a long IN list.
    */
   buildOptionalDepthVariableMeasured() {
     return `  OPTIONAL {
