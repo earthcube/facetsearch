@@ -6,7 +6,7 @@
       "name": "combo: keywords + publisher",
       "search": "water",
       "facets": [
-        { "type": "text", "field": "kw", "active": true, "values": ["Temperature"] },
+        { "type": "text", "field": "kw", "active": true, "values": ["Precipitation"] },
         { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] }
       ]
     },
