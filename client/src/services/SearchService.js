@@ -18,6 +18,17 @@ export function datasetRouteIdFromBinding(row) {
   return subj || g || '';
 }
 
+/** Split SPARQL GROUP_CONCAT values the same way as state.js flattenSparqlResults. */
+export function splitSparqlGroupConcat(value) {
+  if (value == null || value === '') return null;
+  const regex = /,(?![^(]*\)) /;
+  const elements = String(value).split(regex);
+  if (elements.length === 1 && elements[0].trim() === '') {
+    return null;
+  }
+  return elements;
+}
+
 /**
  * Main Search Service (QLever-first)
  * - Builds SPARQL from active filters
@@ -63,11 +74,30 @@ export class SearchService {
     try {
       const sparqlQuery = this.queryBuilder.buildQuery(searchParams);
       const response = await this.sendToTriplestoreWithFallback(sparqlQuery);
-      return this.processResults(response);
+      const results = this.processResults(response);
+
+      const totalCountPromise = this.fetchTotalCount(searchParams)
+        .then((n) => (n > 0 ? n : results.length))
+        .catch((err) => {
+          console.warn('Search count query failed:', err?.message || err);
+          return results.length;
+        });
+
+      return {
+        results,
+        totalCount: results.length,
+        totalCountPromise,
+      };
     } catch (error) {
       console.error('Search service error:', error);
       throw error;
     }
+  }
+
+  async fetchTotalCount(searchParams) {
+    const countQuery = this.queryBuilder.buildCountQuery(searchParams);
+    const countResponse = await this.sendToTriplestoreWithFallback(countQuery);
+    return this.processCountResult(countResponse);
   }
 
   /**
@@ -155,6 +185,12 @@ export class SearchService {
   /**
    * Normalize SPARQL JSON results to a flat array of objects
    */
+  processCountResult(response) {
+    const raw = response?.results?.bindings?.[0]?.count?.value;
+    const n = parseInt(raw ?? '0', 10);
+    return Number.isNaN(n) ? 0 : n;
+  }
+
   processResults(response) {
     if (!response || !response.results || !response.results.bindings) {
       return [];
@@ -168,8 +204,16 @@ export class SearchService {
       }
       // Convenience fields used by UI (dataset links use graph URN when available)
       out.id = datasetRouteIdFromBinding(out);
-      out.keywords = out.kwu ? out.kwu.split(',').map(k => k.trim()) : [];
       out.resourceType = out.resourceType_u;
+      if (out.kw !== undefined) {
+        out.kw = splitSparqlGroupConcat(out.kw);
+      }
+      if (out.placenames !== undefined) {
+        out.placenames = splitSparqlGroupConcat(out.placenames);
+      }
+      if (out.disurl !== undefined) {
+        out.disurl = splitSparqlGroupConcat(out.disurl);
+      }
       return out;
     });
   }

@@ -123,11 +123,11 @@ FACETS:
     sort: acs
     open: true
     type: rangeyear
-  - field: spatialCoverage
-    title: Spatial Filter
-    sort: acs
-    open: true
-    type: geo
+#  - field: spatialCoverage
+#    title: Spatial Filter
+#    sort: acs
+#    open: true
+#    type: geo
 #  - field: variableMeasured
 #    title: Variables Measured
 #    sort: acs

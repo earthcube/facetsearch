@@ -20,11 +20,13 @@
       ><span v-html="result.description"></span></b-card-text
     >
 
-    <div v-if="keywordList.length" class="keywords">
-      <div class="label">Keywords</div>
+    <div v-if="result.kw" class="keywords">
+      <b-badge variant="primary" class="result-badge mr-2 flex-shrink-0">
+        Keywords
+      </b-badge>
       <div class="values">
         <span
-          v-for="(kw, idx) in highlightedKeywords"
+          v-for="(kw, idx) in highlightKw(activeFilters, result.kw)"
           :key="idx"
           class="keyword mx-2 text-secondary"
           v-html="kw"
@@ -35,12 +37,12 @@
       in collections {{ collectionNames }}
     </div>
     <div class="badges mt-2">
-      <b-badge variant="data" class="mr-1">
+      <b-badge variant="data" class="result-badge mr-1">
         <b-icon class="mr-1" icon="server"></b-icon>
         {{ result.resourceType || "data" }}
       </b-badge>
 
-      <b-badge v-if="connectedTools" variant="tool" class="mr-1">
+      <b-badge v-if="connectedTools" variant="tool" class="result-badge mr-1">
         <b-icon class="mr-1" icon="tools"></b-icon>Connected Tools
       </b-badge>
       <b-spinner v-if="connectedTools === undefined" size="small" />
@@ -75,6 +77,7 @@
         @click.stop="saveItems('tool')"
         >Save Tool</b-button
       >
+      <!-- Save Other — disabled for now; restore when non-data/tool save flow is ready
       <b-button
         v-else
         variant="primary"
@@ -83,6 +86,7 @@
         @click.stop="saveItems(result.resourceType || 'other')"
         >Save Other</b-button
       >
+      -->
     </div>
   </b-card>
 </template>
@@ -129,39 +133,11 @@ export default {
     resultLink() {
       return this.buildResultLink(this.result);
     },
-    keywordList() {
-      const k = this.result.keywords;
-      if (Array.isArray(k) && k.length) return k;
-      if (this.result.kw) {
-        if (Array.isArray(this.result.kw)) return this.result.kw;
-        return String(this.result.kw)
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean);
-      }
-      return [];
-    },
     disurlList() {
       const d = this.result.disurl;
       if (!d) return [];
       if (Array.isArray(d)) return d.filter((x) => x && String(x).length > 0);
       return [String(d)].filter((x) => x.length > 0);
-    },
-    kwFacetSelection() {
-      const raw = this.activeFilters?.kw;
-      if (!raw) return [];
-      return Array.isArray(raw) ? raw : [raw];
-    },
-    highlightedKeywords() {
-      const filters = this.kwFacetSelection;
-      const keywords = this.keywordList;
-      if (!keywords.length) return [];
-      return keywords.map((kw) => {
-        if (_.includes(filters, kw)) {
-          return `<b>${_.escape(kw)}</b>`;
-        }
-        return _.escape(kw);
-      });
     },
   },
   mounted() {
@@ -187,6 +163,22 @@ export default {
           }
         })
         .catch((error) => console.log(error));
+    },
+    highlightKw(filters, keywords) {
+      if (!keywords) return [];
+      const activeKw = filters?.kw;
+      if (Array.isArray(keywords)) {
+        return keywords.map((kw) => {
+          if (_.includes(activeKw, kw)) {
+            return `<b>${_.escape(kw)}</b>`;
+          }
+          return _.escape(kw);
+        });
+      }
+      if (_.includes(activeKw, keywords)) {
+        return [`<b>${_.escape(keywords)}</b>`];
+      }
+      return [_.escape(String(keywords))];
     },
     saveItems(type) {
       this.clickToAddCollection = true;
@@ -304,32 +296,39 @@ article.result-item-master {
   .card-body {
     padding: ($spacer * 1.5) $spacer;
   }
+
+  .badge {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0 8px;
+    height: 26px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+
+    .b-icon {
+      font-size: 12px;
+      line-height: 1;
+    }
+  }
 }
 
 .keywords {
   display: flex;
-
-  font: {
-    size: 80%;
-  }
-
-  .label {
-    font: {
-      weight: bold;
-    }
-    text: {
-      transform: uppercase;
-    }
-  }
+  align-items: flex-start;
 
   .values {
+    font: {
+      size: 80%;
+    }
     display: flex;
-    white-space: nowrap;
     flex-wrap: wrap;
 
     .keyword {
       padding: {
-        left: $spacer / 2;
+        left: 0;
       }
     }
   }

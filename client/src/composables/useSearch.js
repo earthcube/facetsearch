@@ -50,6 +50,7 @@ export function useSearch(configOrRef) {
 
   const isLoading = computed(() => state.isLoading);
   const results = computed(() => state.results);
+  const totalCount = computed(() => state.totalCount);
   const error = computed(() => state.error);
   const textQuery = computed({
     get: () => state.textQuery,
@@ -123,6 +124,7 @@ export function useSearch(configOrRef) {
   return {
     isLoading,
     results,
+    totalCount,
     error,
     textQuery,
     searchExactMatch,

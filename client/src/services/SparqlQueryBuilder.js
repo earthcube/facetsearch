@@ -54,6 +54,45 @@ export class SparqlQueryBuilder {
     return query;
   }
 
+  /** Total matching result rows (without LIMIT). Uses a lighter WHERE when card metadata is not needed for filters. */
+  buildCountQuery(searchParams) {
+    const { textQuery, searchExactMatch, resourceType, filters } = searchParams;
+    const needsCardMetadata = this.filtersNeedCardMetadata(filters);
+    const whereClause = this.buildWhereClause(
+      textQuery,
+      searchExactMatch,
+      resourceType,
+      filters,
+      { skipCardMetadata: !needsCardMetadata }
+    );
+    const innerWhere = whereClause.slice('WHERE {\n'.length, -'\n}\n'.length);
+    const groupKeys = needsCardMetadata
+      ? '?g ?subj ?name ?description ?type ?pubname ?placename ?datep ?temporalCoverage'
+      : '?g ?subj ?name ?description ?type';
+
+    let query = this.buildPrefixes();
+    query += 'SELECT (COUNT(*) AS ?count) WHERE {\n';
+    query += '  {\n';
+    query += `    SELECT DISTINCT ${groupKeys}\n`;
+    query += '    WHERE {\n';
+    query += innerWhere;
+    query += '    }\n';
+    query += '  }\n';
+    query += '}\n';
+    return query;
+  }
+
+  /** True when active filters require OPTIONAL card fields (keywords, publisher, ranges, etc.). */
+  filtersNeedCardMetadata(filters) {
+    if (!filters || typeof filters !== 'object') return false;
+    return Object.keys(filters).some((field) => {
+      const cfg = this.getFacetConfig(field);
+      if (!cfg) return false;
+      if (cfg.type === 'geo') return false;
+      return true;
+    });
+  }
+
   buildPrefixes() {
     return Object.entries(this.prefixes)
       .map(([prefix, uri]) => `PREFIX ${prefix}: ${uri}`)
@@ -70,21 +109,22 @@ export class SparqlQueryBuilder {
   buildSelectClause() {
     const selectVars = [
       '?g',
-      '?subj', '?name', '?description', '?url', '?datep',
+      '?subj', '?name', '?description', '?datep',
       '?pubname',
      // '?maxDepth', '?minDepth',
         '?temporalCoverage'
     ];
       const aggVars = {
-          'disurl':'url',
-           'placenames':'placename', 'kw':'kw_u', 'resourceType':'resourceType_u',
+          'disurl':'url1',
+           'placenames':'placename', 'kw':'kwu', 'resourceType':'resourceType_u',
       };
       const aggClause = this.buildSelectAggregateClause(aggVars);
 
     return `SELECT DISTINCT ${selectVars.join(' ')} ${aggClause.join(' ')} \n`;
   }
 
-  buildWhereClause(textQuery, searchExactMatch, resourceType, filters) {
+  buildWhereClause(textQuery, searchExactMatch, resourceType, filters, options = {}) {
+    const skipCardMetadata = options.skipCardMetadata === true;
     let whereClause = 'WHERE {\n';
 
     // QLever full-text must follow public/queries/qlever/sparql_query.rq: constrain ?subj as
@@ -102,8 +142,10 @@ export class SparqlQueryBuilder {
         resourceType,
         filters
       );
-      whereClause += this.buildOptionalProperties();
-      whereClause += this.buildBindings();
+      if (!skipCardMetadata) {
+        whereClause += this.buildOptionalProperties();
+        whereClause += this.buildBindings();
+      }
       whereClause += this.buildFilterFragments(filters, {
         rangePlacement: 'late',
         skipRangedepth: true,
@@ -127,11 +169,15 @@ export class SparqlQueryBuilder {
       whereClause += this.buildResourceTypeConstraints(resourceType);
     }
 
-    whereClause += this.buildOptionalProperties();
-    if (this.filtersNeedDepthVariableMeasured(filters)) {
+    if (!skipCardMetadata) {
+      whereClause += this.buildOptionalProperties();
+      if (this.filtersNeedDepthVariableMeasured(filters)) {
+        whereClause += this.buildOptionalDepthVariableMeasured();
+      }
+      whereClause += this.buildBindings();
+    } else if (this.filtersNeedDepthVariableMeasured(filters)) {
       whereClause += this.buildOptionalDepthVariableMeasured();
     }
-    whereClause += this.buildBindings();
     // Range filters use ?temporalCoverage (OPTIONAL), ?datep (BIND), ?maxDepth/?minDepth (depth OPTIONAL); must run after those bind.
     whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
 
@@ -483,7 +529,7 @@ ${inner}
     return '';
   }
     buildGroupbyClause(_limit, _offset) {
-        return `GROUP BY ?g ?subj  ?placename  ?datep ?pubname ?url  ?name ?description ?type  ?temporalCoverage ?kw  ?resourceType\n`;
+        return `GROUP BY ?g ?subj ?name ?description ?type ?pubname ?placename ?datep ?temporalCoverage\n`;
     }
   buildLimitClause(limit, offset) {
     return `LIMIT ${limit}\nOFFSET ${offset}\n`;

@@ -13,6 +13,7 @@ export class FilterStateManager {
       activeFilters: {},
       isLoading: false,
       results: [],
+      totalCount: 0,
       error: null,
       lastQuery: null,
       lastQuerySignature: '',
@@ -128,6 +129,7 @@ export class FilterStateManager {
   async executeQuery() {
     if (!this.shouldExecuteQuery()) {
       this.state.results = [];
+      this.state.totalCount = 0;
       return;
     }
 
@@ -149,13 +151,26 @@ export class FilterStateManager {
       this.state.lastQuerySignature = signature;
       this.state.lastQueryAt = now;
 
-      const results = await this.queryExecutor(params);
-      this.state.results = results || [];
+      const outcome = await this.queryExecutor(params);
+      if (Array.isArray(outcome)) {
+        this.state.results = outcome;
+        this.state.totalCount = outcome.length;
+      } else {
+        this.state.results = outcome?.results || [];
+        this.state.totalCount =
+          outcome?.totalCount ?? this.state.results.length;
+        if (outcome?.totalCountPromise) {
+          outcome.totalCountPromise.then((n) => {
+            this.state.totalCount = n;
+          });
+        }
+      }
 
     } catch (error) {
       console.error('Query execution error:', error);
       this.state.error = error.message || 'Query execution failed';
       this.state.results = [];
+      this.state.totalCount = 0;
     } finally {
       this.state.isLoading = false;
     }
