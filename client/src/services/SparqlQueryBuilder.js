@@ -532,6 +532,23 @@ ${typeFilter}${rangeConstraints}    }
 
   buildTextFilter(field, values, facetConfig) {
     const sparqlProperty = facetConfig.sparql_property || this.getDefaultSparqlProperty(field);
+
+    // Multi-step paths (e.g. "schema:publisher/schema:name|schema:publisher/schema:legalName")
+    // are split into two explicit triples so QLever avoids alternation-of-sequences in subqueries.
+    if (sparqlProperty.includes('/')) {
+      const alternatives = sparqlProperty.split('|').map(s => s.trim());
+      const firstStep = alternatives[0].split('/')[0];
+      const secondSteps = [...new Set(alternatives.map(alt => alt.split('/').slice(1).join('/')))];
+      const nodeVar = `${field}_node`;
+      const secondPath = secondSteps.join('|');
+      if (values.length === 1) {
+        return `  ?subj ${firstStep} ?${nodeVar} .\n  ?${nodeVar} ${secondPath} "${this.escapeValue(values[0])}" .\n`;
+      }
+      const varName = `${field}_fv`;
+      const inList = values.map(v => `"${this.escapeValue(v)}"`).join(', ');
+      return `  ?subj ${firstStep} ?${nodeVar} .\n  ?${nodeVar} ${secondPath} ?${varName} .\n  FILTER(?${varName} IN (${inList})) .\n`;
+    }
+
     if (values.length === 1) {
       return `  ?subj ${sparqlProperty} "${this.escapeValue(values[0])}" .\n`;
     }
@@ -757,8 +774,8 @@ ${typeFilter}${rangeConstraints}    }
       kw: 'schema:keywords|sschema:keywords',
       keywords: 'schema:keywords|sschema:keywords',
       resourceType: 'a',
-      placenames: 'schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name',
-      pubname: 'schema:publisher/sschema:name|sschema:publisher/sschema:legalName|schema:publisher/schema:name|schema:publisher/schema:legalName',
+      placenames: 'schema:spatialCoverage/schema:name',
+      pubname: 'schema:publisher/schema:name|schema:publisher/schema:legalName',
       datep: 'schema:datePublished|sschema:datePublished'
     };
     return mapping[field] || `schema:${field}|sschema:${field}`;
