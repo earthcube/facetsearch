@@ -27,7 +27,7 @@
       "name": "keywords: many values (10)",
       "search": "ocean",
       "facets": [
-        { "type": "text", "field": "kw", "active": true, "values": ["Temperature", "Oceans",  "Salinity", "CTD", "Depth",] }
+        { "type": "text", "field": "kw", "active": true, "values": ["Temperature", "Oceans",  "Salinity", "CTD", "Depth"] }
       ]
     }
   ]

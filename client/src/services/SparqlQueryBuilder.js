@@ -46,10 +46,13 @@ export class SparqlQueryBuilder {
 
     let query = this.buildPrefixes();
     query += this.buildSelectClause();
-    query += this.buildWhereClause(textQuery, searchExactMatch, resourceType, filters);
+    query += this.buildWhereClause(textQuery, searchExactMatch, resourceType, filters, effectiveLimit, offset);
     query += this.buildGroupbyClause();
     query += this.buildOrderByClause();
-    query += this.buildLimitClause(effectiveLimit, offset);
+
+    if (!this.usesQLever()) {
+      query += this.buildLimitClause(effectiveLimit, offset);
+    }
 
     return query;
   }
@@ -84,7 +87,7 @@ export class SparqlQueryBuilder {
     return `SELECT DISTINCT ${selectVars.join(' ')} ${aggClause.join(' ')} \n`;
   }
 
-  buildWhereClause(textQuery, searchExactMatch, resourceType, filters) {
+  buildWhereClause(textQuery, searchExactMatch, resourceType, filters, limit = 10, offset = 0) {
     let whereClause = 'WHERE {\n';
 
     // QLever full-text must follow public/queries/qlever/sparql_query.rq: constrain ?subj as
@@ -102,10 +105,7 @@ export class SparqlQueryBuilder {
 
     if (useDepthCandidateSubquery) {
       whereClause += this.buildQleverDepthCandidateSubquery(
-        textQuery,
-        searchExactMatch,
-        resourceType,
-        filters
+        textQuery, searchExactMatch, resourceType, filters, limit, offset
       );
       whereClause += this.buildConstraintRangeFragments(filters);
       whereClause += this.buildOptionalProperties();
@@ -120,10 +120,7 @@ export class SparqlQueryBuilder {
 
     if (useTextCandidateSubquery) {
       whereClause += this.buildQleverTextCandidateSubquery(
-        textQuery,
-        searchExactMatch,
-        resourceType,
-        filters
+        textQuery, searchExactMatch, resourceType, filters, limit, offset
       );
       whereClause += this.buildConstraintRangeFragments(filters);
       whereClause += this.buildOptionalProperties();
@@ -134,19 +131,34 @@ export class SparqlQueryBuilder {
     }
 
     if (qleverFullText) {
-      whereClause += this.buildSubjDatasetHead();
-      whereClause += this.buildResourceTypeConstraints(resourceType);
-      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
-      whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
-      whereClause += this.buildGraphNameDescOnly();
-    } else {
-      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
-      if (textQuery) {
-        whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
-      }
-      whereClause += this.buildBaseGraphPattern();
-      whereClause += this.buildResourceTypeConstraints(resourceType);
+      whereClause += this.buildQleverInlineTextSubquery(
+        textQuery, searchExactMatch, resourceType, filters, limit, offset
+      );
+      whereClause += this.buildConstraintRangeFragments(filters);
+      whereClause += this.buildOptionalProperties();
+      whereClause += this.buildBindings();
+      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
+      whereClause += '}\n';
+      return whereClause;
     }
+
+    if (this.isQleverBrowseMode(textQuery)) {
+      whereClause += this.buildQleverBrowseSubquery(resourceType, limit, offset);
+      whereClause += `  GRAPH ?g {\n    ?subj schema:name|sschema:name ?name .\n    ?subj schema:description|sschema:description ?description .\n  }\n`;
+      whereClause += this.buildOptionalProperties();
+      whereClause += this.buildBindings();
+      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
+      whereClause += '}\n';
+      return whereClause;
+    }
+
+    // Blazegraph paths — outer LIMIT/OFFSET applied in buildQuery
+    whereClause += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+    if (textQuery) {
+      whereClause += this.buildTextSearchFragment(textQuery, searchExactMatch);
+    }
+    whereClause += this.buildBaseGraphPattern();
+    whereClause += this.buildResourceTypeConstraints(resourceType);
 
     // Standalone range constraints once ?subj is narrowed (FILTER EXISTS — not late FILTER on OPTIONAL binds).
     whereClause += this.buildConstraintRangeFragments(filters);
@@ -346,7 +358,7 @@ export class SparqlQueryBuilder {
   }
 
   /** Inner SELECT DISTINCT: shrink ?subj set before optional explosion (QLever + multi-token text). */
-  buildQleverTextCandidateSubquery(textQuery, searchExactMatch, resourceType, filters) {
+  buildQleverTextCandidateSubquery(textQuery, searchExactMatch, resourceType, filters, limit, offset) {
     const core = this.buildQleverFullTextCore(
       textQuery,
       searchExactMatch,
@@ -359,12 +371,14 @@ export class SparqlQueryBuilder {
     WHERE {
 ${inner}
     }
+    LIMIT ${limit}
+    OFFSET ${offset}
   }
 `;
   }
 
   /** Inner SELECT DISTINCT: shrink ?subj set before optional explosion (QLever + text + depth). */
-  buildQleverDepthCandidateSubquery(textQuery, searchExactMatch, resourceType, filters) {
+  buildQleverDepthCandidateSubquery(textQuery, searchExactMatch, resourceType, filters, limit, offset) {
     const core = this.buildQleverFullTextCoreForDepthSubquery(
       textQuery,
       searchExactMatch,
@@ -377,17 +391,66 @@ ${inner}
     WHERE {
 ${inner}
     }
+    LIMIT ${limit}
+    OFFSET ${offset}
+  }
+`;
+  }
+
+  /** Inner SELECT DISTINCT with pagination for single-token QLever text (no candidate subquery needed). */
+  buildQleverInlineTextSubquery(textQuery, searchExactMatch, resourceType, filters, limit, offset) {
+    let core = '';
+    core += this.buildSubjDatasetHead();
+    core += this.buildResourceTypeConstraints(resourceType);
+    core += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+    core += this.buildTextSearchFragment(textQuery, searchExactMatch);
+    core += this.buildGraphNameDescOnly();
+    const inner = indentSparqlLines(core, 4);
+    return `  {
+    SELECT DISTINCT ?g ?subj ?name ?description ?type
+    WHERE {
+${inner}
+    }
+    LIMIT ${limit}
+    OFFSET ${offset}
+  }
+`;
+  }
+
+  isQleverBrowseMode(textQuery) {
+    return this.usesQLever() && !textQuery;
+  }
+
+  /** Inner SELECT DISTINCT with pagination for QLever browse (no text search). */
+  buildQleverBrowseSubquery(resourceType, limit, offset) {
+    const typeFilter =
+      resourceType && resourceType !== 'all'
+        ? `      FILTER(?resourceType_u = "${this.escapeValue(resourceType)}")\n`
+        : '';
+    return `  {
+    SELECT DISTINCT ?g ?subj ?resourceType_u
+    WHERE {
+      VALUES (?type ?resourceType_u) {
+        (schema:Dataset             "data")
+        (schema:DataCatalog         "DataCatalog")
+        (schema:SoftwareApplication "tool")
+      }
+      GRAPH ?g { ?subj a ?type . }
+${typeFilter}    }
+    LIMIT ${limit}
+    OFFSET ${offset}
   }
 `;
   }
 
   buildTextFilter(field, values, facetConfig) {
     const sparqlProperty = facetConfig.sparql_property || this.getDefaultSparqlProperty(field);
-    let fragment = '';
-    values.forEach(value => {
-      fragment += `  ?subj ${sparqlProperty} "${this.escapeValue(value)}" .\n`;
-    });
-    return fragment;
+    if (values.length === 1) {
+      return `  ?subj ${sparqlProperty} "${this.escapeValue(values[0])}" .\n`;
+    }
+    const varName = `${field}_fv`;
+    const inList = values.map(v => `"${this.escapeValue(v)}"`).join(', ');
+    return `  ?subj ${sparqlProperty} ?${varName} .\n  FILTER(?${varName} IN (${inList})) .\n`;
   }
 
   buildRangeFilterExists(field, values, _facetConfig) {
@@ -591,8 +654,8 @@ ${inner}
   buildOrderByClause() {
     return '';
   }
-    buildGroupbyClause(_limit, _offset) {
-        return `GROUP BY ?g ?subj  ?placename  ?datep ?pubname ?url  ?name ?description ?type  ?temporalCoverage ?kw  ?resourceType\n`;
+    buildGroupbyClause() {
+        return `GROUP BY ?g ?subj ?name ?description ?url ?datep ?pubname ?temporalCoverage\n`;
     }
   buildLimitClause(limit, offset) {
     return `LIMIT ${limit}\nOFFSET ${offset}\n`;

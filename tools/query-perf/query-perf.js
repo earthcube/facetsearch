@@ -86,7 +86,7 @@ function parseArgs(argv) {
     resourceType: "all",
     limit: 10,
     offset: 0,
-    timeout: 60000,
+    timeout: 30000,
     runs: 3,
     warmup: 1,
     facets: [],
