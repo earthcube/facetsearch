@@ -41,12 +41,12 @@ Options:
   --runs <n>             Measured runs per test (default: 3)
   --warmup <n>           Warmup runs (default: 1)
 
-  --show-query           Print the rendered SPARQL query
+  --show-query           Save the rendered SPARQL query to the output dir as a .rq file
   --show-results         Print first 5 result rows
   --json                 Machine-readable JSON output
   --compare <path>       Compare against a previous JSON result file
   --save <path>          Save results to a JSON file for later comparison
-  --errors-dir <path>    Directory to write failing queries as .rq files (default: errors/)
+  --output-dir <path>    Directory for saved queries and failing queries (default: sparql-test/)
   --analyze-errors       Send failing queries to Claude for analysis and improvement suggestions
   --help                 Show this help message
 
@@ -96,7 +96,7 @@ function parseArgs(argv) {
     json: false,
     compare: null,
     save: null,
-    errorsDir: "errors",
+    outputDir: "sparql-test",
     analyzeErrors: false,
   };
 
@@ -126,7 +126,8 @@ function parseArgs(argv) {
       case "--json": args.json = true; break;
       case "--compare": args.compare = next(); break;
       case "--save": args.save = next(); break;
-      case "--errors-dir": args.errorsDir = next(); break;
+      case "--output-dir": args.outputDir = next(); break;
+      case "--errors-dir": args.outputDir = next(); break; // legacy alias
       case "--analyze-errors": args.analyzeErrors = true; break;
       case "--help": console.log(USAGE); process.exit(0);
       default:
@@ -260,16 +261,28 @@ function sanitizeName(name) {
   return name.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 80);
 }
 
-function scenarioErrorsDir(baseDir, scenario) {
+function scenarioOutputDir(baseDir, scenario) {
   const slug = sanitizeName(scenario.name || path.basename(scenario._file || "misc", ".json"));
   return path.join(path.resolve(baseDir), slug);
 }
 
-function cleanErrorsDir(dir) {
+// Keep old name as alias used internally
+const scenarioErrorsDir = scenarioOutputDir;
+
+function cleanOutputDir(dir) {
   const resolved = path.resolve(dir);
   if (!fs.existsSync(resolved)) return;
   const files = fs.readdirSync(resolved).filter((f) => f.endsWith(".rq"));
   for (const f of files) fs.unlinkSync(path.join(resolved, f));
+}
+
+function saveQueryFile(outputDir, testName, sparql) {
+  const dir = path.resolve(outputDir);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const safeName = sanitizeName(testName || "unnamed");
+  const filepath = path.join(dir, `${safeName}.rq`);
+  fs.writeFileSync(filepath, sparql + "\n");
+  return filepath;
 }
 
 function saveErrorQuery(errorsDir, testName, sparql, errors) {
@@ -372,7 +385,7 @@ function loadScenarios(scenarioPath) {
 // Single test execution
 // ---------------------------------------------------------------------------
 
-async function runSingleTest(testDef, args, config, testName = "unnamed", errorsDir = null) {
+async function runSingleTest(testDef, args, config, testName = "unnamed", outputDir = null) {
   const endpointUrl = args.endpoint || config.SUMMARYSTORE_URL || config.TRIPLESTORE_URL;
 
   // Convert scenario/CLI parameters to the same searchParams the client app uses
@@ -392,9 +405,8 @@ async function runSingleTest(testDef, args, config, testName = "unnamed", errors
   }
 
   if (args.showQuery) {
-    console.log("\n  --- Rendered SPARQL ---");
-    console.log(sparql);
-    console.log("  --- End Query ---\n");
+    const qFile = saveQueryFile(outputDir ?? args.outputDir, testName, sparql);
+    if (!args.json) console.log(`  Query saved: ${qFile}`);
   }
 
   // Warmup
@@ -438,7 +450,7 @@ async function runSingleTest(testDef, args, config, testName = "unnamed", errors
 
   let errorFile = null;
   if (errors.length > 0) {
-    errorFile = saveErrorQuery(errorsDir ?? args.errorsDir, testName, sparql, errors);
+    errorFile = saveErrorQuery(outputDir ?? args.outputDir, testName, sparql, errors);
     if (!args.json) {
       console.log(`\n  !! ${errors.length} error(s) in this test:`);
       for (const e of errors) console.log(`     Run ${e.run}: ${e.error}`);
@@ -528,8 +540,8 @@ async function main() {
     const scenarios = loadScenarios(args.scenario);
 
     for (const scenario of scenarios) {
-      const errDir = scenarioErrorsDir(args.errorsDir, scenario);
-      cleanErrorsDir(errDir);
+      const errDir = scenarioOutputDir(args.outputDir, scenario);
+      cleanOutputDir(errDir);
 
       if (!args.json) {
         console.log(`${"=".repeat(70)}`);
@@ -558,7 +570,7 @@ async function main() {
     }
   } else {
     // Single test mode
-    cleanErrorsDir(args.errorsDir);
+    cleanOutputDir(args.outputDir);
     const testName = args.facets.length > 0
       ? `search:"${args.search}" + ${args.facets.map((f) => f.field).join("+")}`
       : `search:"${args.search}"`;
