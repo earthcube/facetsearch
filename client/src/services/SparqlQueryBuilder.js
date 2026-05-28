@@ -100,7 +100,9 @@ export class SparqlQueryBuilder {
       whereClause += this.buildQleverDepthCandidateSubquery(
         textQuery, searchExactMatch, resourceType, filters, limit, offset
       );
-      whereClause += this.buildConstraintRangeFragments(filters);
+      // depth range filter is already inside the subquery via buildRangedepthFilterFragments;
+      // skip rangedepth here to avoid a redundant outer FILTER EXISTS
+      whereClause += this.buildConstraintRangeFragments(filters, { skipRangedepth: true });
       whereClause += this.buildOptionalProperties();
       whereClause += this.buildBindings();
       whereClause += this.buildFilterFragments(filters, {
