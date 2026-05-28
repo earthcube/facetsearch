@@ -94,6 +94,11 @@ export class SparqlQueryBuilder {
       this.usesQLever() &&
       qleverFullText &&
       this.filtersNeedDepthVariableMeasured(filters);
+    const useTextCandidateSubquery =
+      this.usesQLever() &&
+      qleverFullText &&
+      !useDepthCandidateSubquery &&
+      this.qleverNeedsTextCandidateSubquery(textQuery, searchExactMatch);
 
     if (useDepthCandidateSubquery) {
       whereClause += this.buildQleverDepthCandidateSubquery(
@@ -102,12 +107,28 @@ export class SparqlQueryBuilder {
         resourceType,
         filters
       );
+      whereClause += this.buildConstraintRangeFragments(filters);
       whereClause += this.buildOptionalProperties();
       whereClause += this.buildBindings();
       whereClause += this.buildFilterFragments(filters, {
         rangePlacement: 'late',
         skipRangedepth: true,
       });
+      whereClause += '}\n';
+      return whereClause;
+    }
+
+    if (useTextCandidateSubquery) {
+      whereClause += this.buildQleverTextCandidateSubquery(
+        textQuery,
+        searchExactMatch,
+        resourceType,
+        filters
+      );
+      whereClause += this.buildConstraintRangeFragments(filters);
+      whereClause += this.buildOptionalProperties();
+      whereClause += this.buildBindings();
+      whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
       whereClause += '}\n';
       return whereClause;
     }
@@ -293,17 +314,53 @@ export class SparqlQueryBuilder {
     return fragments;
   }
 
-  /** QLever full-text + depth: text/graph, then OPTIONAL depth + overlap FILTER inside candidate subquery. */
-  buildQleverFullTextCoreForDepthSubquery(textQuery, searchExactMatch, resourceType, filters) {
+  /**
+   * Structured multi-token QLever text (OR/AND branches) needs an inner candidate
+   * subquery to avoid memory blow-ups (see earthcube/facetsearch#250).
+   */
+  qleverNeedsTextCandidateSubquery(textQuery, searchExactMatch) {
+    return this.shouldUseStructuredTextSearch(textQuery, searchExactMatch);
+  }
+
+  /** QLever full-text core: type + text + name/desc (no Dataset-only head, no OPTIONAL explosion). */
+  buildQleverFullTextCore(textQuery, searchExactMatch, resourceType, filters) {
     let block = '';
-    block += this.buildSubjDatasetHead();
     block += this.buildResourceTypeConstraints(resourceType);
     block += this.buildFilterFragments(filters, { rangePlacement: 'early' });
     block += this.buildTextSearchFragment(textQuery, searchExactMatch);
     block += this.buildGraphNameDescOnly();
+    return block;
+  }
+
+  /** QLever full-text + depth: text/graph, then OPTIONAL depth + overlap FILTER inside candidate subquery. */
+  buildQleverFullTextCoreForDepthSubquery(textQuery, searchExactMatch, resourceType, filters) {
+    let block = this.buildQleverFullTextCore(
+      textQuery,
+      searchExactMatch,
+      resourceType,
+      filters
+    );
     block += this.buildOptionalDepthVariableMeasured();
     block += this.buildRangedepthFilterFragments(filters);
     return block;
+  }
+
+  /** Inner SELECT DISTINCT: shrink ?subj set before optional explosion (QLever + multi-token text). */
+  buildQleverTextCandidateSubquery(textQuery, searchExactMatch, resourceType, filters) {
+    const core = this.buildQleverFullTextCore(
+      textQuery,
+      searchExactMatch,
+      resourceType,
+      filters
+    );
+    const inner = indentSparqlLines(core, 4);
+    return `  {
+    SELECT DISTINCT ?g ?subj ?name ?description ?type
+    WHERE {
+${inner}
+    }
+  }
+`;
   }
 
   /** Inner SELECT DISTINCT: shrink ?subj set before optional explosion (QLever + text + depth). */
