@@ -511,6 +511,9 @@ ${inner}
       resourceType && resourceType !== 'all'
         ? `      FILTER(?resourceType_u = "${this.escapeValue(resourceType)}")\n`
         : '';
+    const textFilters = indentSparqlLines(
+      this.buildFilterFragments(filters, { rangePlacement: 'early' }), 2
+    );
     const rangeConstraints = indentSparqlLines(
       this.buildConstraintRangeFragments(filters, { skipRangedepth: true }), 2
     );
@@ -523,7 +526,7 @@ ${inner}
         (schema:SoftwareApplication "tool")
       }
       GRAPH ?g { ?subj a ?type . }
-${typeFilter}${rangeConstraints}    }
+${typeFilter}${textFilters}${rangeConstraints}    }
     LIMIT ${limit}
     OFFSET ${offset}
   }
