@@ -10,17 +10,24 @@
       ]
     },
     {
-      "name": "publisher: single publisher",
+      "name": "publisher: single publisher (IEDA)",
       "search": "water",
       "facets": [
-        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] }
+        { "type": "text", "field": "pubname", "active": true, "values": ["Interdisciplinary Earth Data Alliance (IEDA)"] }
       ]
     },
     {
-      "name": "publisher: multiple publishers (expect fail need to find set_",
+      "name": "publisher: single publisher (EarthChem)",
       "search": "water",
       "facets": [
-        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA", "NASA", "USGS"] }
+        { "type": "text", "field": "pubname", "active": true, "values": ["EarthChem Library"] }
+      ]
+    },
+    {
+      "name": "publisher: multiple publishers (IEDA or EarthChem)",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "pubname", "active": true, "values": ["Interdisciplinary Earth Data Alliance (IEDA)", "EarthChem Library"] }
       ]
     }
   ]
