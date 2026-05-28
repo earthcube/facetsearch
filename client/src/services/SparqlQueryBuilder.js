@@ -198,9 +198,8 @@ export class SparqlQueryBuilder {
     }
 
     if (this.isQleverBrowseMode(textQuery)) {
-      whereClause += this.buildQleverBrowseSubquery(resourceType, limit, offset);
+      whereClause += this.buildQleverBrowseSubquery(resourceType, filters, limit, offset);
       whereClause += `  GRAPH ?g {\n    ?subj schema:name|sschema:name ?name .\n    ?subj schema:description|sschema:description ?description .\n  }\n`;
-      whereClause += this.buildConstraintRangeFragments(filters);
       whereClause += this.buildOptionalProperties();
       whereClause += this.buildBindings();
       whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
@@ -368,9 +367,10 @@ export class SparqlQueryBuilder {
 
   /**
    * Standalone range constraints (FILTER EXISTS) applied after ?subj is bound by text/graph.
-   * Satisfies "filters as explicit, self-contained blocks" without a heavy required join before full-text.
+   * skipRangedepth: true omits the depth filter (used when placing constraints inside inner subqueries
+   * where depth is already handled by buildOptionalDepthVariableMeasured + buildRangedepthFilterFragments).
    */
-  buildConstraintRangeFragments(filters) {
+  buildConstraintRangeFragments(filters, { skipRangedepth = false } = {}) {
     if (!filters || Object.keys(filters).length === 0) {
       return '';
     }
@@ -386,7 +386,7 @@ export class SparqlQueryBuilder {
           fragments += this.buildRangeFilterExists(field, values, facetConfig);
           break;
         case 'rangedepth':
-          fragments += this.buildDepthFilterExists(field, values, facetConfig);
+          if (!skipRangedepth) fragments += this.buildDepthFilterExists(field, values, facetConfig);
           break;
         default:
           break;
@@ -423,6 +423,7 @@ export class SparqlQueryBuilder {
     block += this.buildFilterFragments(filters, { rangePlacement: 'early' });
     block += this.buildTextSearchFragment(textQuery, searchExactMatch);
     block += this.buildGraphNameDescOnly();
+    block += this.buildConstraintRangeFragments(filters, { skipRangedepth: true });
     return block;
   }
 
@@ -487,6 +488,7 @@ ${inner}
     core += this.buildFilterFragments(filters, { rangePlacement: 'early' });
     core += this.buildTextSearchFragment(textQuery, searchExactMatch);
     core += this.buildGraphNameDescOnly();
+    core += this.buildConstraintRangeFragments(filters, { skipRangedepth: true });
     const inner = indentSparqlLines(core, 4);
     return `  {
     SELECT DISTINCT ?g ?subj ?name ?description ?type
@@ -504,11 +506,14 @@ ${inner}
   }
 
   /** Inner SELECT DISTINCT with pagination for QLever browse (no text search). */
-  buildQleverBrowseSubquery(resourceType, limit, offset) {
+  buildQleverBrowseSubquery(resourceType, filters, limit, offset) {
     const typeFilter =
       resourceType && resourceType !== 'all'
         ? `      FILTER(?resourceType_u = "${this.escapeValue(resourceType)}")\n`
         : '';
+    const rangeConstraints = indentSparqlLines(
+      this.buildConstraintRangeFragments(filters, { skipRangedepth: true }), 2
+    );
     return `  {
     SELECT DISTINCT ?g ?subj ?resourceType_u
     WHERE {
@@ -518,7 +523,7 @@ ${inner}
         (schema:SoftwareApplication "tool")
       }
       GRAPH ?g { ?subj a ?type . }
-${typeFilter}    }
+${typeFilter}${rangeConstraints}    }
     LIMIT ${limit}
     OFFSET ${offset}
   }
