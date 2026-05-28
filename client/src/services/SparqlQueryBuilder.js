@@ -126,7 +126,9 @@ export class SparqlQueryBuilder {
       `  (GROUP_CONCAT(DISTINCT ?url1; SEPARATOR=", ") AS ?disurl)\n` +
       `  (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", ") AS ?placenames)\n` +
       `  (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)\n` +
-      `  (GROUP_CONCAT(DISTINCT ?resourceType_u; SEPARATOR=", ") AS ?resourceType)\n`
+      `  (GROUP_CONCAT(DISTINCT ?resourceType_u; SEPARATOR=", ") AS ?resourceType)\n` +
+      `  (SAMPLE(?maxDepth_raw) AS ?maxDepth)\n` +
+      `  (SAMPLE(?minDepth_raw) AS ?minDepth)\n`
     );
   }
 
@@ -423,7 +425,7 @@ export class SparqlQueryBuilder {
     return block;
   }
 
-  /** QLever full-text + depth: text/graph, then OPTIONAL depth + overlap FILTER inside candidate subquery. */
+  /** QLever full-text + depth: text/graph, then optional depth triples + overlap FILTER inside candidate subquery. */
   buildQleverFullTextCoreForDepthSubquery(textQuery, searchExactMatch, resourceType, filters) {
     let block = this.buildQleverFullTextCore(
       textQuery,
@@ -431,7 +433,7 @@ export class SparqlQueryBuilder {
       resourceType,
       filters
     );
-    block += this.buildOptionalDepthVariableMeasured();
+    block += this.buildDepthVariableMeasured({ required: false });
     block += this.buildRangedepthFilterFragments(filters);
     return block;
   }
@@ -446,7 +448,7 @@ export class SparqlQueryBuilder {
     );
     const inner = indentSparqlLines(core, 4);
     return `  {
-    SELECT DISTINCT ?g ?subj ?name ?description ?type
+    SELECT DISTINCT ?g ?subj ?name ?description ?type ?maxDepth_raw ?minDepth_raw
     WHERE {
 ${inner}
     }
@@ -588,9 +590,9 @@ ${typeFilter}${textFilters}${rangeConstraints}    }
     if (!Number.isFinite(fMin) || !Number.isFinite(fMax)) return '';
 
     return `  FILTER(
-    BOUND(?maxDepth) && BOUND(?minDepth) &&
-    IF(ABS(xsd:float(?minDepth)) < ABS(xsd:float(?maxDepth)), ABS(xsd:float(?maxDepth)), ABS(xsd:float(?minDepth))) >= ${fMin} &&
-    IF(ABS(xsd:float(?minDepth)) < ABS(xsd:float(?maxDepth)), ABS(xsd:float(?minDepth)), ABS(xsd:float(?maxDepth))) <= ${fMax}
+    BOUND(?maxDepth_raw) && BOUND(?minDepth_raw) &&
+    IF(ABS(xsd:float(?minDepth_raw)) < ABS(xsd:float(?maxDepth_raw)), ABS(xsd:float(?maxDepth_raw)), ABS(xsd:float(?minDepth_raw))) >= ${fMin} &&
+    IF(ABS(xsd:float(?minDepth_raw)) < ABS(xsd:float(?maxDepth_raw)), ABS(xsd:float(?minDepth_raw)), ABS(xsd:float(?maxDepth_raw))) <= ${fMax}
   ) .\n`;
   }
 
@@ -726,9 +728,8 @@ ${typeFilter}${textFilters}${rangeConstraints}    }
    * Depth from schema:variableMeasured / PropertyValue (aligned with public/queries/qlever/sparql_query.rq).
    * Uses CONTAINS(LCASE(name),"depth") plus cmpdep so the pattern stays short vs a long IN list.
    */
-  buildOptionalDepthVariableMeasured() {
-    return `  OPTIONAL {
-    ?subj schema:variableMeasured|sschema:variableMeasured ?vm .
+  buildDepthVariableMeasured({ required = false } = {}) {
+    const inner = `    ?subj schema:variableMeasured|sschema:variableMeasured ?vm .
     VALUES ?depthType { schema:PropertyValue sschema:PropertyValue }
     ?vm a ?depthType .
     ?vm schema:name|sschema:name ?propertyName .
@@ -738,11 +739,15 @@ ${typeFilter}${textFilters}${rangeConstraints}    }
     ) .
     ?vm schema:maxValue|sschema:maxValue ?maxDepth_d .
     ?vm schema:minValue|sschema:minValue ?minDepth_d .
-    BIND(COALESCE(?maxDepth_d) AS ?maxDepth)
-    BIND(COALESCE(?minDepth_d) AS ?minDepth)
+    BIND(COALESCE(?maxDepth_d) AS ?maxDepth_raw)
+    BIND(COALESCE(?minDepth_d) AS ?minDepth_raw)`;
+    return required
+      ? `${inner}\n\n`
+      : `  OPTIONAL {\n${inner}\n  }\n\n`;
   }
 
-`;
+  buildOptionalDepthVariableMeasured() {
+    return this.buildDepthVariableMeasured({ required: false });
   }
 
   buildBindings() {
