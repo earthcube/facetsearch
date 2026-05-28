@@ -77,8 +77,8 @@ export class SparqlQueryBuilder {
       `  (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", ") AS ?placenames)\n` +
       `  (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)\n` +
       `  (GROUP_CONCAT(DISTINCT ?resourceType_u; SEPARATOR=", ") AS ?resourceType)\n` +
-      `  (SAMPLE(?maxDepth_raw) AS ?maxDepth)\n` +
-      `  (SAMPLE(?minDepth_raw) AS ?minDepth)\n`
+      `  (MAX(?maxDepth_raw) AS ?maxDepth)\n` +
+      `  (MIN(?minDepth_raw) AS ?minDepth)\n`
     );
   }
 
