@@ -67,24 +67,17 @@ export class SparqlQueryBuilder {
 // future
         return ''
     }
-  buildSelectAggregateClause(aggVars) {
-        return Object.keys(aggVars).map( o => ` (GROUP_CONCAT(DISTINCT ?${aggVars[o]}; SEPARATOR=", ") AS ?${o}) ` )
-  }
   buildSelectClause() {
-    const selectVars = [
-      '?g',
-      '?subj', '?name', '?description', '?url', '?datep',
-      '?pubname',
-     // '?maxDepth', '?minDepth',
-        '?temporalCoverage'
-    ];
-      const aggVars = {
-          'disurl':'url',
-           'placenames':'placename', 'kw':'kw_u', 'resourceType':'resourceType_u',
-      };
-      const aggClause = this.buildSelectAggregateClause(aggVars);
-
-    return `SELECT DISTINCT ${selectVars.join(' ')} ${aggClause.join(' ')} \n`;
+    return (
+      `SELECT ?g ?subj ?name ?description\n` +
+      `  (SAMPLE(?datep_raw) AS ?datep)\n` +
+      `  (GROUP_CONCAT(DISTINCT ?pubname_raw; SEPARATOR=", ") AS ?pubname)\n` +
+      `  (SAMPLE(?temporalCoverage_raw) AS ?temporalCoverage)\n` +
+      `  (GROUP_CONCAT(DISTINCT ?url1; SEPARATOR=", ") AS ?disurl)\n` +
+      `  (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", ") AS ?placenames)\n` +
+      `  (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)\n` +
+      `  (GROUP_CONCAT(DISTINCT ?resourceType_u; SEPARATOR=", ") AS ?resourceType)\n`
+    );
   }
 
   buildWhereClause(textQuery, searchExactMatch, resourceType, filters, limit = 10, offset = 0) {
@@ -437,14 +430,14 @@ ${inner}
       this.buildConstraintRangeFragments(filters, { skipRangedepth: true }), 2
     );
     return `  {
-    SELECT DISTINCT ?g ?subj ?resourceType_u
+    SELECT DISTINCT ?subj ?resourceType_u
     WHERE {
       VALUES (?type ?resourceType_u) {
         (schema:Dataset             "data")
         (schema:DataCatalog         "DataCatalog")
         (schema:SoftwareApplication "tool")
       }
-      GRAPH ?g { ?subj a ?type . }
+      ?subj a ?type .
 ${typeFilter}${textFilters}${rangeConstraints}    }
     LIMIT ${limit}
     OFFSET ${offset}
@@ -622,7 +615,7 @@ ${typeFilter}${textFilters}${rangeConstraints}    }
   OPTIONAL {?subj schema:datePublished|sschema:datePublished ?datep1 .}
   OPTIONAL {?subj schema:dateCreated|sschema:dateCreated ?datec .}
   OPTIONAL {?subj schema:dateModified|sschema:dateModified ?datem .}
-  OPTIONAL {?subj schema:temporalCoverage|sschema:temporalCoverage ?temporalCoverage .}
+  OPTIONAL {?subj schema:temporalCoverage|sschema:temporalCoverage ?temporalCoverage_raw .}
   OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|schema:publisher/schema:legalName|sschema:publisher/sschema:legalName ?pub_name .}
   OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name|sschema:sdPublisher ?place_name .}
   OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
@@ -671,8 +664,8 @@ ${typeFilter}${textFilters}${rangeConstraints}    }
   buildBindings() {
     return `
 
-  BIND (COALESCE(?datec,?datem,?datep1) AS ?datep)
-  BIND (IF(BOUND(?pub_name), ?pub_name, "No Publisher") AS ?pubname)
+  BIND (COALESCE(?datec,?datem,?datep1) AS ?datep_raw)
+  BIND (IF(BOUND(?pub_name), ?pub_name, "No Publisher") AS ?pubname_raw)
   BIND (IF(BOUND(?place_name), ?place_name, "No Placenames") AS ?placename)
 `;
   }
@@ -680,9 +673,9 @@ ${typeFilter}${textFilters}${rangeConstraints}    }
   buildOrderByClause() {
     return '';
   }
-    buildGroupbyClause() {
-        return `GROUP BY ?g ?subj ?name ?description ?url ?datep ?pubname ?temporalCoverage\n`;
-    }
+  buildGroupbyClause() {
+    return `GROUP BY ?g ?subj ?name ?description\n`;
+  }
   buildLimitClause(limit, offset) {
     return `LIMIT ${limit}\nOFFSET ${offset}\n`;
   }

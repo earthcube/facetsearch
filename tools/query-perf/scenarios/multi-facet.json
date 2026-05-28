@@ -6,15 +6,15 @@
       "name": "combo: keywords + publisher",
       "search": "water",
       "facets": [
-        { "type": "text", "field": "kw", "active": true, "values": ["Precipitation"] },
-        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] }
+        { "type": "text", "field": "kw", "active": true, "values": ["Oceans"] },
+        { "type": "text", "field": "pubname", "active": true, "values": ["Interdisciplinary Earth Data Alliance (IEDA)"] }
       ]
     },
     {
       "name": "combo: keywords + depth range",
       "search": "water",
       "facets": [
-        { "type": "text", "field": "kw", "active": true, "values": ["Temperature", "Salinity"] },
+        { "type": "text", "field": "kw", "active": true, "values": ["Samplingevent"] },
         { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": 0, "max": 1000 } }
       ]
     },
@@ -22,8 +22,8 @@
       "name": "combo: keywords + temporal",
       "search": "ocean",
       "facets": [
-        { "type": "text", "field": "kw", "active": true, "values": ["Climate"] },
-        { "type": "rangeyear", "field": "temporalCoverage", "active": true, "values": { "min": 2010, "max": 2025 } }
+        { "type": "text", "field": "kw", "active": true, "values": ["Oceans"] },
+        { "type": "rangeyear", "field": "temporalCoverage", "active": true, "values": { "min": 2000, "max": 2025 } }
       ]
     },
     {
@@ -35,20 +35,19 @@
       ]
     },
     {
-      "name": "combo: publisher + place ",
+      "name": "combo: publisher + place",
       "search": "water",
       "facets": [
-        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] },
-        { "type": "text", "field": "placenames", "active": true, "values": ["Atlantic Ocean"] }
-
+        { "type": "text", "field": "pubname", "active": true, "values": ["Interdisciplinary Earth Data Alliance (IEDA)"] },
+        { "type": "text", "field": "placenames", "active": true, "values": ["Ross Sea"] }
       ]
     },
     {
-      "name": "combo: publisher + place + resource type (expect fail)",
+      "name": "combo: publisher + place + resource type",
       "search": "water",
       "facets": [
-        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] },
-        { "type": "text", "field": "placenames", "active": true, "values": ["Atlantic Ocean"] },
+        { "type": "text", "field": "pubname", "active": true, "values": ["Interdisciplinary Earth Data Alliance (IEDA)"] },
+        { "type": "text", "field": "placenames", "active": true, "values": ["Ross Sea"] },
         { "type": "text", "field": "resourceType", "active": true, "values": ["data"] }
       ]
     },
@@ -56,9 +55,9 @@
       "name": "combo: all text facets active",
       "search": "water",
       "facets": [
-        { "type": "text", "field": "kw", "active": true, "values": ["Temperature"] },
-        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] },
-        { "type": "text", "field": "placenames", "active": true, "values": ["Atlantic Ocean"] },
+        { "type": "text", "field": "kw", "active": true, "values": ["Oceans"] },
+        { "type": "text", "field": "pubname", "active": true, "values": ["Interdisciplinary Earth Data Alliance (IEDA)"] },
+        { "type": "text", "field": "placenames", "active": true, "values": ["Ross Sea"] },
         { "type": "text", "field": "resourceType", "active": true, "values": ["data"] }
       ]
     },
@@ -66,8 +65,8 @@
       "name": "combo: all facet types active (kitchen sink)",
       "search": "water",
       "facets": [
-        { "type": "text", "field": "kw", "active": true, "values": ["Temperature"] },
-        { "type": "text", "field": "pubname", "active": true, "values": ["NOAA"] },
+        { "type": "text", "field": "kw", "active": true, "values": ["Oceans"] },
+        { "type": "text", "field": "pubname", "active": true, "values": ["Interdisciplinary Earth Data Alliance (IEDA)"] },
         { "type": "text", "field": "resourceType", "active": true, "values": ["data"] },
         { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": 0, "max": 1000 } },
         { "type": "rangeyear", "field": "temporalCoverage", "active": true, "values": { "min": 2000, "max": 2025 } },
