@@ -276,16 +276,35 @@ function cleanOutputDir(dir) {
   for (const f of files) fs.unlinkSync(path.join(resolved, f));
 }
 
-function saveQueryFile(outputDir, testName, sparql) {
+function buildQueryHeader(meta) {
+  const lines = [];
+  lines.push(`# Test:      ${meta.name || "unnamed"}`);
+  lines.push(`# Search:    "${meta.search || ""}"  Limit: ${meta.limit ?? "?"}`);
+
+  for (const f of (meta.facets || [])) {
+    if (!f.active) continue;
+    const vals = f.values != null ? JSON.stringify(f.values) : "";
+    lines.push(`# Filter:    ${f.field}(${f.type})${vals ? `: ${vals}` : ""}`);
+  }
+  const discovery = (meta.facets || []).filter((f) => !f.active).map((f) => `${f.field}(${f.type})`);
+  if (discovery.length) lines.push(`# Discovery: ${discovery.join(", ")}`);
+
+  lines.push(`# Results:   ${meta.resultCount ?? "?"}`);
+  lines.push(`# Endpoint:  ${meta.endpoint || "?"}`);
+  lines.push(`# Timestamp: ${meta.timestamp || new Date().toISOString()}`);
+  return lines.join("\n") + "\n";
+}
+
+function saveQueryFile(outputDir, testName, sparql, meta = {}) {
   const dir = path.resolve(outputDir);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   const safeName = sanitizeName(testName || "unnamed");
   const filepath = path.join(dir, `${safeName}.rq`);
-  fs.writeFileSync(filepath, sparql + "\n");
+  fs.writeFileSync(filepath, buildQueryHeader({ ...meta, name: testName }) + "\n" + sparql + "\n");
   return filepath;
 }
 
-function saveErrorQuery(errorsDir, testName, sparql, errors) {
+function saveErrorQuery(errorsDir, testName, sparql, errors, meta = {}) {
   const dir = path.resolve(errorsDir);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
@@ -294,6 +313,7 @@ function saveErrorQuery(errorsDir, testName, sparql, errors) {
   const filename = `${timestamp}_${safeName}.rq`;
   const filepath = path.join(dir, filename);
 
+  const header = buildQueryHeader({ ...meta, name: testName });
   const errorLines = errors.map((e) => {
     const lines = [`# ERROR run ${e.run}: ${e.error}`];
     if (e.errorBody) {
@@ -304,7 +324,7 @@ function saveErrorQuery(errorsDir, testName, sparql, errors) {
     }
     return lines.join("\n");
   });
-  fs.writeFileSync(filepath, `${errorLines.join("\n\n")}\n\n${sparql}\n`);
+  fs.writeFileSync(filepath, `${header}\n${errorLines.join("\n\n")}\n\n${sparql}\n`);
   return filepath;
 }
 
@@ -404,11 +424,6 @@ async function runSingleTest(testDef, args, config, testName = "unnamed", output
     if (discoveryFacets.length) console.log(`  Discovery: ${discoveryFacets.join(", ")}`);
   }
 
-  if (args.showQuery) {
-    const qFile = saveQueryFile(outputDir ?? args.outputDir, testName, sparql);
-    if (!args.json) console.log(`  Query saved: ${qFile}`);
-  }
-
   // Warmup
   const warmup = testDef.warmup != null ? testDef.warmup : args.warmup;
   for (let i = 0; i < warmup; i++) {
@@ -448,9 +463,23 @@ async function runSingleTest(testDef, args, config, testName = "unnamed", output
 
   const stats = computeStats(timings);
 
+  const meta = {
+    search: searchParams.textQuery,
+    limit: searchParams.limit,
+    facets: (facets || []).map((f) => ({ type: f.type, field: f.field, active: !!f.active, values: f.values })),
+    resultCount: lastResultCount,
+    endpoint: endpointUrl,
+    timestamp: new Date().toISOString(),
+  };
+
+  if (args.showQuery) {
+    const qFile = saveQueryFile(outputDir ?? args.outputDir, testName, sparql, meta);
+    if (!args.json) console.log(`  Query saved: ${qFile}`);
+  }
+
   let errorFile = null;
   if (errors.length > 0) {
-    errorFile = saveErrorQuery(outputDir ?? args.outputDir, testName, sparql, errors);
+    errorFile = saveErrorQuery(outputDir ?? args.outputDir, testName, sparql, errors, meta);
     if (!args.json) {
       console.log(`\n  !! ${errors.length} error(s) in this test:`);
       for (const e of errors) console.log(`     Run ${e.run}: ${e.error}`);
