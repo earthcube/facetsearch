@@ -147,7 +147,7 @@ When a test shows poor performance, the saved results file contains all the info
 | `--offset <n>` | `0` | SPARQL OFFSET |
 | `--facet <json>` | — | Inline facet filter JSON (repeatable) |
 | `--scenario <path>` | — | Scenario file or directory |
-| `--timeout <ms>` | `30000` | HTTP timeout per request |
+| `--timeout <ms>` | `60000` | HTTP timeout per request |
 | `--runs <n>` | `3` | Measured runs per test |
 | `--warmup <n>` | `1` | Warmup runs (not measured) |
 | `--show-query` | — | Print rendered SPARQL |
@@ -155,3 +155,5 @@ When a test shows poor performance, the saved results file contains all the info
 | `--json` | — | Machine-readable JSON output |
 | `--compare <path>` | — | Compare against saved results |
 | `--save <path>` | — | Save results to JSON file |
+| `--errors-dir <path>` | `errors/` | Directory to write failing queries as `.rq` files |
+| `--analyze-errors` | — | Send failing queries to Claude CLI for analysis and improvement suggestions |
