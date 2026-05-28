@@ -200,6 +200,7 @@ export class SparqlQueryBuilder {
     if (this.isQleverBrowseMode(textQuery)) {
       whereClause += this.buildQleverBrowseSubquery(resourceType, limit, offset);
       whereClause += `  GRAPH ?g {\n    ?subj schema:name|sschema:name ?name .\n    ?subj schema:description|sschema:description ?description .\n  }\n`;
+      whereClause += this.buildConstraintRangeFragments(filters);
       whereClause += this.buildOptionalProperties();
       whereClause += this.buildBindings();
       whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
