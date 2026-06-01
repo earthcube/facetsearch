@@ -185,6 +185,24 @@ export class SparqlQueryBuilder {
     return whereClause;
   }
 
+  /** Inner WHERE body for facet option counts (search text + filters, no card OPTIONALs unless needed). */
+  buildFacetOptionsWhereInner(textQuery, searchExactMatch, resourceType, filters) {
+    const needsCardMetadata = this.filtersNeedCardMetadata(filters);
+    const whereClause = this.buildWhereClause(
+      textQuery,
+      searchExactMatch,
+      resourceType,
+      filters,
+      { skipCardMetadata: !needsCardMetadata }
+    );
+    const prefix = 'WHERE {\n';
+    const suffix = '\n}\n';
+    if (!whereClause.startsWith(prefix) || !whereClause.endsWith(suffix)) {
+      return whereClause;
+    }
+    return whereClause.slice(prefix.length, -suffix.length);
+  }
+
   /** Dataset type for ?subj (outside GRAPH), matches QLever sparql_query.rq */
   buildSubjDatasetHead() {
     return `  VALUES ?sosType {

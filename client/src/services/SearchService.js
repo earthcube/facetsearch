@@ -223,11 +223,12 @@ export class SearchService {
   // -------------------------
 
   /**
-   * Fetch facet options (distinct values + counts) for a given field
-   * currentFilters: other active filters (excluding this field)
+   * Fetch facet options (distinct values + counts) for a given field.
+   * searchContext: { filters, textQuery, searchExactMatch, resourceType }
+   *   filters = other active facet filters (excluding this field)
    */
-  async getFacetOptions(field, currentFilters = {}) {
-    const query = this.buildFacetOptionsQuery(field, currentFilters);
+  async getFacetOptions(field, searchContext = {}) {
+    const query = this.buildFacetOptionsQuery(field, searchContext);
     const data = await this.sendToTriplestoreWithFallback(query);
     return this.processFacetOptions(data);
   }
@@ -235,7 +236,7 @@ export class SearchService {
   /**
    * Build a SPARQL query that returns distinct values and their counts for a facet
    */
-  buildFacetOptionsQuery(field, currentFilters) {
+  buildFacetOptionsQuery(field, searchContext = {}) {
     const facetConfig = (this.config.FACETS || []).find(f => f.field === field);
     if (!facetConfig) {
       return `
@@ -243,6 +244,13 @@ ${this.queryBuilder.buildPrefixes()}
 SELECT ?value (0 as ?count) WHERE { FILTER(false) } LIMIT 0
 `;
     }
+
+    const {
+      filters: currentFilters = {},
+      textQuery = '',
+      searchExactMatch = false,
+      resourceType = '',
+    } = searchContext;
 
     const sparqlProperty =
       facetConfig.sparql_property ||
@@ -252,28 +260,19 @@ SELECT ?value (0 as ?count) WHERE { FILTER(false) } LIMIT 0
     const filtersCopy = { ...(currentFilters || {}) };
     delete filtersCopy[field];
 
-    const needDepthOptional =
-      this.queryBuilder.filtersNeedDepthVariableMeasured(filtersCopy);
-
     let q = '';
     q += this.queryBuilder.buildPrefixes();
-    q += `SELECT DISTINCT ?value (COUNT(*) AS ?count)
+    q += `SELECT ?value (COUNT(DISTINCT ?subj) AS ?count)
 WHERE {
 `;
-    if (needDepthOptional) {
-      q += this.queryBuilder.buildOptionalDepthVariableMeasured();
-    }
-    q += this.queryBuilder.buildFilterFragments(filtersCopy, {
-      rangePlacement: needDepthOptional ? 'early' : 'all',
-    });
-    q += this.queryBuilder.buildBaseGraphPattern();
+    q += this.queryBuilder.buildFacetOptionsWhereInner(
+      textQuery,
+      searchExactMatch,
+      resourceType,
+      filtersCopy
+    );
     q += `  ?subj ${sparqlProperty} ?value .
 `;
-    if (needDepthOptional) {
-      q += this.queryBuilder.buildFilterFragments(filtersCopy, {
-        rangePlacement: 'late',
-      });
-    }
     q += `}
 GROUP BY ?value
 ORDER BY DESC(?count) ?value

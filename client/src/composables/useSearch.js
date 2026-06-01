@@ -153,12 +153,12 @@ export function useFacetOptions(searchService, field) {
   const loading = ref(false);
   const error = ref(null);
 
-  const loadOptions = async (currentFilters = {}) => {
+  const loadOptions = async (searchContext = {}) => {
     loading.value = true;
     error.value = null;
 
     try {
-      const facetOptions = await searchService.getFacetOptions(field, currentFilters);
+      const facetOptions = await searchService.getFacetOptions(field, searchContext);
       options.value = facetOptions;
     } catch (err) {
       error.value = err.message;
@@ -179,6 +179,9 @@ export function useFacetOptions(searchService, field) {
 export function useFacet(facetConfig, searchComposable) {
   const {
     activeFilters,
+    textQuery,
+    searchExactMatch,
+    resourceType,
     addFilter,
     removeFilter,
     setFilter,
@@ -230,13 +233,32 @@ export function useFacet(facetConfig, searchComposable) {
   const lastLoadedKey = ref('');
   let reloadTimer = null;
 
-  const loadOptionsForCurrentState = async () => {
+  const buildSearchContext = () => {
     const currentFilters = { ...activeFilters.value };
     delete currentFilters[field];
-    const key = filtersKey(currentFilters);
+    return {
+      filters: currentFilters,
+      textQuery: textQuery.value,
+      searchExactMatch: searchExactMatch.value,
+      resourceType: resourceType.value,
+    };
+  };
+
+  const optionsLoadKey = (context) => {
+    return JSON.stringify({
+      filters: filtersKey(context.filters),
+      textQuery: context.textQuery || '',
+      searchExactMatch: !!context.searchExactMatch,
+      resourceType: context.resourceType || '',
+    });
+  };
+
+  const loadOptionsForCurrentState = async () => {
+    const searchContext = buildSearchContext();
+    const key = optionsLoadKey(searchContext);
     if (key === lastLoadedKey.value) return;
     lastLoadedKey.value = key;
-    await loadOptions(currentFilters);
+    await loadOptions(searchContext);
   };
 
   const scheduleOptionsReload = () => {
@@ -247,15 +269,10 @@ export function useFacet(facetConfig, searchComposable) {
   };
 
   watch(
-    () => {
-      const otherFilters = { ...activeFilters.value };
-      delete otherFilters[field];
-      return otherFilters;
-    },
+    () => optionsLoadKey(buildSearchContext()),
     () => {
       scheduleOptionsReload();
-    },
-    { deep: true }
+    }
   );
 
   onMounted(() => {
