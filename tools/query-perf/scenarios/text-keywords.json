@@ -20,14 +20,14 @@
       "name": "keywords: multiple values",
       "search": "water",
       "facets": [
-        { "type": "text", "field": "kw", "active": true, "values": ["Temperature", "Ocean", "Climate"] }
+        { "type": "text", "field": "kw", "active": true, "values": ["temperature", "oceans"] }
       ]
     },
     {
       "name": "keywords: many values (10)",
       "search": "ocean",
       "facets": [
-        { "type": "text", "field": "kw", "active": true, "values": ["Temperature", "Ocean", "Climate", "Sea Level", "Salinity", "Pressure", "Current", "Wind", "Bathymetry", "Sediment"] }
+        { "type": "text", "field": "kw", "active": true, "values": ["Temperature", "Oceans",  "Salinity", "CTD", "Depth",] }
       ]
     }
   ]
