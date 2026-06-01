@@ -168,8 +168,10 @@ export class SparqlQueryBuilder {
         filters
       );
       whereClause += this.buildConstraintRangeFragments(filters);
-      whereClause += this.buildOptionalProperties();
-      whereClause += this.buildBindings();
+      if (!skipCardMetadata) {
+        whereClause += this.buildOptionalProperties();
+        whereClause += this.buildBindings();
+      }
       whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
       whereClause += '}\n';
       return whereClause;
