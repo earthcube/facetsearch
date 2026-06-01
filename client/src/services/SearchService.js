@@ -70,23 +70,47 @@ export class SearchService {
   /**
    * Execute a search with the current filters and parameters
    */
+  hasActiveFacetFilters(filters) {
+    if (!filters || typeof filters !== 'object') return false;
+    return Object.keys(filters).some((key) => {
+      const value = filters[key];
+      return Array.isArray(value) ? value.length > 0 : !!value;
+    });
+  }
+
   async executeQuery(searchParams) {
     try {
       const sparqlQuery = this.queryBuilder.buildQuery(searchParams);
       const response = await this.sendToTriplestoreWithFallback(sparqlQuery);
       const results = this.processResults(response);
 
-      const totalCountPromise = this.fetchTotalCount(searchParams)
+      const countDistinctSubjects = this.hasActiveFacetFilters(searchParams.filters);
+
+      const totalCountPromise = this.fetchTotalCount(searchParams, {
+        countDistinctSubjects,
+      })
         .then((n) => (n > 0 ? n : results.length))
         .catch((err) => {
           console.warn('Search count query failed:', err?.message || err);
           return results.length;
         });
 
+      let searchTotalCountPromise = null;
+      if (this.hasActiveFacetFilters(searchParams.filters)) {
+        searchTotalCountPromise = this.fetchTotalCount(
+          { ...searchParams, filters: {} },
+          { countDistinctSubjects: false }
+        ).catch((err) => {
+          console.warn('Search unfiltered count query failed:', err?.message || err);
+          return 0;
+        });
+      }
+
       return {
         results,
         totalCount: results.length,
         totalCountPromise,
+        searchTotalCountPromise,
       };
     } catch (error) {
       console.error('Search service error:', error);
@@ -94,8 +118,8 @@ export class SearchService {
     }
   }
 
-  async fetchTotalCount(searchParams) {
-    const countQuery = this.queryBuilder.buildCountQuery(searchParams);
+  async fetchTotalCount(searchParams, options = {}) {
+    const countQuery = this.queryBuilder.buildCountQuery(searchParams, options);
     const countResponse = await this.sendToTriplestoreWithFallback(countQuery);
     return this.processCountResult(countResponse);
   }

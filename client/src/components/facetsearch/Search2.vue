@@ -72,6 +72,7 @@
           <ResultHeader2
             :current-count="results.length"
             :total-count="totalCount"
+            :search-total-count="searchTotalCount"
             :filters="activeFiltersDisplay"
             :loading="isLoading"
           />

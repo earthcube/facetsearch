@@ -14,6 +14,7 @@ export class FilterStateManager {
       isLoading: false,
       results: [],
       totalCount: 0,
+      searchTotalCount: 0,
       error: null,
       lastQuery: null,
       lastQuerySignature: '',
@@ -126,10 +127,19 @@ export class FilterStateManager {
     this.state.searchExactMatch = !!exact;
   }
 
+  hasActiveFacetFilters(filters) {
+    if (!filters || typeof filters !== 'object') return false;
+    return Object.keys(filters).some((key) => {
+      const value = filters[key];
+      return Array.isArray(value) ? value.length > 0 : !!value;
+    });
+  }
+
   async executeQuery() {
     if (!this.shouldExecuteQuery()) {
       this.state.results = [];
       this.state.totalCount = 0;
+      this.state.searchTotalCount = 0;
       return;
     }
 
@@ -145,6 +155,12 @@ export class FilterStateManager {
 
     this.state.isLoading = true;
     this.state.error = null;
+
+    const filtersActive = this.hasActiveFacetFilters(params.filters);
+    const prevHadFilters = this.hasActiveFacetFilters(this.state.lastQuery?.filters);
+    if (filtersActive && !prevHadFilters && this.state.totalCount > 0) {
+      this.state.searchTotalCount = this.state.totalCount;
+    }
 
     try {
       this.state.lastQuery = params;
@@ -164,6 +180,13 @@ export class FilterStateManager {
             this.state.totalCount = n;
           });
         }
+        if (outcome?.searchTotalCountPromise) {
+          outcome.searchTotalCountPromise.then((n) => {
+            this.state.searchTotalCount = n > 0 ? n : this.state.totalCount;
+          });
+        } else {
+          this.state.searchTotalCount = 0;
+        }
       }
 
     } catch (error) {
@@ -171,6 +194,7 @@ export class FilterStateManager {
       this.state.error = error.message || 'Query execution failed';
       this.state.results = [];
       this.state.totalCount = 0;
+      this.state.searchTotalCount = 0;
     } finally {
       this.state.isLoading = false;
     }

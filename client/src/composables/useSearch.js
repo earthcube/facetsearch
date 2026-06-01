@@ -51,6 +51,7 @@ export function useSearch(configOrRef) {
   const isLoading = computed(() => state.isLoading);
   const results = computed(() => state.results);
   const totalCount = computed(() => state.totalCount);
+  const searchTotalCount = computed(() => state.searchTotalCount);
   const error = computed(() => state.error);
   const textQuery = computed({
     get: () => state.textQuery,
@@ -125,6 +126,7 @@ export function useSearch(configOrRef) {
     isLoading,
     results,
     totalCount,
+    searchTotalCount,
     error,
     textQuery,
     searchExactMatch,
@@ -152,19 +154,25 @@ export function useFacetOptions(searchService, field) {
   const options = ref([]);
   const loading = ref(false);
   const error = ref(null);
+  let loadGeneration = 0;
 
   const loadOptions = async (searchContext = {}) => {
+    const generation = ++loadGeneration;
     loading.value = true;
     error.value = null;
 
     try {
       const facetOptions = await searchService.getFacetOptions(field, searchContext);
+      if (generation !== loadGeneration) return;
       options.value = facetOptions;
     } catch (err) {
+      if (generation !== loadGeneration) return;
       error.value = err.message;
       console.error(`Error loading options for ${field}:`, err);
     } finally {
-      loading.value = false;
+      if (generation === loadGeneration) {
+        loading.value = false;
+      }
     }
   };
 
@@ -187,7 +195,8 @@ export function useFacet(facetConfig, searchComposable) {
     setFilter,
     clearFilter,
     isFilterActive,
-    searchService
+    searchService,
+    filterStateManager,
   } = searchComposable;
 
   const field = facetConfig.field;
@@ -253,30 +262,43 @@ export function useFacet(facetConfig, searchComposable) {
     });
   };
 
-  const loadOptionsForCurrentState = async () => {
+  const loadOptionsForCurrentState = async (force = false) => {
     const searchContext = buildSearchContext();
     const key = optionsLoadKey(searchContext);
-    if (key === lastLoadedKey.value) return;
+    if (!force && key === lastLoadedKey.value) return;
     lastLoadedKey.value = key;
     await loadOptions(searchContext);
   };
 
-  const scheduleOptionsReload = () => {
+  const scheduleOptionsReload = (force = false) => {
     if (reloadTimer) clearTimeout(reloadTimer);
     reloadTimer = setTimeout(() => {
-      void loadOptionsForCurrentState();
+      void loadOptionsForCurrentState(force);
     }, 120);
   };
 
   watch(
     () => optionsLoadKey(buildSearchContext()),
     () => {
-      scheduleOptionsReload();
+      scheduleOptionsReload(false);
+    }
+  );
+
+  // Reload facet counts after the main search finishes (avoids stale pre-search responses).
+  watch(
+    () => filterStateManager.state.lastQueryAt,
+    () => {
+      if (!filterStateManager.state.lastQuerySignature) return;
+      scheduleOptionsReload(true);
     }
   );
 
   onMounted(() => {
-    void loadOptionsForCurrentState();
+    const ctx = buildSearchContext();
+    const hasQuery = String(ctx.textQuery || '').trim() !== '';
+    const hasFilters = Object.keys(ctx.filters || {}).length > 0;
+    if (!hasQuery && !hasFilters) return;
+    void loadOptionsForCurrentState(false);
   });
 
   onBeforeUnmount(() => {

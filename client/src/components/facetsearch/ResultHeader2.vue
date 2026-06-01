@@ -7,6 +7,10 @@
             <b-spinner small class="me-2"></b-spinner>
             Searching...
           </span>
+          <span v-else-if="hasFilters && searchTotalCount > totalCount">
+            Showing {{ totalCount.toLocaleString() }} of
+            {{ searchTotalCount.toLocaleString() }} results
+          </span>
           <span v-else-if="totalCount > currentCount">
             Showing {{ currentCount.toLocaleString() }} of
             {{ totalCount.toLocaleString() }} results
@@ -54,6 +58,10 @@ export default {
       default: 0
     },
     totalCount: {
+      type: Number,
+      default: 0
+    },
+    searchTotalCount: {
       type: Number,
       default: 0
     },

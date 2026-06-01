@@ -54,9 +54,16 @@ export class SparqlQueryBuilder {
     return query;
   }
 
-  /** Total matching result rows (without LIMIT). Uses a lighter WHERE when card metadata is not needed for filters. */
-  buildCountQuery(searchParams) {
+  /**
+   * Total matches for the current search (without LIMIT).
+   * @param {object} searchParams
+   * @param {{ countDistinctSubjects?: boolean }} [options]
+   *   - countDistinctSubjects false (default): distinct result rows (?g ?subj ?name ?description ?type), matches pre-filter search total
+   *   - countDistinctSubjects true: distinct datasets (?subj), matches facet sidebar counts
+   */
+  buildCountQuery(searchParams, options = {}) {
     const { textQuery, searchExactMatch, resourceType, filters } = searchParams;
+    const countDistinctSubjects = options.countDistinctSubjects === true;
     const needsCardMetadata = this.filtersNeedCardMetadata(filters);
     const whereClause = this.buildWhereClause(
       textQuery,
@@ -66,14 +73,18 @@ export class SparqlQueryBuilder {
       { skipCardMetadata: !needsCardMetadata }
     );
     const innerWhere = whereClause.slice('WHERE {\n'.length, -'\n}\n'.length);
-    const groupKeys = needsCardMetadata
-      ? '?g ?subj ?name ?description ?type ?pubname ?placename ?datep ?temporalCoverage'
-      : '?g ?subj ?name ?description ?type';
 
     let query = this.buildPrefixes();
+    if (countDistinctSubjects) {
+      query += 'SELECT (COUNT(DISTINCT ?subj) AS ?count) WHERE {\n';
+      query += innerWhere;
+      query += '}\n';
+      return query;
+    }
+
     query += 'SELECT (COUNT(*) AS ?count) WHERE {\n';
     query += '  {\n';
-    query += `    SELECT DISTINCT ${groupKeys}\n`;
+    query += '    SELECT DISTINCT ?g ?subj ?name ?description ?type\n';
     query += '    WHERE {\n';
     query += innerWhere;
     query += '    }\n';
