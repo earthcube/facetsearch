@@ -204,7 +204,6 @@ export class SparqlQueryBuilder {
     }
     // Range filters use ?temporalCoverage (OPTIONAL), ?datep (BIND), ?maxDepth/?minDepth (depth OPTIONAL); must run after those bind.
     whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
-    whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
 
     whereClause += '}\n';
     return whereClause;
