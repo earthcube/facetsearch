@@ -7,9 +7,17 @@
             <b-spinner small class="me-2"></b-spinner>
             Searching...
           </span>
+          <span v-else-if="hasFilters && searchTotalCount > totalCount">
+            Showing {{ totalCount.toLocaleString() }} of
+            {{ searchTotalCount.toLocaleString() }} results
+          </span>
+          <span v-else-if="totalCount > currentCount">
+            Showing {{ currentCount.toLocaleString() }} of
+            {{ totalCount.toLocaleString() }} results
+          </span>
           <span v-else>
-            {{ currentCount.toLocaleString() }}
-            {{ currentCount === 1 ? 'result' : 'results' }}
+            {{ resultLabelCount.toLocaleString() }}
+            {{ resultLabelCount === 1 ? 'result' : 'results' }}
           </span>
         </h5>
 
@@ -53,6 +61,10 @@ export default {
       type: Number,
       default: 0
     },
+    searchTotalCount: {
+      type: Number,
+      default: 0
+    },
     filters: {
       type: Object,
       default: () => ({})
@@ -61,6 +73,12 @@ export default {
       type: Boolean,
       default: false
     }
+  },
+
+  computed: {
+    resultLabelCount() {
+      return this.totalCount > 0 ? this.totalCount : this.currentCount;
+    },
   },
 
   setup(props) {

@@ -20,6 +20,7 @@
         :key="result.id || result.subj || index"
         :result="result"
         :index="index"
+        :active-filters="activeFilters"
       />
     </div>
   </div>
@@ -43,6 +44,10 @@ export default {
     loading: {
       type: Boolean,
       default: false
+    },
+    activeFilters: {
+      type: Object,
+      default: () => ({})
     }
   }
 };

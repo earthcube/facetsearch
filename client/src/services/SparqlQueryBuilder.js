@@ -54,6 +54,56 @@ export class SparqlQueryBuilder {
     return query;
   }
 
+  /**
+   * Total matches for the current search (without LIMIT).
+   * @param {object} searchParams
+   * @param {{ countDistinctSubjects?: boolean }} [options]
+   *   - countDistinctSubjects false (default): distinct result rows (?g ?subj ?name ?description ?type), matches pre-filter search total
+   *   - countDistinctSubjects true: distinct datasets (?subj), matches facet sidebar counts
+   */
+  buildCountQuery(searchParams, options = {}) {
+    const { textQuery, searchExactMatch, resourceType, filters } = searchParams;
+    const countDistinctSubjects = options.countDistinctSubjects === true;
+    const needsCardMetadata = this.filtersNeedCardMetadata(filters);
+    const whereClause = this.buildWhereClause(
+      textQuery,
+      searchExactMatch,
+      resourceType,
+      filters,
+      { skipCardMetadata: !needsCardMetadata }
+    );
+    const innerWhere = whereClause.slice('WHERE {\n'.length, -'\n}\n'.length);
+
+    let query = this.buildPrefixes();
+    if (countDistinctSubjects) {
+      query += 'SELECT (COUNT(DISTINCT ?subj) AS ?count) WHERE {\n';
+      query += innerWhere;
+      query += '}\n';
+      return query;
+    }
+
+    query += 'SELECT (COUNT(*) AS ?count) WHERE {\n';
+    query += '  {\n';
+    query += '    SELECT DISTINCT ?g ?subj ?name ?description ?type\n';
+    query += '    WHERE {\n';
+    query += innerWhere;
+    query += '    }\n';
+    query += '  }\n';
+    query += '}\n';
+    return query;
+  }
+
+  /** True when active filters require OPTIONAL card fields (keywords, publisher, ranges, etc.). */
+  filtersNeedCardMetadata(filters) {
+    if (!filters || typeof filters !== 'object') return false;
+    return Object.keys(filters).some((field) => {
+      const cfg = this.getFacetConfig(field);
+      if (!cfg) return false;
+      if (cfg.type === 'geo') return false;
+      return true;
+    });
+  }
+
   buildPrefixes() {
     return Object.entries(this.prefixes)
       .map(([prefix, uri]) => `PREFIX ${prefix}: ${uri}`)
@@ -70,21 +120,22 @@ export class SparqlQueryBuilder {
   buildSelectClause() {
     const selectVars = [
       '?g',
-      '?subj', '?name', '?description', '?url', '?datep',
+      '?subj', '?name', '?description', '?datep',
       '?pubname',
      // '?maxDepth', '?minDepth',
         '?temporalCoverage'
     ];
       const aggVars = {
-          'disurl':'url',
-           'placenames':'placename', 'kw':'kw_u', 'resourceType':'resourceType_u',
+          'disurl':'url1',
+           'placenames':'placename', 'kw':'kwu', 'resourceType':'resourceType_u',
       };
       const aggClause = this.buildSelectAggregateClause(aggVars);
 
     return `SELECT DISTINCT ${selectVars.join(' ')} ${aggClause.join(' ')} \n`;
   }
 
-  buildWhereClause(textQuery, searchExactMatch, resourceType, filters) {
+  buildWhereClause(textQuery, searchExactMatch, resourceType, filters, options = {}) {
+    const skipCardMetadata = options.skipCardMetadata === true;
     let whereClause = 'WHERE {\n';
 
     // QLever full-text must follow public/queries/qlever/sparql_query.rq: constrain ?subj as
@@ -108,8 +159,10 @@ export class SparqlQueryBuilder {
         filters
       );
       whereClause += this.buildConstraintRangeFragments(filters);
-      whereClause += this.buildOptionalProperties();
-      whereClause += this.buildBindings();
+      if (!skipCardMetadata) {
+        whereClause += this.buildOptionalProperties();
+        whereClause += this.buildBindings();
+      }
       whereClause += this.buildFilterFragments(filters, {
         rangePlacement: 'late',
         skipRangedepth: true,
@@ -126,8 +179,10 @@ export class SparqlQueryBuilder {
         filters
       );
       whereClause += this.buildConstraintRangeFragments(filters);
-      whereClause += this.buildOptionalProperties();
-      whereClause += this.buildBindings();
+      if (!skipCardMetadata) {
+        whereClause += this.buildOptionalProperties();
+        whereClause += this.buildBindings();
+      }
       whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
       whereClause += '}\n';
       return whereClause;
@@ -151,12 +206,38 @@ export class SparqlQueryBuilder {
     // Standalone range constraints once ?subj is narrowed (FILTER EXISTS — not late FILTER on OPTIONAL binds).
     whereClause += this.buildConstraintRangeFragments(filters);
 
-    whereClause += this.buildOptionalProperties();
-    whereClause += this.buildBindings();
+    if (!skipCardMetadata) {
+      whereClause += this.buildOptionalProperties();
+      if (this.filtersNeedDepthVariableMeasured(filters)) {
+        whereClause += this.buildOptionalDepthVariableMeasured();
+      }
+      whereClause += this.buildBindings();
+    } else if (this.filtersNeedDepthVariableMeasured(filters)) {
+      whereClause += this.buildOptionalDepthVariableMeasured();
+    }
+    // Range filters use ?temporalCoverage (OPTIONAL), ?datep (BIND), ?maxDepth/?minDepth (depth OPTIONAL); must run after those bind.
     whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
 
     whereClause += '}\n';
     return whereClause;
+  }
+
+  /** Inner WHERE body for facet option counts (search text + filters, no card OPTIONALs unless needed). */
+  buildFacetOptionsWhereInner(textQuery, searchExactMatch, resourceType, filters) {
+    const needsCardMetadata = this.filtersNeedCardMetadata(filters);
+    const whereClause = this.buildWhereClause(
+      textQuery,
+      searchExactMatch,
+      resourceType,
+      filters,
+      { skipCardMetadata: !needsCardMetadata }
+    );
+    const prefix = 'WHERE {\n';
+    const suffix = '\n}\n';
+    if (!whereClause.startsWith(prefix) || !whereClause.endsWith(suffix)) {
+      return whereClause;
+    }
+    return whereClause.slice(prefix.length, -suffix.length);
   }
 
   /** Dataset type for ?subj (outside GRAPH), matches QLever sparql_query.rq */
@@ -592,7 +673,7 @@ ${inner}
     return '';
   }
     buildGroupbyClause(_limit, _offset) {
-        return `GROUP BY ?g ?subj  ?placename  ?datep ?pubname ?url  ?name ?description ?type  ?temporalCoverage ?kw  ?resourceType\n`;
+        return `GROUP BY ?g ?subj ?name ?description ?type ?pubname ?placename ?datep ?temporalCoverage\n`;
     }
   buildLimitClause(limit, offset) {
     return `LIMIT ${limit}\nOFFSET ${offset}\n`;

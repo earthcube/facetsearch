@@ -13,6 +13,8 @@ export class FilterStateManager {
       activeFilters: {},
       isLoading: false,
       results: [],
+      totalCount: 0,
+      searchTotalCount: 0,
       error: null,
       lastQuery: null,
       lastQuerySignature: '',
@@ -125,9 +127,19 @@ export class FilterStateManager {
     this.state.searchExactMatch = !!exact;
   }
 
+  hasActiveFacetFilters(filters) {
+    if (!filters || typeof filters !== 'object') return false;
+    return Object.keys(filters).some((key) => {
+      const value = filters[key];
+      return Array.isArray(value) ? value.length > 0 : !!value;
+    });
+  }
+
   async executeQuery() {
     if (!this.shouldExecuteQuery()) {
       this.state.results = [];
+      this.state.totalCount = 0;
+      this.state.searchTotalCount = 0;
       return;
     }
 
@@ -144,18 +156,45 @@ export class FilterStateManager {
     this.state.isLoading = true;
     this.state.error = null;
 
+    const filtersActive = this.hasActiveFacetFilters(params.filters);
+    const prevHadFilters = this.hasActiveFacetFilters(this.state.lastQuery?.filters);
+    if (filtersActive && !prevHadFilters && this.state.totalCount > 0) {
+      this.state.searchTotalCount = this.state.totalCount;
+    }
+
     try {
       this.state.lastQuery = params;
       this.state.lastQuerySignature = signature;
       this.state.lastQueryAt = now;
 
-      const results = await this.queryExecutor(params);
-      this.state.results = results || [];
+      const outcome = await this.queryExecutor(params);
+      if (Array.isArray(outcome)) {
+        this.state.results = outcome;
+        this.state.totalCount = outcome.length;
+      } else {
+        this.state.results = outcome?.results || [];
+        this.state.totalCount =
+          outcome?.totalCount ?? this.state.results.length;
+        if (outcome?.totalCountPromise) {
+          outcome.totalCountPromise.then((n) => {
+            this.state.totalCount = n;
+          });
+        }
+        if (outcome?.searchTotalCountPromise) {
+          outcome.searchTotalCountPromise.then((n) => {
+            this.state.searchTotalCount = n > 0 ? n : this.state.totalCount;
+          });
+        } else {
+          this.state.searchTotalCount = 0;
+        }
+      }
 
     } catch (error) {
       console.error('Query execution error:', error);
       this.state.error = error.message || 'Query execution failed';
       this.state.results = [];
+      this.state.totalCount = 0;
+      this.state.searchTotalCount = 0;
     } finally {
       this.state.isLoading = false;
     }

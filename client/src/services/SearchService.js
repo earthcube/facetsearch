@@ -18,6 +18,17 @@ export function datasetRouteIdFromBinding(row) {
   return subj || g || '';
 }
 
+/** Split SPARQL GROUP_CONCAT values the same way as state.js flattenSparqlResults. */
+export function splitSparqlGroupConcat(value) {
+  if (value == null || value === '') return null;
+  const regex = /,(?![^(]*\)) /;
+  const elements = String(value).split(regex);
+  if (elements.length === 1 && elements[0].trim() === '') {
+    return null;
+  }
+  return elements;
+}
+
 /**
  * Main Search Service (QLever-first)
  * - Builds SPARQL from active filters
@@ -59,15 +70,58 @@ export class SearchService {
   /**
    * Execute a search with the current filters and parameters
    */
+  hasActiveFacetFilters(filters) {
+    if (!filters || typeof filters !== 'object') return false;
+    return Object.keys(filters).some((key) => {
+      const value = filters[key];
+      return Array.isArray(value) ? value.length > 0 : !!value;
+    });
+  }
+
   async executeQuery(searchParams) {
     try {
       const sparqlQuery = this.queryBuilder.buildQuery(searchParams);
       const response = await this.sendToTriplestoreWithFallback(sparqlQuery);
-      return this.processResults(response);
+      const results = this.processResults(response);
+
+      const countDistinctSubjects = this.hasActiveFacetFilters(searchParams.filters);
+
+      const totalCountPromise = this.fetchTotalCount(searchParams, {
+        countDistinctSubjects,
+      })
+        .then((n) => (n > 0 ? n : results.length))
+        .catch((err) => {
+          console.warn('Search count query failed:', err?.message || err);
+          return results.length;
+        });
+
+      let searchTotalCountPromise = null;
+      if (this.hasActiveFacetFilters(searchParams.filters)) {
+        searchTotalCountPromise = this.fetchTotalCount(
+          { ...searchParams, filters: {} },
+          { countDistinctSubjects: false }
+        ).catch((err) => {
+          console.warn('Search unfiltered count query failed:', err?.message || err);
+          return 0;
+        });
+      }
+
+      return {
+        results,
+        totalCount: results.length,
+        totalCountPromise,
+        searchTotalCountPromise,
+      };
     } catch (error) {
       console.error('Search service error:', error);
       throw error;
     }
+  }
+
+  async fetchTotalCount(searchParams, options = {}) {
+    const countQuery = this.queryBuilder.buildCountQuery(searchParams, options);
+    const countResponse = await this.sendToTriplestoreWithFallback(countQuery);
+    return this.processCountResult(countResponse);
   }
 
   /**
@@ -155,6 +209,12 @@ export class SearchService {
   /**
    * Normalize SPARQL JSON results to a flat array of objects
    */
+  processCountResult(response) {
+    const raw = response?.results?.bindings?.[0]?.count?.value;
+    const n = parseInt(raw ?? '0', 10);
+    return Number.isNaN(n) ? 0 : n;
+  }
+
   processResults(response) {
     if (!response || !response.results || !response.results.bindings) {
       return [];
@@ -168,8 +228,16 @@ export class SearchService {
       }
       // Convenience fields used by UI (dataset links use graph URN when available)
       out.id = datasetRouteIdFromBinding(out);
-      out.keywords = out.kwu ? out.kwu.split(',').map(k => k.trim()) : [];
       out.resourceType = out.resourceType_u;
+      if (out.kw !== undefined) {
+        out.kw = splitSparqlGroupConcat(out.kw);
+      }
+      if (out.placenames !== undefined) {
+        out.placenames = splitSparqlGroupConcat(out.placenames);
+      }
+      if (out.disurl !== undefined) {
+        out.disurl = splitSparqlGroupConcat(out.disurl);
+      }
       return out;
     });
   }
@@ -179,11 +247,12 @@ export class SearchService {
   // -------------------------
 
   /**
-   * Fetch facet options (distinct values + counts) for a given field
-   * currentFilters: other active filters (excluding this field)
+   * Fetch facet options (distinct values + counts) for a given field.
+   * searchContext: { filters, textQuery, searchExactMatch, resourceType }
+   *   filters = other active facet filters (excluding this field)
    */
-  async getFacetOptions(field, currentFilters = {}) {
-    const query = this.buildFacetOptionsQuery(field, currentFilters);
+  async getFacetOptions(field, searchContext = {}) {
+    const query = this.buildFacetOptionsQuery(field, searchContext);
     const data = await this.sendToTriplestoreWithFallback(query);
     return this.processFacetOptions(data);
   }
@@ -191,7 +260,7 @@ export class SearchService {
   /**
    * Build a SPARQL query that returns distinct values and their counts for a facet
    */
-  buildFacetOptionsQuery(field, currentFilters) {
+  buildFacetOptionsQuery(field, searchContext = {}) {
     const facetConfig = (this.config.FACETS || []).find(f => f.field === field);
     if (!facetConfig) {
       return `
@@ -199,6 +268,13 @@ ${this.queryBuilder.buildPrefixes()}
 SELECT ?value (0 as ?count) WHERE { FILTER(false) } LIMIT 0
 `;
     }
+
+    const {
+      filters: currentFilters = {},
+      textQuery = '',
+      searchExactMatch = false,
+      resourceType = '',
+    } = searchContext;
 
     const sparqlProperty =
       facetConfig.sparql_property ||
@@ -210,14 +286,15 @@ SELECT ?value (0 as ?count) WHERE { FILTER(false) } LIMIT 0
 
     let q = '';
     q += this.queryBuilder.buildPrefixes();
-    q += `SELECT DISTINCT ?value (COUNT(*) AS ?count)
+    q += `SELECT ?value (COUNT(DISTINCT ?subj) AS ?count)
 WHERE {
 `;
-    q += this.queryBuilder.buildFilterFragments(filtersCopy, {
-      rangePlacement: 'early',
-    });
-    q += this.queryBuilder.buildBaseGraphPattern();
-    q += this.queryBuilder.buildConstraintRangeFragments(filtersCopy);
+    q += this.queryBuilder.buildFacetOptionsWhereInner(
+      textQuery,
+      searchExactMatch,
+      resourceType,
+      filtersCopy
+    );
     q += `  ?subj ${sparqlProperty} ?value .
 `;
     q += `}

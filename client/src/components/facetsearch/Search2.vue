@@ -71,7 +71,8 @@
         <b-col md="9" class="results">
           <ResultHeader2
             :current-count="results.length"
-            :total-count="results.length"
+            :total-count="totalCount"
+            :search-total-count="searchTotalCount"
             :filters="activeFiltersDisplay"
             :loading="isLoading"
           />
@@ -85,6 +86,7 @@
           <Results2
             :results="results"
             :loading="isLoading"
+            :active-filters="activeFilters"
           />
         </b-col>
       </b-row>
