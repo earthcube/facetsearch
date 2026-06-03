@@ -37,12 +37,15 @@ export class SparqlQueryBuilder {
   /**
    * Build complete SPARQL query from search parameters and filters
    */
+  resolveLimit(limit) {
+    return limit != null && limit !== ''
+      ? Number(limit)
+      : Number(this.config?.LIMIT_DEFAULT ?? 10);
+  }
+
   buildQuery(searchParams) {
     const { textQuery, searchExactMatch, resourceType, filters, limit, offset = 0 } = searchParams;
-    const effectiveLimit =
-      limit != null && limit !== ''
-        ? Number(limit)
-        : Number(this.config?.LIMIT_DEFAULT ?? 10);
+    const effectiveLimit = this.resolveLimit(limit);
 
     let query = this.buildPrefixes();
     query += this.buildSelectClause();
@@ -65,14 +68,17 @@ export class SparqlQueryBuilder {
    *   - countDistinctSubjects true: distinct datasets (?subj), matches facet sidebar counts
    */
   buildCountQuery(searchParams, options = {}) {
-    const { textQuery, searchExactMatch, resourceType, filters } = searchParams;
+    const { textQuery, searchExactMatch, resourceType, filters, limit } = searchParams;
     const countDistinctSubjects = options.countDistinctSubjects === true;
     const needsCardMetadata = this.filtersNeedCardMetadata(filters);
+    const effectiveLimit = this.resolveLimit(limit);
     const whereClause = this.buildWhereClause(
       textQuery,
       searchExactMatch,
       resourceType,
       filters,
+      effectiveLimit,
+      0,
       { skipCardMetadata: !needsCardMetadata }
     );
     const innerWhere = whereClause.slice('WHERE {\n'.length, -'\n}\n'.length);
@@ -133,7 +139,7 @@ export class SparqlQueryBuilder {
   }
 
   buildWhereClause(textQuery, searchExactMatch, resourceType, filters, limit = 10, offset = 0, options = {}) {
-     const skipCardMetadata = options.skipCardMetadata === true;
+    const skipCardMetadata = options.skipCardMetadata === true;
     let whereClause = 'WHERE {\n';
 
     // QLever full-text must follow public/queries/qlever/sparql_query.rq: constrain ?subj as
@@ -233,13 +239,16 @@ export class SparqlQueryBuilder {
   }
 
   /** Inner WHERE body for facet option counts (search text + filters, no card OPTIONALs unless needed). */
-  buildFacetOptionsWhereInner(textQuery, searchExactMatch, resourceType, filters) {
+  buildFacetOptionsWhereInner(textQuery, searchExactMatch, resourceType, filters, limit) {
     const needsCardMetadata = this.filtersNeedCardMetadata(filters);
+    const effectiveLimit = this.resolveLimit(limit);
     const whereClause = this.buildWhereClause(
       textQuery,
       searchExactMatch,
       resourceType,
       filters,
+      effectiveLimit,
+      0,
       { skipCardMetadata: !needsCardMetadata }
     );
     const prefix = 'WHERE {\n';
@@ -675,21 +684,34 @@ ${typeFilter}${textFilters}${rangeConstraints}    }
     let constraints = `  VALUES (?type ?resourceType_u) {
     (schema:Dataset "data")
     (sschema:Dataset "data")
-    (schema:ResearchProject "researchProject")
-    (sschema:ResearchProject "researchProject")
+ 
     (schema:SoftwareApplication "tool")
     (sschema:SoftwareApplication "tool")
-    (schema:Person "person")
-    (sschema:Person "person")
-    (schema:Event "event")
-    (sschema:Event "event")
-    (schema:Award "award")
-    (sschema:Award "award")
     (schema:DataCatalog "DataCatalog")
     (sschema:DataCatalog "DataCatalog")
   }
   ?subj a ?type .
 `;
+    // we do not yet handle all the types, so just limit to what we know
+    // this is a full concept set (and probably needs others, too)
+//     let constraints = `  VALUES (?type ?resourceType_u) {
+//     (schema:Dataset "data")
+//     (sschema:Dataset "data")
+//     (schema:ResearchProject "researchProject")
+//     (sschema:ResearchProject "researchProject")
+//     (schema:SoftwareApplication "tool")
+//     (sschema:SoftwareApplication "tool")
+//     (schema:Person "person")
+//     (sschema:Person "person")
+//     (schema:Event "event")
+//     (sschema:Event "event")
+//     (schema:Award "award")
+//     (sschema:Award "award")
+//     (schema:DataCatalog "DataCatalog")
+//     (sschema:DataCatalog "DataCatalog")
+//   }
+//   ?subj a ?type .
+// `;
     if (resourceType && resourceType !== 'all') {
       constraints += `  FILTER(?resourceType_u = "${this.escapeValue(resourceType)}") .\n`;
     }
