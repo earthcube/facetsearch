@@ -477,6 +477,27 @@ ${inner}
     );
     const inner = indentSparqlLines(core, 4);
     return `  {
+    SELECT DISTINCT ?g ?subj ?name ?description ?type ?maxDepth_raw ?minDepth_raw
+    WHERE {
+${inner}
+    }
+    LIMIT ${limit}
+    OFFSET ${offset}
+  }
+`;
+  }
+
+  /** Inner SELECT DISTINCT with pagination for single-token QLever text (no candidate subquery needed). */
+  buildQleverInlineTextSubquery(textQuery, searchExactMatch, resourceType, filters, limit, offset) {
+    let core = '';
+    core += this.buildSubjDatasetHead();
+    core += this.buildResourceTypeConstraints(resourceType);
+    core += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+    core += this.buildTextSearchFragment(textQuery, searchExactMatch);
+    core += this.buildGraphNameDescOnly();
+    core += this.buildConstraintRangeFragments(filters, { skipRangedepth: true });
+    const inner = indentSparqlLines(core, 4);
+    return `  {
     SELECT DISTINCT ?g ?subj ?name ?description ?type
     WHERE {
 ${inner}
@@ -502,6 +523,40 @@ ${inner}
     WHERE {
 ${inner}
     }
+    LIMIT ${limit}
+    OFFSET ${offset}
+  }
+`;
+  }
+
+  isQleverBrowseMode(textQuery) {
+    return this.usesQLever() && !textQuery;
+  }
+
+  /** Inner SELECT DISTINCT with pagination for QLever browse (no text search). */
+  buildQleverBrowseSubquery(resourceType, filters, limit, offset) {
+    const typeFilter =
+      resourceType && resourceType !== 'all'
+        ? `      FILTER(?resourceType_u = "${this.escapeValue(resourceType)}")\n`
+        : '';
+    const textFilters = indentSparqlLines(
+      this.buildFilterFragments(filters, { rangePlacement: 'early' }), 2
+    );
+    const rangeConstraints = indentSparqlLines(
+      this.buildConstraintRangeFragments(filters, { skipRangedepth: true }), 2
+    );
+    return `  {
+    SELECT DISTINCT ?subj ?resourceType_u
+    WHERE {
+      VALUES (?type ?resourceType_u) {
+        (schema:Dataset             "data")
+        (schema:DataCatalog         "DataCatalog")
+        (schema:SoftwareApplication "tool")
+      }
+      ?subj a ?type .
+${typeFilter}${textFilters}${rangeConstraints}    }
+    LIMIT ${limit}
+    OFFSET ${offset}
     LIMIT ${limit}
     OFFSET ${offset}
   }
