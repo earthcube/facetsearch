@@ -108,8 +108,8 @@ export class SparqlQueryBuilder {
     return Object.keys(filters).some((field) => {
       const cfg = this.getFacetConfig(field);
       if (!cfg) return false;
-      if (cfg.type === 'geo') return false;
-      return true;
+      return cfg.type !== 'geo';
+
     });
   }
 
@@ -289,8 +289,8 @@ export class SparqlQueryBuilder {
     if (searchExactMatch) return true;
     const pq = parseQuery(raw);
     if (pq.AND.length > 1) return true;
-    if (pq.OR_GROUPS && pq.OR_GROUPS.length > 0) return true;
-    return false;
+    return pq.OR_GROUPS && pq.OR_GROUPS.length > 0;
+
   }
 
   buildTextSearchFragment(textQuery, searchExactMatch) {
@@ -488,25 +488,25 @@ ${inner}
   }
 
   /** Inner SELECT DISTINCT with pagination for single-token QLever text (no candidate subquery needed). */
-  buildQleverInlineTextSubquery(textQuery, searchExactMatch, resourceType, filters, limit, offset) {
-    let core = '';
-    core += this.buildSubjDatasetHead();
-    core += this.buildResourceTypeConstraints(resourceType);
-    core += this.buildFilterFragments(filters, { rangePlacement: 'early' });
-    core += this.buildTextSearchFragment(textQuery, searchExactMatch);
-    core += this.buildGraphNameDescOnly();
-    core += this.buildConstraintRangeFragments(filters, { skipRangedepth: true });
-    const inner = indentSparqlLines(core, 4);
-    return `  {
-    SELECT DISTINCT ?g ?subj ?name ?description ?type
-    WHERE {
-${inner}
-    }
-    LIMIT ${limit}
-    OFFSET ${offset}
-  }
-`;
-  }
+//   buildQleverInlineTextSubquery(textQuery, searchExactMatch, resourceType, filters, limit, offset) {
+//     let core = '';
+//     core += this.buildSubjDatasetHead();
+//     core += this.buildResourceTypeConstraints(resourceType);
+//     core += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+//     core += this.buildTextSearchFragment(textQuery, searchExactMatch);
+//     core += this.buildGraphNameDescOnly();
+//     core += this.buildConstraintRangeFragments(filters, { skipRangedepth: true });
+//     const inner = indentSparqlLines(core, 4);
+//     return `  {
+//     SELECT DISTINCT ?g ?subj ?name ?description ?type
+//     WHERE {
+// ${inner}
+//     }
+//     LIMIT ${limit}
+//     OFFSET ${offset}
+//   }
+// `;
+//   }
 
   /** Inner SELECT DISTINCT with pagination for single-token QLever text (no candidate subquery needed). */
   buildQleverInlineTextSubquery(textQuery, searchExactMatch, resourceType, filters, limit, offset) {
@@ -529,39 +529,39 @@ ${inner}
 `;
   }
 
-  isQleverBrowseMode(textQuery) {
-    return this.usesQLever() && !textQuery;
-  }
+  // isQleverBrowseMode(textQuery) {
+  //   return this.usesQLever() && !textQuery;
+  // }
 
   /** Inner SELECT DISTINCT with pagination for QLever browse (no text search). */
-  buildQleverBrowseSubquery(resourceType, filters, limit, offset) {
-    const typeFilter =
-      resourceType && resourceType !== 'all'
-        ? `      FILTER(?resourceType_u = "${this.escapeValue(resourceType)}")\n`
-        : '';
-    const textFilters = indentSparqlLines(
-      this.buildFilterFragments(filters, { rangePlacement: 'early' }), 2
-    );
-    const rangeConstraints = indentSparqlLines(
-      this.buildConstraintRangeFragments(filters, { skipRangedepth: true }), 2
-    );
-    return `  {
-    SELECT DISTINCT ?subj ?resourceType_u
-    WHERE {
-      VALUES (?type ?resourceType_u) {
-        (schema:Dataset             "data")
-        (schema:DataCatalog         "DataCatalog")
-        (schema:SoftwareApplication "tool")
-      }
-      ?subj a ?type .
-${typeFilter}${textFilters}${rangeConstraints}    }
-    LIMIT ${limit}
-    OFFSET ${offset}
-    LIMIT ${limit}
-    OFFSET ${offset}
-  }
-`;
-  }
+//   buildQleverBrowseSubquery(resourceType, filters, limit, offset) {
+//     const typeFilter =
+//       resourceType && resourceType !== 'all'
+//         ? `      FILTER(?resourceType_u = "${this.escapeValue(resourceType)}")\n`
+//         : '';
+//     const textFilters = indentSparqlLines(
+//       this.buildFilterFragments(filters, { rangePlacement: 'early' }), 2
+//     );
+//     const rangeConstraints = indentSparqlLines(
+//       this.buildConstraintRangeFragments(filters, { skipRangedepth: true }), 2
+//     );
+//     return `  {
+//     SELECT DISTINCT ?subj ?resourceType_u
+//     WHERE {
+//       VALUES (?type ?resourceType_u) {
+//         (schema:Dataset             "data")
+//         (schema:DataCatalog         "DataCatalog")
+//         (schema:SoftwareApplication "tool")
+//       }
+//       ?subj a ?type .
+// ${typeFilter}${textFilters}${rangeConstraints}    }
+//     LIMIT ${limit}
+//     OFFSET ${offset}
+//     LIMIT ${limit}
+//     OFFSET ${offset}
+//   }
+// `;
+//   }
 
   isQleverBrowseMode(textQuery) {
     return this.usesQLever() && !textQuery;
