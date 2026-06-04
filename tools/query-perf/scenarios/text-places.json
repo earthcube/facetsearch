@@ -1,6 +1,6 @@
 {
   "name": "Text facet: Place names filter",
-  "description": "Test place name facet filtering",
+  "description": "Test place name facet filtering. places are funky. IEDA uses comma delimited names. needs an exploration",
   "tests": [
     {
       "name": "places: discovery only",
