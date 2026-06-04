@@ -10,14 +10,21 @@
       ]
     },
     {
-      "name": "places: single place",
+      "name": "places: single place (10 items, 60 in triplestore)",
+      "search": "ocean",
+      "facets": [
+        { "type": "text", "field": "placenames", "active": true, "values": ["Ross Sea"] }
+      ]
+    },
+    {
+      "name": "places: single place Atlantic Ocean (one item)",
       "search": "ocean",
       "facets": [
         { "type": "text", "field": "placenames", "active": true, "values": ["Atlantic Ocean"] }
       ]
     },
     {
-      "name": "places: multiple places (expect fail)",
+      "name": "places: multiple places (~7)",
       "search": "ocean",
       "facets": [
         { "type": "text", "field": "placenames", "active": true, "values": ["Atlantic Ocean", "Pacific Ocean", "Arctic Ocean"] }
