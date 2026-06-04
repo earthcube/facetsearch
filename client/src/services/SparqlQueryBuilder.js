@@ -34,15 +34,18 @@ export class SparqlQueryBuilder {
     usesQLever() {
         return String(this.config?.QUERY_ENGINE || '').toLowerCase() === 'qlever';
     }
+  resolveLimit(limit) {
+    return limit != null && limit !== ''
+      ? Number(limit)
+      : Number(this.config?.LIMIT_DEFAULT ?? 10);
+  }
+
   /**
    * Build complete SPARQL query from search parameters and filters
    */
   buildQuery(searchParams) {
     const { textQuery, searchExactMatch, resourceType, filters, limit, offset = 0 } = searchParams;
-    const effectiveLimit =
-      limit != null && limit !== ''
-        ? Number(limit)
-        : Number(this.config?.LIMIT_DEFAULT ?? 10);
+    const effectiveLimit = this.resolveLimit(limit);
 
     let query = this.buildPrefixes();
     query += this.buildSelectClause();
@@ -65,19 +68,29 @@ export class SparqlQueryBuilder {
    *   - countDistinctSubjects true: distinct datasets (?subj), matches facet sidebar counts
    */
   buildCountQuery(searchParams, options = {}) {
-    const { textQuery, searchExactMatch, resourceType, filters } = searchParams;
+    const { textQuery, searchExactMatch, resourceType, filters, limit } = searchParams;
     const countDistinctSubjects = options.countDistinctSubjects === true;
+
+    let query = this.buildPrefixes();
+
+    if (this.usesQLever()) {
+      // QLever: flat body with no inner LIMIT so COUNT spans all matching subjects
+      const body = this.buildFacetCountWhereBody(textQuery, searchExactMatch, resourceType, filters);
+      query += 'SELECT (COUNT(DISTINCT ?subj) AS ?count) WHERE {\n';
+      query += body;
+      query += '}\n';
+      return query;
+    }
+
+    // Blazegraph
     const needsCardMetadata = this.filtersNeedCardMetadata(filters);
+    const effectiveLimit = this.resolveLimit(limit);
     const whereClause = this.buildWhereClause(
-      textQuery,
-      searchExactMatch,
-      resourceType,
-      filters,
-      { skipCardMetadata: !needsCardMetadata }
+      textQuery, searchExactMatch, resourceType, filters,
+      effectiveLimit, 0, { skipCardMetadata: !needsCardMetadata }
     );
     const innerWhere = whereClause.slice('WHERE {\n'.length, -'\n}\n'.length);
 
-    let query = this.buildPrefixes();
     if (countDistinctSubjects) {
       query += 'SELECT (COUNT(DISTINCT ?subj) AS ?count) WHERE {\n';
       query += innerWhere;
@@ -232,22 +245,52 @@ export class SparqlQueryBuilder {
     return whereClause;
   }
 
-  /** Inner WHERE body for facet option counts (search text + filters, no card OPTIONALs unless needed). */
-  buildFacetOptionsWhereInner(textQuery, searchExactMatch, resourceType, filters) {
-    const needsCardMetadata = this.filtersNeedCardMetadata(filters);
+  /**
+   * Flat WHERE body for facet option count queries.
+   * Never wraps in an inner SELECT/LIMIT subquery — facet counts must span all matching subjects,
+   * not just the first page of results.
+   */
+  buildFacetCountWhereBody(textQuery, searchExactMatch, resourceType, filters) {
+    if (this.usesQLever()) {
+      if (textQuery) {
+        // QLever text search: inline constraints, no inner subquery or LIMIT
+        let body = '';
+        body += this.buildSubjDatasetHead();
+        body += this.buildResourceTypeConstraints(resourceType);
+        body += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+        body += this.buildTextSearchFragment(textQuery, searchExactMatch);
+        body += this.buildGraphNameDescOnly();
+        body += this.buildConstraintRangeFragments(filters);
+        body += this.buildFilterFragments(filters, { rangePlacement: 'late' });
+        return body;
+      }
+      // QLever browse (no text): flat type + filter constraints
+      let body = '';
+      body += this.buildQleverBrowseTypeValues();
+      if (resourceType && resourceType !== 'all') {
+        body += `  FILTER(?resourceType_u = "${this.escapeValue(resourceType)}")\n`;
+      }
+      body += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+      body += this.buildConstraintRangeFragments(filters);
+      body += this.buildFilterFragments(filters, { rangePlacement: 'late' });
+      return body;
+    }
+
+    // Blazegraph: strip WHERE { ... } wrapper from buildWhereClause
     const whereClause = this.buildWhereClause(
-      textQuery,
-      searchExactMatch,
-      resourceType,
-      filters,
-      { skipCardMetadata: !needsCardMetadata }
+      textQuery, searchExactMatch, resourceType, filters
     );
     const prefix = 'WHERE {\n';
     const suffix = '\n}\n';
-    if (!whereClause.startsWith(prefix) || !whereClause.endsWith(suffix)) {
-      return whereClause;
+    if (whereClause.startsWith(prefix) && whereClause.endsWith(suffix)) {
+      return whereClause.slice(prefix.length, -suffix.length);
     }
-    return whereClause.slice(prefix.length, -suffix.length);
+    return whereClause;
+  }
+
+  /** Inner WHERE body for facet option counts. */
+  buildFacetOptionsWhereInner(textQuery, searchExactMatch, resourceType, filters) {
+    return this.buildFacetCountWhereBody(textQuery, searchExactMatch, resourceType, filters);
   }
 
   /** Dataset type for ?subj (outside GRAPH), matches QLever sparql_query.rq */
@@ -503,6 +546,15 @@ ${inner}
     return this.usesQLever() && !textQuery;
   }
 
+  buildQleverBrowseTypeValues() {
+    return `  VALUES (?type ?resourceType_u) {
+    (schema:Dataset             "data")
+    (schema:DataCatalog         "DataCatalog")
+    (schema:SoftwareApplication "tool")
+  }
+  ?subj a ?type .\n`;
+  }
+
   /** Inner SELECT DISTINCT with pagination for QLever browse (no text search). */
   buildQleverBrowseSubquery(resourceType, filters, limit, offset) {
     const typeFilter =
@@ -515,16 +567,11 @@ ${inner}
     const rangeConstraints = indentSparqlLines(
       this.buildConstraintRangeFragments(filters, { skipRangedepth: true }), 2
     );
+    const typeValues = indentSparqlLines(this.buildQleverBrowseTypeValues(), 2);
     return `  {
     SELECT DISTINCT ?subj ?resourceType_u
     WHERE {
-      VALUES (?type ?resourceType_u) {
-        (schema:Dataset             "data")
-        (schema:DataCatalog         "DataCatalog")
-        (schema:SoftwareApplication "tool")
-      }
-      ?subj a ?type .
-${typeFilter}${textFilters}${rangeConstraints}    }
+${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
     LIMIT ${limit}
     OFFSET ${offset}
   }
@@ -672,19 +719,30 @@ ${typeFilter}${textFilters}${rangeConstraints}    }
   }
 
   buildResourceTypeConstraints(resourceType) {
+// we only handle the dataset, data catalog and tool, for now. need a generic
+// let constraints = `  VALUES (?type ?resourceType_u) {
+//     (schema:Dataset "data")
+//     (sschema:Dataset "data")
+//     (schema:ResearchProject "researchProject")
+//     (sschema:ResearchProject "researchProject")
+//     (schema:SoftwareApplication "tool")
+//     (sschema:SoftwareApplication "tool")
+//     (schema:Person "person")
+//     (sschema:Person "person")
+//     (schema:Event "event")
+//     (sschema:Event "event")
+//     (schema:Award "award")
+//     (sschema:Award "award")
+//     (schema:DataCatalog "DataCatalog")
+//     (sschema:DataCatalog "DataCatalog")
+//   }
+//   ?subj a ?type .
+// `;
     let constraints = `  VALUES (?type ?resourceType_u) {
     (schema:Dataset "data")
-    (sschema:Dataset "data")
-    (schema:ResearchProject "researchProject")
-    (sschema:ResearchProject "researchProject")
+    (sschema:Dataset "data") 
     (schema:SoftwareApplication "tool")
     (sschema:SoftwareApplication "tool")
-    (schema:Person "person")
-    (sschema:Person "person")
-    (schema:Event "event")
-    (sschema:Event "event")
-    (schema:Award "award")
-    (sschema:Award "award")
     (schema:DataCatalog "DataCatalog")
     (sschema:DataCatalog "DataCatalog")
   }
@@ -771,6 +829,23 @@ ${typeFilter}${textFilters}${rangeConstraints}    }
 
   getFacetConfig(field) {
     return (this.config.FACETS || []).find(f => f.field === field);
+  }
+
+  /**
+   * Build a triple pattern binding `?value` for a facet property.
+   * Multi-step paths (containing `/`) are expanded into intermediate node triples,
+   * matching the same expansion used in buildTextFilter.
+   */
+  buildFacetPropertyPattern(field, sparqlProperty) {
+    if (sparqlProperty.includes('/')) {
+      const alternatives = sparqlProperty.split('|').map(s => s.trim());
+      const firstStep = alternatives[0].split('/')[0];
+      const secondSteps = [...new Set(alternatives.map(alt => alt.split('/').slice(1).join('/')))];
+      const nodeVar = `${field}_node`;
+      const secondPath = secondSteps.join('|');
+      return `  ?subj ${firstStep} ?${nodeVar} .\n  ?${nodeVar} ${secondPath} ?value .\n`;
+    }
+    return `  ?subj ${sparqlProperty} ?value .\n`;
   }
 
   getDefaultSparqlProperty(field) {
