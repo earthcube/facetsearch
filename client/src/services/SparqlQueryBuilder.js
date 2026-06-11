@@ -169,12 +169,11 @@ export class SparqlQueryBuilder {
       // depth range filter is already inside the subquery via buildRangedepthFilterFragments;
       // skip rangedepth here to avoid a redundant outer FILTER EXISTS
       whereClause += this.buildConstraintRangeFragments(filters, { skipRangedepth: true });
-       if (!skipCardMetadata) {
+      if (!skipCardMetadata) {
         whereClause += this.buildOptionalProperties();
         whereClause += this.buildBindings();
       }
-        whereClause += this.buildConstraintRangeFragments(filters);
-        whereClause += this.buildFilterFragments(filters, {
+      whereClause += this.buildFilterFragments(filters, {
         rangePlacement: 'late',
         skipRangedepth: true,
       });
@@ -735,6 +734,7 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
 //     (sschema:Award "award")
 //     (schema:DataCatalog "DataCatalog")
 //     (sschema:DataCatalog "DataCatalog")
+
 //   }
 //   ?subj a ?type .
 // `;
