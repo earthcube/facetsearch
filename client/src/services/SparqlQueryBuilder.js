@@ -74,7 +74,6 @@ export class SparqlQueryBuilder {
     let query = this.buildPrefixes();
 
     if (this.usesQLever()) {
-      // QLever: flat body with no inner LIMIT so COUNT spans all matching subjects
       const body = this.buildFacetCountWhereBody(textQuery, searchExactMatch, resourceType, filters);
       query += 'SELECT (COUNT(DISTINCT ?subj) AS ?count) WHERE {\n';
       query += body;
@@ -82,7 +81,6 @@ export class SparqlQueryBuilder {
       return query;
     }
 
-    // Blazegraph
     const needsCardMetadata = this.filtersNeedCardMetadata(filters);
     const effectiveLimit = this.resolveLimit(limit);
     const whereClause = this.buildWhereClause(
@@ -146,7 +144,7 @@ export class SparqlQueryBuilder {
   }
 
   buildWhereClause(textQuery, searchExactMatch, resourceType, filters, limit = 10, offset = 0, options = {}) {
-     const skipCardMetadata = options.skipCardMetadata === true;
+    const skipCardMetadata = options.skipCardMetadata === true;
     let whereClause = 'WHERE {\n';
 
     // QLever full-text must follow public/queries/qlever/sparql_query.rq: constrain ?subj as
@@ -166,11 +164,9 @@ export class SparqlQueryBuilder {
       whereClause += this.buildQleverDepthCandidateSubquery(
         textQuery, searchExactMatch, resourceType, filters, limit, offset
       );
-      // depth range filter is already inside the subquery via buildRangedepthFilterFragments;
-      // skip rangedepth here to avoid a redundant outer FILTER EXISTS
-      whereClause += this.buildConstraintRangeFragments(filters, { skipRangedepth: true });
       if (!skipCardMetadata) {
         whereClause += this.buildOptionalProperties();
+        whereClause += this.buildResourceTypeDecoration();
         whereClause += this.buildBindings();
       }
       whereClause += this.buildFilterFragments(filters, {
@@ -185,9 +181,9 @@ export class SparqlQueryBuilder {
       whereClause += this.buildQleverTextCandidateSubquery(
         textQuery, searchExactMatch, resourceType, filters, limit, offset
       );
-      whereClause += this.buildConstraintRangeFragments(filters);
       if (!skipCardMetadata) {
         whereClause += this.buildOptionalProperties();
+        whereClause += this.buildResourceTypeDecoration();
         whereClause += this.buildBindings();
       }
       whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
@@ -199,8 +195,11 @@ export class SparqlQueryBuilder {
       whereClause += this.buildQleverInlineTextSubquery(
         textQuery, searchExactMatch, resourceType, filters, limit, offset
       );
-      whereClause += this.buildConstraintRangeFragments(filters);
       whereClause += this.buildOptionalProperties();
+      if (this.filtersNeedDepthVariableMeasured(filters)) {
+        whereClause += this.buildOptionalDepthVariableMeasured();
+      }
+      whereClause += this.buildResourceTypeDecoration();
       whereClause += this.buildBindings();
       whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
       whereClause += '}\n';
@@ -211,6 +210,7 @@ export class SparqlQueryBuilder {
       whereClause += this.buildQleverBrowseSubquery(resourceType, filters, limit, offset);
       whereClause += `  GRAPH ?g {\n    ?subj schema:name|sschema:name ?name .\n    ?subj schema:description|sschema:description ?description .\n  }\n`;
       whereClause += this.buildOptionalProperties();
+      whereClause += this.buildResourceTypeDecoration();
       whereClause += this.buildBindings();
       whereClause += this.buildFilterFragments(filters, { rangePlacement: 'late' });
       whereClause += '}\n';
@@ -252,18 +252,12 @@ export class SparqlQueryBuilder {
   buildFacetCountWhereBody(textQuery, searchExactMatch, resourceType, filters) {
     if (this.usesQLever()) {
       if (textQuery) {
-        // QLever text search: inline constraints, no inner subquery or LIMIT
         let body = '';
-        body += this.buildSubjDatasetHead();
-        body += this.buildResourceTypeConstraints(resourceType);
-        body += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+        body += this.buildQleverSelectiveSubjectSubquery(resourceType, filters);
         body += this.buildTextSearchFragment(textQuery, searchExactMatch);
-        body += this.buildGraphNameDescOnly();
-        body += this.buildConstraintRangeFragments(filters);
         body += this.buildFilterFragments(filters, { rangePlacement: 'late' });
         return body;
       }
-      // QLever browse (no text): flat type + filter constraints
       let body = '';
       body += this.buildQleverBrowseTypeValues();
       if (resourceType && resourceType !== 'all') {
@@ -275,7 +269,6 @@ export class SparqlQueryBuilder {
       return body;
     }
 
-    // Blazegraph: strip WHERE { ... } wrapper from buildWhereClause
     const whereClause = this.buildWhereClause(
       textQuery, searchExactMatch, resourceType, filters
     );
@@ -290,6 +283,60 @@ export class SparqlQueryBuilder {
   /** Inner WHERE body for facet option counts. */
   buildFacetOptionsWhereInner(textQuery, searchExactMatch, resourceType, filters) {
     return this.buildFacetCountWhereBody(textQuery, searchExactMatch, resourceType, filters);
+  }
+
+  /**
+   * Innermost subquery: narrow ?subj with type + facet + range EXISTS constraints
+   * before broad full-text expansion (earthcube/facetsearch#261).
+   */
+  buildQleverSelectiveSubjectSubquery(resourceType, filters, options = {}) {
+    const { skipRangedepth = false } = options;
+    let body = '';
+    body += this.buildSubjDatasetHead();
+    body += this.buildResourceTypeConstraints(resourceType);
+    body += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+    body += this.buildConstraintRangeFragments(filters, { skipRangedepth });
+    const inner = indentSparqlLines(body, 4);
+    return `  {
+    SELECT DISTINCT ?subj
+    WHERE {
+${inner}
+    }
+  }
+`;
+  }
+
+  /**
+   * QLever text search core: selective subjects first, then broad FTS, then GRAPH decoration.
+   */
+  buildQleverNestedTextSearchCore(textQuery, searchExactMatch, resourceType, filters, options = {}) {
+    const { skipRangedepth = false, includeGraph = true } = options;
+    let block = '';
+    block += this.buildQleverSelectiveSubjectSubquery(resourceType, filters, { skipRangedepth });
+    block += this.buildTextSearchFragment(textQuery, searchExactMatch);
+    if (includeGraph) {
+      block += this.buildGraphNameDescOnly();
+      // Re-bind ?type for inner SELECT projection (type filter lives in selective subquery above).
+      block += this.buildResourceTypeConstraints(resourceType);
+    }
+    return block;
+  }
+
+  /** Populate ?resourceType_u in the outer query for GROUP_CONCAT display. */
+  buildResourceTypeDecoration() {
+    return `  OPTIONAL {
+    ?subj a ?t .
+    VALUES (?t ?resourceType_u) {
+      (schema:Dataset "data")
+      (sschema:Dataset "data")
+      (schema:SoftwareApplication "tool")
+      (sschema:SoftwareApplication "tool")
+      (schema:DataCatalog "DataCatalog")
+      (sschema:DataCatalog "DataCatalog")
+    }
+  }
+
+`;
   }
 
   /** Dataset type for ?subj (outside GRAPH), matches QLever sparql_query.rq */
@@ -407,8 +454,7 @@ export class SparqlQueryBuilder {
 
   /**
    * Standalone range constraints (FILTER EXISTS) applied after ?subj is bound by text/graph.
-   * skipRangedepth: true omits the depth filter (used when placing constraints inside inner subqueries
-   * where depth is already handled by buildOptionalDepthVariableMeasured + buildRangedepthFilterFragments).
+   * Satisfies "filters as explicit, self-contained blocks" without a heavy required join before full-text.
    */
   buildConstraintRangeFragments(filters, { skipRangedepth = false } = {}) {
     if (!filters || Object.keys(filters).length === 0) {
@@ -456,18 +502,14 @@ export class SparqlQueryBuilder {
     return this.shouldUseStructuredTextSearch(textQuery, searchExactMatch);
   }
 
-  /** QLever full-text core: type + text + name/desc (no Dataset-only head, no OPTIONAL explosion). */
+  /** QLever full-text core: selective subjects, then text + graph (no OPTIONAL explosion). */
   buildQleverFullTextCore(textQuery, searchExactMatch, resourceType, filters) {
-    let block = '';
-    block += this.buildResourceTypeConstraints(resourceType);
-    block += this.buildFilterFragments(filters, { rangePlacement: 'early' });
-    block += this.buildTextSearchFragment(textQuery, searchExactMatch);
-    block += this.buildGraphNameDescOnly();
-    block += this.buildConstraintRangeFragments(filters, { skipRangedepth: true });
-    return block;
+    return this.buildQleverNestedTextSearchCore(
+      textQuery, searchExactMatch, resourceType, filters, { skipRangedepth: true }
+    );
   }
 
-  /** QLever full-text + depth: text/graph, then optional depth triples + overlap FILTER inside candidate subquery. */
+  /** QLever full-text + depth: nested text/graph, then OPTIONAL depth + overlap FILTER inside candidate subquery. */
   buildQleverFullTextCoreForDepthSubquery(textQuery, searchExactMatch, resourceType, filters) {
     let block = this.buildQleverFullTextCore(
       textQuery,
@@ -510,7 +552,7 @@ ${inner}
     );
     const inner = indentSparqlLines(core, 4);
     return `  {
-    SELECT DISTINCT ?g ?subj ?name ?description ?type
+    SELECT DISTINCT ?g ?subj ?name ?description ?type ?maxDepth_raw ?minDepth_raw
     WHERE {
 ${inner}
     }
@@ -520,15 +562,11 @@ ${inner}
 `;
   }
 
-  /** Inner SELECT DISTINCT with pagination for single-token QLever text (no candidate subquery needed). */
+  /** Inner SELECT DISTINCT with pagination for single-token QLever text search. */
   buildQleverInlineTextSubquery(textQuery, searchExactMatch, resourceType, filters, limit, offset) {
-    let core = '';
-    core += this.buildSubjDatasetHead();
-    core += this.buildResourceTypeConstraints(resourceType);
-    core += this.buildFilterFragments(filters, { rangePlacement: 'early' });
-    core += this.buildTextSearchFragment(textQuery, searchExactMatch);
-    core += this.buildGraphNameDescOnly();
-    core += this.buildConstraintRangeFragments(filters, { skipRangedepth: true });
+    const core = this.buildQleverNestedTextSearchCore(
+      textQuery, searchExactMatch, resourceType, filters, { skipRangedepth: true }
+    );
     const inner = indentSparqlLines(core, 4);
     return `  {
     SELECT DISTINCT ?g ?subj ?name ?description ?type
@@ -718,29 +756,9 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
   }
 
   buildResourceTypeConstraints(resourceType) {
-// we only handle the dataset, data catalog and tool, for now. need a generic
-// let constraints = `  VALUES (?type ?resourceType_u) {
-//     (schema:Dataset "data")
-//     (sschema:Dataset "data")
-//     (schema:ResearchProject "researchProject")
-//     (sschema:ResearchProject "researchProject")
-//     (schema:SoftwareApplication "tool")
-//     (sschema:SoftwareApplication "tool")
-//     (schema:Person "person")
-//     (sschema:Person "person")
-//     (schema:Event "event")
-//     (sschema:Event "event")
-//     (schema:Award "award")
-//     (sschema:Award "award")
-//     (schema:DataCatalog "DataCatalog")
-//     (sschema:DataCatalog "DataCatalog")
-
-//   }
-//   ?subj a ?type .
-// `;
     let constraints = `  VALUES (?type ?resourceType_u) {
     (schema:Dataset "data")
-    (sschema:Dataset "data") 
+    (sschema:Dataset "data")
     (schema:SoftwareApplication "tool")
     (sschema:SoftwareApplication "tool")
     (schema:DataCatalog "DataCatalog")
@@ -761,7 +779,7 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
   OPTIONAL {?subj schema:dateModified|sschema:dateModified ?datem .}
   OPTIONAL {?subj schema:temporalCoverage|sschema:temporalCoverage ?temporalCoverage_raw .}
   OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|schema:publisher/schema:legalName|sschema:publisher/sschema:legalName ?pub_name .}
-  OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name|sschema:sdPublisher ?place_name .}
+  OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name ?place_name .}
   OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
 
 `;
