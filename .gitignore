@@ -4,7 +4,8 @@ dist
 package-lock.json
 yarn.lock
 .yarn/
-
+sparql-test
+errors/
 # local env files
 .env.local
 .env.*.local

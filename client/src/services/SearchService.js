@@ -295,8 +295,7 @@ WHERE {
       resourceType,
       filtersCopy
     );
-    q += `  ?subj ${sparqlProperty} ?value .
-`;
+    q += this.queryBuilder.buildFacetPropertyPattern(field, sparqlProperty);
     q += `}
 GROUP BY ?value
 ORDER BY DESC(?count) ?value
