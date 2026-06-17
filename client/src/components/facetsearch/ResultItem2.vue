@@ -59,41 +59,11 @@
         </b-badge>
       </span>
     </div>
-
-    <div class="badges mt-2 d-flex flex-wrap align-items-center">
-      <b-button
-        v-if="result.resourceType === 'data'"
-        variant="primary"
-        size="sm"
-        class="ml-auto"
-        @click.stop="saveItems('data')"
-        >Save Dataset</b-button
-      >
-      <b-button
-        v-else-if="result.resourceType === 'tool'"
-        variant="primary"
-        size="sm"
-        class="ml-auto"
-        @click.stop="saveItems('tool')"
-        >Save Tool</b-button
-      >
-      <!-- Save Other — disabled for now; restore when non-data/tool save flow is ready
-      <b-button
-        v-else
-        variant="primary"
-        size="sm"
-        class="ml-auto"
-        @click.stop="saveItems(result.resourceType || 'other')"
-        >Save Other</b-button
-      >
-      -->
-    </div>
   </b-card>
 </template>
 
 <script>
 import _ from "lodash";
-import { isProxy, toRaw } from "vue";
 import { mapActions, mapGetters } from "vuex";
 import localforage from "localforage";
 import { normalizeDatasetGraphIri } from "@/utils/datasetIdentifiers.js";
@@ -118,7 +88,6 @@ export default {
   data() {
     return {
       connectedTools: undefined,
-      clickToAddCollection: false,
       collectionNames: undefined,
     };
   },
@@ -180,34 +149,6 @@ export default {
       }
       return [_.escape(String(keywords))];
     },
-    saveItems(type) {
-      this.clickToAddCollection = true;
-      let item = this.result;
-      if (isProxy(this.result)) {
-        item = toRaw(this.result);
-      }
-      const key = item.g || item.subj;
-      if (!key) {
-        this.clickToAddCollection = false;
-        return;
-      }
-      localforage.getItem(key, (err, value) => {
-        if (value === null) {
-          localforage
-            .setItem(key, {
-              type,
-              collection: "unassigned",
-              value: item,
-            })
-            .then(() => {
-              console.log("store " + key + " to localstorage");
-            })
-            .catch((e) => {
-              console.log(e);
-            });
-        }
-      });
-    },
     buildResultLink(result) {
       const resourceType = result.resourceType || "data";
       const id = String(result.id || result.subj || "").trim();
@@ -230,10 +171,6 @@ export default {
       };
     },
     showDetails() {
-      if (this.clickToAddCollection) {
-        this.clickToAddCollection = false;
-        return;
-      }
       const rt = this.result.resourceType || "data";
       if (rt !== "data" && rt !== "tool") {
         this.makeToast(this.result.subj);
