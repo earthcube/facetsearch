@@ -228,7 +228,9 @@ export class SearchService {
       }
       // Convenience fields used by UI (dataset links use graph URN when available)
       out.id = datasetRouteIdFromBinding(out);
-      out.resourceType = out.resourceType_u;
+      if (out.resourceType_u !== undefined && out.resourceType === undefined) {
+        out.resourceType = out.resourceType_u;
+      }
       if (out.kw !== undefined) {
         out.kw = splitSparqlGroupConcat(out.kw);
       }
