@@ -110,8 +110,6 @@
 import { ref, computed, inject } from 'vue';
 import { useFacet } from '@/composables/useSearch.js';
 
-const SORTABLE_FACET_FIELDS = ['kw'];
-
 export default {
   name: "FacetText2",
 
@@ -134,8 +132,10 @@ export default {
     const isOpen = ref(props.facetConfig.open !== false);
     const optionSortMode = ref('count');
 
+    const sortableFacetFields = ['kw', 'placenames'];
+
     const supportsOptionSort = computed(() =>
-      SORTABLE_FACET_FIELDS.includes(props.facetConfig.field)
+      sortableFacetFields.includes(props.facetConfig.field)
     );
 
     const sortedOptions = computed(() => {
