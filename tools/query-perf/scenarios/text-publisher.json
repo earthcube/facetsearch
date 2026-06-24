@@ -15,6 +15,12 @@
       "facets": [
         { "type": "text", "field": "pubname", "active": true, "values": ["Interdisciplinary Earth Data Alliance (IEDA)"] }
       ]
+    },    {
+      "name": "publisher: single publisher (BCODMO)",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "pubname", "active": true, "values": ["Biological and Chemical Data Management Office"] }
+      ]
     },
     {
       "name": "publisher: single publisher (EarthChem)",

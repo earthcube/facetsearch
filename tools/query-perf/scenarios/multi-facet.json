@@ -7,7 +7,7 @@
       "search": "water",
       "facets": [
         { "type": "text", "field": "kw", "active": true, "values": ["Oceans"] },
-        { "type": "text", "field": "pubname", "active": true, "values": ["Interdisciplinary Earth Data Alliance (IEDA)"] }
+        { "type": "text", "field": "pubname", "active": true, "values": ["Biological and Chemical Data Management Office"] }
       ]
     },
     {
@@ -27,7 +27,7 @@
       ]
     },
     {
-      "name": "combo: keywords + geo  (expect fail)",
+      "name": "combo: keywords + geo  (expect fail)  w/spatial",
       "search": "water",
       "facets": [
         { "type": "text", "field": "kw", "active": true, "values": ["Temperature"] },
@@ -62,19 +62,19 @@
       ]
     },
     {
-      "name": "combo: all facet types active (kitchen sink)",
+      "name": "combo: all facet types active (kitchen sink w/spatial)",
       "search": "water",
       "facets": [
         { "type": "text", "field": "kw", "active": true, "values": ["Oceans"] },
-        { "type": "text", "field": "pubname", "active": true, "values": ["Interdisciplinary Earth Data Alliance (IEDA)"] },
+        { "type": "text", "field": "pubname", "active": true, "values": ["Biological and Chemical Data Management Office"] },
         { "type": "text", "field": "resourceType", "active": true, "values": ["data"] },
-        { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": 0, "max": 1000 } },
+        { "type": "depthrange", "field": "minDepth", "active": true, "values": { "min": 0, "max": 10000 } },
         { "type": "rangeyear", "field": "temporalCoverage", "active": true, "values": { "min": 2000, "max": 2025 } },
-        { "type": "geo", "field": "spatialCoverage", "active": true, "values": { "minLat": 20, "maxLat": 60, "minLon": -80, "maxLon": 0 } }
+        { "type": "geo", "field": "spatialCoverage", "active": true, "values": { "minLat": -60, "maxLat": 60, "minLon": -180, "maxLon": 0 } }
       ]
     },
     {
-      "name": "combo: all facets in discovery mode (baseline)",
+      "name": "combo: all facets in discovery mode (baseline)  w/spatial",
       "search": "water",
       "facets": [
         { "type": "text", "field": "kw", "active": false },
