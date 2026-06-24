@@ -11,6 +11,7 @@ errors/
 .env.*.local
 # Never commit real secrets (local dev overrides)
 client/.env
+server/.env
 
 # Draft / internal docs — not pushed with app code
 docs/
