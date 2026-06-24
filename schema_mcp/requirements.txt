@@ -1,0 +1,6 @@
+mcp>=1.0.0
+pydantic>=2.0.0
+git+https://github.com/TheResilientCollective/pydantic_schemaorg.git@pydantic_v2
+rdflib>=7.0.0
+SPARQLWrapper>=2.0.0
+pyld>=2.0.0

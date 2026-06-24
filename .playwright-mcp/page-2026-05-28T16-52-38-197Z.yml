@@ -1,0 +1,1044 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: https://www.earthcube.org/geocodes
+        - img [ref=e8]
+      - link [ref=e37] [cursor=pointer]:
+        - /url: "#/landing"
+        - img [ref=e39]
+      - list [ref=e51]:
+        - listitem [ref=e52]:
+          - group [ref=e54]:
+            - searchbox "Search" [ref=e55]
+            - button [ref=e57] [cursor=pointer]:
+              - img [ref=e58]
+        - listitem [ref=e60]:
+          - link "Saved Items" [ref=e61] [cursor=pointer]:
+            - /url: "#/collection"
+        - button "SPARQL" [ref=e63] [cursor=pointer]
+        - listitem [ref=e64]:
+          - link "About" [ref=e65] [cursor=pointer]:
+            - /url: "#/about"
+  - generic [ref=e68]:
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - generic [ref=e71]: Search
+        - group [ref=e72]:
+          - textbox "Search" [ref=e73]:
+            - /placeholder: Enter search terms...
+            - text: water
+          - button [ref=e75] [cursor=pointer]
+        - generic [ref=e77]:
+          - checkbox "Exact match" [ref=e78]
+          - generic [ref=e79]: Exact match
+      - generic [ref=e1722]:
+        - generic [ref=e1723]: Active Filters (1)
+        - button "Clear All" [ref=e1724] [cursor=pointer]
+      - generic [ref=e80]:
+        - heading "Resource Type" [level=6] [ref=e84] [cursor=pointer]: Resource Type
+        - generic [ref=e86]:
+          - heading "Keywords 1" [level=6] [ref=e1725] [cursor=pointer]:
+            - text: Keywords
+            - generic [ref=e1726]: "1"
+          - generic [ref=e90]:
+            - generic [ref=e91]:
+              - generic [ref=e92]:
+                - checkbox "Occurrence (86960)" [checked] [active] [ref=e93] [cursor=pointer]
+                - generic [ref=e94] [cursor=pointer]: Occurrence (86960)
+              - generic [ref=e95]:
+                - checkbox "Observation (64848)" [ref=e96] [cursor=pointer]
+                - generic [ref=e97] [cursor=pointer]: Observation (64848)
+              - generic [ref=e98]:
+                - checkbox "ALS (45392)" [ref=e99] [cursor=pointer]
+                - generic [ref=e100] [cursor=pointer]: ALS (45392)
+              - generic [ref=e101]:
+                - checkbox "Lidar (45392)" [ref=e102] [cursor=pointer]
+                - generic [ref=e103] [cursor=pointer]: Lidar (45392)
+              - generic [ref=e104]:
+                - checkbox "Point Cloud (45392)" [ref=e105] [cursor=pointer]
+                - generic [ref=e106] [cursor=pointer]: Point Cloud (45392)
+              - button "Show 195 more..." [ref=e108] [cursor=pointer]
+            - button "Clear" [ref=e1728] [cursor=pointer]
+        - generic [ref=e110]:
+          - heading "Place" [level=6] [ref=e112] [cursor=pointer]: Place
+          - generic [ref=e1729]: No options available
+        - heading "Publisher/Repo" [level=6] [ref=e136] [cursor=pointer]: Publisher/Repo
+        - generic [ref=e138]:
+          - heading "Year Published Range" [level=6] [ref=e140] [cursor=pointer]: Year Published Range
+          - generic [ref=e143]:
+            - generic [ref=e145]:
+              - slider [ref=e148]:
+                - generic [ref=e150]: "1990"
+              - slider [ref=e151]:
+                - generic [ref=e153]: "2026"
+            - generic [ref=e154]:
+              - generic [ref=e155]: "1990"
+              - generic [ref=e156]: "2026"
+        - generic [ref=e158]:
+          - heading "Depth Range" [level=6] [ref=e160] [cursor=pointer]: Depth Range
+          - generic [ref=e163]:
+            - generic [ref=e165]:
+              - slider [ref=e168]:
+                - generic [ref=e170]: 0m
+              - slider [ref=e171]:
+                - generic [ref=e173]: 11000m
+            - generic [ref=e174]:
+              - generic [ref=e175]: 0m
+              - generic [ref=e176]: 11000m
+        - generic [ref=e178]:
+          - heading "Temporal Coverage" [level=6] [ref=e180] [cursor=pointer]: Temporal Coverage
+          - generic [ref=e183]:
+            - generic [ref=e185]:
+              - slider [ref=e188]:
+                - generic [ref=e190]: "1990"
+              - slider [ref=e191]:
+                - generic [ref=e193]: "2026"
+            - generic [ref=e194]:
+              - generic [ref=e195]: "1990"
+              - generic [ref=e196]: "2026"
+        - generic [ref=e198]:
+          - heading "Spatial Filter" [level=6] [ref=e200] [cursor=pointer]: Spatial Filter
+          - button "Reset Map" [ref=e205] [cursor=pointer]
+      - button "Feedback" [ref=e207] [cursor=pointer]
+    - generic [ref=e208]:
+      - generic [ref=e210]:
+        - generic [ref=e211]:
+          - heading "103 results" [level=5] [ref=e1730]
+          - generic [ref=e1731]:
+            - text: "Filtered by:"
+            - generic [ref=e1733]: "Keywords: Occurrence"
+        - combobox [ref=e214]:
+          - option "Name"
+          - option "Publisher"
+          - option "Date"
+          - option "Relevance" [selected]
+      - generic [ref=e1734]:
+        - generic [ref=e1737]:
+          - generic [ref=e1738]:
+            - heading "TPWD HARC Texas Coastal Fisheries Upper Laguna Madre Bag Seine data" [level=6] [ref=e1739]:
+              - link "TPWD HARC Texas Coastal Fisheries Upper Laguna Madre Bag Seine" [ref=e1740] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:00ad8dcb900fc3b95374cdc7b63e39fa82ed4513"
+              - generic [ref=e1741]: data
+            - paragraph [ref=e1742]: The Texas Parks and Wildlife Department (TPWD) utilizes several sampling gears for fisheries-independent monitoring of finfish and shellfish communities. They include bag seines, trawls, gill nets and...
+            - generic [ref=e1745]: No Publisher
+          - button [ref=e1748] [cursor=pointer]
+        - generic [ref=e1751]:
+          - generic [ref=e1752]:
+            - heading "A rock bottom fauna from 80 fathoms off Banks Peninsula data" [level=6] [ref=e1753]:
+              - link "A rock bottom fauna from 80 fathoms off Banks Peninsula" [ref=e1754] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:0169c7f7d78ab869c1a5d5c1ab131fedcce37b3a"
+              - generic [ref=e1755]: data
+            - paragraph [ref=e1756]: By 1951, apart from the systematic accounts of various groups, based on the results of expeditions that have visited New Zealand waters, the deep water faun of the New Zealand seas was very imperfectl...
+            - generic [ref=e1759]: No Publisher
+          - button [ref=e1762] [cursor=pointer]
+        - generic [ref=e1765]:
+          - generic [ref=e1766]:
+            - heading "Toxicity of copper to three Macquarie Island marine gastropods 2013/15 data" [level=6] [ref=e1767]:
+              - link "Toxicity of copper to three Macquarie Island marine gastropods 2013/15" [ref=e1768] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:017ef69fb3b24b945f3d6145a685a394e174461a"
+              - generic [ref=e1769]: data
+            - paragraph [ref=e1770]: The three gastropod species in this study were collected from the subantarctic Macquarie Island (54.6167 degrees S, 158.8500 degrees E), which is located in the Southern Ocean, just north of the Antar...
+            - generic [ref=e1773]: No Publisher
+          - button [ref=e1776] [cursor=pointer]
+        - generic [ref=e1779]:
+          - generic [ref=e1780]:
+            - heading "NEFSC 1999 aj9902 data" [level=6] [ref=e1781]:
+              - link "NEFSC 1999 aj9902" [ref=e1782] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:025f4e6259c9709bb3664ab7e6d637b8c48e4c55"
+              - generic [ref=e1783]: data
+            - paragraph [ref=e1784]: "Original provider: NOAA Northeast Fisheries Science Center (NEFSC) Dataset credits: NOAA Northeast Fisheries Science Center (NEFSC) Abstract: The survey was conducted on the R/V ABEL-J from 28 July ..."
+            - generic [ref=e1787]: No Publisher
+          - button [ref=e1790] [cursor=pointer]
+        - generic [ref=e1793]:
+          - generic [ref=e1794]:
+            - heading "Dubai Turtle Rehabilitation Project (aggregated per 1-degree cell) data" [level=6] [ref=e1795]:
+              - link "Dubai Turtle Rehabilitation Project (aggregated per 1-degree cell)" [ref=e1796] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:02705ad7595d9ca4108acfda63c533edab11c090"
+              - generic [ref=e1797]: data
+            - paragraph [ref=e1798]: "Original provider: Jumeirah Group Dataset credits: Data provider Dubai Turtle Rehabilitation Project Originating data center <a href=\"http://www.seaturtle.org/tracking/\">Satellite Tracking and Analys..."
+            - generic [ref=e1801]: No Publisher
+          - button [ref=e1804] [cursor=pointer]
+        - generic [ref=e1807]:
+          - generic [ref=e1808]:
+            - heading "Biological observations from the Discovery Investigations 1925-1952 data" [level=6] [ref=e1809]:
+              - link "Biological observations from the Discovery Investigations 1925-1952" [ref=e1810] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:029ba22d5381f09cdfa4544b553d4ae66b5cc217"
+              - generic [ref=e1811]: data
+            - paragraph [ref=e1812]: The Discovery Investigations were a series of expeditions to the Southern Oceans funded out of proceeds from the sale of whaling licenses that took place between 1925 and 1951. The investigations had ...
+            - generic [ref=e1815]: No Publisher
+          - button [ref=e1818] [cursor=pointer]
+        - generic [ref=e1821]:
+          - generic [ref=e1822]:
+            - 'heading "18S Monterey Bay Time Series: an eDNA data set from Monterey Bay, California, including years 2006, 2013 - 2016 data" [level=6] [ref=e1823]':
+              - 'link "18S Monterey Bay Time Series: an eDNA data set from Monterey Bay, California, including years 2006, 2013 - 2016" [ref=e1824] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:032ebf58100d6c8e20e8e45c28e1c80985215ca2"
+              - generic [ref=e1825]: data
+            - paragraph [ref=e1826]: These data are from marine filtered seawater samples collected at a nearshore station in Monterey Bay, CA. They have undergone metabarcoding for the 18S V9 region. A selection of samples from this pla...
+            - generic [ref=e1829]: No Publisher
+          - button [ref=e1832] [cursor=pointer]
+        - generic [ref=e1835]:
+          - generic [ref=e1836]:
+            - heading "TPWD HARC Texas Coastal Fisheries, Corpus Christi Bay Gill Net data" [level=6] [ref=e1837]:
+              - link "TPWD HARC Texas Coastal Fisheries, Corpus Christi Bay Gill Net" [ref=e1838] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:048404e58435a9b12938202ca66535ead2aadae5"
+              - generic [ref=e1839]: data
+            - paragraph [ref=e1840]: The Texas Parks and Wildlife Department (TPWD) utilizes several sampling gears for fisheries-independent monitoring of finfish and shellfish communities. They include bag seines, trawls, gill nets and...
+            - generic [ref=e1843]: No Publisher
+          - button [ref=e1846] [cursor=pointer]
+        - generic [ref=e1849]:
+          - generic [ref=e1850]:
+            - 'heading "BioChem: The Les Harris Northwest Atlantic 0-100m zooplankton collection data" [level=6] [ref=e1851]':
+              - 'link "BioChem: The Les Harris Northwest Atlantic 0-100m zooplankton collection" [ref=e1852] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:0545e2da4ffca01bd5dd1f6b8c71d44c7a890929"
+              - generic [ref=e1853]: data
+            - paragraph [ref=e1854]: <p>This resource contains species distribution records extracted from the Fisheries and Oceans Canada BioChem database for the BioChem 'Harris_0_100m' series of records. This collection ...
+            - generic [ref=e1857]: No Publisher
+          - button [ref=e1860] [cursor=pointer]
+        - generic [ref=e1863]:
+          - generic [ref=e1864]:
+            - heading "Dubai Turtle Rehabilitation Project (aggregated per 1-degree cell) data" [level=6] [ref=e1865]:
+              - link "Dubai Turtle Rehabilitation Project (aggregated per 1-degree cell)" [ref=e1866] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:05aff316ad21de34f6fc6d51dca868662da0b6ec"
+              - generic [ref=e1867]: data
+            - paragraph [ref=e1868]: "Original provider: Jumeirah Group Dataset credits: Data provider Dubai Turtle Rehabilitation Project Originating data center <a href=\"http://www.seaturtle.org/tracking/\">Satellite Tracking and Analys..."
+            - generic [ref=e1871]: No Publisher
+          - button [ref=e1874] [cursor=pointer]
+        - generic [ref=e1877]:
+          - generic [ref=e1878]:
+            - heading "Ostracods of the family Halocyprididae from the northwestern Indian Ocean data" [level=6] [ref=e1879]:
+              - link "Ostracods of the family Halocyprididae from the northwestern Indian Ocean" [ref=e1880] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:05b1aa1cf616876d306baa651e79001fe65c348f"
+              - generic [ref=e1881]: data
+            - paragraph [ref=e1882]: This dataset contains occurrence records of ostracods from the family Halocyprididae from the northwestern Indian Ocean. These data are based upon records of samples collected by the U.S. Global Ocean...
+            - generic [ref=e1885]: No Publisher
+          - button [ref=e1888] [cursor=pointer]
+        - generic [ref=e1891]:
+          - generic [ref=e1892]:
+            - heading "IMOS National Reference Station (NRS) - Zooplankton Abundance data" [level=6] [ref=e1893]:
+              - link "IMOS National Reference Station (NRS) - Zooplankton Abundance" [ref=e1894] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:05f83049885b2a5f1156e79fe20c117698f20984"
+              - generic [ref=e1895]: data
+            - paragraph [ref=e1896]: This dataset comprises the zooplankton abundance estimates of a broader sampling program carried out by the Plankton National Reference Station within the Integrated Marine Observing system. Regular m...
+            - generic [ref=e1899]: No Publisher
+          - button [ref=e1902] [cursor=pointer]
+        - generic [ref=e1905]:
+          - generic [ref=e1906]:
+            - heading "JAMSTEC_MULTISPLASH2006_SagamiBay_Siphonophora data" [level=6] [ref=e1907]:
+              - link "JAMSTEC_MULTISPLASH2006_SagamiBay_Siphonophora" [ref=e1908] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:07ee7bc614646751ba2ded46c31a86c93680b6d2"
+              - generic [ref=e1909]: data
+            - paragraph [ref=e1910]: <p>Please cite the original publication this dataset was based on as Grossmann, MM, Lindsay, DJ. 2013. Diversity and distribution of the Siphonophora (Cnidaria) in Sagami Bay, Japan, and ...
+            - generic [ref=e1913]: No Publisher
+          - button [ref=e1916] [cursor=pointer]
+        - generic [ref=e1919]:
+          - generic [ref=e1920]:
+            - heading "AMAPPS Northeast Aerial Cruise Summer 2016 data" [level=6] [ref=e1921]:
+              - link "AMAPPS Northeast Aerial Cruise Summer 2016" [ref=e1922] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:084599e888d2621fdffbac639c022c69b0767941"
+              - generic [ref=e1923]: data
+            - paragraph [ref=e1924]: "Original provider: NOAA Northeast Fisheries Science Center (NEFSC) Dataset credits: NOAA Northeast Fisheries Science Center (NEFSC) Abstract: During 14 August 2016–28 September 2016 the Northeast Fi..."
+            - generic [ref=e1927]: No Publisher
+          - button [ref=e1930] [cursor=pointer]
+        - generic [ref=e1933]:
+          - generic [ref=e1934]:
+            - heading "DFO NE Newfoundland Acoustic Array and Atlantic Cod Tagging data" [level=6] [ref=e1935]:
+              - link "DFO NE Newfoundland Acoustic Array and Atlantic Cod Tagging" [ref=e1936] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:08b87d236bdd0a53387dd896a8ad5a46df7db6d0"
+              - generic [ref=e1937]: data
+            - paragraph [ref=e1938]: This is the OBIS extraction of the Ocean Tracking Network and Department of Fisheries and Oceans Canada (DFO) DFO NE Newfoundland Acoustic Array and Atlantic Cod Tagging, consisting of the release t...
+            - generic [ref=e1941]: No Publisher
+          - button [ref=e1944] [cursor=pointer]
+        - generic [ref=e1947]:
+          - generic [ref=e1948]:
+            - heading "SMRU sperm whale distribution around the Balearic Islands 2003-2008 data" [level=6] [ref=e1949]:
+              - link "SMRU sperm whale distribution around the Balearic Islands 2003-2008" [ref=e1950] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:091f9af5dd00a26ca18c5da078ca22b4b64788f9"
+              - generic [ref=e1951]: data
+            - paragraph [ref=e1952]: "Original provider: Enrico Pirotta, Sea Mammal Research Unit (SMRU) Dataset credits: Luke Rendell and Enrico Pirotta, Sea Mammal Research Unit (SMRU) Abstract: Sperm whale <i>Physeter macrocephalus<..."
+            - generic [ref=e1955]: No Publisher
+          - button [ref=e1958] [cursor=pointer]
+        - generic [ref=e1961]:
+          - generic [ref=e1962]:
+            - heading "Marine bird density and distribution on Canada's Pacific coast, 2005-2008 data" [level=6] [ref=e1963]:
+              - link "Marine bird density and distribution on Canada's Pacific coast, 2005-2008" [ref=e1964] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:0ab409798491de8096995521e7ca75a8c2d48c5f"
+              - generic [ref=e1965]: data
+            - paragraph [ref=e1966]: "Original provider: Caroline Fox, Dalhousie University and Raincoast Conservation Foundation Dataset credits: Caroline Fox, Dalhousie University and Raincoast Conservation Foundation Abstract: Associ..."
+            - generic [ref=e1969]: No Publisher
+          - button [ref=e1972] [cursor=pointer]
+        - generic [ref=e1975]:
+          - generic [ref=e1976]:
+            - heading "Manatees in the side-rivers of Maroni Estuary in French Guiana - 2001 data" [level=6] [ref=e1977]:
+              - link "Manatees in the side-rivers of Maroni Estuary in French Guiana - 2001" [ref=e1978] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:0bb63808c131f2af78ceaf84b896e793693f2c91"
+              - generic [ref=e1979]: data
+            - paragraph [ref=e1980]: "Original provider: Thomas Spiegelberger Dataset credits: Thomas Spiegelberger Abstract: A study was carried out from June to September to assess habitat quality for manatees (<i>Trichechus manatus m..."
+            - generic [ref=e1983]: No Publisher
+          - button [ref=e1986] [cursor=pointer]
+        - generic [ref=e1989]:
+          - generic [ref=e1990]:
+            - heading "Effects of temperature and red tides on sea urchin abundance and species richness over 45 years in southern Japan data" [level=6] [ref=e1991]:
+              - link "Effects of temperature and red tides on sea urchin abundance and species richness over 45 years in southern Japan" [ref=e1992] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:0c7cfb1103d3221635134d14b166681cff6f38fe"
+              - generic [ref=e1993]: data
+            - paragraph [ref=e1994]: <p>Continuous long-term monitoring is important for detecting ecological changes and understanding their causes, including anthropogenic impacts such as climate changes and eutrophication...
+            - generic [ref=e1997]: No Publisher
+          - button [ref=e2000] [cursor=pointer]
+        - generic [ref=e2003]:
+          - generic [ref=e2004]:
+            - heading "NEFSC 1999 aj9902 data" [level=6] [ref=e2005]:
+              - link "NEFSC 1999 aj9902" [ref=e2006] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:0cc809f501266ca69af692b7a5797ff85f5db7e3"
+              - generic [ref=e2007]: data
+            - paragraph [ref=e2008]: "Original provider: NOAA Northeast Fisheries Science Center (NEFSC) Dataset credits: NOAA Northeast Fisheries Science Center (NEFSC) Abstract: The survey was conducted on the R/V ABEL-J from 28 July ..."
+            - generic [ref=e2011]: No Publisher
+          - button [ref=e2014] [cursor=pointer]
+        - generic [ref=e2017]:
+          - generic [ref=e2018]:
+            - heading "TPWD HARC Texas Coastal Fisheries Lower Laguna Madre Gill Net data" [level=6] [ref=e2019]:
+              - link "TPWD HARC Texas Coastal Fisheries Lower Laguna Madre Gill Net" [ref=e2020] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:0d18a8163f5765c510ffb93dbb95fd3788a316a8"
+              - generic [ref=e2021]: data
+            - paragraph [ref=e2022]: The Texas Parks and Wildlife Department (TPWD) utilizes several sampling gears for fisheries-independent monitoring of finfish and shellfish communities. They include bag seines, trawls, gill nets and...
+            - generic [ref=e2025]: No Publisher
+          - button [ref=e2028] [cursor=pointer]
+        - generic [ref=e2031]:
+          - generic [ref=e2032]:
+            - heading "AMAPPS Northeast Aerial Cruise Spring 2017 data" [level=6] [ref=e2033]:
+              - link "AMAPPS Northeast Aerial Cruise Spring 2017" [ref=e2034] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:0d32ef85707ef69749c0528d0e11c71c80c01bac"
+              - generic [ref=e2035]: data
+            - paragraph [ref=e2036]: "Original provider: NOAA Northeast Fisheries Science Center (NEFSC) Dataset credits: NOAA Northeast Fisheries Science Center (NEFSC) Abstract: During 6 June 2017 – 15 July 2017, the Northeast Fisheri..."
+            - generic [ref=e2039]: No Publisher
+          - button [ref=e2042] [cursor=pointer]
+        - generic [ref=e2045]:
+          - generic [ref=e2046]:
+            - heading "Time series of zooplankton abundance in the Florida Keys, collected by the South Florida Program (NOAA/AOML) and the Marine Biodiversity Observation Network (MBON) data" [level=6] [ref=e2047]:
+              - link "Time series of zooplankton abundance in the Florida Keys, collected by the South Florida Program (NOAA/AOML) and the Marine Biodiversity Observation Network (MBON)" [ref=e2048] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:0dd033e1a52d34ff3edaaa22934d7746ee49eaec"
+              - generic [ref=e2049]: data
+            - paragraph [ref=e2050]: Sampling is carried out bi-monthly on the R/V Walton Smith (University of Miami) as part of the South Florida Program (NOAA Atlantic Oceanographic and Meteorological Laboratory/ AOML) and the Marine B...
+            - generic [ref=e2053]: No Publisher
+          - button [ref=e2056] [cursor=pointer]
+        - generic [ref=e2059]:
+          - generic [ref=e2060]:
+            - heading "SEFSC Dolphin Photo ID data" [level=6] [ref=e2061]:
+              - link "SEFSC Dolphin Photo ID" [ref=e2062] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:0e6ec34584b5b484b22e5d5550ec8a411d77ff40"
+              - generic [ref=e2063]: data
+            - paragraph [ref=e2064]: "Original provider: NOAA Southeast Fisheries Science Center (SEFSC) Dataset credits: NOAA Southeast Fisheries Science Center, South Florida Bottlenose Dolphin Photo-identification Cooperative Abstrac..."
+            - generic [ref=e2067]: No Publisher
+          - button [ref=e2070] [cursor=pointer]
+        - generic [ref=e2073]:
+          - generic [ref=e2074]:
+            - heading "Benthic Forams collected on the Continental Margin off Nova Scotia between 1979-1981 data" [level=6] [ref=e2075]:
+              - link "Benthic Forams collected on the Continental Margin off Nova Scotia between 1979-1981" [ref=e2076] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1080a8e71bdeee45f1c85a2017232f4bad818a68"
+              - generic [ref=e2077]: data
+            - paragraph [ref=e2078]: Data on marine benthonic foraminifera were obtained from samples collected by Shipek grab from the continental margin off Nova Scotia, Canada. Samples were collected from the benthos in water depths r...
+            - generic [ref=e2081]: No Publisher
+          - button [ref=e2084] [cursor=pointer]
+        - generic [ref=e2087]:
+          - generic [ref=e2088]:
+            - 'heading "Five new species of the damselfish genus Chromis (Perciformes: Labroidei: Pomacentridae) from deep coral reefs in the tropical western Pacific data" [level=6] [ref=e2089]':
+              - 'link "Five new species of the damselfish genus Chromis (Perciformes: Labroidei: Pomacentridae) from deep coral reefs in the tropical western Pacific" [ref=e2090] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:10c22979734ddf00d0899af546f28f6ada3e22a1"
+              - generic [ref=e2091]: data
+            - paragraph [ref=e2092]: "Five new species of the damselfish genus Chromis (Perciformes3: Labroidei: Pomacentridae) are described from specimens collected from deep (&gt;60 m) coral-reef habitat in the western Pacific by diver..."
+            - generic [ref=e2095]: No Publisher
+          - button [ref=e2098] [cursor=pointer]
+        - generic [ref=e2101]:
+          - generic [ref=e2102]:
+            - heading "Marine bird density and distribution on Canada's Pacific coast, 2005-2008 data" [level=6] [ref=e2103]:
+              - link "Marine bird density and distribution on Canada's Pacific coast, 2005-2008" [ref=e2104] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:110dabcd19461dd0500e56632046af950abcb6d4"
+              - generic [ref=e2105]: data
+            - paragraph [ref=e2106]: "<p>Original provider: Caroline Fox, Dalhousie University and Raincoast Conservation Foundation Dataset credits: Caroline Fox, Dalhousie University and Raincoast Conservation Foundation ..."
+            - generic [ref=e2109]: No Publisher
+          - button [ref=e2112] [cursor=pointer]
+        - generic [ref=e2115]:
+          - generic [ref=e2116]:
+            - heading "Cuvier's Beaked Whale and Fin Whale Surveys at the Southern California Offshore Anti-submarine Warfare Range (SOAR) data" [level=6] [ref=e2117]:
+              - link "Cuvier's Beaked Whale and Fin Whale Surveys at the Southern California Offshore Anti-submarine Warfare Range (SOAR)" [ref=e2118] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:11ed23b242559f71e16881df7300d83fcca4ab19"
+              - generic [ref=e2119]: data
+            - paragraph [ref=e2120]: "Original provider: Marine Ecology and Telemetry Research Dataset credits: Marine Ecology and Telemetry Research Abstract: The United States (US) Navy uses the Southern California (SOCAL) portion of ..."
+            - generic [ref=e2123]: No Publisher
+          - button [ref=e2126] [cursor=pointer]
+        - generic [ref=e2129]:
+          - generic [ref=e2130]:
+            - heading "Cuvier's Beaked Whale and Fin Whale Surveys at the Southern California Offshore Anti-submarine Warfare Range (SOAR) data" [level=6] [ref=e2131]:
+              - link "Cuvier's Beaked Whale and Fin Whale Surveys at the Southern California Offshore Anti-submarine Warfare Range (SOAR)" [ref=e2132] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:11ed23b242559f71e16881df7300d83fcca4ab19"
+              - generic [ref=e2133]: data
+            - paragraph [ref=e2134]: "Original provider: Marine Ecology and Telemetry Research Dataset credits: Marine Ecology and Telemetry Research Abstract: The United States (US) Navy uses the Southern California (SOCAL) portion of ..."
+            - generic [ref=e2137]: No Publisher
+          - button [ref=e2140] [cursor=pointer]
+        - generic [ref=e2143]:
+          - generic [ref=e2144]:
+            - heading "Turtle Hospital, Marathon Florida (aggregated per 1-degree cell) data" [level=6] [ref=e2145]:
+              - link "Turtle Hospital, Marathon Florida (aggregated per 1-degree cell)" [ref=e2146] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:12200a2857dcca09cd7e5799778d26f494f503ab"
+              - generic [ref=e2147]: data
+            - paragraph [ref=e2148]: "Original provider: Turtle Hospital- Marathon Dataset credits: Data provider Mote Marine Laboratory Originating data center <a href=\"http://www.seaturtle.org/tracking/\">Satellite Tracking and Analysis..."
+            - generic [ref=e2151]: No Publisher
+          - button [ref=e2154] [cursor=pointer]
+        - generic [ref=e2157]:
+          - generic [ref=e2158]:
+            - heading "Ice core meiofauna during the SIPEX and SIPEX II voyages data" [level=6] [ref=e2159]:
+              - link "Ice core meiofauna during the SIPEX and SIPEX II voyages" [ref=e2160] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:12608d83cf14d8adedd55b450cc4390eab006f18"
+              - generic [ref=e2161]: data
+            - paragraph [ref=e2162]: "Zooplankton were collected during the winter-spring transition during two cruises of the Aurora Australis: SIPEX in 2007 and SIPEX II in 2012. As part of the collections sea ice cores were collected ..."
+            - generic [ref=e2165]: No Publisher
+          - button [ref=e2168] [cursor=pointer]
+        - generic [ref=e2171]:
+          - generic [ref=e2172]:
+            - heading "Ice core meiofauna during the SIPEX and SIPEX II voyages data" [level=6] [ref=e2173]:
+              - link "Ice core meiofauna during the SIPEX and SIPEX II voyages" [ref=e2174] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:12608d83cf14d8adedd55b450cc4390eab006f18"
+              - generic [ref=e2175]: data
+            - paragraph [ref=e2176]: "Zooplankton were collected during the winter-spring transition during two cruises of the Aurora Australis: SIPEX in 2007 and SIPEX II in 2012. As part of the collections sea ice cores were collected ..."
+            - generic [ref=e2179]: No Publisher
+          - button [ref=e2182] [cursor=pointer]
+        - generic [ref=e2185]:
+          - generic [ref=e2186]:
+            - 'heading "FRB: Benthic communities in the Gulf of St. Lawrence as surveyed in February 1962 data" [level=6] [ref=e2187]':
+              - 'link "FRB: Benthic communities in the Gulf of St. Lawrence as surveyed in February 1962" [ref=e2188] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:128cf4334667425121b15e41a56d47c45ce2c714"
+              - generic [ref=e2189]: data
+            - paragraph [ref=e2190]: As part of the sediment water interface program of the Atlantic Oceanographic Group a study of the distribution and ecology of benthic organisms was initiated in 1961 and in February of 1962 van Veen ...
+            - generic [ref=e2193]: No Publisher
+          - button [ref=e2196] [cursor=pointer]
+        - generic [ref=e2199]:
+          - generic [ref=e2200]:
+            - heading "Seagrass data, Western Australia (2006-2009) data" [level=6] [ref=e2201]:
+              - link "Seagrass data, Western Australia (2006-2009)" [ref=e2202] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:12acf45b5226c693cd9c89f5b69362b55ffdce8a"
+              - generic [ref=e2203]: data
+            - paragraph [ref=e2204]: This record describes data collected for the 2013 report "Synthesis of seagrass mapping studies conducted by the Water Science Branch of the Department of Water". Seagrass data was collected from the...
+            - generic [ref=e2207]: No Publisher
+          - button [ref=e2210] [cursor=pointer]
+        - generic [ref=e2213]:
+          - generic [ref=e2214]:
+            - heading "Frobisher Bay, Canada data" [level=6] [ref=e2215]:
+              - link "Frobisher Bay, Canada" [ref=e2216] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:134bf52e13efd82551d16f260b96ffc38f94503b"
+              - generic [ref=e2217]: data
+            - paragraph [ref=e2218]: This is the OBIS extraction of the Ocean Tracking Network and Dalhousie University (DAL) Frobisher Bay, Canada, consisting of the release tagging metadata, i.e. the location and date when the tagged...
+            - generic [ref=e2221]: No Publisher
+          - button [ref=e2224] [cursor=pointer]
+        - generic [ref=e2227]:
+          - generic [ref=e2228]:
+            - 'heading "Biodiversity and community assemblage of shallow habitats of the National Park of Banc d''Arguin (Mauritania): influence of habitat, season and site data" [level=6] [ref=e2229]':
+              - 'link "Biodiversity and community assemblage of shallow habitats of the National Park of Banc d''Arguin (Mauritania): influence of habitat, season and site" [ref=e2230] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:13578b882478e8a1c365fdd38d8188acbaeef843"
+              - generic [ref=e2231]: data
+            - paragraph [ref=e2232]: The biodiversity and community assemblages of seagrass and sand habitats located in shallow water habitats of the Banc d’Arguin were sampled with a beach seine at 3 sites, during two sampling missions...
+            - generic [ref=e2235]: No Publisher
+          - button [ref=e2238] [cursor=pointer]
+        - generic [ref=e2241]:
+          - generic [ref=e2242]:
+            - heading "CSIRO, SRFME, Algal Biomass, Perth region, Southwest Australia, 2003-2005 data" [level=6] [ref=e2243]:
+              - link "CSIRO, SRFME, Algal Biomass, Perth region, Southwest Australia, 2003-2005" [ref=e2244] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:13f9e70beb510148aedc6d16cbaf73a752acde4d"
+              - generic [ref=e2245]: data
+            - paragraph [ref=e2246]: Algal biomass in the Perth region were identified from quadrat surveys, as part of the SRFME research program. The aim of the SRFME Coastal project was to characterize the coastal benthic ecosystems o...
+            - generic [ref=e2249]: No Publisher
+          - button [ref=e2252] [cursor=pointer]
+        - generic [ref=e2255]:
+          - generic [ref=e2256]:
+            - heading "Distributions of Marsh-Estuarine Foraminifera in Chezzetcook Inlet, Nova Scotia. data" [level=6] [ref=e2257]:
+              - link "Distributions of Marsh-Estuarine Foraminifera in Chezzetcook Inlet, Nova Scotia." [ref=e2258] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:13ffafa686f412bf024364a54364e819a8bac570"
+              - generic [ref=e2259]: data
+            - paragraph [ref=e2260]: Surface and subsurface samples were collected in marsh and estuarine environments to determine foraminiferal distributions. Samples from the marsh area were obtained on foot during low tide. Since the...
+            - generic [ref=e2263]: No Publisher
+          - button [ref=e2266] [cursor=pointer]
+        - generic [ref=e2269]:
+          - generic [ref=e2270]:
+            - heading "Environmental DNA reveals tropical shark diversity in contrasting levels of anthropogenic impact data" [level=6] [ref=e2271]:
+              - link "Environmental DNA reveals tropical shark diversity in contrasting levels of anthropogenic impact" [ref=e2272] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:146d6b4becad9c64eb70cbf3124e9fdade65aca9"
+              - generic [ref=e2273]: data
+            - paragraph [ref=e2274]: Here we pilot a novel, rapid and non-invasive environmental DNA (eDNA) metabarcoding approach specifically targeted to infer shark presence, diversity and eDNA read abundance in tropical habitats. We ...
+            - generic [ref=e2277]: No Publisher
+          - button [ref=e2280] [cursor=pointer]
+        - generic [ref=e2283]:
+          - generic [ref=e2284]:
+            - heading "Maximising fish detection with eDNA metabarcoding, Browse Island, Australia (2017) data" [level=6] [ref=e2285]:
+              - link "Maximising fish detection with eDNA metabarcoding, Browse Island, Australia (2017)" [ref=e2286] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:154ac8dfaed3f878e9a15fb469856dbefbf44eb0"
+              - generic [ref=e2287]: data
+            - paragraph [ref=e2288]: Water samples were collected from the intertidal reef of Browse Island; a tropical, remote island in the Timor Sea. Aliquots from a single 20700 ml sample and multiple 2000 ml samples were filtered in...
+            - generic [ref=e2291]: No Publisher
+          - button [ref=e2294] [cursor=pointer]
+        - generic [ref=e2297]:
+          - generic [ref=e2298]:
+            - heading "Marine zooplankton community structure through environmental DNA metabarcoding in the Florida Keys, collected by the South Florida Program (NOAA/AOML) and the Marine Biodiversity Observation Network (MBON) data" [level=6] [ref=e2299]:
+              - link "Marine zooplankton community structure through environmental DNA metabarcoding in the Florida Keys, collected by the South Florida Program (NOAA/AOML) and the Marine Biodiversity Observation Network (MBON)" [ref=e2300] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1592ea8e88ded9a772f42c9665b4e5acb6193cff"
+              - generic [ref=e2301]: data
+            - paragraph [ref=e2302]: This data consists of counts of putative zooplankton OTUs, revealed through metabarcoding of the cytochrome oxidase I (COI) gene extracted from filtered water samples in the Florida Keys National Mari...
+            - generic [ref=e2305]: No Publisher
+          - button [ref=e2308] [cursor=pointer]
+        - generic [ref=e2311]:
+          - generic [ref=e2312]:
+            - heading "Grand Manan Basin Benthos data" [level=6] [ref=e2313]:
+              - link "Grand Manan Basin Benthos" [ref=e2314] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:15ac89eb3a97083c259dee8a39277198d36a1262"
+              - generic [ref=e2315]: data
+            - paragraph [ref=e2316]: This study investigates the faunal biodiversity of the deep water sediments of Grand Manan Basin in the Bay Fundy on the East Coast of North America. Specimens were collected using a 0.1 m2 grab, and ...
+            - generic [ref=e2319]: No Publisher
+          - button [ref=e2322] [cursor=pointer]
+        - generic [ref=e2325]:
+          - generic [ref=e2326]:
+            - heading "Zooplankton abundance in the Kerguelen Axis region 2016 data" [level=6] [ref=e2327]:
+              - link "Zooplankton abundance in the Kerguelen Axis region 2016" [ref=e2328] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:15e96b7a4d7317f8db2e585ab1cc65ceb9fae4b3"
+              - generic [ref=e2329]: data
+            - paragraph [ref=e2330]: Zooplankton were collected with a Rectangular Midwater Trawl (RMT 8+1 net) from 37 sampling sites on and near the Southern Kerguelen Plateau. The contents of each net were preserved in 5% buffered for...
+            - generic [ref=e2333]: No Publisher
+          - button [ref=e2336] [cursor=pointer]
+        - generic [ref=e2339]:
+          - generic [ref=e2340]:
+            - heading "Zooplankton abundance in the Kerguelen Axis region 2016 data" [level=6] [ref=e2341]:
+              - link "Zooplankton abundance in the Kerguelen Axis region 2016" [ref=e2342] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:15e96b7a4d7317f8db2e585ab1cc65ceb9fae4b3"
+              - generic [ref=e2343]: data
+            - paragraph [ref=e2344]: Zooplankton were collected with a Rectangular Midwater Trawl (RMT 8+1 net) from 37 sampling sites on and near the Southern Kerguelen Plateau. The contents of each net were preserved in 5% buffered for...
+            - generic [ref=e2347]: No Publisher
+          - button [ref=e2350] [cursor=pointer]
+        - generic [ref=e2353]:
+          - generic [ref=e2354]:
+            - heading "Deep-water corals sampled from the RV Falkor voyage FK20150301, Perth Canyon, Western Australia (2015) data" [level=6] [ref=e2355]:
+              - link "Deep-water corals sampled from the RV Falkor voyage FK20150301, Perth Canyon, Western Australia (2015)" [ref=e2356] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1638374b0afba523c244bd04005bd0784740c939"
+              - generic [ref=e2357]: data
+            - paragraph [ref=e2358]: Deep-water scleractinian corals were collected in 2015 during cruise FK20150301 (McCulloch et al., 2017), from within and around the Perth Canyon (31◦42′S – 32◦10′ S and 114◦42′E - 115◦05′ E) using a ...
+            - generic [ref=e2361]: No Publisher
+          - button [ref=e2364] [cursor=pointer]
+        - generic [ref=e2367]:
+          - generic [ref=e2368]:
+            - heading "North Carolina Rehabilitated Sea Turtle Monitoring Project (aggregated per 1-degree cell) data" [level=6] [ref=e2369]:
+              - link "North Carolina Rehabilitated Sea Turtle Monitoring Project (aggregated per 1-degree cell)" [ref=e2370] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:168cf4319489d73117bb0489e60e0229a6b62cc5"
+              - generic [ref=e2371]: data
+            - paragraph [ref=e2372]: "Original provider: SEATURTLE.ORG Dataset credits: Data provider SEATURTLE.ORG Animal Tracking Program Originating data center <a href=\"http://www.seaturtle.org/tracking/\">Satellite Tracking and Analy..."
+            - generic [ref=e2375]: No Publisher
+          - button [ref=e2378] [cursor=pointer]
+        - generic [ref=e2381]:
+          - generic [ref=e2382]:
+            - heading "Recent (post-1930) changes in the extent of subtidal seagrass (Zostera muelleri) beds of the eastern Bay of Islands, New Zealand data" [level=6] [ref=e2383]:
+              - link "Recent (post-1930) changes in the extent of subtidal seagrass (Zostera muelleri) beds of the eastern Bay of Islands, New Zealand" [ref=e2384] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1719f7a54ff5327281109cc90d76d8d79c274cb6"
+              - generic [ref=e2385]: data
+            - paragraph [ref=e2386]: The surface areas of 12 subtidal seagrass Zostera muelleri beds at the islands and adjacent mainland shores of the eastern Bay of Islands (35° 12′ S, 174° 10′ E), New Zealand were estimated from aeria...
+            - generic [ref=e2389]: No Publisher
+          - button [ref=e2392] [cursor=pointer]
+        - generic [ref=e2395]:
+          - generic [ref=e2396]:
+            - heading "Macrobenthos monitoring in function of the Water Framework Directive in the period 2007-2009 data" [level=6] [ref=e2397]:
+              - link "Macrobenthos monitoring in function of the Water Framework Directive in the period 2007-2009" [ref=e2398] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1720a79bcbf4eae43888aa9912708d7eb5e2c814"
+              - generic [ref=e2399]: data
+            - paragraph [ref=e2400]: Macrobenthos monitoring in function of the Water Framework Directive
+            - generic [ref=e2403]: No Publisher
+          - button [ref=e2406] [cursor=pointer]
+        - generic [ref=e2409]:
+          - generic [ref=e2410]:
+            - heading "Environmental impact assessment of oil pollution accident in Gialova lagoon and Navarino Bay data" [level=6] [ref=e2411]:
+              - link "Environmental impact assessment of oil pollution accident in Gialova lagoon and Navarino Bay" [ref=e2412] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1730adbac9ae1258615b0302dca5fd8af5fa9911"
+              - generic [ref=e2413]: data
+            - paragraph [ref=e2414]: Dataset results regarding various parameters (Ash-free dry weight (AFDW) biomass , Benthic microbial activity (ATP), Chlorophyll a, Conductivity, Count, Current velocity water, Depth, Dry weight bioma...
+            - generic [ref=e2417]: No Publisher
+          - button [ref=e2420] [cursor=pointer]
+        - generic [ref=e2423]:
+          - generic [ref=e2424]:
+            - heading "SPG - Atlantic salmon migration, survival and disease data" [level=6] [ref=e2425]:
+              - link "SPG - Atlantic salmon migration, survival and disease" [ref=e2426] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1809cf8911032269d5a92ea84e2e8d166a4fd6e6"
+              - generic [ref=e2427]: data
+            - paragraph [ref=e2428]: This is the OBIS extraction of the Ocean Tracking Network and Dalhousie University (DAL) SPG - Atlantic salmon migration, survival and disease, consisting of the release tagging metadata, i.e. the l...
+            - generic [ref=e2431]: No Publisher
+          - button [ref=e2434] [cursor=pointer]
+        - generic [ref=e2437]:
+          - generic [ref=e2438]:
+            - heading "Occurrences of harmful (toxic) algal taxa within an area of interest to Costa Rica compiled as part of a literature search project. data" [level=6] [ref=e2439]:
+              - link "Occurrences of harmful (toxic) algal taxa within an area of interest to Costa Rica compiled as part of a literature search project." [ref=e2440] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:181678326edc355398dae8311c38b4ab2da3bb2e"
+              - generic [ref=e2441]: data
+            - paragraph [ref=e2442]: The aim of the Intergovernmental Oceanographic Commission of UNESCO (IOC) Harmful Algal Bloom (HAB) global status report literature search project is to create a reliable verified data set for all tox...
+            - generic [ref=e2445]: No Publisher
+          - button [ref=e2448] [cursor=pointer]
+        - generic [ref=e2451]:
+          - generic [ref=e2452]:
+            - heading "Oceanic Shoals Commonwealth Marine Reserve - Pelagic baited camera surveys (stereo-BRUVS), Australia (2012) data" [level=6] [ref=e2453]:
+              - link "Oceanic Shoals Commonwealth Marine Reserve - Pelagic baited camera surveys (stereo-BRUVS), Australia (2012)" [ref=e2454] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:182f9ecaff935a6f70c2d43f75bc884e1aa09709"
+              - generic [ref=e2455]: data
+            - paragraph [ref=e2456]: This dataset derives from deployments of pelagic baited camera systems (stereo-BRUVS) conducted within the Oceanic Shoals Commonwealth Marine Reserve (CMR) in the Timor Sea during September and Octobe...
+            - generic [ref=e2459]: No Publisher
+          - button [ref=e2462] [cursor=pointer]
+        - generic [ref=e2465]:
+          - generic [ref=e2466]:
+            - heading "Sightings for SSAM2-BOSS Sonar Test Event - June 2013 data" [level=6] [ref=e2467]:
+              - link "Sightings for SSAM2-BOSS Sonar Test Event - June 2013" [ref=e2468] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:184f84babe6ddf23d81057c9ab0ea15a1f78be55"
+              - generic [ref=e2469]: data
+            - paragraph [ref=e2470]: "Original provider: HDR Environmental, Operations and Construction, Inc. Dataset credits: The U.S. Navy Marine Species Monitoring Program Abstract: Aerial surveys for marine-species monitoring occurr..."
+            - generic [ref=e2473]: No Publisher
+          - button [ref=e2476] [cursor=pointer]
+        - generic [ref=e2479]:
+          - generic [ref=e2480]:
+            - heading "TGS Seismic Survey Acoustic Detections in Chukchi Sea 2013 data" [level=6] [ref=e2481]:
+              - link "TGS Seismic Survey Acoustic Detections in Chukchi Sea 2013" [ref=e2482] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:18949a3bae7ae48bbce00b755cc94260010d1e36"
+              - generic [ref=e2483]: data
+            - paragraph [ref=e2484]: "Original provider: TGS Dataset credits: ASRC Energy Services, Inc. TGS-NOPEC Geophysical Company RPS Abstract: TGS-NOPEC Geophysical Company (TGS) conducted a 2D marine seismic survey along predeter..."
+            - generic [ref=e2487]: No Publisher
+          - button [ref=e2490] [cursor=pointer]
+        - generic [ref=e2493]:
+          - generic [ref=e2494]:
+            - 'heading "Muricidae (Mollusca: Gastropoda) from Fiji and Tonga data" [level=6] [ref=e2495]':
+              - 'link "Muricidae (Mollusca: Gastropoda) from Fiji and Tonga" [ref=e2496] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:18b600394ef0505c2390e8f4149211c2220e5fea"
+              - generic [ref=e2497]: data
+            - paragraph [ref=e2498]: Fifty-eight muricid species were collected during recent expeditions to Fiji, including 3 new species. A review of the literature added another 37 species reliably recorded from the archipelago, bring...
+            - generic [ref=e2501]: No Publisher
+          - button [ref=e2504] [cursor=pointer]
+        - generic [ref=e2507]:
+          - generic [ref=e2508]:
+            - heading "AMAPPS Northeast Aerial Cruise Spring 2017 data" [level=6] [ref=e2509]:
+              - link "AMAPPS Northeast Aerial Cruise Spring 2017" [ref=e2510] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1a8eae2d9731a3bf90058c76ef9a6b0ba5e10e92"
+              - generic [ref=e2511]: data
+            - paragraph [ref=e2512]: "Original provider: NOAA Northeast Fisheries Science Center (NEFSC) Dataset credits: NOAA Northeast Fisheries Science Center (NEFSC) Abstract: During 6 June 2017 – 15 July 2017, the Northeast Fisheri..."
+            - generic [ref=e2515]: No Publisher
+          - button [ref=e2518] [cursor=pointer]
+        - generic [ref=e2521]:
+          - generic [ref=e2522]:
+            - heading "Pelagic and Demersal Fish Database I, REVIZEE South Area (WSAOBIS) data" [level=6] [ref=e2523]:
+              - link "Pelagic and Demersal Fish Database I, REVIZEE South Area (WSAOBIS)" [ref=e2524] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1aa1b7cab18ae319c75692e05f4b8f09b29111f0"
+              - generic [ref=e2525]: data
+            - paragraph [ref=e2526]: This data set contains records of pelagic and demersal fish collected during the REVIZEE program off the southern Brazilian coast. Six oceanographic cruises were carried out from 1996 to 1999 between ...
+            - generic [ref=e2529]: No Publisher
+          - button [ref=e2532] [cursor=pointer]
+        - generic [ref=e2535]:
+          - generic [ref=e2536]:
+            - heading "Australia's Census of Antarctic Marine Life project - IYGPT Data collected on the CEAMARC cruise 2007/08 data" [level=6] [ref=e2537]:
+              - link "Australia's Census of Antarctic Marine Life project - IYGPT Data collected on the CEAMARC cruise 2007/08" [ref=e2538] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1b3b05df2226a54787f7c2c58aa7759b9decad3a"
+              - generic [ref=e2539]: data
+            - paragraph [ref=e2540]: Australia's Census of Antarctic Marine Life project. This project is a part of the international "Census of Antarctic Marine Life" (CAML) which was conducted during the International Polar Year. It w...
+            - generic [ref=e2543]: No Publisher
+          - button [ref=e2546] [cursor=pointer]
+        - generic [ref=e2549]:
+          - generic [ref=e2550]:
+            - heading "NMFS Turtle Tracking data" [level=6] [ref=e2551]:
+              - link "NMFS Turtle Tracking" [ref=e2552] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1c07b631a7502523d9c74331f8ea92f8d67458e3"
+              - generic [ref=e2553]: data
+            - paragraph [ref=e2554]: "Original provider: NOAA Pacific Islands Fisheries Science Center (PIFSC) Dataset credits: NOAA Pacific Islands Fisheries Science Center (PIFSC) Abstract: Satellite telemetry from 26 loggerhead (<i>C..."
+            - generic [ref=e2557]: No Publisher
+          - button [ref=e2560] [cursor=pointer]
+        - generic [ref=e2563]:
+          - generic [ref=e2564]:
+            - heading "eDNA observations, concurrent with trawl survey, of marine fish in coastal New Jersey, USA 2019 data" [level=6] [ref=e2565]:
+              - link "eDNA observations, concurrent with trawl survey, of marine fish in coastal New Jersey, USA 2019" [ref=e2566] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1d3f54d5d63be7cf65c5510a2a340945248f3523"
+              - generic [ref=e2567]: data
+            - paragraph [ref=e2568]: These data are amplicon sequence variant (ASV) counts of marine fish derived from environmental DNA (eDNA) sampling targeting the 12S rDNA, V5 region. DNA was extracted from filtered water samples tak...
+            - generic [ref=e2571]: No Publisher
+          - button [ref=e2574] [cursor=pointer]
+        - generic [ref=e2577]:
+          - generic [ref=e2578]:
+            - heading "New Species of Cirratulidae (Annelida) from Continental Slope and Abyssal Depths off Eastern Australia data" [level=6] [ref=e2579]:
+              - link "New Species of Cirratulidae (Annelida) from Continental Slope and Abyssal Depths off Eastern Australia" [ref=e2580] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1da10f8a0ea324897bcbe926a85cf977170cde0c"
+              - generic [ref=e2581]: data
+            - paragraph [ref=e2582]: Seven new species of Cirratulidae are described from deep waters off the east coast of Australia. Samples were collected as part of the RV Investigator voyage IN2017_V03 in May/June 2017 using a Brenk...
+            - generic [ref=e2585]: No Publisher
+          - button [ref=e2588] [cursor=pointer]
+        - generic [ref=e2591]:
+          - generic [ref=e2592]:
+            - heading "Diatom abundance from CEAMARC coretop samples 2007/08 data" [level=6] [ref=e2593]:
+              - link "Diatom abundance from CEAMARC coretop samples 2007/08" [ref=e2594] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1e1f35a2d8097c06f9b83a191c432c0bd0498f3e"
+              - generic [ref=e2595]: data
+            - paragraph [ref=e2596]: This dataset contains the abundance of diatom species found in the surface sediments from cores collected as part of the CEAMARC (Collaborative East Antarctic Marine Census) mission. The cores were co...
+            - generic [ref=e2599]: No Publisher
+          - button [ref=e2602] [cursor=pointer]
+        - generic [ref=e2605]:
+          - generic [ref=e2606]:
+            - heading "NEFSC Marine Mammal Abundance Cruise 2004 Passive Acoustic Monitoring - Porpoise Detections data" [level=6] [ref=e2607]:
+              - link "NEFSC Marine Mammal Abundance Cruise 2004 Passive Acoustic Monitoring - Porpoise Detections" [ref=e2608] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1e27fd00feadf7995e16f0081cc7ab64e78e0d00"
+              - generic [ref=e2609]: data
+            - paragraph [ref=e2610]: "Original provider: NOAA Northeast Fisheries Science Center (NEFSC) Dataset credits: Sofie Van Parijs Abstract: The primary objectives of the NEFSC Marine Mammal Abundance Cruise were to: (1) determi..."
+            - generic [ref=e2613]: No Publisher
+          - button [ref=e2616] [cursor=pointer]
+        - generic [ref=e2619]:
+          - generic [ref=e2620]:
+            - heading "TGS Seismic Survey Visual Sightings in Chukchi Sea 2013 data" [level=6] [ref=e2621]:
+              - link "TGS Seismic Survey Visual Sightings in Chukchi Sea 2013" [ref=e2622] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1e7184fcdccab4ab12f26b0361e69f06706b607d"
+              - generic [ref=e2623]: data
+            - paragraph [ref=e2624]: "Original provider: TGS Dataset credits: ASRC Energy Services, Inc. TGS-NOPEC Geophysical Company Abstract: TGS-NOPEC Geophysical Company (TGS) conducted a 2D marine seismic survey along predetermine..."
+            - generic [ref=e2627]: No Publisher
+          - button [ref=e2630] [cursor=pointer]
+        - generic [ref=e2633]:
+          - generic [ref=e2634]:
+            - heading "Cayman Turtle Farm Green Sea Turtle Releases (aggregated per 1-degree cell) data" [level=6] [ref=e2635]:
+              - link "Cayman Turtle Farm Green Sea Turtle Releases (aggregated per 1-degree cell)" [ref=e2636] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1f1a44242d4ba693c97b7a2f9b1c980cbc847087"
+              - generic [ref=e2637]: data
+            - paragraph [ref=e2638]: "Original provider: Cayman Turtle Farm Dataset credits: Data provider Cayman Turtle Farm Originating data center <a href=\"http://www.seaturtle.org/tracking/\">Satellite Tracking and Analysis Tool (STAT..."
+            - generic [ref=e2641]: No Publisher
+          - button [ref=e2644] [cursor=pointer]
+        - generic [ref=e2647]:
+          - generic [ref=e2648]:
+            - heading "NEFSC Survey 1998 2 data" [level=6] [ref=e2649]:
+              - link "NEFSC Survey 1998 2" [ref=e2650] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1f1de58e47766459a5af5b69f536c155b51648c2"
+              - generic [ref=e2651]: data
+            - paragraph [ref=e2652]: "Original provider: NOAA Northeast Fisheries Science Center (NEFSC) Dataset credits: NOAA Northeast Fisheries Science Center (NEFSC) Abstract: The survey was performed on the R/V Abel-J from 6 July t..."
+            - generic [ref=e2655]: No Publisher
+          - button [ref=e2658] [cursor=pointer]
+        - generic [ref=e2661]:
+          - generic [ref=e2662]:
+            - heading "Satellite tracking of nesting loggerhead tutles at Ningaloo Marine Park, Western Australia (aggregated per 1-degree cell) data" [level=6] [ref=e2663]:
+              - link "Satellite tracking of nesting loggerhead tutles at Ningaloo Marine Park, Western Australia (aggregated per 1-degree cell)" [ref=e2664] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1f244229c33ee6f7ed7274e769c76e1eb49dd063"
+              - generic [ref=e2665]: data
+            - paragraph [ref=e2666]: "Original provider: WA Department of Parks and Wildlife Dataset credits: Data provider Ningaloo Turtle Program Originating data center <a href=\"http://www.seaturtle.org/tracking/\">Satellite Tracking a..."
+            - generic [ref=e2669]: No Publisher
+          - button [ref=e2672] [cursor=pointer]
+        - generic [ref=e2675]:
+          - generic [ref=e2676]:
+            - heading "White shark tagging off New Zealand data" [level=6] [ref=e2677]:
+              - link "White shark tagging off New Zealand" [ref=e2678] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1fa773f8c45e940ab11695feee6982271b68d5a9"
+              - generic [ref=e2679]: data
+            - paragraph [ref=e2680]: Regional Population Connectivity, Oceanic Habitat, and Return Migration Revealed by Satellite Tagging of White Sharks, Carcharodon carcharias, at New Zealand Aggregation Sites. A joint NIWA/Department...
+            - generic [ref=e2683]: No Publisher
+          - button [ref=e2686] [cursor=pointer]
+        - generic [ref=e2689]:
+          - generic [ref=e2690]:
+            - heading "Extensive sympatry, cryptic diversity and introgression throughout the Indo-Pacific distribution of two coral species complexes data" [level=6] [ref=e2691]:
+              - link "Extensive sympatry, cryptic diversity and introgression throughout the Indo-Pacific distribution of two coral species complexes" [ref=e2692] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:1fb91c55305f679ebd733ebe78160ba28e4e67f0"
+              - generic [ref=e2693]: data
+            - paragraph [ref=e2694]: The identification of species is one of the most basic, and yet critically important, issues in biology with far-reaching potential implications for fields such as biodiversity conservation, populatio...
+            - generic [ref=e2697]: No Publisher
+          - button [ref=e2700] [cursor=pointer]
+        - generic [ref=e2703]:
+          - generic [ref=e2704]:
+            - heading "SIO Marine Bird and Mammal Survey 2003 data" [level=6] [ref=e2705]:
+              - link "SIO Marine Bird and Mammal Survey 2003" [ref=e2706] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2119f5d34cd0776bb2ff93f90be922494d97e01f"
+              - generic [ref=e2707]: data
+            - paragraph [ref=e2708]: "Original provider: David Hyrenbach Dataset credits: National Science Foundation Abstract: In January 2003, investigators from Duke Marine Lab (David Hyrenbach) and CUNY-Staten Island (Richard Veit) ..."
+            - generic [ref=e2711]: No Publisher
+          - button [ref=e2714] [cursor=pointer]
+        - generic [ref=e2717]:
+          - generic [ref=e2718]:
+            - heading "NEFSC Survey 1998 1 data" [level=6] [ref=e2719]:
+              - link "NEFSC Survey 1998 1" [ref=e2720] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:211fb685e2e18e876d5cda924a89d37df197858b"
+              - generic [ref=e2721]: data
+            - paragraph [ref=e2722]: "Original provider: NOAA Northeast Fisheries Science Center (NEFSC) Dataset credits: NOAA Northeast Fisheries Science Center (NEFSC) Abstract: The survey was performed on the R/V Abel-J from 6 July t..."
+            - generic [ref=e2725]: No Publisher
+          - button [ref=e2728] [cursor=pointer]
+        - generic [ref=e2731]:
+          - generic [ref=e2732]:
+            - heading "Shallow-water fauna of Sagami Bay data" [level=6] [ref=e2733]:
+              - link "Shallow-water fauna of Sagami Bay" [ref=e2734] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:226f6982ff15a7700bc82f5e5e346dcd5529aa0b"
+              - generic [ref=e2735]: data
+            - paragraph [ref=e2736]: <p>This dataset contains data of shallow-water fauna of Sagami bay which were collected during biological observation meeting by Discover Blue and citizen.</p>
+            - generic [ref=e2739]: No Publisher
+          - button [ref=e2742] [cursor=pointer]
+        - generic [ref=e2745]:
+          - generic [ref=e2746]:
+            - heading "Xanthichthys greenei, a new species of triggerfish (Balistidae) from the Line Islands data" [level=6] [ref=e2747]:
+              - link "Xanthichthys greenei, a new species of triggerfish (Balistidae) from the Line Islands" [ref=e2748] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:233e5bf369aec156e26bd4fcca28801fef5c774f"
+              - generic [ref=e2749]: data
+            - paragraph [ref=e2750]: Xanthichthys greenei n. sp. is described from six specimens, 97-154 mm standard length (SL) collected from mesophotic coral ecosystems (90-100 m) at Kiritimati (Christmas Island), Line Islands, part ...
+            - generic [ref=e2753]: No Publisher
+          - button [ref=e2756] [cursor=pointer]
+        - generic [ref=e2759]:
+          - generic [ref=e2760]:
+            - heading "NT Alligator Rivers Region Bird Ground Count, Northern Territory, Australia (1981-1983) data" [level=6] [ref=e2761]:
+              - link "NT Alligator Rivers Region Bird Ground Count, Northern Territory, Australia (1981-1983)" [ref=e2762] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2397022b0877fc0997b42e876d769ecf39652d42"
+              - generic [ref=e2763]: data
+            - paragraph [ref=e2764]: Quantitative waterbird surveys over seasonal wetlands of the Alligator Rivers Region (ARR) of the NT, provided by the Supervising Scientist Division (SSD) of the Commonwealth Department of the Environ...
+            - generic [ref=e2767]: No Publisher
+          - button [ref=e2770] [cursor=pointer]
+        - generic [ref=e2773]:
+          - generic [ref=e2774]:
+            - heading "NEFSC Marine Mammal Abundance Cruise 2004 Passive Acoustic Monitoring - Porpoise Detections data" [level=6] [ref=e2775]:
+              - link "NEFSC Marine Mammal Abundance Cruise 2004 Passive Acoustic Monitoring - Porpoise Detections" [ref=e2776] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:241f695b6e6032c6299dfc70c54525c4f243ef74"
+              - generic [ref=e2777]: data
+            - paragraph [ref=e2778]: "Original provider: NOAA Northeast Fisheries Science Center (NEFSC) Dataset credits: Sofie Van Parijs Abstract: The primary objectives of the NEFSC Marine Mammal Abundance Cruise were to: (1) determi..."
+            - generic [ref=e2781]: No Publisher
+          - button [ref=e2784] [cursor=pointer]
+        - generic [ref=e2787]:
+          - generic [ref=e2788]:
+            - heading "NRC Harmful Phytoplankton Monitoring Project data" [level=6] [ref=e2789]:
+              - link "NRC Harmful Phytoplankton Monitoring Project" [ref=e2790] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:24b9c14a7621d5e134993f08b43c8097b69355e2"
+              - generic [ref=e2791]: data
+            - paragraph [ref=e2792]: This long-term project (1996-2006) was carried out by the National Research Council of Canada with the cooperation of Dalhousie University Oceanography Department with additional funding from the Natu...
+            - generic [ref=e2795]: No Publisher
+          - button [ref=e2798] [cursor=pointer]
+        - generic [ref=e2801]:
+          - generic [ref=e2802]:
+            - heading "BLM CETAP AIR Sightings data" [level=6] [ref=e2803]:
+              - link "BLM CETAP AIR Sightings" [ref=e2804] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:25e9efc63661b1a4ea5c74f98d2644ac6f98d53d"
+              - generic [ref=e2805]: data
+            - paragraph [ref=e2806]: "Original provider: University of Rhode Island Dataset credits: University of Rhode Island Bureau of Land Management U.S. Dept of the Interior Abstract: The Cetacean and Turtle Assessment Program (CE..."
+            - generic [ref=e2809]: No Publisher
+          - button [ref=e2812] [cursor=pointer]
+        - generic [ref=e2815]:
+          - generic [ref=e2816]:
+            - 'heading "Trophic interactions at the sediment-water interface: effect of beam-trawling on Lanice and associated fauna - partly Westbanks data" [level=6] [ref=e2817]':
+              - 'link "Trophic interactions at the sediment-water interface: effect of beam-trawling on Lanice and associated fauna - partly Westbanks" [ref=e2818] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2635a509c64a80b2e3a543897c81d95408e1370b"
+              - generic [ref=e2819]: data
+            - paragraph [ref=e2820]: The direct effect of beam-trawling on sub- and intertidal <i>Lanice conchilega</i> reefs and associated fauna will be assessed by means of an <i>in situ</i> experiment at Boulogne-sûr-mer. This databa...
+            - generic [ref=e2823]: No Publisher
+          - button [ref=e2826] [cursor=pointer]
+        - generic [ref=e2829]:
+          - generic [ref=e2830]:
+            - heading "DFO Quebec Region Coastal biodiversity of the benthic epifauna of the St. Lawrence Estuary (2018-2019) data" [level=6] [ref=e2831]:
+              - link "DFO Quebec Region Coastal biodiversity of the benthic epifauna of the St. Lawrence Estuary (2018-2019)" [ref=e2832] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:263aa2fb8927ebe0bb19cd71405bd70da4f32d52"
+              - generic [ref=e2833]: data
+            - paragraph [ref=e2834]: The north shore of the Lower Estuary (Haute-Côte-Nord, Québec) is a productive coastal system where many commercial species of benthic invertebrates are fished in the infralittoral (10-20 m) and circa...
+            - generic [ref=e2837]: No Publisher
+          - button [ref=e2840] [cursor=pointer]
+        - generic [ref=e2843]:
+          - generic [ref=e2844]:
+            - 'heading "Mysid Subfamily Boreomysinae (Crustacea: Mysida: Mysidae) in the Southeast Australian Deep-sea, RV Investigator voyage IN2017_V03 (2017) data" [level=6] [ref=e2845]':
+              - 'link "Mysid Subfamily Boreomysinae (Crustacea: Mysida: Mysidae) in the Southeast Australian Deep-sea, RV Investigator voyage IN2017_V03 (2017)" [ref=e2846] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2728e0646a3f57b96a9ea07f688f0ae6c083a672"
+              - generic [ref=e2847]: data
+            - paragraph [ref=e2848]: The deep-water mysid crustaceans of Australia have been barely known. Recent explorations of RV Investigator (CSIRO) in the southeast Australian waters discovered a unique fauna. In this special study...
+            - generic [ref=e2851]: No Publisher
+          - button [ref=e2854] [cursor=pointer]
+        - generic [ref=e2857]:
+          - generic [ref=e2858]:
+            - 'heading "DFO-SABS: Phytoplankton monitoring in the southwest Bay of Fundy data" [level=6] [ref=e2859]':
+              - 'link "DFO-SABS: Phytoplankton monitoring in the southwest Bay of Fundy" [ref=e2860] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:27ce865388b4371b2776382cb8d164615b71a780"
+              - generic [ref=e2861]: data
+            - paragraph [ref=e2862]: A monitoring program was initiated in May 1987 to study phytoplankton populations in the Western Isles region of the Bay of Fundy, southwest New Brunswick. Samples were collected for phytoplankton dis...
+            - generic [ref=e2865]: No Publisher
+          - button [ref=e2868] [cursor=pointer]
+        - generic [ref=e2871]:
+          - generic [ref=e2872]:
+            - heading "USGS South Florida Fish and Invertebrate Assessment Network Braun Blanquet data" [level=6] [ref=e2873]:
+              - link "USGS South Florida Fish and Invertebrate Assessment Network Braun Blanquet" [ref=e2874] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:27eac0ae48d3382f7183a2234fa66601e37ea170"
+              - generic [ref=e2875]: data
+            - paragraph [ref=e2876]: The South Florida Fish and Invertebrate Assessment Network (FIAN) is a monitoring project within the Comprehensive Everglades Restoration Plan (CERP). It is an element of the Southern Estuaries module...
+            - generic [ref=e2879]: No Publisher
+          - button [ref=e2882] [cursor=pointer]
+        - generic [ref=e2885]:
+          - generic [ref=e2886]:
+            - heading "NESP MBH A1 Euryhaline Elasmobranchs Fishing Database, Australia (2011-2019) data" [level=6] [ref=e2887]:
+              - link "NESP MBH A1 Euryhaline Elasmobranchs Fishing Database, Australia (2011-2019)" [ref=e2888] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:28b4963d76eafd90b05adf6d19dfaab64cb72b96"
+              - generic [ref=e2889]: data
+            - paragraph [ref=e2890]: This database contains sampling effort, catch records, biological data, and water quality data for sampling and catches of elasmobranchs in northern Australian rivers, estuaries and coasts undertaken ...
+            - generic [ref=e2893]: No Publisher
+          - button [ref=e2896] [cursor=pointer]
+        - generic [ref=e2899]:
+          - generic [ref=e2900]:
+            - heading "Nesting Flatback Sea Turtle (aggregated per 1-degree cell) data" [level=6] [ref=e2901]:
+              - link "Nesting Flatback Sea Turtle (aggregated per 1-degree cell)" [ref=e2902] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2926737bec663104c3b5d65b5e41899fefcd58e0"
+              - generic [ref=e2903]: data
+            - paragraph [ref=e2904]: "Original provider: AusTurtle Inc. Dataset credits: Data provider Bare Sand Island Flatback, Green and HawksbillPrg Originating data center <a href=\"http://www.seaturtle.org/tracking/\">Satellite Track..."
+            - generic [ref=e2907]: No Publisher
+          - button [ref=e2910] [cursor=pointer]
+        - generic [ref=e2913]:
+          - generic [ref=e2914]:
+            - heading "Foraminifera and Mollusca in Surface Sediments of the Southeastern Labrador Shelf and Lake Melville data" [level=6] [ref=e2915]:
+              - link "Foraminifera and Mollusca in Surface Sediments of the Southeastern Labrador Shelf and Lake Melville" [ref=e2916] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:29e36b4f7cf3fd7089feead740fcef605543c44c"
+              - generic [ref=e2917]: data
+            - paragraph [ref=e2918]: This project examined the distribution of benthic foraminifera and mollusca in surface sediments from two localities on the inner Labrador Shelf and from Lake Melville, a large fjord-like re-entrant i...
+            - generic [ref=e2921]: No Publisher
+          - button [ref=e2924] [cursor=pointer]
+        - generic [ref=e2927]:
+          - generic [ref=e2928]:
+            - heading "SNU-FF Meiobenthos (2009-2010) data" [level=6] [ref=e2929]:
+              - link "SNU-FF Meiobenthos (2009-2010)" [ref=e2930] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2a4d0de904178188b3f6a1955d7a93fc5dcc00de"
+              - generic [ref=e2931]: data
+            - paragraph [ref=e2932]: Meiobenthos data, as well as data on water parameters and sediment parameters, was gathered at 8 stations along the Turkish Black Sea coast, during 12 sampling events, at 2 depths (3 and 10m). All dat...
+            - generic [ref=e2935]: No Publisher
+          - button [ref=e2938] [cursor=pointer]
+        - generic [ref=e2941]:
+          - generic [ref=e2942]:
+            - heading "CSIRO, Cruise SS200803, Marine Biological Survey, Great Australian Bight; South Australian and Tasmanian continental slope, 2008 data" [level=6] [ref=e2943]:
+              - link "CSIRO, Cruise SS200803, Marine Biological Survey, Great Australian Bight; South Australian and Tasmanian continental slope, 2008" [ref=e2944] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2b7cca8f92f863ff02acdba79969ae06cb3253e1"
+              - generic [ref=e2945]: data
+            - paragraph [ref=e2946]: Benthic biota samples were taken in the Great Australian Bight (GAB) and near St Helen's Hill seamount during the pilot survey for estimating the effectiveness of spatial closures for deepwater gulper...
+            - generic [ref=e2949]: No Publisher
+          - button [ref=e2952] [cursor=pointer]
+        - generic [ref=e2955]:
+          - generic [ref=e2956]:
+            - heading "Benthic invertebrate surveys conducted between 2009-2011 as part of the Sydney Tar Ponds Cleanup and Coke Ovens Remediation Project. data" [level=6] [ref=e2957]:
+              - link "Benthic invertebrate surveys conducted between 2009-2011 as part of the Sydney Tar Ponds Cleanup and Coke Ovens Remediation Project." [ref=e2958] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2bb221fdade1956dec1c7939c29dd75155dc58bf"
+              - generic [ref=e2959]: data
+            - paragraph [ref=e2960]: Monitoring of benthic invertebrate communities in Sydney Harbour and the surrounding area was conducted between 2009-2011 as part of the marine component of the environmental effects and surface water...
+            - generic [ref=e2963]: No Publisher
+          - button [ref=e2966] [cursor=pointer]
+        - generic [ref=e2969]:
+          - generic [ref=e2970]:
+            - heading "eDNA from Gulf of Mexico Ecosystems and Carbon Cruise 2021 (GOMECC-4) data" [level=6] [ref=e2971]:
+              - link "eDNA from Gulf of Mexico Ecosystems and Carbon Cruise 2021 (GOMECC-4)" [ref=e2972] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2bde8ce5b53c72d5ec800bd98a78ab4a0ff47723"
+              - generic [ref=e2973]: data
+            - paragraph [ref=e2974]: Seawater was collected on board the NOAA ship Ronald H. Brown as part of the fourth Gulf of Mexico Ecosystems and Carbon Cycle (GOMECC-4) cruise from September 13 to October 21, 2021. Sampling for GOM...
+            - generic [ref=e2977]: No Publisher
+          - button [ref=e2980] [cursor=pointer]
+        - generic [ref=e2983]:
+          - generic [ref=e2984]:
+            - heading "PIFSC, Cetacean Survey, HITEC 2016, Cruise 1604, NOAA Pacific Islands Fisheries Science Center data" [level=6] [ref=e2985]:
+              - link "PIFSC, Cetacean Survey, HITEC 2016, Cruise 1604, NOAA Pacific Islands Fisheries Science Center" [ref=e2986] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2bf1ce1a5d54d89b8edd91b082e9f886b3edcd53"
+              - generic [ref=e2987]: data
+            - paragraph [ref=e2988]: "Original provider: NOAA Pacific Islands Fisheries Science Center (PIFSC) Dataset credits: NOAA Pacific Islands Fisheries Science Center Abstract: The Hawaiian Islands Technology for the Ecology of C..."
+            - generic [ref=e2991]: No Publisher
+          - button [ref=e2994] [cursor=pointer]
+        - generic [ref=e2997]:
+          - generic [ref=e2998]:
+            - 'heading "Oman 2006: Loggerhead Turtles of Masirah (aggregated per 1-degree cell) data" [level=6] [ref=e2999]':
+              - 'link "Oman 2006: Loggerhead Turtles of Masirah (aggregated per 1-degree cell)" [ref=e3000] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2c33bc3374fb7914c0408bf5831c541c44c93b19"
+              - generic [ref=e3001]: data
+            - paragraph [ref=e3002]: "Original provider: Biodiversity East / MTRG Dataset credits: Data provider Marine Turtle Research Group Originating data center <a href=\"http://www.seaturtle.org/tracking/\">Satellite Tracking and Ana..."
+            - generic [ref=e3005]: No Publisher
+          - button [ref=e3008] [cursor=pointer]
+        - generic [ref=e3011]:
+          - generic [ref=e3012]:
+            - heading "Eels and Eel-larvae of the Tui Oceanographic Cruise 1962, to the South Fiji Basin data" [level=6] [ref=e3013]:
+              - link "Eels and Eel-larvae of the Tui Oceanographic Cruise 1962, to the South Fiji Basin" [ref=e3014] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2c3a157294e2a62f40aeda563089bd507bc16c29"
+              - generic [ref=e3015]: data
+            - paragraph [ref=e3016]: During July and early August, 1962, the H.M.N.Z.F.A. Tui undertook a deep-water research cruise in a broadly triangular area bounded by Auckland, Norfolk Island and the Kermadec Islands, an area which...
+            - generic [ref=e3019]: No Publisher
+          - button [ref=e3022] [cursor=pointer]
+        - generic [ref=e3025]:
+          - generic [ref=e3026]:
+            - heading "AMAPPS Northeast Aerial Cruise Fall 2019 data" [level=6] [ref=e3027]:
+              - link "AMAPPS Northeast Aerial Cruise Fall 2019" [ref=e3028] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2df333766e1a02f6096bfb0d39898ce677e06211"
+              - generic [ref=e3029]: data
+            - paragraph [ref=e3030]: "Original provider: NOAA Northeast Fisheries Science Center (NEFSC) Dataset credits: NOAA Northeast Fisheries Science Center (NEFSC) Abstract: During fall (13 October – 24 November) 2019, the Northea..."
+            - generic [ref=e3033]: No Publisher
+          - button [ref=e3036] [cursor=pointer]
+        - generic [ref=e3039]:
+          - generic [ref=e3040]:
+            - heading "SIO Marine Bird and Mammal Survey 2004 data" [level=6] [ref=e3041]:
+              - link "SIO Marine Bird and Mammal Survey 2004" [ref=e3042] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2eadf2755a325d1714c132068cf8742756c31551"
+              - generic [ref=e3043]: data
+            - paragraph [ref=e3044]: "Original provider: David Hyrenbach Dataset credits: National Science Foundation Abstract: In January 2004, investigators from CUNY-Staten Island (Richard Veit, Marie Caroline Martin) and Duke Marine..."
+            - generic [ref=e3047]: No Publisher
+          - button [ref=e3050] [cursor=pointer]
+        - generic [ref=e3053]:
+          - generic [ref=e3054]:
+            - heading "Sea otter females with pups in Prince William Sound, Alaska data" [level=6] [ref=e3055]:
+              - link "Sea otter females with pups in Prince William Sound, Alaska" [ref=e3056] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2eba586fed0329142252f3fd27db702b5e9fdb0f"
+              - generic [ref=e3057]: data
+            - paragraph [ref=e3058]: "Original provider: Sylvia K. Osterrieder, Randall W. Davis Dataset credits: Sylvia K. Osterrieder, Randall W. Davis Abstract: In altricial mammals, the mother’s care and attendance are essential for..."
+            - generic [ref=e3061]: No Publisher
+          - button [ref=e3064] [cursor=pointer]
+        - generic [ref=e3067]:
+          - generic [ref=e3068]:
+            - heading "NEFSC North Atlantic Marine Mammal and Turtle Aerial Abundance Survey 2007 data" [level=6] [ref=e3069]:
+              - link "NEFSC North Atlantic Marine Mammal and Turtle Aerial Abundance Survey 2007" [ref=e3070] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:2f3eb7ea62e0f5f55bfba052e0aa77d990012612"
+              - generic [ref=e3071]: data
+            - paragraph [ref=e3072]: "Original provider: NOAA Northeast Fisheries Science Center (NEFSC) Dataset credits: NOAA Northeast Fisheries Science Center (NEFSC) Abstract: During 30 July to 29 August 2007, the Northeast Fisherie..."
+            - generic [ref=e3075]: No Publisher
+          - button [ref=e3078] [cursor=pointer]
+        - generic [ref=e3081]:
+          - generic [ref=e3082]:
+            - 'heading "Sampling the abyss: latitudinal biodiversity patterns along the base of Australia''s eastern continental margin - RV Investigator voyage IN2017_V03, Australia (2017) data" [level=6] [ref=e3083]':
+              - 'link "Sampling the abyss: latitudinal biodiversity patterns along the base of Australia''s eastern continental margin - RV Investigator voyage IN2017_V03, Australia (2017)" [ref=e3084] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:300cf4cb459300b3111627ba3e77b4d3ae937fbe"
+              - generic [ref=e3085]: data
+            - paragraph [ref=e3086]: The primary objective of this voyage IN2017_V03 was to sample the biodiversity of lower bathyal (2500 m) and abyssal (4000 m) seafloor habitats off south-eastern Australia, and in particular deep-wate...
+            - generic [ref=e3089]: No Publisher
+          - button [ref=e3092] [cursor=pointer]
+        - generic [ref=e3095]:
+          - generic [ref=e3096]:
+            - heading "NRC Harmful Phytoplankton Monitoring Project - Graves Shoal data" [level=6] [ref=e3097]:
+              - link "NRC Harmful Phytoplankton Monitoring Project - Graves Shoal" [ref=e3098] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:305e46b821c787513de7077ef04f710e5fa968bc"
+              - generic [ref=e3099]: data
+            - paragraph [ref=e3100]: This long-term project (1996-2006) was carried out by the National Research Council of Canada with the cooperation of Dalhousie University Oceanography Department with additional funding from the Natu...
+            - generic [ref=e3103]: No Publisher
+          - button [ref=e3106] [cursor=pointer]
+        - generic [ref=e3109]:
+          - generic [ref=e3110]:
+            - heading "cariaco-phytoplankton data" [level=6] [ref=e3111]:
+              - link "cariaco-phytoplankton" [ref=e3112] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:30685a9ca11ac0d115b2f32cc65b45b20324e9e8"
+              - generic [ref=e3113]: data
+            - paragraph [ref=e3114]: Since November 1995, the CARIACO Ocean Time Series program has been studying the relationship between surface primary production (carbon fixation rates by photosynthesis of planktonic algae), regional...
+            - generic [ref=e3117]: No Publisher
+          - button [ref=e3120] [cursor=pointer]
+        - generic [ref=e3123]:
+          - generic [ref=e3124]:
+            - heading "Seagrass coverage of Pelican Lagoon, Kangaroo Island, South Australia (2013) data" [level=6] [ref=e3125]:
+              - link "Seagrass coverage of Pelican Lagoon, Kangaroo Island, South Australia (2013)" [ref=e3126] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:3117024cef7f471bf33e14ce6bb5576fb5487f39"
+              - generic [ref=e3127]: data
+            - paragraph [ref=e3128]: Inshore benthic habitat mapping of Pelican Lagoon, Kangaroo Island as part of a wider Department of Environment, Water and Natural Resources (DEWNR) project to map specific areas of the South Australi...
+            - generic [ref=e3131]: No Publisher
+          - button [ref=e3134] [cursor=pointer]
+        - generic [ref=e3137]:
+          - generic [ref=e3138]:
+            - heading "Cape Darnley Early-Autumn Phytoplankton Bloom, March 2012 data" [level=6] [ref=e3139]:
+              - link "Cape Darnley Early-Autumn Phytoplankton Bloom, March 2012" [ref=e3140] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:315b40ce983c5c86ce39d30e79609a41df9b7602"
+              - generic [ref=e3141]: data
+            - paragraph [ref=e3142]: These data relate to a large-scale early-autumn phytoplankton bloom that occurred off Cape Darnley, East Antarctica, in March 2012. The bloom was detected by Dr Jan Lieser (Antarctic Climate and Ecosy...
+            - generic [ref=e3145]: No Publisher
+          - button [ref=e3148] [cursor=pointer]
+        - generic [ref=e3151]:
+          - generic [ref=e3152]:
+            - heading "NEFSC Harbor Porpoise 1991 data" [level=6] [ref=e3153]:
+              - link "NEFSC Harbor Porpoise 1991" [ref=e3154] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:31864fa5fd28f5e518edca27cc3d9e7e492c5737"
+              - generic [ref=e3155]: data
+            - paragraph [ref=e3156]: "Original provider: NOAA Northeast Fisheries Science Center (NEFSC) Dataset credits: National Marine Fisheries Service Abstract: The ship survey was performed from 22 July 1991 to 30 August 1991 to e..."
+            - generic [ref=e3159]: No Publisher
+          - button [ref=e3162] [cursor=pointer]
+        - generic [ref=e3165]:
+          - generic [ref=e3166]:
+            - heading "CalCOFI and NMFS Seabird and Marine Mammal Observation Data, 1987-2006 data" [level=6] [ref=e3167]:
+              - link "CalCOFI and NMFS Seabird and Marine Mammal Observation Data, 1987-2006" [ref=e3168] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:obis:data:319a9ce3b000663765a96e75c418d5f50c9b0d70"
+              - generic [ref=e3169]: data
+            - paragraph [ref=e3170]: "Original provider: PRBO Conservation Science Dataset credits: The projects were conducted under the grants awarded to the following organizations and their scientists. The principle investigators o..."
+            - generic [ref=e3173]: No Publisher
+          - button [ref=e3176] [cursor=pointer]
+  - generic [ref=e219]: "GeoCodes Version: 0.9.10 Date: 2026-05-28"

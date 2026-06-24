@@ -1,0 +1,1220 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: https://www.earthcube.org/geocodes
+        - img [ref=e8]
+      - link [ref=e37] [cursor=pointer]:
+        - /url: "#/landing"
+        - img [ref=e39]
+      - list [ref=e51]:
+        - listitem [ref=e52]:
+          - group [ref=e54]:
+            - searchbox "Search" [ref=e55]
+            - button [ref=e57] [cursor=pointer]:
+              - img [ref=e58]
+        - listitem [ref=e60]:
+          - link "Saved Items" [ref=e61] [cursor=pointer]:
+            - /url: "#/collection"
+        - button "SPARQL" [ref=e63] [cursor=pointer]
+        - listitem [ref=e64]:
+          - link "About" [ref=e65] [cursor=pointer]:
+            - /url: "#/about"
+  - generic [ref=e68]:
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - generic [ref=e71]: Search
+        - group [ref=e72]:
+          - textbox "Search" [active] [ref=e73]:
+            - /placeholder: Enter search terms...
+            - text: water
+          - button [ref=e75] [cursor=pointer]
+        - generic [ref=e77]:
+          - checkbox "Exact match" [ref=e78]
+          - generic [ref=e79]: Exact match
+      - generic [ref=e80]:
+        - heading "Resource Type" [level=6] [ref=e84] [cursor=pointer]: Resource Type
+        - generic [ref=e86]:
+          - heading "Keywords" [level=6] [ref=e88] [cursor=pointer]: Keywords
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - checkbox "Occurrence (86960)" [ref=e93] [cursor=pointer]
+              - generic [ref=e94] [cursor=pointer]: Occurrence (86960)
+            - generic [ref=e95]:
+              - checkbox "Observation (64848)" [ref=e96] [cursor=pointer]
+              - generic [ref=e97] [cursor=pointer]: Observation (64848)
+            - generic [ref=e98]:
+              - checkbox "ALS (45392)" [ref=e99] [cursor=pointer]
+              - generic [ref=e100] [cursor=pointer]: ALS (45392)
+            - generic [ref=e101]:
+              - checkbox "Lidar (45392)" [ref=e102] [cursor=pointer]
+              - generic [ref=e103] [cursor=pointer]: Lidar (45392)
+            - generic [ref=e104]:
+              - checkbox "Point Cloud (45392)" [ref=e105] [cursor=pointer]
+              - generic [ref=e106] [cursor=pointer]: Point Cloud (45392)
+            - button "Show 195 more..." [ref=e108] [cursor=pointer]
+        - generic [ref=e110]:
+          - heading "Place" [level=6] [ref=e112] [cursor=pointer]: Place
+          - generic [ref=e115]:
+            - generic [ref=e116]:
+              - checkbox "Ross Sea (536)" [ref=e117] [cursor=pointer]
+              - generic [ref=e118] [cursor=pointer]: Ross Sea (536)
+            - generic [ref=e119]:
+              - checkbox "WAIS divide (496)" [ref=e120] [cursor=pointer]
+              - generic [ref=e121] [cursor=pointer]: WAIS divide (496)
+            - generic [ref=e122]:
+              - checkbox "Antarctic Peninsula (472)" [ref=e123] [cursor=pointer]
+              - generic [ref=e124] [cursor=pointer]: Antarctic Peninsula (472)
+            - generic [ref=e125]:
+              - checkbox "Siple Dome (272)" [ref=e126] [cursor=pointer]
+              - generic [ref=e127] [cursor=pointer]: Siple Dome (272)
+            - generic [ref=e128]:
+              - checkbox "Transantarctic Mountains (232)" [ref=e129] [cursor=pointer]
+              - generic [ref=e130] [cursor=pointer]: Transantarctic Mountains (232)
+            - button "Show 195 more..." [ref=e132] [cursor=pointer]
+        - heading "Publisher/Repo" [level=6] [ref=e136] [cursor=pointer]: Publisher/Repo
+        - generic [ref=e138]:
+          - heading "Year Published Range" [level=6] [ref=e140] [cursor=pointer]: Year Published Range
+          - generic [ref=e143]:
+            - generic [ref=e145]:
+              - slider [ref=e148]:
+                - generic [ref=e150]: "1990"
+              - slider [ref=e151]:
+                - generic [ref=e153]: "2026"
+            - generic [ref=e154]:
+              - generic [ref=e155]: "1990"
+              - generic [ref=e156]: "2026"
+        - generic [ref=e158]:
+          - heading "Depth Range" [level=6] [ref=e160] [cursor=pointer]: Depth Range
+          - generic [ref=e163]:
+            - generic [ref=e165]:
+              - slider [ref=e168]:
+                - generic [ref=e170]: 0m
+              - slider [ref=e171]:
+                - generic [ref=e173]: 11000m
+            - generic [ref=e174]:
+              - generic [ref=e175]: 0m
+              - generic [ref=e176]: 11000m
+        - generic [ref=e178]:
+          - heading "Temporal Coverage" [level=6] [ref=e180] [cursor=pointer]: Temporal Coverage
+          - generic [ref=e183]:
+            - generic [ref=e185]:
+              - slider [ref=e188]:
+                - generic [ref=e190]: "1990"
+              - slider [ref=e191]:
+                - generic [ref=e193]: "2026"
+            - generic [ref=e194]:
+              - generic [ref=e195]: "1990"
+              - generic [ref=e196]: "2026"
+        - generic [ref=e198]:
+          - heading "Spatial Filter" [level=6] [ref=e200] [cursor=pointer]: Spatial Filter
+          - button "Reset Map" [ref=e205] [cursor=pointer]
+      - button "Feedback" [ref=e207] [cursor=pointer]
+    - generic [ref=e208]:
+      - generic [ref=e210]:
+        - heading "100 results" [level=5] [ref=e220]
+        - combobox [ref=e214]:
+          - option "Name"
+          - option "Publisher"
+          - option "Date"
+          - option "Relevance" [selected]
+      - generic [ref=e221]:
+        - generic [ref=e224]:
+          - generic [ref=e225]:
+            - heading "Porcupine Abyssal Plain Observatory Datasets data" [level=6] [ref=e226]:
+              - link "Porcupine Abyssal Plain Observatory Datasets" [ref=e227] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:bodc:data:2a8f3089afc0f70a685fb528a02769271ead47aa"
+              - generic [ref=e228]: data
+            - paragraph [ref=e229]: The Porcupine Abyssal Plain (PAP) Observatory is a sustained, multidisciplinary observatory. Key time-series datasets include measurements of sea temperature, air temperature, air pressure, waves, win...
+            - generic [ref=e232]: No Publisher
+          - button [ref=e235] [cursor=pointer]
+        - generic [ref=e238]:
+          - generic [ref=e239]:
+            - 'heading "Data Report Stable Isotope Analysis: JR141 (Amundsen Sea, Antarctica) data" [level=6] [ref=e240]':
+              - 'link "Data Report Stable Isotope Analysis: JR141 (Amundsen Sea, Antarctica)" [ref=e241] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:00f8029c12f8d8906832d1cac5f88592f92c3247"
+              - generic [ref=e242]: data
+            - paragraph [ref=e243]: Delta-18O and Delta-D ratio measurements of water from the "JR141" project. 99 samples collected in 2006 in the Amundsen Sea.
+            - generic [ref=e245]:
+              - generic [ref=e246]: EarthChem Library
+              - generic [ref=e247]: 3/26/2015
+          - button [ref=e250] [cursor=pointer]
+        - generic [ref=e253]:
+          - generic [ref=e254]:
+            - 'heading "Characterizing Iron-Bound Organic Carbon in Cold Seep Sediment Cores: Impacts of Anaerobic Oxidation of Methane data" [level=6] [ref=e255]':
+              - 'link "Characterizing Iron-Bound Organic Carbon in Cold Seep Sediment Cores: Impacts of Anaerobic Oxidation of Methane" [ref=e256] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:01b4ecb6e353728205804a728f3ed9cfe8a9be19"
+              - generic [ref=e257]: data
+            - paragraph [ref=e258]: We analyzed pore-water sulfate and Fe(II), headspace methane and its δ¹³C, bulk organic carbon and its δ¹³C, grain-size distributions, major elements (Fe, Al, Ti, Ca), reactive Fe, TOC, iron-bound org...
+            - generic [ref=e260]:
+              - generic [ref=e261]: EarthChem Library
+              - generic [ref=e262]: 1/15/2026
+          - button [ref=e265] [cursor=pointer]
+        - generic [ref=e268]:
+          - generic [ref=e269]:
+            - heading "Susquehanna Shale Hills Critical Zone Observatory - 2015 high-frequency water chemistry of the Shale Hills catchment data" [level=6] [ref=e270]:
+              - link "Susquehanna Shale Hills Critical Zone Observatory - 2015 high-frequency water chemistry of the Shale Hills catchment" [ref=e271] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:047e78a61137bd5cea4391dae7a5474cf04f7c02"
+              - generic [ref=e272]: data
+            - paragraph [ref=e273]: Streamwater and groundwater samples were collected at relatively high frequencies using ISCO water samplers in the Shale Hills catchment in the Shale Hills Critical Zone Observatory. The ISCO sampler...
+            - generic [ref=e275]:
+              - generic [ref=e276]: EarthChem Library
+              - generic [ref=e277]: 9/13/2017
+          - button [ref=e280] [cursor=pointer]
+        - generic [ref=e283]:
+          - generic [ref=e284]:
+            - heading "Tritium and Helium Isotope Data (1987–2013) for the Atlantic Layer of the Arctic Ocean data" [level=6] [ref=e285]:
+              - link "Tritium and Helium Isotope Data (1987–2013) for the Atlantic Layer of the Arctic Ocean" [ref=e286] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:04e13e453776433398ae060d9357be524c0c9000"
+              - generic [ref=e287]: data
+            - paragraph [ref=e288]: "This dataset supports the study titled \"Multi-Decade Tracer Study of the Circulation and Spreading Rates of Atlantic Water in the Arctic Ocean\" (JGR: Oceans, 2024, in press) and complies with the Open..."
+            - generic [ref=e290]:
+              - generic [ref=e291]: EarthChem Library
+              - generic [ref=e292]: 12/3/2024
+          - button [ref=e295] [cursor=pointer]
+        - generic [ref=e298]:
+          - generic [ref=e299]:
+            - heading "Orbital forcing drives both the South American monsoon and local water balance in the central Andes during interglacials data" [level=6] [ref=e300]:
+              - link "Orbital forcing drives both the South American monsoon and local water balance in the central Andes during interglacials" [ref=e301] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:06b0799b7f21518c46567dae8decd7a107a1aab1"
+              - generic [ref=e302]: data
+            - paragraph [ref=e303]: This dataset presents stable isotope data (d13C, d17O, d18O, D47, D’17O) from lake cores from Lake Junin spanning Marine Isotope Stage 15 (MIS 15). Carbonate clumped and triple oxygen isotope measurem...
+            - generic [ref=e305]:
+              - generic [ref=e306]: EarthChem Library
+              - generic [ref=e307]: 3/18/2025
+          - button [ref=e310] [cursor=pointer]
+        - generic [ref=e313]:
+          - generic [ref=e314]:
+            - 'heading "Chemical-physical parameters and dissolved gases in thermal groundwater: data from Magaggiaro well (Montevago - AG) data" [level=6] [ref=e315]':
+              - 'link "Chemical-physical parameters and dissolved gases in thermal groundwater: data from Magaggiaro well (Montevago - AG)" [ref=e316] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:0755fcc0ebaa11f0ca4eb4ac082eb86cc7993978"
+              - generic [ref=e317]: data
+            - paragraph [ref=e318]: Continuous chemical-physical data recorded (October 2010-September 2016) in the Magaggiaro well (Montevago - AG), located in Western Sicily. The well reachs the thermal aquifer at 340 meters depth ...
+            - generic [ref=e320]:
+              - generic [ref=e321]: EarthChem Library
+              - generic [ref=e322]: 5/14/2020
+          - button [ref=e325] [cursor=pointer]
+        - generic [ref=e328]:
+          - generic [ref=e329]:
+            - heading "Geochemical and isotopic evidence for seawater contamination of the hydrothermal system of Taal Volcano, Luzon, the Philippines data" [level=6] [ref=e330]:
+              - link "Geochemical and isotopic evidence for seawater contamination of the hydrothermal system of Taal Volcano, Luzon, the Philippines" [ref=e331] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:0a893e68d316086368ec2db19148bd7cd535148d"
+              - generic [ref=e332]: data
+            - paragraph [ref=e333]: This dataset contains geochemical and isotopic analyses of fumarole gases from Taal Volcano, Phillipines. Data is presented for 2 samples from the main crater and 1 sample from the "frying pan" an ar...
+            - generic [ref=e335]:
+              - generic [ref=e336]: EarthChem Library
+              - generic [ref=e337]: 10/15/2015
+          - button [ref=e340] [cursor=pointer]
+        - generic [ref=e343]:
+          - generic [ref=e344]:
+            - heading "Calcium isotope, carbon isotope, and Sr/Ca data from Upper Ordovician limestones and dolostones, Great Basin and Anticosti Island data" [level=6] [ref=e345]:
+              - link "Calcium isotope, carbon isotope, and Sr/Ca data from Upper Ordovician limestones and dolostones, Great Basin and Anticosti Island" [ref=e346] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:0acbb5f4e7ae561413d0e46ffce0aa84b2489053"
+              - generic [ref=e347]: data
+            - paragraph [ref=e348]: Here we present calcium isotope (ICP:MS-MC), carbon isotope (CF-IRMS) and Sr/Ca (ICP-OES) elemental data in limestones and dolostones from two Upper Ordovician shallow water carbonate platforms - Grea...
+            - generic [ref=e350]:
+              - generic [ref=e351]: EarthChem Library
+              - generic [ref=e352]: 11/10/2019
+          - button [ref=e355] [cursor=pointer]
+        - generic [ref=e358]:
+          - generic [ref=e359]:
+            - heading "Well water and drill cuttings from north Punjab, Pakistan v.2 data" [level=6] [ref=e360]:
+              - link "Well water and drill cuttings from north Punjab, Pakistan v.2" [ref=e361] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:0b3a3c6d59c80f260799c423e9822ce7927b114d"
+              - generic [ref=e362]: data
+            - paragraph [ref=e363]: Updated dataset of 2710. Groundwater of the Ravi River floodplain is particularly elevated in arsenic (As) on both sides of the Pakistan-India border. To understand the origin of this pattern and gene...
+            - generic [ref=e365]:
+              - generic [ref=e366]: EarthChem Library
+              - generic [ref=e367]: 12/5/2022
+          - button [ref=e370] [cursor=pointer]
+        - generic [ref=e373]:
+          - generic [ref=e374]:
+            - heading "Meteorological and soil water/temperature dataset for Bou Hedma National Park (central Tunisia) data" [level=6] [ref=e375]:
+              - link "Meteorological and soil water/temperature dataset for Bou Hedma National Park (central Tunisia)" [ref=e376] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:0b3d4cba608251fa2969c9f17e0a5d3bfcc1e62e"
+              - generic [ref=e377]: data
+            - paragraph [ref=e378]: Meteorological data (air temperature, relative humidity, solar radiation, wind speed and rainfall) underneath and outside the canopy of a Acacia raddiana tree recorded on a daily basis from 16 Decembe...
+            - generic [ref=e380]:
+              - generic [ref=e381]: EarthChem Library
+              - generic [ref=e382]: 10/9/2014
+          - button [ref=e385] [cursor=pointer]
+        - generic [ref=e388]:
+          - generic [ref=e389]:
+            - 'heading "Chemical-physical and dissolved gases in Etnean groundwater: data from Cherubino (S65) spring (Santa Maria di Licodia- CT) data" [level=6] [ref=e390]':
+              - 'link "Chemical-physical and dissolved gases in Etnean groundwater: data from Cherubino (S65) spring (Santa Maria di Licodia- CT)" [ref=e391] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:0d4f4ac1dfc5cab193f9cc51bd896f03ca92c3b2"
+              - generic [ref=e392]: data
+            - paragraph [ref=e393]: Groundwater chemical-physical data in the spring (Cherubino fountain – Santa Maria di Licodia, CT) located southwest of the Etna volcano (Gen 2009-Dec 2018), belonging to the Etna geochemical surveill...
+            - generic [ref=e395]:
+              - generic [ref=e396]: EarthChem Library
+              - generic [ref=e397]: 4/2/2020
+          - button [ref=e400] [cursor=pointer]
+        - generic [ref=e403]:
+          - generic [ref=e404]:
+            - heading "Chemical-physical parameters, major, minor, stable and noble isotope composition (D/H,18O/16O and 3He/4He) and dissolved gases of groundwater from 12 wells and 3 springs of Lipari island (Aeolian arc, Italy). data" [level=6] [ref=e405]:
+              - link "Chemical-physical parameters, major, minor, stable and noble isotope composition (D/H,18O/16O and 3He/4He) and dissolved gases of groundwater from 12 wells and 3 springs of Lipari island (Aeolian arc, Italy)." [ref=e406] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:0dba26ca64938bd3cbfdca2bf39f3c82c2e81731"
+              - generic [ref=e407]: data
+            - paragraph [ref=e408]: Geochemical prospection has been a useful tool to understanding the fluid circulating processes over the volcanic island of Lipari. The geochemical results has highlighted the existence of reservoirs ...
+            - generic [ref=e410]:
+              - generic [ref=e411]: EarthChem Library
+              - generic [ref=e412]: 7/22/2021
+          - button [ref=e415] [cursor=pointer]
+        - generic [ref=e418]:
+          - generic [ref=e419]:
+            - heading "Susquehanna Shale Hills Critical Zone Observatory Porewater Chemistry (2006) data" [level=6] [ref=e420]:
+              - link "Susquehanna Shale Hills Critical Zone Observatory Porewater Chemistry (2006)" [ref=e421] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:11f982174b059ac0d9bfeb3336e9e61178ca05dc"
+              - generic [ref=e422]: data
+            - paragraph [ref=e423]: Soil water chemistry collected from nested-suction lysimeters (Soil water samplers, 1900 series, SoilMoisture Equipment Corp., Santa Barbara, CA) along a South (S) Planar (P) hillsope transect in the...
+            - generic [ref=e425]:
+              - generic [ref=e426]: EarthChem Library
+              - generic [ref=e427]: 2/3/2013
+          - button [ref=e430] [cursor=pointer]
+        - generic [ref=e433]:
+          - generic [ref=e434]:
+            - heading "Santa Catalina Mountains Soil Solution Chemistry 2017 (Arizona, USA) data" [level=6] [ref=e435]:
+              - link "Santa Catalina Mountains Soil Solution Chemistry 2017 (Arizona, USA)" [ref=e436] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:13c615e5546c951a5ccd421faa2b4aaeb048378c"
+              - generic [ref=e437]: data
+            - paragraph [ref=e438]: "Soil solution samples in the Santa-Catalina Mountain field sites of the Catalina-Jemez Critical Zone Observatory (CZO) are collected with three types of soil solution samples: i) Prenart Super Quartz ..."
+            - generic [ref=e440]:
+              - generic [ref=e441]: EarthChem Library
+              - generic [ref=e442]: 7/12/2020
+          - button [ref=e445] [cursor=pointer]
+        - generic [ref=e448]:
+          - generic [ref=e449]:
+            - heading "Baseline Water Quality for Third Section Morne Pele, Commune Quartier Morin (Haiti) data" [level=6] [ref=e450]:
+              - link "Baseline Water Quality for Third Section Morne Pele, Commune Quartier Morin (Haiti)" [ref=e451] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:1493131b54a984e02a9ce01889adc2806dede404"
+              - generic [ref=e452]: data
+            - paragraph [ref=e453]: Water chemistry for samples collected from shallow hand-dug groundwater wells, deep groundwater handpump wells, rivers, and springs, and bulk elemental chemistry for soil (n=1) and sediment samples (n...
+            - generic [ref=e455]:
+              - generic [ref=e456]: EarthChem Library
+              - generic [ref=e457]: 9/5/2018
+          - button [ref=e460] [cursor=pointer]
+        - generic [ref=e463]:
+          - generic [ref=e464]:
+            - heading "The Nitrogen Isotopic Composition of Biotic Components in Northern Biscayne Bay and Associated Waterways, South Florida USA data" [level=6] [ref=e465]:
+              - link "The Nitrogen Isotopic Composition of Biotic Components in Northern Biscayne Bay and Associated Waterways, South Florida USA" [ref=e466] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:1508c8cbe1e92b3cb34bd2b3e134b76e347e9fbe"
+              - generic [ref=e467]: data
+            - paragraph [ref=e468]: Over an approximate 12-month period, between June 2021 and June 2022, possible causes of water quality decline that may have contributed to occurrences of fish mortality in northern Biscayne Bay (Sout...
+            - generic [ref=e470]:
+              - generic [ref=e471]: EarthChem Library
+              - generic [ref=e472]: 6/10/2025
+          - button [ref=e475] [cursor=pointer]
+        - generic [ref=e478]:
+          - generic [ref=e479]:
+            - heading "Mineral Textures and Chemistry Trace the Origin and Transcrustal Evolution of the Sanyuangou Syenite in Southern North China Craton data" [level=6] [ref=e480]:
+              - link "Mineral Textures and Chemistry Trace the Origin and Transcrustal Evolution of the Sanyuangou Syenite in Southern North China Craton" [ref=e481] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:15939b605532c757efc30480028f977b04b9b93c"
+              - generic [ref=e482]: data
+            - paragraph [ref=e483]: In this study, we focus on a Paleoproterozoic garnet-bearing syenite in the Xiong’er large igneous province (LIP) on the southern margin of the North China Craton through detailed whole-rock and miner...
+            - generic [ref=e485]:
+              - generic [ref=e486]: EarthChem Library
+              - generic [ref=e487]: 4/7/2024
+          - button [ref=e490] [cursor=pointer]
+        - generic [ref=e493]:
+          - generic [ref=e494]:
+            - 'heading "Trapped Under Ice: Spatial and seasonal dynamics of dissolved organic matter composition in tundra lakes sample list and dataset data" [level=6] [ref=e495]':
+              - 'link "Trapped Under Ice: Spatial and seasonal dynamics of dissolved organic matter composition in tundra lakes sample list and dataset" [ref=e496] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:18b241b4c84762f1817b95028bf9ce68236a608d"
+              - generic [ref=e497]: data
+            - paragraph [ref=e498]: This dataset contains geographic information, water quality, DOC concentrations, and DOM properties of arctic tundra lakes. Lakes were sampled from the North Slope of Alaska between 2012 and 2014 summ...
+            - generic [ref=e500]:
+              - generic [ref=e501]: EarthChem Library
+              - generic [ref=e502]: 3/16/2022
+          - button [ref=e505] [cursor=pointer]
+        - generic [ref=e508]:
+          - generic [ref=e509]:
+            - heading "Clumped isotope bottom water temperature record data from Ocean Drilling Program (ODP) Site 747 data" [level=6] [ref=e510]:
+              - link "Clumped isotope bottom water temperature record data from Ocean Drilling Program (ODP) Site 747" [ref=e511] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:198387e9ce6a4253bab5207c6a81870c5ad43072"
+              - generic [ref=e512]: data
+            - paragraph [ref=e513]: This dataset contains D47, d18O and d13C data measured on middle Miocene benthic foraminifera from Ocean Drilling Program (ODP) Site 747. We provide replicate-level raw data to allow for data reproces...
+            - generic [ref=e515]:
+              - generic [ref=e516]: EarthChem Library
+              - generic [ref=e517]: 12/27/2020
+          - button [ref=e520] [cursor=pointer]
+        - generic [ref=e523]:
+          - generic [ref=e524]:
+            - heading "The role of water in the generation of the appinite indicated by mineral texture and geochemistry data" [level=6] [ref=e525]:
+              - link "The role of water in the generation of the appinite indicated by mineral texture and geochemistry" [ref=e526] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:1af03d1ad943f8de283628ade7050c3e2cf7edbb"
+              - generic [ref=e527]: data
+            - paragraph [ref=e528]: The dataset include mineral in situ major element, trace element, and Sr isotopic compositions. Analyzed minerals of four appinitic intrusions consist of Clinopyroxene, Amphibole, Biotite and Plagioc...
+            - generic [ref=e530]:
+              - generic [ref=e531]: EarthChem Library
+              - generic [ref=e532]: 7/21/2024
+          - button [ref=e535] [cursor=pointer]
+        - generic [ref=e538]:
+          - generic [ref=e539]:
+            - heading "Continental shelf sediment core data from the Texas Mud Blanket in the northwestern Gulf of Mexico, USA data" [level=6] [ref=e540]:
+              - link "Continental shelf sediment core data from the Texas Mud Blanket in the northwestern Gulf of Mexico, USA" [ref=e541] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:1b17cdf1ac89d87cd8b34032d961c4e1e2a1b0d7"
+              - generic [ref=e542]: data
+            - paragraph [ref=e543]: This dataset contains sedimentological, radioisotope, and organic geochemical data from a sediment core collected from the continental shelf in the northwestern Gulf of Mexico. The core was collected ...
+            - generic [ref=e545]:
+              - generic [ref=e546]: EarthChem Library
+              - generic [ref=e547]: 10/12/2020
+          - button [ref=e550] [cursor=pointer]
+        - generic [ref=e553]:
+          - generic [ref=e554]:
+            - heading "Marine sediment porosity and pore water chemistry from the Hikurangi margin, offshore the North Island of New Zealand data" [level=6] [ref=e555]:
+              - link "Marine sediment porosity and pore water chemistry from the Hikurangi margin, offshore the North Island of New Zealand" [ref=e556] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:1bc5df16dcc892eec7bd741d478793ed3fb2b150"
+              - generic [ref=e557]: data
+            - paragraph [ref=e558]: This dataset includes sediment pore water chemistry and porosity measurements from marine sediments offshore of the northern and southern Hikurangi margin, New Zealand. Samples were collected by the R...
+            - generic [ref=e560]:
+              - generic [ref=e561]: EarthChem Library
+              - generic [ref=e562]: 3/27/2024
+          - button [ref=e565] [cursor=pointer]
+        - generic [ref=e568]:
+          - generic [ref=e569]:
+            - heading "The Role of Photochemistry in Driving the Composition of Dissolved Organic Matter Found in Glacier Environments data" [level=6] [ref=e570]:
+              - link "The Role of Photochemistry in Driving the Composition of Dissolved Organic Matter Found in Glacier Environments" [ref=e571] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:1bc77e116fd2ff149c901d231ed7175215d92a78"
+              - generic [ref=e572]: data
+            - paragraph [ref=e573]: Dissolved organic matter (DOM) in glacier environments is aliphatic-rich, yet studies have proposed DOM originates from allochthonous, aromatic and often aged material. Allochthonous organic matter (O...
+            - generic [ref=e575]:
+              - generic [ref=e576]: EarthChem Library
+              - generic [ref=e577]: 5/23/2021
+          - button [ref=e580] [cursor=pointer]
+        - generic [ref=e583]:
+          - generic [ref=e584]:
+            - heading "Grain size, chemistry and mineralogy of dust from Mar Chiquita saline lake data" [level=6] [ref=e585]:
+              - link "Grain size, chemistry and mineralogy of dust from Mar Chiquita saline lake" [ref=e586] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:1be052f64634d5bd05e1dc899b23b6825523c462"
+              - generic [ref=e587]: data
+            - paragraph [ref=e588]: This dataset includes measurements of mineralogy using XRPD and SEM/EDS, grain size distribution using laser-diffraction, bulk chemical composition using FUS-ICP and water-soluble composition using IC...
+            - generic [ref=e590]:
+              - generic [ref=e591]: EarthChem Library
+              - generic [ref=e592]: 3/22/2022
+          - button [ref=e595] [cursor=pointer]
+        - generic [ref=e598]:
+          - generic [ref=e599]:
+            - 'heading "Subalpine Sihl River Time-Series: Plant-Derived n-Alkane and n-Fatty Acid Concentrations data" [level=6] [ref=e600]':
+              - 'link "Subalpine Sihl River Time-Series: Plant-Derived n-Alkane and n-Fatty Acid Concentrations" [ref=e601] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:1cce26c6b809e9df8cc670f41c21064885924853"
+              - generic [ref=e602]: data
+            - paragraph [ref=e603]: This dataset contains biweekly measurements of plant-derived n-alkanes and n-fatty acids from surface waters of the subalpine Sihl River, located near Zurich, Switzerland. The sampling took place from...
+            - generic [ref=e605]:
+              - generic [ref=e606]: EarthChem Library
+              - generic [ref=e607]: 10/7/2024
+          - button [ref=e610] [cursor=pointer]
+        - generic [ref=e613]:
+          - generic [ref=e614]:
+            - 'heading "Data Report Stable Isotope Analysis: Vietnam_Rainwater_2012 data" [level=6] [ref=e615]':
+              - 'link "Data Report Stable Isotope Analysis: Vietnam_Rainwater_2012" [ref=e616] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:20c5a9fec83baf6db43a3f405480f730809baae4"
+              - generic [ref=e617]: data
+            - paragraph [ref=e618]: Delta-18O and Delta-D ratio measurements of rain water from the "Vietnam_Rainwater_2012" project. 322 samples collected in 2009 to 2010 in Vietnam.
+            - generic [ref=e620]:
+              - generic [ref=e621]: EarthChem Library
+              - generic [ref=e622]: 6/25/2013
+          - button [ref=e625] [cursor=pointer]
+        - generic [ref=e628]:
+          - generic [ref=e629]:
+            - heading "Electrical conductivity of synthetic granitic aggregates and the constituents at high temperature and high pressure. data" [level=6] [ref=e630]:
+              - link "Electrical conductivity of synthetic granitic aggregates and the constituents at high temperature and high pressure." [ref=e631] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:217b7632e7128f1c22a4d67a9f6b4100a43c5cd9"
+              - generic [ref=e632]: data
+            - paragraph [ref=e633]: This dataset contains the Fourier transform infrared, chemical composition and electrical conductivity. The FTIR and chemical composition before and after the electrical conductivity were collected an...
+            - generic [ref=e635]:
+              - generic [ref=e636]: EarthChem Library
+              - generic [ref=e637]: 1/6/2021
+          - button [ref=e640] [cursor=pointer]
+        - generic [ref=e643]:
+          - generic [ref=e644]:
+            - 'heading "Subalpine Sihl River Time-Series: Particulate and Dissolved Organic Carbon contents and Isotopic Compositions data" [level=6] [ref=e645]':
+              - 'link "Subalpine Sihl River Time-Series: Particulate and Dissolved Organic Carbon contents and Isotopic Compositions" [ref=e646] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:21d8375761c8ed3ca13af14a00a4f15fe2dc9f3a"
+              - generic [ref=e647]: data
+            - paragraph [ref=e648]: Surface water was collected in a biweekly rhythm from May 2014 to February 2015 and from August 2016 to March 2019 from the subalpine Sihl River near Zurich, Switzerland and filtered through 0.7 um bo...
+            - generic [ref=e650]:
+              - generic [ref=e651]: EarthChem Library
+              - generic [ref=e652]: 8/1/2022
+          - button [ref=e655] [cursor=pointer]
+        - generic [ref=e658]:
+          - generic [ref=e659]:
+            - heading "Hydrogen peroxide, solute and methane released from crushing sedimentary rocks data" [level=6] [ref=e660]:
+              - link "Hydrogen peroxide, solute and methane released from crushing sedimentary rocks" [ref=e661] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:227e7fb80498561b97c635a7d147bd392de1d51e"
+              - generic [ref=e662]: data
+            - paragraph [ref=e663]: Three sedimentary samples and a sediment sample from subglacial environments and from a previously glaciated terrain were crushed and incubated to investigate the potential for subglacial abrasion to ...
+            - generic [ref=e665]:
+              - generic [ref=e666]: EarthChem Library
+              - generic [ref=e667]: 1/24/2023
+          - button [ref=e670] [cursor=pointer]
+        - generic [ref=e673]:
+          - generic [ref=e674]:
+            - heading "Clumped isotope-based bottom water temperature record west off-shore Tasmania from 16 to 5 Ma v.2 data" [level=6] [ref=e675]:
+              - link "Clumped isotope-based bottom water temperature record west off-shore Tasmania from 16 to 5 Ma v.2" [ref=e676] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:23035286b032392b6e625b8516b13e6316b865b2"
+              - generic [ref=e677]: data
+            - paragraph [ref=e678]: This dataset contains D47, d18O and d13C data from the middle Miocene section of ODP Site 1168, using 5 species of benthic foraminifera to generate a deep sea temperature record. Replicate-level raw d...
+            - generic [ref=e680]:
+              - generic [ref=e681]: EarthChem Library
+              - generic [ref=e682]: 11/23/2025
+          - button [ref=e685] [cursor=pointer]
+        - generic [ref=e688]:
+          - generic [ref=e689]:
+            - heading "Helium Isotopes, Carbon Isotopes, and Volatiles (CO2, H2O, Cl, S) in Submarine Basalt Glasses from Rochambeau Ridge and Northwest Lau Spreading Center data" [level=6] [ref=e690]:
+              - link "Helium Isotopes, Carbon Isotopes, and Volatiles (CO2, H2O, Cl, S) in Submarine Basalt Glasses from Rochambeau Ridge and Northwest Lau Spreading Center" [ref=e691] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:24449e3378d87346a9b40d7667e08f50fa9249e5"
+              - generic [ref=e692]: data
+            - paragraph [ref=e693]: Helium Isotopes, carbon isotopes, water, carbon dioxide, Cl, S and major elements in submarine basalt glasses from the northern Lau Basin. 3He/4He and 13C/12C by mass spectrometry, H2O and CO2 by FTIR...
+            - generic [ref=e695]:
+              - generic [ref=e696]: EarthChem Library
+              - generic [ref=e697]: 8/11/2022
+          - button [ref=e700] [cursor=pointer]
+        - generic [ref=e703]:
+          - generic [ref=e704]:
+            - 'heading "Trapped Under Ice: Spatial and seasonal dynamics of dissolved organic matter composition in tundra lakes data" [level=6] [ref=e705]':
+              - 'link "Trapped Under Ice: Spatial and seasonal dynamics of dissolved organic matter composition in tundra lakes" [ref=e706] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:249cf30d05a34010791e906fe3713a1ca05c2694"
+              - generic [ref=e707]: data
+            - paragraph [ref=e708]: This dataset contains geographic information, water quality, DOC concentrations, and DOM properties of arctic tundra lakes. Lakes were sampled from the North Slope of Alaska between 2012 and 2014 summ...
+            - generic [ref=e710]:
+              - generic [ref=e711]: EarthChem Library
+              - generic [ref=e712]: 10/7/2021
+          - button [ref=e715] [cursor=pointer]
+        - generic [ref=e718]:
+          - generic [ref=e719]:
+            - heading "Major and selected trace element chemistry of fog water near coastline in the Atacama Desert, northern Chile data" [level=6] [ref=e720]:
+              - link "Major and selected trace element chemistry of fog water near coastline in the Atacama Desert, northern Chile" [ref=e721] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:259c9763e660f94aa54a46f724ab43b160bff068"
+              - generic [ref=e722]: data
+            - paragraph [ref=e723]: Elemental chemistry data for fog collected in a near-coastal region in the Atacama Desert of northern Chile are presented. These data complement the Sr isotopic data obtained for the same sample, and ...
+            - generic [ref=e725]:
+              - generic [ref=e726]: EarthChem Library
+              - generic [ref=e727]: 5/23/2016
+          - button [ref=e730] [cursor=pointer]
+        - generic [ref=e733]:
+          - generic [ref=e734]:
+            - heading "Major ion, particulate and dissolved organic carbon bulk concentrations and radiocarbon measurements of river depth-transects collected from the northern Mackenzie River basin, Canada data" [level=6] [ref=e735]:
+              - link "Major ion, particulate and dissolved organic carbon bulk concentrations and radiocarbon measurements of river depth-transects collected from the northern Mackenzie River basin, Canada" [ref=e736] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:26bc3f309da9e4372e09d89622288c3279111e72"
+              - generic [ref=e737]: data
+            - paragraph [ref=e738]: "We collected water from river depth-profiles during the peak freshets in June 2017, 2018 and 2019. Sampling locations are situated in the northern Mackenzie River basin: Mackenzie River in the delta, ..."
+            - generic [ref=e740]:
+              - generic [ref=e741]: EarthChem Library
+              - generic [ref=e742]: 10/29/2020
+          - button [ref=e745] [cursor=pointer]
+        - generic [ref=e748]:
+          - generic [ref=e749]:
+            - heading "Earth’s early continental crust formed from wet and oxidizing arc magmas data" [level=6] [ref=e750]:
+              - link "Earth’s early continental crust formed from wet and oxidizing arc magmas" [ref=e751] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:272cf374288d060f930a319de43ce6fee7c362b6"
+              - generic [ref=e752]: data
+            - paragraph [ref=e753]: This dataset contains compiled and new zircon trace elemental data (Table 1) and whole-rock and melt inclusion elemental data (Table 2) for Archean granitoids, as well as Archean and Phanerozoic grani...
+            - generic [ref=e755]:
+              - generic [ref=e756]: EarthChem Library
+              - generic [ref=e757]: 4/23/2023
+          - button [ref=e760] [cursor=pointer]
+        - generic [ref=e763]:
+          - generic [ref=e764]:
+            - heading "Jemez River Basin Soil Solution Chemistry 2019 (New Mexico, USA) data" [level=6] [ref=e765]:
+              - link "Jemez River Basin Soil Solution Chemistry 2019 (New Mexico, USA)" [ref=e766] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:288bb5567116ed6322ace15c936bb5fd41c37d18"
+              - generic [ref=e767]: data
+            - paragraph [ref=e768]: "Soil solution samples in the Jemez River Basin field sites of the Catalina-Jemez Critical Zone Observatory (CZO) are collected with the following two types of soil solution samplers: i) Prenart Super ..."
+            - generic [ref=e770]:
+              - generic [ref=e771]: EarthChem Library
+              - generic [ref=e772]: 3/30/2021
+          - button [ref=e775] [cursor=pointer]
+        - generic [ref=e778]:
+          - generic [ref=e779]:
+            - heading "Jemez River Basin Soil Solution Chemistry 2016 (New Mexico, USA) data" [level=6] [ref=e780]:
+              - link "Jemez River Basin Soil Solution Chemistry 2016 (New Mexico, USA)" [ref=e781] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:28d8d38c8f53efef44582a6bb866d4d003a1180f"
+              - generic [ref=e782]: data
+            - paragraph [ref=e783]: "Soil solution samples in the Jemez River Basin field sites of the Catalina-Jemez Critical Zone Observatory (CZO) are collected with the following two types of soil solution samplers: i) Prenart Super ..."
+            - generic [ref=e785]:
+              - generic [ref=e786]: EarthChem Library
+              - generic [ref=e787]: 7/12/2020
+          - button [ref=e790] [cursor=pointer]
+        - generic [ref=e793]:
+          - generic [ref=e794]:
+            - heading "Helium and Carbon Isotopes, Volatiles, and Trace Elements in Submarine Basalt Glasses from Loihi Seamount data" [level=6] [ref=e795]:
+              - link "Helium and Carbon Isotopes, Volatiles, and Trace Elements in Submarine Basalt Glasses from Loihi Seamount" [ref=e796] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:28e85fa8746505d2ab0d394c457d64031be610e8"
+              - generic [ref=e797]: data
+            - paragraph [ref=e798]: Helium and carbon isotopes, water, carbon dioxide, Cl, S and major and trace elements in submarine basalt glasses from Loihi Seamount. 3He/4He and 13C/12C by mass spectrometry, H2O and CO2 by FTIR, Cl...
+            - generic [ref=e800]:
+              - generic [ref=e801]: EarthChem Library
+              - generic [ref=e802]: 8/11/2022
+          - button [ref=e805] [cursor=pointer]
+        - generic [ref=e808]:
+          - generic [ref=e809]:
+            - heading "Clumped isotope-based bottom water temperature record west off-shore Tasmania from 16 to 5 Ma data" [level=6] [ref=e810]:
+              - link "Clumped isotope-based bottom water temperature record west off-shore Tasmania from 16 to 5 Ma" [ref=e811] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:2a2e51869adf68ddbc5417c95ff682433b8ea17c"
+              - generic [ref=e812]: data
+            - paragraph [ref=e813]: This dataset contains D47, d18O and d13C data from the middle Miocene section of ODP Site 761B, using 7 species of benthic foraminifera to generate a temperature record for comparison with published M...
+            - generic [ref=e815]:
+              - generic [ref=e816]: EarthChem Library
+              - generic [ref=e817]: 7/16/2023
+          - button [ref=e820] [cursor=pointer]
+        - generic [ref=e823]:
+          - generic [ref=e824]:
+            - heading "Chemical-physical parameters, major, minor and trace elements composition of groundwater belonging to the hydrogeological basin Rocca Busambra in Sicily (ltaly) data" [level=6] [ref=e825]:
+              - link "Chemical-physical parameters, major, minor and trace elements composition of groundwater belonging to the hydrogeological basin Rocca Busambra in Sicily (ltaly)" [ref=e826] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:2a4da628bce330f0d55b57bb9bb0eeae257b3da6"
+              - generic [ref=e827]: data
+            - paragraph [ref=e828]: This dataset concerns the hydrogeological basin of Rocca Busambra that is located in the central-western area of Sicily and covers an area of about 140 km2 in the municipalities of Corleone, Godrano, ...
+            - generic [ref=e830]:
+              - generic [ref=e831]: EarthChem Library
+              - generic [ref=e832]: 11/11/2020
+          - button [ref=e835] [cursor=pointer]
+        - generic [ref=e838]:
+          - generic [ref=e839]:
+            - heading "Mass Spectrometric Measurement of Helium Isotopes and Tritium in Water Samples data" [level=6] [ref=e840]:
+              - link "Mass Spectrometric Measurement of Helium Isotopes and Tritium in Water Samples" [ref=e841] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:2a9d5401b5003af1cf3f0c435df18d5a0169ff14"
+              - generic [ref=e842]: data
+            - paragraph [ref=e843]: The design, setup and routine performance of systems for mass spectrometric measurement of Helium isotopes and Tritium of water samples by the He-3 ingrowth method are described using two systems oper...
+            - generic [ref=e845]:
+              - generic [ref=e846]: EarthChem Library
+              - generic [ref=e847]: 3/12/2017
+          - button [ref=e850] [cursor=pointer]
+        - generic [ref=e853]:
+          - generic [ref=e854]:
+            - heading "Production time series of H2, CO2, CH4 and C2H4 production after comminution of Subglacial Lake Whillans sediments and solute composition of water. data" [level=6] [ref=e855]:
+              - link "Production time series of H2, CO2, CH4 and C2H4 production after comminution of Subglacial Lake Whillans sediments and solute composition of water." [ref=e856] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:2ae504aef4298a35e9f9e1717761181721a6f17e"
+              - generic [ref=e857]: data
+            - paragraph [ref=e858]: Four depths within a sediment core collected in Subglacial Whillans were used to investigate the potential contributions from crushing to the gas and nutrient pool in subglacial environments. These de...
+            - generic [ref=e860]:
+              - generic [ref=e861]: EarthChem Library
+              - generic [ref=e862]: 5/5/2021
+          - button [ref=e865] [cursor=pointer]
+        - generic [ref=e868]:
+          - generic [ref=e869]:
+            - 'heading "Data Report Stable Isotope Analysis: S4P (Antarctica) data" [level=6] [ref=e870]':
+              - 'link "Data Report Stable Isotope Analysis: S4P (Antarctica)" [ref=e871] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:2c28f75247ad1e0313513ffddaf0be0fc7195438"
+              - generic [ref=e872]: data
+            - paragraph [ref=e873]: Delta-18O and Delta-D ratio measurements of water from the "S4P" project. 821 samples collected from Feb, 2011 to April 2012.
+            - generic [ref=e875]:
+              - generic [ref=e876]: EarthChem Library
+              - generic [ref=e877]: 3/26/2015
+          - button [ref=e880] [cursor=pointer]
+        - generic [ref=e883]:
+          - generic [ref=e884]:
+            - 'heading "How water drives partial melting in ferroan granites: New insights from phase equilibrium modeling data" [level=6] [ref=e885]':
+              - 'link "How water drives partial melting in ferroan granites: New insights from phase equilibrium modeling" [ref=e886] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:2d043d52d39ebecc917bc1e337d6036ea1ea9519"
+              - generic [ref=e887]: data
+            - paragraph [ref=e888]: We present major and trace element data from whole-rock (leucosome and residue) and mineral chemistry (hornblende, biotite, feldspar, titanite) analyses of fifteen samples from the São Pedro da União ...
+            - generic [ref=e890]:
+              - generic [ref=e891]: EarthChem Library
+              - generic [ref=e892]: 5/12/2025
+          - button [ref=e895] [cursor=pointer]
+        - generic [ref=e898]:
+          - generic [ref=e899]:
+            - heading "Water, Major and Trace element Concentrations of peridotite xenoliths from Lanzarote, Canaries. data" [level=6] [ref=e900]:
+              - link "Water, Major and Trace element Concentrations of peridotite xenoliths from Lanzarote, Canaries." [ref=e901] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:2d06929a41a7d2516c69d9c1abe8366cd7fd9fe0"
+              - generic [ref=e902]: data
+            - paragraph [ref=e903]: Major, trace element, PGE and structural hydrogen (i.e. “water”; by polarized FTIR) concentrations of nominally anhydrous minerals and bulk rock peridotite xenoliths of Lanzarote, Canary Islands. Majo...
+            - generic [ref=e905]:
+              - generic [ref=e906]: EarthChem Library
+              - generic [ref=e907]: 7/18/2021
+          - button [ref=e910] [cursor=pointer]
+        - generic [ref=e913]:
+          - generic [ref=e914]:
+            - heading "Susquehanna Shale Hills Critical Zone Observatory - Cole Farm groundwater surface water chemistry 2018 data" [level=6] [ref=e915]:
+              - link "Susquehanna Shale Hills Critical Zone Observatory - Cole Farm groundwater surface water chemistry 2018" [ref=e916] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:2d183d86bfd83026b64c5473b96b72ed695724f5"
+              - generic [ref=e917]: data
+            - paragraph [ref=e918]: A series of seven wells were drilled to depths of ~2 m (shallow) and ~4.5 m (deep) within and along the tree lines of a forested area in central Cole Farm. This forest is located between two agricultu...
+            - generic [ref=e920]:
+              - generic [ref=e921]: EarthChem Library
+              - generic [ref=e922]: 4/13/2019
+          - button [ref=e925] [cursor=pointer]
+        - generic [ref=e928]:
+          - generic [ref=e929]:
+            - 'heading "Data Report Stable Isotope Analysis: HLY1003 data" [level=6] [ref=e930]':
+              - 'link "Data Report Stable Isotope Analysis: HLY1003" [ref=e931] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:2dac46e9467b37b2076a6c8bb28e0c8826c0e3cc"
+              - generic [ref=e932]: data
+            - paragraph [ref=e933]: Delta-18O and Delta-D ratio measurements of water from the "HLY1003" project. 155 samples collected in September 2009 on the research vessel Healy in the Beaufort Sea/Arctic Ocean.
+            - generic [ref=e935]:
+              - generic [ref=e936]: EarthChem Library
+              - generic [ref=e937]: 6/25/2013
+          - button [ref=e940] [cursor=pointer]
+        - generic [ref=e943]:
+          - generic [ref=e944]:
+            - heading "Variability in Shelf Sedimentation in Response to Fluvial Sediment Supply and Coastal Erosion over the Past 1,000 Years in Monterey Bay, CA, USA. data" [level=6] [ref=e945]:
+              - link "Variability in Shelf Sedimentation in Response to Fluvial Sediment Supply and Coastal Erosion over the Past 1,000 Years in Monterey Bay, CA, USA." [ref=e946] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:3425cc6632dbeb3a3ab750802087a8d356cdec54"
+              - generic [ref=e947]: data
+            - paragraph [ref=e948]: This dataset contains sedimentological and geochronological data from 5 sediment cores collected from Monterey Bay, CA, USA. The purpose of this data was to investigate changes in sedimentation on the...
+            - generic [ref=e950]:
+              - generic [ref=e951]: EarthChem Library
+              - generic [ref=e952]: 5/31/2020
+          - button [ref=e955] [cursor=pointer]
+        - generic [ref=e958]:
+          - generic [ref=e959]:
+            - heading "Multi-proxy analyses of mussels from the Brazos River (Texas, USA) data" [level=6] [ref=e960]:
+              - link "Multi-proxy analyses of mussels from the Brazos River (Texas, USA)" [ref=e961] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:350259d12395b861a4380ffc31d2933951895d05"
+              - generic [ref=e962]: data
+            - paragraph [ref=e963]: Oxygen isotope sclerochronology with mollusk shells is complicated in subtropical regulated rivers by irregular shell δ18O patterns. We performed multi-proxy analyses (δ18O, δ13C, clumped isotopes) fr...
+            - generic [ref=e965]:
+              - generic [ref=e966]: EarthChem Library
+              - generic [ref=e967]: 7/24/2017
+          - button [ref=e970] [cursor=pointer]
+        - generic [ref=e973]:
+          - generic [ref=e974]:
+            - heading "Sedimentological properties, bulk nitrogen and organic carbon elemental and isotopic compositions, and vascular plant biomarker loadings of suspended, bank, and bed sediments collected from the northern Mackenzie River basin, Canada data" [level=6] [ref=e975]:
+              - link "Sedimentological properties, bulk nitrogen and organic carbon elemental and isotopic compositions, and vascular plant biomarker loadings of suspended, bank, and bed sediments collected from the northern Mackenzie River basin, Canada" [ref=e976] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:368575c6e1c248865decaa959c71fc76a75129ab"
+              - generic [ref=e977]: data
+            - paragraph [ref=e978]: "We collected water from river depth-profiles during the peak freshets in July 2013, June 2017, 2018, and 2019. Sampling locations are situated in the northern Mackenzie River basin: Mackenzie River in..."
+            - generic [ref=e980]:
+              - generic [ref=e981]: EarthChem Library
+              - generic [ref=e982]: 1/23/2022
+          - button [ref=e985] [cursor=pointer]
+        - generic [ref=e988]:
+          - generic [ref=e989]:
+            - 'heading "Standard petrographic analyses of thin sections from samples from New York City Water Tunnel #3 data" [level=6] [ref=e990]':
+              - 'link "Standard petrographic analyses of thin sections from samples from New York City Water Tunnel #3" [ref=e991] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:377e33adcc93ab9e7e5eb6cd3806da111f2cd629"
+              - generic [ref=e992]: data
+            - paragraph [ref=e993]: "This dataset includes standard petrographic analyses of thin sections created from rock samples excavated during the construction of New York City water tunnel #3 (Chief collector: Scott Chesman). The..."
+            - generic [ref=e995]:
+              - generic [ref=e996]: EarthChem Library
+              - generic [ref=e997]: 11/29/2016
+          - button [ref=e1000] [cursor=pointer]
+        - generic [ref=e1003]:
+          - generic [ref=e1004]:
+            - heading "Isotope and trace element data from skarns from the Lewis wollastonite deposit, Adirondack Highlands, New York data" [level=6] [ref=e1005]:
+              - link "Isotope and trace element data from skarns from the Lewis wollastonite deposit, Adirondack Highlands, New York" [ref=e1006] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:37b28779c5510824b2766ba57343c55a27adb700"
+              - generic [ref=e1007]: data
+            - paragraph [ref=e1008]: This dataset of minerals from low-δ18O skarn rocks in the Lewis wollastonite deposit has the aim of constraining the timing of surface-derived meteoric water infiltration during skarn formation. U-Pb...
+            - generic [ref=e1010]:
+              - generic [ref=e1011]: EarthChem Library
+              - generic [ref=e1012]: 10/20/2024
+          - button [ref=e1015] [cursor=pointer]
+        - generic [ref=e1018]:
+          - generic [ref=e1019]:
+            - heading "Santa Catalina Mountains Soil Solution Chemistry 2014 (Arizona, USA) data" [level=6] [ref=e1020]:
+              - link "Santa Catalina Mountains Soil Solution Chemistry 2014 (Arizona, USA)" [ref=e1021] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:37cab59f9ad034460947140f9c8427e076f2af4a"
+              - generic [ref=e1022]: data
+            - paragraph [ref=e1023]: "Soil solution samples in the Santa-Catalina Mountain field sites of the Catalina-Jemez Critical Zone Observatory (CZO) are collected with three types of soil solution samples: i) Prenart Super Quartz ..."
+            - generic [ref=e1025]:
+              - generic [ref=e1026]: EarthChem Library
+              - generic [ref=e1027]: 2/15/2018
+          - button [ref=e1030] [cursor=pointer]
+        - generic [ref=e1033]:
+          - generic [ref=e1034]:
+            - heading "Jemez River Basin Soil Solution Chemistry 2014 (New Mexico, USA) data" [level=6] [ref=e1035]:
+              - link "Jemez River Basin Soil Solution Chemistry 2014 (New Mexico, USA)" [ref=e1036] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:37d541762018a75260bbbcab72fed3f3c817722a"
+              - generic [ref=e1037]: data
+            - paragraph [ref=e1038]: "Soil solution samples in the Jemez River Basin field sites of the Catalina-Jemez Critical Zone Observatory (CZO) are collected with the following two types of soil solution samplers: i) Prenart Super ..."
+            - generic [ref=e1040]:
+              - generic [ref=e1041]: EarthChem Library
+              - generic [ref=e1042]: 2/15/2018
+          - button [ref=e1045] [cursor=pointer]
+        - generic [ref=e1048]:
+          - generic [ref=e1049]:
+            - heading "Santa Catalina Mountains Soil Solution Chemistry 2011 (Arizona, USA) data" [level=6] [ref=e1050]:
+              - link "Santa Catalina Mountains Soil Solution Chemistry 2011 (Arizona, USA)" [ref=e1051] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:37e9456a26ac6393185ac581f4553dbe2122d70b"
+              - generic [ref=e1052]: data
+            - paragraph [ref=e1053]: "Soil solution samples in the Santa-Catalina Mountain field sites of the Catalina-Jemez Critical Zone Observatory (CZO) are collected with three types of soil solution samples: i) Prenart Super Quartz ..."
+            - generic [ref=e1055]:
+              - generic [ref=e1056]: EarthChem Library
+              - generic [ref=e1057]: 3/30/2017
+          - button [ref=e1060] [cursor=pointer]
+        - generic [ref=e1063]:
+          - generic [ref=e1064]:
+            - 'heading "Data Report Stable Isotope Analysis: Switchyard-12 data" [level=6] [ref=e1065]':
+              - 'link "Data Report Stable Isotope Analysis: Switchyard-12" [ref=e1066] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:38b1ee51640da0ea60ede0d9fc9fdc89e09812ee"
+              - generic [ref=e1067]: data
+            - paragraph [ref=e1068]: Delta-18O and Delta-D ratio measurements of water from the "Switchyard-12" project. 160 samples collected in April to May, 2012 in the Arctic Ocean.
+            - generic [ref=e1070]:
+              - generic [ref=e1071]: EarthChem Library
+              - generic [ref=e1072]: 6/25/2013
+          - button [ref=e1075] [cursor=pointer]
+        - generic [ref=e1078]:
+          - generic [ref=e1079]:
+            - heading "Fluid inclusion water isotope measurements from SCC01 stalagmite, Borneo data" [level=6] [ref=e1080]:
+              - link "Fluid inclusion water isotope measurements from SCC01 stalagmite, Borneo" [ref=e1081] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:38bf7956e1f99811dac24a4a00fa1a58a69a07ed"
+              - generic [ref=e1082]: data
+            - paragraph [ref=e1083]: This dataset contains fluid inclusion water isotope data from the SSC01 stalagmite. The stalagmite was collected in 2002 from Snail Shell Cave (4º 12’ 20.8” N, 114 º 56’26.9” E), which is located in ...
+            - generic [ref=e1085]:
+              - generic [ref=e1086]: EarthChem Library
+              - generic [ref=e1087]: 5/11/2023
+          - button [ref=e1090] [cursor=pointer]
+        - generic [ref=e1093]:
+          - generic [ref=e1094]:
+            - heading "Dissolved oxygen measurements of marine sediment from Long Core Expedition KN223 data" [level=6] [ref=e1095]:
+              - link "Dissolved oxygen measurements of marine sediment from Long Core Expedition KN223" [ref=e1096] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:394aa4e99453833cca9afab6ec93cff69c5965e4"
+              - generic [ref=e1097]: data
+            - paragraph [ref=e1098]: "The KN223 research cruise on board the R/V Knorr (Chief scientist Richard W. Murray; Principal investigators: Arthur J. Spivack, Steven D’Hondt, Robert A. Pockalny took place in October-December 2014 ..."
+            - generic [ref=e1100]:
+              - generic [ref=e1101]: EarthChem Library
+              - generic [ref=e1102]: 1/22/2015
+          - button [ref=e1105] [cursor=pointer]
+        - generic [ref=e1108]:
+          - generic [ref=e1109]:
+            - heading "Geochemical measurements of marine sediment porewater from Long Core Expedition KN223 data" [level=6] [ref=e1110]:
+              - link "Geochemical measurements of marine sediment porewater from Long Core Expedition KN223" [ref=e1111] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:3979d9aaeb716f580c5457baa93b205b31d7dad6"
+              - generic [ref=e1112]: data
+            - paragraph [ref=e1113]: "The KN223 research cruise on board the R/V Knorr (Chief scientist Richard W. Murray; Principal investigators: Arthur J. Spivack, Steven D’Hondt, Robert A. Pockalny took place in October-December 2014 ..."
+            - generic [ref=e1115]:
+              - generic [ref=e1116]: EarthChem Library
+              - generic [ref=e1117]: 4/23/2020
+          - button [ref=e1120] [cursor=pointer]
+        - generic [ref=e1123]:
+          - generic [ref=e1124]:
+            - 'heading "Chemical-physical and dissolved gases in Etnean groundwater: data from Ponteferro drainage gallery (Santa Venerina - CT) data" [level=6] [ref=e1125]':
+              - 'link "Chemical-physical and dissolved gases in Etnean groundwater: data from Ponteferro drainage gallery (Santa Venerina - CT)" [ref=e1126] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:39dff147cf95c4218222ca7e166cecb99d0311ed"
+              - generic [ref=e1127]: data
+            - paragraph [ref=e1128]: Groundwater chemical-physical data in the drainage gallery (Ponteferro gallery – Santa Venerina, CT) located east of the Etna volcano (May 2005-Dec 2018), belonging to the Etna geochemical surveillanc...
+            - generic [ref=e1130]:
+              - generic [ref=e1131]: EarthChem Library
+              - generic [ref=e1132]: 7/6/2020
+          - button [ref=e1135] [cursor=pointer]
+        - generic [ref=e1138]:
+          - generic [ref=e1139]:
+            - 'heading "The influence of diagenesis on carbon and oxygen isotope values in shallow water carbonates from the Atlantic and Pacific: Implications for the interpretation of the global carbon cycle data" [level=6] [ref=e1140]':
+              - 'link "The influence of diagenesis on carbon and oxygen isotope values in shallow water carbonates from the Atlantic and Pacific: Implications for the interpretation of the global carbon cycle" [ref=e1141] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:3a234fd906bf4c02cb217a1c578490194177bbe4"
+              - generic [ref=e1142]: data
+            - paragraph [ref=e1143]: Carbon and oxygen isotopic and mineralogic measurements of carbonate sediments from Enewetak Atoll. Utilized for assessing diagenetic alteration.
+            - generic [ref=e1145]:
+              - generic [ref=e1146]: EarthChem Library
+              - generic [ref=e1147]: 4/5/2022
+          - button [ref=e1150] [cursor=pointer]
+        - generic [ref=e1153]:
+          - generic [ref=e1154]:
+            - heading "Chemical-physical parameters, major, minor, trace elements and stable isotopic composition of groundwater belonging to the hydrogeological basin of Trapani Mounts, Sicily (Italy) data" [level=6] [ref=e1155]:
+              - link "Chemical-physical parameters, major, minor, trace elements and stable isotopic composition of groundwater belonging to the hydrogeological basin of Trapani Mounts, Sicily (Italy)" [ref=e1156] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:3b73a16f43b259205c20980ffe3ea7924328fcb3"
+              - generic [ref=e1157]: data
+            - paragraph [ref=e1158]: This dataset concerns the hydrogeological basin of Trapani Mounts that is located in the westernmost sector of Sicily, near the city of Trapani. Geochemical methods have been an useful tools for u...
+            - generic [ref=e1160]:
+              - generic [ref=e1161]: EarthChem Library
+              - generic [ref=e1162]: 3/31/2022
+          - button [ref=e1165] [cursor=pointer]
+        - generic [ref=e1168]:
+          - generic [ref=e1169]:
+            - heading "Bulk rock data for Cleveland volcano data" [level=6] [ref=e1170]:
+              - link "Bulk rock data for Cleveland volcano" [ref=e1171] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:3c681a32e086a372e541dc90d5ba434b30a82969"
+              - generic [ref=e1172]: data
+            - paragraph [ref=e1173]: "We present data for 10 bulk rock samples from Cleveland volcano. The samples were collected during joint GeoPRISMS-DCO-AVO field campaigns in 2015 and 2016 (PIs: Roman, Plank, Hauri). The samples crus..."
+            - generic [ref=e1175]:
+              - generic [ref=e1176]: EarthChem Library
+              - generic [ref=e1177]: 4/26/2020
+          - button [ref=e1180] [cursor=pointer]
+        - generic [ref=e1183]:
+          - generic [ref=e1184]:
+            - 'heading "Squeezing water from a stone: H2O in nominally anhydrous minerals from granulite xenoliths and deep, hydrous fractional crystallization data" [level=6] [ref=e1185]':
+              - 'link "Squeezing water from a stone: H2O in nominally anhydrous minerals from granulite xenoliths and deep, hydrous fractional crystallization" [ref=e1186] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:3d9642fd996ca03001498388c6047bbf8ef88b08"
+              - generic [ref=e1187]: data
+            - paragraph [ref=e1188]: This is a mineral chemistry dataset on lower crustal granulites from the State Line District kimberlite, Colorado, USA. We report mineral major element compositions and mineral water contents analyze...
+            - generic [ref=e1190]:
+              - generic [ref=e1191]: EarthChem Library
+              - generic [ref=e1192]: 9/8/2020
+          - button [ref=e1195] [cursor=pointer]
+        - generic [ref=e1198]:
+          - generic [ref=e1199]:
+            - heading "Jemez River Basin Soil Solution Chemistry 2012 (New Mexico, USA) data" [level=6] [ref=e1200]:
+              - link "Jemez River Basin Soil Solution Chemistry 2012 (New Mexico, USA)" [ref=e1201] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:3f1aea1ccd222ddba305fb5188ef494b6fef50d8"
+              - generic [ref=e1202]: data
+            - paragraph [ref=e1203]: "Soil solution samples in the Jemez River Basin field sites of the Catalina-Jemez Critical Zone Observatory (CZO) are collected with two types of soil solution samples: i) Prenart Super Quartz suction ..."
+            - generic [ref=e1205]:
+              - generic [ref=e1206]: EarthChem Library
+              - generic [ref=e1207]: 4/24/2018
+          - button [ref=e1210] [cursor=pointer]
+        - generic [ref=e1213]:
+          - generic [ref=e1214]:
+            - heading "Susquehanna Shale Hills Critical Zone Observatory - Shaver's Creek Watershed Stream Chemistry (2014) data" [level=6] [ref=e1215]:
+              - link "Susquehanna Shale Hills Critical Zone Observatory - Shaver's Creek Watershed Stream Chemistry (2014)" [ref=e1216] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:3f277ab004a2363d82bbdfe4acd70afd032f0f58"
+              - generic [ref=e1217]: data
+            - paragraph [ref=e1218]: Chemistry for water samples collected from the Shaver's Creek Watershed are presented as part of Shale Hills Critical Zone Observatory research. Water samples were collected from 2 subcatchments in th...
+            - generic [ref=e1220]:
+              - generic [ref=e1221]: EarthChem Library
+              - generic [ref=e1222]: 8/11/2016
+          - button [ref=e1225] [cursor=pointer]
+        - generic [ref=e1228]:
+          - generic [ref=e1229]:
+            - heading "Santa Catalina Mountains Soil Solution Chemistry 2016 (Arizona, USA) data" [level=6] [ref=e1230]:
+              - link "Santa Catalina Mountains Soil Solution Chemistry 2016 (Arizona, USA)" [ref=e1231] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:40afa17bf70c66a317c92ef75f7853821f6a87a2"
+              - generic [ref=e1232]: data
+            - paragraph [ref=e1233]: "Soil solution samples in the Santa-Catalina Mountain field sites of the Catalina-Jemez Critical Zone Observatory (CZO) are collected with three types of soil solution samples: i) Prenart Super Quartz ..."
+            - generic [ref=e1235]:
+              - generic [ref=e1236]: EarthChem Library
+              - generic [ref=e1237]: 7/12/2020
+          - button [ref=e1240] [cursor=pointer]
+        - generic [ref=e1243]:
+          - generic [ref=e1244]:
+            - heading "Susquehanna Shale Hills Critical Zone Observatory Stream Water Chemistry (2008) data" [level=6] [ref=e1245]:
+              - link "Susquehanna Shale Hills Critical Zone Observatory Stream Water Chemistry (2008)" [ref=e1246] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:4156f323a3d37572614a35aaa11548e044efb742"
+              - generic [ref=e1247]: data
+            - paragraph [ref=e1248]: "Stream water chemistry at Susquehanna Shale Hills Critical Zone Observatory in 2010. Weekly to monthly grab samples were collected at three locations along the first order Stream: at the Headwater (SH..."
+            - generic [ref=e1250]:
+              - generic [ref=e1251]: EarthChem Library
+              - generic [ref=e1252]: 2/3/2013
+          - button [ref=e1255] [cursor=pointer]
+        - generic [ref=e1258]:
+          - generic [ref=e1259]:
+            - heading "Helium isotope analyses of gas and water from Aso caldera and Unzen stratovolcano, South West Japan data" [level=6] [ref=e1260]:
+              - link "Helium isotope analyses of gas and water from Aso caldera and Unzen stratovolcano, South West Japan" [ref=e1261] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:424156b0dd4fc6cbfa0ce850d9014722690114f9"
+              - generic [ref=e1262]: data
+            - paragraph [ref=e1263]: Relationships between distances from volcanic cones and helium isotope ratios around several volcanoes. The file includes data from Mt. Aso, Unzen, Ontake, Nevado del Ruiz, Kusatsu-Shirane and Hakone...
+            - generic [ref=e1265]:
+              - generic [ref=e1266]: EarthChem Library
+              - generic [ref=e1267]: 11/17/2022
+          - button [ref=e1270] [cursor=pointer]
+        - generic [ref=e1273]:
+          - generic [ref=e1274]:
+            - 'heading "Data Report Stable Isotope Analysis: NBP0702 data" [level=6] [ref=e1275]':
+              - 'link "Data Report Stable Isotope Analysis: NBP0702" [ref=e1276] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:4278bce8f11ee664fb2ce01e075cd574a115c1eb"
+              - generic [ref=e1277]: data
+            - paragraph [ref=e1278]: Delta-18O and Delta-D ratio measurements of water from the "NBP0702" project. 493 samples collected from Nov, 2011 to March 2012 on the research ship R/V Nathaniel B. Palmer in the Amundsen Sea.
+            - generic [ref=e1280]:
+              - generic [ref=e1281]: EarthChem Library
+              - generic [ref=e1282]: 6/25/2013
+          - button [ref=e1285] [cursor=pointer]
+        - generic [ref=e1288]:
+          - generic [ref=e1289]:
+            - heading "Susquehanna Shale Hills Critical Zone Observatory Porewater Chemistry (2010) data" [level=6] [ref=e1290]:
+              - link "Susquehanna Shale Hills Critical Zone Observatory Porewater Chemistry (2010)" [ref=e1291] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:4338224a37efeaf9a7c7ee4ae1dfce4d3f3bd734"
+              - generic [ref=e1292]: data
+            - paragraph [ref=e1293]: Soil water chemistry collected from nested-suction lysimeters (Soil water samplers, 1900 series, SoilMoisture Equipment Corp., Santa Barbara, CA) along two South (S) and two North (N) transects with ...
+            - generic [ref=e1295]:
+              - generic [ref=e1296]: EarthChem Library
+              - generic [ref=e1297]: 2/3/2013
+          - button [ref=e1300] [cursor=pointer]
+        - generic [ref=e1303]:
+          - generic [ref=e1304]:
+            - heading "Santa Catalina Mountains Soil Solution Chemistry 2015 (Arizona, USA) data" [level=6] [ref=e1305]:
+              - link "Santa Catalina Mountains Soil Solution Chemistry 2015 (Arizona, USA)" [ref=e1306] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:43fc2f53d8a760f3a4ebafac74fe18aba4c68ce4"
+              - generic [ref=e1307]: data
+            - paragraph [ref=e1308]: "Soil solution samples in the Santa-Catalina Mountain field sites of the Catalina-Jemez Critical Zone Observatory (CZO) are collected with three types of soil solution samples: i) Prenart Super Quartz ..."
+            - generic [ref=e1310]:
+              - generic [ref=e1311]: EarthChem Library
+              - generic [ref=e1312]: 6/5/2019
+          - button [ref=e1315] [cursor=pointer]
+        - generic [ref=e1318]:
+          - generic [ref=e1319]:
+            - heading "Chemical-physical parameters, major, and minor elements composition of thermal waters from 8 wells in the Stromboli aquifer (Italy) data" [level=6] [ref=e1320]:
+              - link "Chemical-physical parameters, major, and minor elements composition of thermal waters from 8 wells in the Stromboli aquifer (Italy)" [ref=e1321] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:44975cb5774e9f4b78cecfe6225efb45bbda4f08"
+              - generic [ref=e1322]: data
+            - paragraph [ref=e1323]: The chemical and isotopic composition of dissolved ions and gases in thermal wells located in volcanic areas are useful tools to investigate the chemical-physical processes and monitor the changes in ...
+            - generic [ref=e1325]:
+              - generic [ref=e1326]: EarthChem Library
+              - generic [ref=e1327]: 5/16/2023
+          - button [ref=e1330] [cursor=pointer]
+        - generic [ref=e1333]:
+          - generic [ref=e1334]:
+            - heading "Soudan Underground Mine Borehole Groundwater Samples (2019 - 2022) data" [level=6] [ref=e1335]:
+              - link "Soudan Underground Mine Borehole Groundwater Samples (2019 - 2022)" [ref=e1336] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:45ca2bdec439e161c8212208be3c47ad76dadfc0"
+              - generic [ref=e1337]: data
+            - paragraph [ref=e1338]: This dataset contains chemistries for groundwater samples from the Soudan Underground Mine state park, a site of recent interest for research into the deep continental biosphere. The Soudan Mine is lo...
+            - generic [ref=e1340]:
+              - generic [ref=e1341]: EarthChem Library
+              - generic [ref=e1342]: 7/23/2024
+          - button [ref=e1345] [cursor=pointer]
+        - generic [ref=e1348]:
+          - generic [ref=e1349]:
+            - heading "Deionized water and acid solubility of iron in southernmost Patagonian dust samples data" [level=6] [ref=e1350]:
+              - link "Deionized water and acid solubility of iron in southernmost Patagonian dust samples" [ref=e1351] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:45f00555bf3e499911db09afe1b82c9a8001a195"
+              - generic [ref=e1352]: data
+            - paragraph [ref=e1353]: Iron leaching experiments in dust samples, using deionized water and 1% nitric acid matrices. Samples from southernmost Patagonia (53.79ºS, 67.75ºW). The objective of these measurements is to characte...
+            - generic [ref=e1355]:
+              - generic [ref=e1356]: EarthChem Library
+              - generic [ref=e1357]: 11/17/2020
+          - button [ref=e1360] [cursor=pointer]
+        - generic [ref=e1363]:
+          - generic [ref=e1364]:
+            - heading "The Ca and Mg isotope record of the Cryogenian Trezona carbon isotope excursion data" [level=6] [ref=e1365]:
+              - link "The Ca and Mg isotope record of the Cryogenian Trezona carbon isotope excursion" [ref=e1366] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:4a3b8700409ecaff0fe4b116a8952ce20ce4818c"
+              - generic [ref=e1367]: data
+            - paragraph [ref=e1368]: The Trezona carbon isotope excursion is recorded on five different continents in platform carbonates deposited prior to the end-Cryogenian Marinoan glaciation (>635 Ma) and represents a change in carb...
+            - generic [ref=e1370]:
+              - generic [ref=e1371]: EarthChem Library
+              - generic [ref=e1372]: 9/11/2022
+          - button [ref=e1375] [cursor=pointer]
+        - generic [ref=e1378]:
+          - generic [ref=e1379]:
+            - heading "Geochemistry of sediments and volcanic ash from Southcentral Alaska data" [level=6] [ref=e1380]:
+              - link "Geochemistry of sediments and volcanic ash from Southcentral Alaska" [ref=e1381] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:4b3161c9175051b60a2ad03e123a38b111525c28"
+              - generic [ref=e1382]: data
+            - paragraph [ref=e1383]: The subarctic Pacific Ocean and Bering Sea comprise the second-largest high nitrate, low chlorophyll region in the world, where primary production is limited by the availability of iron (Fe). To estim...
+            - generic [ref=e1385]:
+              - generic [ref=e1386]: EarthChem Library
+              - generic [ref=e1387]: 9/16/2020
+          - button [ref=e1390] [cursor=pointer]
+        - generic [ref=e1393]:
+          - generic [ref=e1394]:
+            - heading "Serpentinized peridotites recovered via oceanic drilling from the Atlantic Ocean subseafloor data" [level=6] [ref=e1395]:
+              - link "Serpentinized peridotites recovered via oceanic drilling from the Atlantic Ocean subseafloor" [ref=e1396] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:4b8a2d8f1d0f3ebe3619f93088598317c62d5f7b"
+              - generic [ref=e1397]: data
+            - paragraph [ref=e1398]: Serpentinization is the water driven alteration of olivine-rich rocks which is a fundamental process that contributes to planetary habitability and the maintenance of rock-based life on Earth. This pr...
+            - generic [ref=e1400]:
+              - generic [ref=e1401]: EarthChem Library
+              - generic [ref=e1402]: 4/4/2023
+          - button [ref=e1405] [cursor=pointer]
+        - generic [ref=e1408]:
+          - generic [ref=e1409]:
+            - heading "Chemical-physical parameters, major, minor and trace elements composition of groundwater belonging to the hydrological basin of the Catania Plain in Sicily (ltaly) data" [level=6] [ref=e1410]:
+              - link "Chemical-physical parameters, major, minor and trace elements composition of groundwater belonging to the hydrological basin of the Catania Plain in Sicily (ltaly)" [ref=e1411] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:4d1a614bc05e460dff3785d48f8f41e503a5e3c8"
+              - generic [ref=e1412]: data
+            - paragraph [ref=e1413]: "\"The area study area represents the hydrological basin of the Catania Plain. Geochemical methods have been a useful tools for understanding processes altering the quality of groundwaters during the..."
+            - generic [ref=e1415]:
+              - generic [ref=e1416]: EarthChem Library
+              - generic [ref=e1417]: 3/24/2024
+          - button [ref=e1420] [cursor=pointer]
+        - generic [ref=e1423]:
+          - generic [ref=e1424]:
+            - heading "Middle Miocene benthic foraminiferal stable and clumped isotope results, ODP Site 761B data" [level=6] [ref=e1425]:
+              - link "Middle Miocene benthic foraminiferal stable and clumped isotope results, ODP Site 761B" [ref=e1426] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:5045745c46cefca31346c91ea75e99614c4bb2b5"
+              - generic [ref=e1427]: data
+            - paragraph [ref=e1428]: This dataset includes sample information and mass spectrometer data used to calculate bottom water paleotemperatures for Ocean Drilling Program Site 761B in the Eastern Indian Ocean. We measured sever...
+            - generic [ref=e1430]:
+              - generic [ref=e1431]: EarthChem Library
+              - generic [ref=e1432]: 3/18/2020
+          - button [ref=e1435] [cursor=pointer]
+        - generic [ref=e1438]:
+          - generic [ref=e1439]:
+            - heading "Nd isotope ratios from DSDP Site 607 in the deep North Atlantic over the last 1.5 Myr data" [level=6] [ref=e1440]:
+              - link "Nd isotope ratios from DSDP Site 607 in the deep North Atlantic over the last 1.5 Myr" [ref=e1441] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:5118f9bae258a4f6a84aed8db2288d25098bb390"
+              - generic [ref=e1442]: data
+            - paragraph [ref=e1443]: North Atlantic Deep Water (NADW) represents the major water mass that drives the Atlantic Meridional Ocean Circulation (AMOC), which undergoes substantial reorganization with changing climate. In orde...
+            - generic [ref=e1445]:
+              - generic [ref=e1446]: EarthChem Library
+              - generic [ref=e1447]: 6/22/2020
+          - button [ref=e1450] [cursor=pointer]
+        - generic [ref=e1453]:
+          - generic [ref=e1454]:
+            - heading "Experimental results for rates of serpentinization of olivine determined using the synthetic fluid inclusion technique data" [level=6] [ref=e1455]:
+              - link "Experimental results for rates of serpentinization of olivine determined using the synthetic fluid inclusion technique" [ref=e1456] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:51c8ae426b5bfd6f954f9e2085764897d2a8c024"
+              - generic [ref=e1457]: data
+            - paragraph [ref=e1458]: The tables included in the dataset include (1) composition of the olivine host phase determined by electron microprobe analysis. (2) Time of flight Secondary Ion Mass Spectrometric (TOF-SIMS) data and...
+            - generic [ref=e1460]:
+              - generic [ref=e1461]: EarthChem Library
+              - generic [ref=e1462]: 6/27/2017
+          - button [ref=e1465] [cursor=pointer]
+        - generic [ref=e1468]:
+          - generic [ref=e1469]:
+            - heading "Sediment pore water chemistry measurements from the continental margin offshore Washington State, USA data" [level=6] [ref=e1470]:
+              - link "Sediment pore water chemistry measurements from the continental margin offshore Washington State, USA" [ref=e1471] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:521fdacf546c8293312dd9bb594fa5e4d4a5d33d"
+              - generic [ref=e1472]: data
+            - paragraph [ref=e1473]: "This dataset includes sediment pore water chemistry measurements from the continental margin offshore Washington State, USA. Samples were collected during Atlantis expedition AT26-04 (Cruise DOI: 10.7..."
+            - generic [ref=e1475]:
+              - generic [ref=e1476]: EarthChem Library
+              - generic [ref=e1477]: 10/10/2017
+          - button [ref=e1480] [cursor=pointer]
+        - generic [ref=e1483]:
+          - generic [ref=e1484]:
+            - heading "Compiled geochemistry and PLFA data on fracture waters, biofilms and service waters from Kidd Creek Observatory data" [level=6] [ref=e1485]:
+              - link "Compiled geochemistry and PLFA data on fracture waters, biofilms and service waters from Kidd Creek Observatory" [ref=e1486] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:522d539b59c5928e86d45167b58312f328d8493b"
+              - generic [ref=e1487]: data
+            - paragraph [ref=e1488]: Dataset containing the intact phospholipid derived phospholipid fatty acid profiles and related stable carbon isotope measurements for samples collected from the Kidd Creek Observatory. Geochemistry o...
+            - generic [ref=e1490]:
+              - generic [ref=e1491]: EarthChem Library
+              - generic [ref=e1492]: 11/18/2024
+          - button [ref=e1495] [cursor=pointer]
+        - generic [ref=e1498]:
+          - generic [ref=e1499]:
+            - heading "A global dataset of groundwater stable isotope data and noble gas-based paleotemperatures over the last deglaciation, alongside modern isotope-temperature records from European meteorological stations data" [level=6] [ref=e1500]:
+              - link "A global dataset of groundwater stable isotope data and noble gas-based paleotemperatures over the last deglaciation, alongside modern isotope-temperature records from European meteorological stations" [ref=e1501] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:5267333d06abb178a119e97c8c389c8988a9e79b"
+              - generic [ref=e1502]: data
+            - paragraph [ref=e1503]: This dataset consists of several files. "Summary_WSI_NGT.xlsx" summarises correlation coefficients between water stable isotopes (WSI) and temperature for all fossil groundwater sites. "Monthly.xlsx" ...
+            - generic [ref=e1505]:
+              - generic [ref=e1506]: EarthChem Library
+              - generic [ref=e1507]: 2/15/2026
+          - button [ref=e1510] [cursor=pointer]
+        - generic [ref=e1513]:
+          - generic [ref=e1514]:
+            - 'heading "The He–CO2 isotope and relative abundance characteristics of geothermal fluids in El Salvador and Honduras: New constraints on volatile mass balance of the Central American Volcanic Arc data" [level=6] [ref=e1515]':
+              - 'link "The He–CO2 isotope and relative abundance characteristics of geothermal fluids in El Salvador and Honduras: New constraints on volatile mass balance of the Central American Volcanic Arc" [ref=e1516] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:529df6ef2e58866d407390fce557baece56a7161"
+              - generic [ref=e1517]: data
+            - paragraph [ref=e1518]: This data set contains helium and carbon isotope data collected from fumaroles, hot springs, water springs, mud-pots and geothermal wells from El Salvador and Honduras from 2002-2003.
+            - generic [ref=e1520]:
+              - generic [ref=e1521]: EarthChem Library
+              - generic [ref=e1522]: 5/17/2015
+          - button [ref=e1525] [cursor=pointer]
+        - generic [ref=e1528]:
+          - generic [ref=e1529]:
+            - heading "Jemez River Basin Soil Solution Chemistry 2015 (New Mexico, USA) data" [level=6] [ref=e1530]:
+              - link "Jemez River Basin Soil Solution Chemistry 2015 (New Mexico, USA)" [ref=e1531] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:54792bf069da6553b095be80f4e2ba1d9925bd6f"
+              - generic [ref=e1532]: data
+            - paragraph [ref=e1533]: "Soil solution samples in the Jemez River Basin field sites of the Catalina-Jemez Critical Zone Observatory (CZO) are collected with the following two types of soil solution samplers: i) Prenart Super ..."
+            - generic [ref=e1535]:
+              - generic [ref=e1536]: EarthChem Library
+              - generic [ref=e1537]: 6/5/2019
+          - button [ref=e1540] [cursor=pointer]
+        - generic [ref=e1543]:
+          - generic [ref=e1544]:
+            - heading "Water, major and trace element systematics of mantle xenoliths from Savai‘i and Ta‘ū islands (Samoa) data" [level=6] [ref=e1545]:
+              - link "Water, major and trace element systematics of mantle xenoliths from Savai‘i and Ta‘ū islands (Samoa)" [ref=e1546] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:5526098b370c32bb5b7e01864b4db7e820d6ab8d"
+              - generic [ref=e1547]: data
+            - paragraph [ref=e1548]: Major (by electron microprobe), trace element (by Laser Ablation ICPMS) and structural hydrogen (i.e. “water”; by polarized FTIR) concentrations of nominally anhydrous minerals and spinels from perido...
+            - generic [ref=e1550]:
+              - generic [ref=e1551]: EarthChem Library
+              - generic [ref=e1552]: 9/17/2019
+          - button [ref=e1555] [cursor=pointer]
+        - generic [ref=e1558]:
+          - generic [ref=e1559]:
+            - heading "Pore water chemical composition and sediment mineral composition in different seepage intensities of Haima Cold Spring data" [level=6] [ref=e1560]:
+              - link "Pore water chemical composition and sediment mineral composition in different seepage intensities of Haima Cold Spring" [ref=e1561] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:5557b6587c99dc2cfdb47bddfd74dbb55d94bb38"
+              - generic [ref=e1562]: data
+            - paragraph [ref=e1563]: Haima Cold Seep is located in the northern basin of the South China Sea and is an active cold seep. We selected four areas with different seepage intensities to collect gravity column samples at diffe...
+            - generic [ref=e1565]:
+              - generic [ref=e1566]: EarthChem Library
+              - generic [ref=e1567]: 12/14/2022
+          - button [ref=e1570] [cursor=pointer]
+        - generic [ref=e1573]:
+          - generic [ref=e1574]:
+            - heading "Global overview of pre-eruptive magma chamber conditions data" [level=6] [ref=e1575]:
+              - link "Global overview of pre-eruptive magma chamber conditions" [ref=e1576] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:563b1e1cb1a2d0cb0a84b5ec4f2fea7340411e29"
+              - generic [ref=e1577]: data
+            - paragraph [ref=e1578]: The dataset includes an overview of pre-eruptive magma chamber conditions that were prevalent before 245 eruptions worldwide. The overview is based on a meta-analysis of previously published geochemic...
+            - generic [ref=e1580]:
+              - generic [ref=e1581]: EarthChem Library
+              - generic [ref=e1582]: 7/29/2021
+          - button [ref=e1585] [cursor=pointer]
+        - generic [ref=e1588]:
+          - generic [ref=e1589]:
+            - heading "Chemical analyses for \"Water and the Oxidation State of Subduction Zone Magmas\" data" [level=6] [ref=e1590]:
+              - link "Chemical analyses for \"Water and the Oxidation State of Subduction Zone Magmas\"" [ref=e1591] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:569517398bc164187fed583ac5e1b4ab9de13c5f"
+              - generic [ref=e1592]: data
+            - paragraph [ref=e1593]: Three supplemental tables from Kelley and Cottrell, "Water and the Oxidation State of Subduction Zone Magmas" (Science, 2009). Major and volatile element concentrations and Fe+3/Fe_Tot ratios for MORB...
+            - generic [ref=e1595]:
+              - generic [ref=e1596]: EarthChem Library
+              - generic [ref=e1597]: 3/13/2012
+          - button [ref=e1600] [cursor=pointer]
+        - generic [ref=e1603]:
+          - generic [ref=e1604]:
+            - heading "Chemical-physical parameters, major, minor, trace elements, isotope determinations (D/H and 18O/16O), dissolved gases, helium isotope and d13C_TDC (TDC = total dissolved carbon) composition of groundwater from 8 wells island of Salina (Aeolian arc, Italy) data" [level=6] [ref=e1605]:
+              - link "Chemical-physical parameters, major, minor, trace elements, isotope determinations (D/H and 18O/16O), dissolved gases, helium isotope and d13C_TDC (TDC = total dissolved carbon) composition of groundwater from 8 wells island of Salina (Aeolian arc, Italy)" [ref=e1606] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:584a85e0ab9b696060a1ee31bc7413232801224a"
+              - generic [ref=e1607]: data
+            - paragraph [ref=e1608]: Geochemical prospection has been a useful tool to understanding the fluid circulating processes over the volcanic island of Salina. The geochemical results have highlighted the existence of reservo...
+            - generic [ref=e1610]:
+              - generic [ref=e1611]: EarthChem Library
+              - generic [ref=e1612]: 11/16/2020
+          - button [ref=e1615] [cursor=pointer]
+        - generic [ref=e1618]:
+          - generic [ref=e1619]:
+            - heading "Brazos River water and mussel shell trace elements and stable isotopes data" [level=6] [ref=e1620]:
+              - link "Brazos River water and mussel shell trace elements and stable isotopes" [ref=e1621] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:5a5287efc18fc783df5a383b7478e246568a672c"
+              - generic [ref=e1622]: data
+            - paragraph [ref=e1623]: We performed multi-proxy analyses (δ18O, δ13C, clumped isotopes) from serially-sampled freshwater mussels in two species (Amblema plicata and Cyrtonaias tampicoensis), two specimens each, from the Bra...
+            - generic [ref=e1625]:
+              - generic [ref=e1626]: EarthChem Library
+              - generic [ref=e1627]: 10/30/2019
+          - button [ref=e1630] [cursor=pointer]
+        - generic [ref=e1633]:
+          - generic [ref=e1634]:
+            - heading "Hydrogen isotopic composition and volatile contents of quartz-hosted rhyolitic melt inclusions from the early Bishop Tuff data" [level=6] [ref=e1635]:
+              - link "Hydrogen isotopic composition and volatile contents of quartz-hosted rhyolitic melt inclusions from the early Bishop Tuff" [ref=e1636] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:5ae7b828f2ab56b07a362e50296ca5d60b233b25"
+              - generic [ref=e1637]: data
+            - paragraph [ref=e1638]: To explore whether hydrogen isotopes can identify the source and modification of water in a silicic magma reservoir, we analyzed D/H ratios and dissolved H2O content of quartz-hosted, rhyolitic glass ...
+            - generic [ref=e1640]:
+              - generic [ref=e1641]: EarthChem Library
+              - generic [ref=e1642]: 11/8/2020
+          - button [ref=e1645] [cursor=pointer]
+        - generic [ref=e1648]:
+          - generic [ref=e1649]:
+            - heading "Bioavailability of Dissolved Organic Matter Varies with Anthropogenic Landcover in the Upper Mississippi River Basin data" [level=6] [ref=e1650]:
+              - link "Bioavailability of Dissolved Organic Matter Varies with Anthropogenic Landcover in the Upper Mississippi River Basin" [ref=e1651] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:5ba13adada671ec6dd16518b39358c7049393789"
+              - generic [ref=e1652]: data
+            - paragraph [ref=e1653]: Dataset includes changes in dissolved organic carbon (DOC) concentrations and dissolved organic matter (DOM) composition during a 28-day bio incubation from water samples collected in streams of the U...
+            - generic [ref=e1655]:
+              - generic [ref=e1656]: EarthChem Library
+              - generic [ref=e1657]: 11/2/2022
+          - button [ref=e1660] [cursor=pointer]
+        - generic [ref=e1663]:
+          - generic [ref=e1664]:
+            - 'heading "Dissolved Organic Matter Molecular Level Insights and Flux from the Onega River, Russia: Implications for Arctic Land-Ocean Fluxes data" [level=6] [ref=e1665]':
+              - 'link "Dissolved Organic Matter Molecular Level Insights and Flux from the Onega River, Russia: Implications for Arctic Land-Ocean Fluxes" [ref=e1666] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:5d5136736015486a1d1d2e3a590b07906ad553a1"
+              - generic [ref=e1667]: data
+            - paragraph [ref=e1668]: Water samples were collected from the Onega River (63°49'49.36" N, 38°27'42.12" ) between July 2018 and January 2020 (n = 19) and analyzed for absorbance and fluorescence, DOC concentration, and DOM c...
+            - generic [ref=e1670]:
+              - generic [ref=e1671]: EarthChem Library
+              - generic [ref=e1672]: 6/26/2022
+          - button [ref=e1675] [cursor=pointer]
+        - generic [ref=e1678]:
+          - generic [ref=e1679]:
+            - heading "Geochemical characterization of hot springs in the Tacna region (18°S, Peru) data" [level=6] [ref=e1680]:
+              - link "Geochemical characterization of hot springs in the Tacna region (18°S, Peru)" [ref=e1681] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:5d5d00761986fedf2499aa1572621686b5da486a"
+              - generic [ref=e1682]: data
+            - paragraph [ref=e1683]: This dataset compiles multiple fluid analyses (water and gas) of several hydrothermal fluids from the Tacna region (18°S, Peru), along a section from the ocean to the high volcanic chain. The dataset ...
+            - generic [ref=e1685]:
+              - generic [ref=e1686]: EarthChem Library
+              - generic [ref=e1687]: 4/2/2024
+          - button [ref=e1690] [cursor=pointer]
+        - generic [ref=e1693]:
+          - generic [ref=e1694]:
+            - heading "Analyses of major solutes of moderately acidic hot spring waters and carbon, nitrogen, and pigment compositions of associated biofilms from Yellowstone National Park data" [level=6] [ref=e1695]:
+              - link "Analyses of major solutes of moderately acidic hot spring waters and carbon, nitrogen, and pigment compositions of associated biofilms from Yellowstone National Park" [ref=e1696] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:5d8a5d15b687bf4a8a08ad7f07a06cb6bff2e3df"
+              - generic [ref=e1697]: data
+            - paragraph [ref=e1698]: This dataset contains temperatures, pH values, conductivities, stable water isotope ratios, and major solute concentrations for 14 water samples collected from 12 moderately acidic hot springs in Yell...
+            - generic [ref=e1700]:
+              - generic [ref=e1701]: EarthChem Library
+              - generic [ref=e1702]: 9/8/2021
+          - button [ref=e1705] [cursor=pointer]
+        - generic [ref=e1708]:
+          - generic [ref=e1709]:
+            - heading "Experimental data on free swelling potential of clayey soils data" [level=6] [ref=e1710]:
+              - link "Experimental data on free swelling potential of clayey soils" [ref=e1711] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:earthchem:data:5ddaf7060b8b267d484244257a706d66ef1fed96"
+              - generic [ref=e1712]: data
+            - paragraph [ref=e1713]: We present experimental data on vertical swelling potential of natural and artificial clayey soils obtained from different regions across the world. The swelling data and the relevant soil properties ...
+            - generic [ref=e1715]:
+              - generic [ref=e1716]: EarthChem Library
+              - generic [ref=e1717]: 1/16/2023
+          - button [ref=e1720] [cursor=pointer]
+  - generic [ref=e219]: "GeoCodes Version: 0.9.10 Date: 2026-05-28"
