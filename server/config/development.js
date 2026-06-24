@@ -1,3 +1,4 @@
+require('dotenv').config()
 var debug = require('debug')('config')
 debug('in development config')
 var endPoint = process.env.S3ADDRESS || "oss.geocodes-aws.earthcube.org"
