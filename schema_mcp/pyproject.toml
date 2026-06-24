@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "schema-mcp-server"
+version = "0.1.0"
+description = "A Model Context Protocol server for schema validation"
+authors = [{name = "Your Name", email = "your.email@example.com"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "mcp>=1.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-schemaorg @ git+https://github.com/TheResilientCollective/pydantic_schemaorg.git@pydantic_v2",
+    "rdflib>=7.0.0",
+    "SPARQLWrapper>=2.0.0",
+    "pyld>=2.0.0",
+]
+
+[project.scripts]
+schema-mcp-server = "server:main"

@@ -1,3 +1,4 @@
+require('dotenv').config()
 //var endPoint = process.env.S3ADDRESS || "oss.geocodes.earthcube.org"
 var endPoint = process.env.S3ADDRESS || "oss.geodex.org"
 var accessKey = process.env.S3KEY || 'AKIAIOSFODNN7EXAMPLE'
