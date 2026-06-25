@@ -10,60 +10,82 @@
       </h6>
     </div>
 
-    <b-collapse :visible="isOpen">
-      <div class="facet-body">
-        <!-- Loading State -->
-        <div v-if="optionsLoading" class="text-center py-2">
+    <div v-show="isOpen" class="facet-body">
+        <!-- Loading State (only when no options yet) -->
+        <div v-if="optionsLoading && options.length === 0" class="text-center py-2">
           <b-spinner small></b-spinner>
           <small class="text-muted ms-2">Loading options...</small>
         </div>
 
-        <!-- Options -->
-        <div v-else-if="options.length > 0" class="facet-options">
-          <div
-            v-for="option in displayedOptions"
-            :key="option.value"
-            class="form-check"
-          >
-            <input
-              :id="`${field}-${option.value}`"
-              type="checkbox"
-              class="form-check-input"
-              :checked="isValueActive(option.value)"
-              @change="toggleValue(option.value)"
-            />
-            <label
-              :for="`${field}-${option.value}`"
-              class="form-check-label"
-            >
-              {{ option.label }}
-              <span class="text-muted">({{ option.count }})</span>
-            </label>
+        <template v-else-if="options.length > 0">
+          <div v-if="supportsOptionSort" class="facet-sort mb-2">
+            <span class="facet-sort-label">Sort:</span>
+            <div class="facet-sort-toggle" role="group" aria-label="Sort facet options">
+              <button
+                type="button"
+                class="facet-sort-btn"
+                :class="{ active: optionSortMode === 'count' }"
+                @click.stop="setOptionSortMode('count')"
+              >
+                Count
+              </button>
+              <button
+                type="button"
+                class="facet-sort-btn"
+                :class="{ active: optionSortMode === 'alpha' }"
+                @click.stop="setOptionSortMode('alpha')"
+              >
+                A–Z
+              </button>
+            </div>
           </div>
 
-          <!-- Show More/Less -->
-          <div v-if="options.length > 5" class="mt-2">
-            <b-button
-              v-if="!showAll"
-              variant="link"
-              size="sm"
-              class="p-0"
-              @click="showAll = true"
+          <div class="facet-options">
+            <div
+              v-for="option in displayedOptions"
+              :key="option.value"
+              class="form-check"
             >
-              Show {{ options.length - 5 }} more...
-            </b-button>
+              <input
+                :id="`${field}-${option.value}`"
+                type="checkbox"
+                class="form-check-input"
+                :checked="isValueActive(option.value)"
+                @change="toggleValue(option.value)"
+              />
+              <label
+                :for="`${field}-${option.value}`"
+                class="form-check-label"
+              >
+                {{ option.label }}
+                <span class="text-muted">({{ option.count }})</span>
+              </label>
+            </div>
 
-            <b-button
-              v-else
-              variant="link"
-              size="sm"
-              class="p-0"
-              @click="showAll = false"
-            >
-              Show less
-            </b-button>
+            <!-- Show More/Less -->
+            <div v-if="sortedOptions.length > 5" class="mt-2">
+              <b-button
+                v-if="!showAll"
+                variant="link"
+                size="sm"
+                class="p-0"
+                @click="showAll = true"
+              >
+                Show {{ sortedOptions.length - 5 }} more...
+              </b-button>
+
+              <b-button
+                v-else
+                variant="link"
+                size="sm"
+                class="p-0"
+                @click="showAll = false"
+              >
+                Show less
+              </b-button>
+            </div>
           </div>
-        </div>
+        </template>
 
         <!-- No Options -->
         <div v-else class="text-muted">
@@ -80,8 +102,7 @@
             Clear
           </b-button>
         </div>
-      </div>
-    </b-collapse>
+    </div>
   </div>
 </template>
 
@@ -109,13 +130,39 @@ export default {
     // Local state
     const showAll = ref(false);
     const isOpen = ref(props.facetConfig.open !== false);
+    const optionSortMode = ref('count');
+
+    const sortableFacetFields = ['kw', 'placenames'];
+
+    const supportsOptionSort = computed(() =>
+      sortableFacetFields.includes(props.facetConfig.field)
+    );
+
+    const sortedOptions = computed(() => {
+      const opts = facet.options.value;
+      if (!opts?.length) return [];
+
+      const compareAlpha = (a, b) =>
+        a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
+      const compareCount = (a, b) => {
+        if (b.count !== a.count) return b.count - a.count;
+        return compareAlpha(a, b);
+      };
+
+      const compare = optionSortMode.value === 'alpha' ? compareAlpha : compareCount;
+      return [...opts].sort(compare);
+    });
+
+    const setOptionSortMode = (mode) => {
+      optionSortMode.value = mode;
+    };
 
     // Computed
     const displayedOptions = computed(() => {
-      if (showAll.value || facet.options.value.length <= 5) {
-        return facet.options.value;
+      if (showAll.value || sortedOptions.value.length <= 5) {
+        return sortedOptions.value;
       }
-      return facet.options.value.slice(0, 5);
+      return sortedOptions.value.slice(0, 5);
     });
 
     const toggleOpen = () => {
@@ -126,6 +173,10 @@ export default {
       ...facet,
       showAll,
       isOpen,
+      supportsOptionSort,
+      optionSortMode,
+      setOptionSortMode,
+      sortedOptions,
       displayedOptions,
       toggleOpen
     };
@@ -159,6 +210,52 @@ export default {
 
 .facet-body {
   padding: 0.75rem;
+}
+
+.facet-sort {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.facet-sort-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  white-space: nowrap;
+}
+
+.facet-sort-toggle {
+  display: inline-flex;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.facet-sort-btn {
+  border: none;
+  background: #fff;
+  color: #495057;
+  font-size: 0.8rem;
+  padding: 0.2rem 0.55rem;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.facet-sort-btn + .facet-sort-btn {
+  border-left: 1px solid #ced4da;
+}
+
+.facet-sort-btn:hover {
+  background: #f8f9fa;
+}
+
+.facet-sort-btn.active {
+  background: #0d6efd;
+  color: #fff;
+}
+
+.facet-sort-btn.active:hover {
+  background: #0b5ed7;
 }
 
 .facet-options {

@@ -57,7 +57,11 @@
           </div>
 
           <!-- Dynamic Facets -->
-          <Facets2 :facets="facets" />
+          <Facets2 :facets="primaryFacets" />
+
+          <div v-if="resourceTypeFacet" class="mb-3">
+            <FacetText2 :facet-config="resourceTypeFacet" />
+          </div>
 
           <!-- Feedback Component -->
           <feedback
@@ -95,11 +99,12 @@
 </template>
 
 <script>
-import { onMounted, provide, watch } from 'vue';
+import { onMounted, provide, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useSearch } from '@/composables/useSearch.js';
 import { useConfig } from '@/composables/useConfig.js';
 import Facets2 from './Facets2.vue';
+import FacetText2 from './FacetText2.vue';
 import ResultHeader2 from './ResultHeader2.vue';
 import Results2 from './Results2.vue';
 import feedback from '@/components/feedback/feedback.vue';
@@ -109,6 +114,7 @@ export default {
 
   components: {
     Facets2,
+    FacetText2,
     ResultHeader2,
     Results2,
     feedback,
@@ -119,6 +125,14 @@ export default {
     const { config, facets } = useConfig();
 
     const search = useSearch(config);
+
+    const resourceTypeFacet = computed(() =>
+      (facets.value || []).find((f) => f.field === 'resourceType')
+    );
+
+    const primaryFacets = computed(() =>
+      (facets.value || []).filter((f) => f.field !== 'resourceType')
+    );
 
     provide('searchComposable', search);
 
@@ -139,7 +153,8 @@ export default {
 
     return {
       ...search,
-      facets
+      resourceTypeFacet,
+      primaryFacets,
     };
   }
 };
