@@ -232,8 +232,8 @@ export class FilterStateManager {
   }
 
   shouldExecuteQuery() {
-    return this.state.textQuery.trim() !== '' ||
-           Object.keys(this.state.activeFilters).length > 0;
+    // Empty keyword should still execute a browse query and return results.
+    return true;
   }
 
   /**
@@ -325,6 +325,11 @@ export class FilterStateManager {
       this.state.limit === nextLimit &&
       this.areFiltersEqual(this.state.activeFilters, nextActiveFilters);
     if (unchanged) {
+      // On first load, route/query can match default state exactly.
+      // Still execute once so empty-keyword browse mode populates results.
+      if (!this.state.lastQuery && this.shouldExecuteQuery()) {
+        void this.executeQuery();
+      }
       return;
     }
 
