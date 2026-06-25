@@ -10,6 +10,8 @@ export class FilterStateManager {
       textQuery: '',
       searchExactMatch: true,
       resourceType: 'all',
+      page: 1,
+      limit: Number(config?.LIMIT_DEFAULT ?? 10),
       activeFilters: {},
       isLoading: false,
       results: [],
@@ -29,18 +31,22 @@ export class FilterStateManager {
   setupWatchers() {
     watch(() => this.state.textQuery, () => {
       if (this.isSyncingFromUrl) return;
+      this.resetToFirstPage();
       this.debouncedExecuteQuery();
     });
     watch(() => this.state.activeFilters, () => {
       if (this.isSyncingFromUrl) return;
+      this.resetToFirstPage();
       this.executeQuery();
     }, { deep: true });
     watch(() => this.state.resourceType, () => {
       if (this.isSyncingFromUrl) return;
+      this.resetToFirstPage();
       this.executeQuery();
     });
     watch(() => this.state.searchExactMatch, () => {
       if (this.isSyncingFromUrl) return;
+      this.resetToFirstPage();
       this.executeQuery();
     });
   }
@@ -60,8 +66,8 @@ export class FilterStateManager {
       searchExactMatch: this.state.searchExactMatch,
       resourceType: this.state.resourceType,
       filters: this.state.activeFilters,
-      limit: Number(this.config?.LIMIT_DEFAULT ?? 10),
-      offset: 0
+      limit: Number(this.state.limit || this.config?.LIMIT_DEFAULT || 10),
+      offset: Math.max(0, (Number(this.state.page || 1) - 1) * Number(this.state.limit || this.config?.LIMIT_DEFAULT || 10))
     }));
   }
 
@@ -125,6 +131,31 @@ export class FilterStateManager {
 
   setSearchExactMatch(exact) {
     this.state.searchExactMatch = !!exact;
+  }
+
+  setPage(page) {
+    const parsed = parseInt(page, 10);
+    const nextPage = Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+    if (nextPage === this.state.page) return;
+    this.state.page = nextPage;
+    void this.executeQuery();
+  }
+
+  setLimit(limit) {
+    const parsed = parseInt(limit, 10);
+    const nextLimit = Number.isFinite(parsed) && parsed > 0
+      ? parsed
+      : Number(this.config?.LIMIT_DEFAULT ?? 10);
+    if (nextLimit === this.state.limit && this.state.page === 1) return;
+    this.state.limit = nextLimit;
+    this.resetToFirstPage();
+    void this.executeQuery();
+  }
+
+  resetToFirstPage() {
+    if (this.state.page !== 1) {
+      this.state.page = 1;
+    }
   }
 
   hasActiveFacetFilters(filters) {
@@ -209,7 +240,7 @@ export class FilterStateManager {
    * @param {string | URLSearchParams | Record<string, unknown>} urlParams - route.query or search string
    */
   updateFromUrl(urlParams) {
-    const reserved = new Set(['q', 'resourceType', 'searchExactMatch']);
+    const reserved = new Set(['q', 'resourceType', 'searchExactMatch', 'page', 'limit']);
 
     /** @type {Map<string, string[]>} */
     const byKey = new Map();
@@ -243,6 +274,14 @@ export class FilterStateManager {
     const ex = exArr && exArr[0];
     const nextSearchExactMatch =
       ex === undefined || ex === '' ? true : ex === 'true';
+    const nextPageRaw = (byKey.get('page') || ['1'])[0] || '1';
+    const nextLimitRaw = (byKey.get('limit') || [String(this.config?.LIMIT_DEFAULT ?? 10)])[0];
+    const parsedPage = parseInt(nextPageRaw, 10);
+    const parsedLimit = parseInt(nextLimitRaw, 10);
+    const nextPage = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+    const nextLimit = Number.isFinite(parsedLimit) && parsedLimit > 0
+      ? parsedLimit
+      : Number(this.config?.LIMIT_DEFAULT ?? 10);
 
     const nextActiveFilters = {};
 
@@ -282,6 +321,8 @@ export class FilterStateManager {
       this.state.textQuery === nextTextQuery &&
       this.state.resourceType === nextResourceType &&
       this.state.searchExactMatch === nextSearchExactMatch &&
+      this.state.page === nextPage &&
+      this.state.limit === nextLimit &&
       this.areFiltersEqual(this.state.activeFilters, nextActiveFilters);
     if (unchanged) {
       return;
@@ -291,9 +332,13 @@ export class FilterStateManager {
     this.state.textQuery = nextTextQuery;
     this.state.resourceType = nextResourceType;
     this.state.searchExactMatch = nextSearchExactMatch;
+    this.state.page = nextPage;
+    this.state.limit = nextLimit;
     this.state.activeFilters = nextActiveFilters;
-    this.isSyncingFromUrl = false;
-    void this.executeQuery();
+    queueMicrotask(() => {
+      this.isSyncingFromUrl = false;
+      void this.executeQuery();
+    });
   }
 
   areFilterValuesEqual(a, b) {
@@ -343,6 +388,15 @@ export class FilterStateManager {
 
     if (this.state.resourceType && this.state.resourceType !== 'all') {
       params.set('resourceType', this.state.resourceType);
+    }
+
+    if (this.state.page > 1) {
+      params.set('page', String(this.state.page));
+    }
+
+    const defaultLimit = Number(this.config?.LIMIT_DEFAULT ?? 10);
+    if (this.state.limit !== defaultLimit) {
+      params.set('limit', String(this.state.limit));
     }
 
     params.set(
