@@ -12,17 +12,24 @@
 
     <b-collapse :visible="isOpen">
       <div class="facet-body">
-        <!-- Map Container -->
-        <div id="map" class="map-container mb-3"></div>
+        <GeoMapPreview
+          class="mb-2"
+          :bounds="committedBounds"
+          @open="openEditor"
+        />
+
+        <small class="text-muted d-block mb-2">
+          Click the preview map to choose or update a bounding box.
+        </small>
 
         <!-- Bounds Display -->
         <div v-if="hasActiveBounds" class="bounds-display mb-2">
           <small class="text-muted">
             <strong>Bounds:</strong><br>
-            N: {{ activeBounds.bounds.north.toFixed(3) }},
-            S: {{ activeBounds.bounds.south.toFixed(3) }}<br>
-            E: {{ activeBounds.bounds.east.toFixed(3) }},
-            W: {{ activeBounds.bounds.west.toFixed(3) }}
+            N: {{ committedBounds.north.toFixed(3) }},
+            S: {{ committedBounds.south.toFixed(3) }}<br>
+            E: {{ committedBounds.east.toFixed(3) }},
+            W: {{ committedBounds.west.toFixed(3) }}
           </small>
         </div>
 
@@ -33,7 +40,6 @@
             variant="outline-secondary"
             size="sm"
             @click="clearBounds"
-            class="me-2"
           >
             Clear
           </b-button>
@@ -41,30 +47,41 @@
           <b-button
             variant="outline-primary"
             size="sm"
-            @click="resetMap"
+            @click="openEditor"
           >
-            Reset Map
+            Edit Bounds
           </b-button>
         </div>
       </div>
     </b-collapse>
+
+    <GeoBoundsEditorModal
+      :visible="isEditorOpen"
+      :initial-bounds="draftBounds"
+      @confirm="confirmDraftBounds"
+      @cancel="cancelDraftBounds"
+    />
   </div>
 </template>
 
 <script>
-import { ref, onUnmounted, inject, watch, nextTick } from 'vue';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { computed, inject, ref } from 'vue';
 import { useGeoFacet } from '@/composables/useSearch.js';
+import GeoMapPreview from './GeoMapPreview.vue';
+import GeoBoundsEditorModal from './GeoBoundsEditorModal.vue';
 
 export default {
-  name: "GeoBoundingBoxPicker2",
+  name: 'GeoBoundingBoxPicker2',
+  components: {
+    GeoMapPreview,
+    GeoBoundsEditorModal,
+  },
 
   props: {
     facetConfig: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   setup(props) {
@@ -76,128 +93,61 @@ export default {
 
     // Local state
     const isOpen = ref(props.facetConfig.open !== false);
-    let map = null;
-    let drawnItems = null;
-    let drawControl = null;
+    const isEditorOpen = ref(false);
+    const draftBounds = ref(null);
+
+    const cloneBounds = (bounds) => {
+      if (!bounds) return null;
+      return {
+        north: Number(bounds.north),
+        south: Number(bounds.south),
+        east: Number(bounds.east),
+        west: Number(bounds.west),
+      };
+    };
+
+    const committedBounds = computed(() => {
+      const active = geoFacet.activeBounds.value;
+      return active?.bounds || null;
+    });
 
     // Methods
-    const toggleOpen = async () => {
+    const toggleOpen = () => {
       isOpen.value = !isOpen.value;
-      if (isOpen.value) {
-        await nextTick();
-        initMap();
-      }
     };
 
-    const initMap = () => {
-      if (map) return; // Already initialized
+    const openEditor = () => {
+      draftBounds.value = cloneBounds(committedBounds.value);
+      isEditorOpen.value = true;
+    };
 
-      // Initialize map
-      map = L.map('map').setView([39.8283, -98.5795], 4); // Center on USA
-
-      // Add tile layer
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
-
-      // Initialize draw controls
-      drawnItems = new L.FeatureGroup();
-      map.addLayer(drawnItems);
-
-      // Draw control
-      drawControl = new L.Control.Draw({
-        position: 'topright',
-        draw: {
-          rectangle: {
-            shapeOptions: {
-              clickable: false
-            }
-          },
-          polyline: false,
-          polygon: false,
-          circle: false,
-          marker: false,
-          circlemarker: false
-        },
-        edit: {
-          featureGroup: drawnItems,
-          remove: true
-        }
-      });
-
-      map.addControl(drawControl);
-
-      // Event handlers
-      map.on(L.Draw.Event.CREATED, (e) => {
-        const layer = e.layer;
-        drawnItems.addLayer(layer);
-
-        const bounds = layer.getBounds();
-        geoFacet.setBounds({
-          north: bounds.getNorth(),
-          south: bounds.getSouth(),
-          east: bounds.getEast(),
-          west: bounds.getWest()
-        });
-      });
-
-      map.on(L.Draw.Event.DELETED, () => {
+    const confirmDraftBounds = (bounds) => {
+      if (!bounds) {
         geoFacet.clearBounds();
-      });
-
-      // Load existing bounds if any
-      if (geoFacet.hasActiveBounds.value) {
-        loadExistingBounds();
+      } else {
+        geoFacet.setBounds(bounds);
       }
+      isEditorOpen.value = false;
+      draftBounds.value = null;
     };
 
-    const loadExistingBounds = () => {
-      if (!map || !geoFacet.activeBounds.value) return;
-
-      const bounds = geoFacet.activeBounds.value.bounds;
-      const rectangle = L.rectangle([
-        [bounds.south, bounds.west],
-        [bounds.north, bounds.east]
-      ]);
-
-      drawnItems.addLayer(rectangle);
-      map.fitBounds(rectangle.getBounds());
+    const cancelDraftBounds = () => {
+      isEditorOpen.value = false;
+      draftBounds.value = null;
     };
-
-    const resetMap = () => {
-      if (map) {
-        map.setView([39.8283, -98.5795], 4);
-      }
-    };
-
-    // Watch for bounds changes from outside
-    watch(() => geoFacet.activeBounds.value, (newBounds) => {
-      if (!map) return;
-
-      // Clear existing drawings
-      drawnItems.clearLayers();
-
-      // Add new bounds if they exist
-      if (newBounds) {
-        loadExistingBounds();
-      }
-    });
-
-    // Cleanup
-    onUnmounted(() => {
-      if (map) {
-        map.remove();
-        map = null;
-      }
-    });
 
     return {
       ...geoFacet,
+      committedBounds,
+      draftBounds,
       isOpen,
+      isEditorOpen,
       toggleOpen,
-      resetMap
+      openEditor,
+      confirmDraftBounds,
+      cancelDraftBounds,
     };
-  }
+  },
 };
 </script>
 
@@ -229,13 +179,6 @@ export default {
   padding: 0.75rem;
 }
 
-.map-container {
-  height: 300px;
-  width: 100%;
-  border: 1px solid #ddd;
-  border-radius: 0.25rem;
-}
-
 .bounds-display {
   background: #f8f9fa;
   padding: 0.5rem;
@@ -245,6 +188,7 @@ export default {
 
 .geo-controls {
   display: flex;
+  justify-content: space-between;
   gap: 0.5rem;
 }
 </style>

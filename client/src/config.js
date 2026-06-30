@@ -22,7 +22,7 @@ const facetConfigFunction = () => {
   //fetch(process.env.BASE_URL + "config/config.yaml") // vuec
   const configfile = import.meta.env.VITE_APP_FACETS_CONFIG_FILE
     ? import.meta.env.VITE_APP_FACETS_CONFIG_FILE
-    : "config/config.yaml";
+    : "config/config_qlever_and_or.yaml";
   const configurl = import.meta.env.BASE_URL + configfile;
   fetch(configurl) //vite
     .then((response) => response.text())
