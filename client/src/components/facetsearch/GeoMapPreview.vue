@@ -20,8 +20,8 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-const DEFAULT_CENTER = [39.8283, -98.5795];
-const DEFAULT_ZOOM = 4;
+const DEFAULT_CENTER = [20, 0];
+const DEFAULT_ZOOM = 2;
 
 export default {
   name: 'GeoMapPreview',
