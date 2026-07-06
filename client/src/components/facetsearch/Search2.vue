@@ -72,13 +72,18 @@
         </b-col>
 
         <!-- Results -->
-        <b-col md="9" class="results">
+        <b-col ref="resultsCol" md="9" class="results">
           <ResultHeader2
             :current-count="results.length"
             :total-count="totalCount"
             :search-total-count="searchTotalCount"
             :filters="activeFiltersDisplay"
             :loading="isLoading"
+            :current-page="currentPage"
+            :current-page-size="pageSize"
+            :page-size-options="pageSizeOptions"
+            @page-change="handlePageChange"
+            @page-size-change="handlePageSizeChange"
           />
 
           <!-- Error Display -->
@@ -99,7 +104,7 @@
 </template>
 
 <script>
-import { onMounted, provide, watch, computed } from 'vue';
+import { onMounted, provide, watch, computed, ref, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { useSearch } from '@/composables/useSearch.js';
 import { useConfig } from '@/composables/useConfig.js';
@@ -125,6 +130,25 @@ export default {
     const { config, facets } = useConfig();
 
     const search = useSearch(config);
+    const resultsCol = ref(null);
+    const scrollResultsToTop = async () => {
+      await nextTick();
+      const el = resultsCol.value?.$el || resultsCol.value;
+      if (!el || typeof el.getBoundingClientRect !== 'function') return;
+      const top = window.scrollY + el.getBoundingClientRect().top - 12;
+      window.scrollTo({ top, behavior: 'smooth' });
+    };
+
+    const handlePageChange = (page) => {
+      search.setPage(page);
+      void scrollResultsToTop();
+    };
+
+    const handlePageSizeChange = (size) => {
+      search.setPageSize(size);
+      void scrollResultsToTop();
+    };
+
 
     const resourceTypeFacet = computed(() =>
       (facets.value || []).find((f) => f.field === 'resourceType')
@@ -155,6 +179,9 @@ export default {
       ...search,
       resourceTypeFacet,
       primaryFacets,
+      resultsCol,
+      handlePageChange,
+      handlePageSizeChange,
     };
   }
 };

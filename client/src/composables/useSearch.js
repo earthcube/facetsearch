@@ -66,6 +66,13 @@ export function useSearch(configOrRef) {
     set: (value) => filterStateManager.setResourceType(value)
   });
   const activeFilters = computed(() => state.activeFilters);
+  const currentPage = computed(() => state.page || 1);
+  const pageSize = computed(() => state.limit || Number(unref(configOrRef)?.LIMIT_DEFAULT || 10));
+  const pageSizeOptions = computed(() => {
+    const fromConfig = unref(configOrRef)?.LIMIT_OPTIONS;
+    if (Array.isArray(fromConfig) && fromConfig.length > 0) return fromConfig.map((v) => Number(v));
+    return [10, 50, 100];
+  });
   const hasActiveFilters = computed(() => filterStateManager.hasActiveFilters.value);
   const activeFiltersDisplay = computed(() => filterStateManager.getActiveFiltersForDisplay());
   const filterCount = computed(() => filterStateManager.getFilterCount());
@@ -98,6 +105,14 @@ export function useSearch(configOrRef) {
     await filterStateManager.executeQuery();
   };
 
+  const setPage = (page) => {
+    filterStateManager.setPage(page);
+  };
+
+  const setPageSize = (limit) => {
+    filterStateManager.setLimit(limit);
+  };
+
   const updateFromUrl = (urlParams) => {
     filterStateManager.updateFromUrl(urlParams);
   };
@@ -115,7 +130,7 @@ export function useSearch(configOrRef) {
   };
 
   watch(
-    [textQuery, resourceType, searchExactMatch, activeFilters],
+    [textQuery, resourceType, searchExactMatch, activeFilters, currentPage, pageSize],
     () => {
       updateUrl();
     },
@@ -132,6 +147,9 @@ export function useSearch(configOrRef) {
     searchExactMatch,
     resourceType,
     activeFilters,
+    currentPage,
+    pageSize,
+    pageSizeOptions,
     hasActiveFilters,
     activeFiltersDisplay,
     filterCount,
@@ -142,6 +160,8 @@ export function useSearch(configOrRef) {
     clearAllFilters,
     isFilterActive,
     executeSearch,
+    setPage,
+    setPageSize,
     updateFromUrl,
     getUrlParams,
     updateUrl,
