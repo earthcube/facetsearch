@@ -706,8 +706,8 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
   }
 
   buildGeoFilter(_field, values, _facetConfig) {
-    // Expecting { bounds: { north, south, east, west } }
-    const b = values?.bounds;
+    // Accept either { bounds: {...} } or direct { north, south, east, west }.
+    const b = this.normalizeGeoBounds(values?.bounds || values);
     if (!b) return '';
 // SEE WIKI https://github.com/earthcube/facetsearch/wiki/spatial
     // BIND("POLYGON((28 -145, 40 -145, 40 -116, 28 -116, 28 -145))"^^geo:wktLiteral as ?geom1)
@@ -730,6 +730,32 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
       ?geo schema:longitude ?lon .
       FILTER(?lat >= ${b.south} && ?lat <= ${b.north} && ?lon >= ${b.west} && ?lon <= ${b.east}) .
     `;
+  }
+
+  normalizeGeoBounds(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const north = Number(raw.north);
+    const south = Number(raw.south);
+    const east = Number(raw.east);
+    const west = Number(raw.west);
+    if (
+      !Number.isFinite(north) ||
+      !Number.isFinite(south) ||
+      !Number.isFinite(east) ||
+      !Number.isFinite(west)
+    ) {
+      return null;
+    }
+
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    let n = clamp(north, -90, 90);
+    let s = clamp(south, -90, 90);
+    let e = clamp(east, -180, 180);
+    let w = clamp(west, -180, 180);
+    if (n < s) [n, s] = [s, n];
+    if (e < w) [e, w] = [w, e];
+    if (n === s || e === w) return null;
+    return { north: n, south: s, east: e, west: w };
   }
 
   buildGenericFilter(field, values, facetConfig) {
