@@ -166,6 +166,64 @@ export class FilterStateManager {
     });
   }
 
+  isGeoFacetField(field) {
+    const facet = (this.config?.FACETS || []).find((f) => f.field === field);
+    return facet?.type === 'geo';
+  }
+
+  /**
+   * Canonical geo-bounds object used throughout state/query code:
+   * { north, south, east, west } with numeric finite values.
+   */
+  normalizeGeoBounds(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const north = Number(raw.north);
+    const south = Number(raw.south);
+    const east = Number(raw.east);
+    const west = Number(raw.west);
+    if (
+      !Number.isFinite(north) ||
+      !Number.isFinite(south) ||
+      !Number.isFinite(east) ||
+      !Number.isFinite(west)
+    ) {
+      return null;
+    }
+
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    let n = clamp(north, -90, 90);
+    let s = clamp(south, -90, 90);
+    let e = clamp(east, -180, 180);
+    let w = clamp(west, -180, 180);
+
+    // Guardrail for inverted bounds.
+    if (n < s) [n, s] = [s, n];
+    if (e < w) [e, w] = [w, e];
+
+    // Degenerate boxes are treated as empty.
+    if (n === s || e === w) return null;
+
+    return { north: n, south: s, east: e, west: w };
+  }
+
+  encodeGeoBoundsForUrl(bounds) {
+    const b = this.normalizeGeoBounds(bounds);
+    if (!b) return '';
+    return `${b.north},${b.south},${b.east},${b.west}`;
+  }
+
+  decodeGeoBoundsFromUrl(value) {
+    if (value === undefined || value === null) return null;
+    const parts = String(value).split(',').map((p) => p.trim());
+    if (parts.length !== 4) return null;
+    return this.normalizeGeoBounds({
+      north: parts[0],
+      south: parts[1],
+      east: parts[2],
+      west: parts[3],
+    });
+  }
+
   async executeQuery() {
     if (!this.shouldExecuteQuery()) {
       this.state.results = [];
@@ -289,6 +347,13 @@ export class FilterStateManager {
       if (reserved.has(key) || arr.length === 0) continue;
 
       const facet = (this.config.FACETS || []).find((f) => f.field === key);
+      if (facet?.type === 'geo') {
+        const decoded = this.decodeGeoBoundsFromUrl(arr[arr.length - 1]);
+        if (decoded) {
+          nextActiveFilters[key] = { bounds: decoded };
+        }
+        continue;
+      }
       const isRange =
         facet &&
         ['range', 'rangeyear', 'rangedepth'].includes(facet.type);
@@ -410,6 +475,12 @@ export class FilterStateManager {
     );
 
     Object.entries(this.state.activeFilters).forEach(([key, values]) => {
+      if (this.isGeoFacetField(key)) {
+        const encoded = this.encodeGeoBoundsForUrl(values?.bounds ?? values);
+        if (encoded) params.set(key, encoded);
+        return;
+      }
+
       if (Array.isArray(values)) {
         values.forEach((value) => params.append(key, value));
       } else if (values) {
@@ -423,6 +494,16 @@ export class FilterStateManager {
   getActiveFiltersForDisplay() {
     const display = {};
     Object.entries(this.state.activeFilters).forEach(([key, values]) => {
+      if (this.isGeoFacetField(key)) {
+        const b = this.normalizeGeoBounds(values?.bounds ?? values);
+        if (b) {
+          display[key] = [
+            `N:${b.north.toFixed(2)} S:${b.south.toFixed(2)} E:${b.east.toFixed(2)} W:${b.west.toFixed(2)}`,
+          ];
+        }
+        return;
+      }
+
       if (Array.isArray(values) && values.length > 0) {
         display[key] = values;
       } else if (values) {

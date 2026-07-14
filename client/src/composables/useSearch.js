@@ -402,6 +402,31 @@ export function useGeoFacet(facetConfig, searchComposable) {
   const { activeFilters, setFilter, clearFilter } = searchComposable;
   const field = facetConfig.field;
 
+  const normalizeBounds = (bounds) => {
+    if (!bounds || typeof bounds !== 'object') return null;
+    const north = Number(bounds.north);
+    const south = Number(bounds.south);
+    const east = Number(bounds.east);
+    const west = Number(bounds.west);
+    if (
+      !Number.isFinite(north) ||
+      !Number.isFinite(south) ||
+      !Number.isFinite(east) ||
+      !Number.isFinite(west)
+    ) {
+      return null;
+    }
+    const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+    let n = clamp(north, -90, 90);
+    let s = clamp(south, -90, 90);
+    let e = clamp(east, -180, 180);
+    let w = clamp(west, -180, 180);
+    if (n < s) [n, s] = [s, n];
+    if (e < w) [e, w] = [w, e];
+    if (n === s || e === w) return null;
+    return { north: n, south: s, east: e, west: w };
+  };
+
   const activeBounds = computed(() => {
     return activeFilters.value[field] || null;
   });
@@ -411,10 +436,11 @@ export function useGeoFacet(facetConfig, searchComposable) {
   });
 
   const setBounds = (bounds) => {
-    if (!bounds) {
+    const normalized = normalizeBounds(bounds);
+    if (!normalized) {
       clearFilter(field);
     } else {
-      setFilter(field, { bounds });
+      setFilter(field, { bounds: normalized });
     }
   };
 
