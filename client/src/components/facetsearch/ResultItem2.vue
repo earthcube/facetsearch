@@ -217,12 +217,8 @@ export default {
 article.result-item-master {
   cursor: pointer;
   margin-top: 0.5em;
-
-  border: {
-    right: 0px;
-    left: 0px;
-  }
-  box-shadow: 0 0 10px 1px black;
+  border: 2px solid $gray-400;
+  box-shadow: none;
 
   &:hover {
     background: {
