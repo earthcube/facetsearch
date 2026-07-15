@@ -177,6 +177,9 @@ export default {
 
 .slider-container {
   margin: 1rem 0;
+  --slider-connect-bg: #18598b;
+  --slider-tooltip-bg: #18598b;
+  --slider-handle-ring-color: rgba(24, 89, 139, 0.188);
 }
 
 .range-labels {
