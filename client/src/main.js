@@ -51,7 +51,7 @@ export const bus = createApp({});
 const configfile =
   import.meta.env.VITE_APP_FACETS_CONFIG_FILE ||
   import.meta.env.VITE_FACETS_CONFIG_FILE ||
-  "config/config_qlever_and_or.yaml";
+  "config/config.yaml";
 const store = await createStore(configfile);
 app.use(store);
 await store.dispatch("fetchTenantData");
