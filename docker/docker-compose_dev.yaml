@@ -52,7 +52,8 @@ services:
       - NODE_ENV=production
       - DOMAIN=http://localhost:8080/
       -  URIVERSION=${URIVERSION:-v2}
-      - VITE_APP_FACETS_CONFIG_FILE=${VITE_APP_FACETS_CONFIG_FILE:-config/config.yaml}
+      # VITE_APP_* vars are baked in at image build time; setting them here has no effect.
+      # The served config is controlled by the facets_config_named mount below.
       - VITE_APP_MAPBOX_API_KEY=${VITE_APP_MAPBOX_API_KEY}
       - VITE_APP_TITLE="LOCAL GEOCODES"
     ports:
