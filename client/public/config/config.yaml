@@ -118,16 +118,16 @@ FACETS:
     sort: acs
     open: true
     type: rangedepth
-  - field: datep
-    title: Year Published Range
-    sort: acs
-    open: true
-    type: rangeyear
   - field: spatialCoverage
     title: Spatial Filter
     sort: acs
     open: true
     type: geo
+  - field: datep
+    title: Year Published Range
+    sort: acs
+    open: true
+    type: rangeyear
 #  - field: variableMeasured
 #    title: Variables Measured
 #    sort: acs

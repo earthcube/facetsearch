@@ -113,6 +113,11 @@ FACETS:
     sort: acs
     open: true
     type: rangeyear
+  - field: spatialCoverage
+    title: Spatial Filter
+    sort: acs
+    open: true
+    type: geo
   - field: minDepth
     range_fields:
      - minDepth
@@ -126,11 +131,6 @@ FACETS:
     sort: acs
     open: true
     type: rangeyear
-  - field: spatialCoverage
-    title: Spatial Filter
-    sort: acs
-    open: true
-    type: geo
 ORDER_BY_DEFAULT: score
 ORDER_BY_OPTIONS:
   - field: name
