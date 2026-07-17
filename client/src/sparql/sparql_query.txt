@@ -28,7 +28,13 @@ SELECT distinct ?subj ?pubname (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", "
             OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name|sschema:sdPublisher ?place_name .}
                OPTIONAL {?subj schema:spatialCoverage/schema:geo/schema:latitude|sschema:spatialCoverage/sschema:geo/schema:latitude ?lat .}
                  OPTIONAL {?subj schema:spatialCoverage/schema:geo/schema:longitude|sschema:spatialCoverage/sschema:geo/schema:longitude ?lon .}
-                 OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
+                 OPTIONAL {
+                   { ?subj schema:keywords|sschema:keywords ?kwu . 
+                     FILTER (isLiteral(?kwu)) }
+                   UNION
+                   { ?subj schema:keywords|sschema:keywords ?kwTerm . 
+                     ?kwTerm schema:name|sschema:name ?kwu . }
+                 }
             BIND ( IF ( BOUND(?date_p), ?date_p, "No datePublished") as ?datep ) .
             BIND ( IF ( BOUND(?pub_name), ?pub_name, "No Publisher") as ?pubname ) .
             BIND ( IF ( BOUND(?place_name), ?place_name, "No spatialCoverage") as ?placename ) .

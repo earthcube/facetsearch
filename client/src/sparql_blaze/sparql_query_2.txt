@@ -46,7 +46,13 @@ SELECT distinct ?subj ?g ?resourceType ?name ?description  ?pubname
             OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|sschema:sdPublisher|sschema:provider/schema:name ?pubname .}
             OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name ?placename .}
 
-            OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}
+            OPTIONAL {
+              { ?subj schema:keywords|sschema:keywords ?kwu . 
+                FILTER (isLiteral(?kwu)) }
+              UNION
+              { ?subj schema:keywords|sschema:keywords ?kwTerm . 
+                ?kwTerm schema:name|sschema:name ?kwu . }
+            }
 
         }
         GROUP BY
