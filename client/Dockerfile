@@ -1,27 +1,21 @@
-FROM node:lts-alpine AS builder
+FROM node:22
+
+RUN npm install -g http-server
 
 # Create app directory
-WORKDIR /app
+WORKDIR /usr/src/app
 RUN corepack enable
 
-# Install app dependencies from the yarn lockfile (do not use npm install —
-# vue-router^4.2.5 resolves to 4.6.x under npm and requires vue^3.5).
+# Copy manifests + source before yarn install so COPY does not overwrite PnP files
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY . .
 
-# Clean install to fix rollup native dependency issues
-RUN rm -rf node_modules && yarn install
+# Install from yarn.lock (npm install breaks: vue-router@4.6 needs vue@^3.5)
+RUN yarn install
+# If you are building your code for production
+# RUN npm ci --only=production
+
 RUN yarn build
 
-FROM node:lts-alpine
-RUN corepack enable
-# copy built files from builder image to new clean node image without vite
-COPY --from=builder /app /app
-WORKDIR /app
-
-# Switch to the non-root user before installing global dependencies
-# This ensures the http-server executable is in the user's PATH
-USER node
-
 EXPOSE 8080
-CMD ["yarn", "dlx", "http-server", "dist"]
+CMD [ "http-server", "/usr/src/app/dist" ]
