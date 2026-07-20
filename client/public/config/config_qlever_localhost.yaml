@@ -18,7 +18,7 @@ JSONLD_PROXY: "http://localhost:3000/${o}"
 # oauth issues. need to add another auth app for additional 'proxies'
 # This is the one that will work: SPARQL_NB: https://geocodes.earthcube.org/notebook/mkQ?q=${q}
 SPARQL_NB: http://localhost:3000/notebook/mkQ?q=${q}
-SPARQL_YASGUI: https://sparqlui.geocodes.earthcube.org/?
+SPARQL_YASGUI: https://qlever-ui.geocodes-aws-dev.earthcube.org/facetsearch?
 
 ## ECRR need to use fuseki source, for now.
 ECRR_TRIPLESTORE_URL: 	https://qlever.geocodes-aws-dev.earthcube.org/graphspace/ecrr

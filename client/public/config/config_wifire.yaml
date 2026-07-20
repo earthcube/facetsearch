@@ -23,7 +23,7 @@ SPARQL_TOOLS_DOWNLOAD: sparql_gettools_download.txt
 SPARQL_RELATED_DATA: sparql_relateddatafilename.txt
 JSONLD_PROXY: https://geocodes.wifire-data.sdsc.edu/ec/api/${o}
 SPARQL_NB: https://geocodes.geocodes-1.earthcube.org/notebook/mkQ?q=${q}
-SPARQL_YASGUI: https://geocodes.geocodes-1.earthcube.org/sparqlgui?
+SPARQL_YASGUI: https://qlever-ui.geocodes-aws-dev.earthcube.org/wifire?
 COLLECTION_FACETS:
   - field: unassigned
     title: All Items
