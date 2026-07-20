@@ -21,12 +21,14 @@
         :result="result"
         :index="index"
         :active-filters="activeFilters"
+        :connected-tools-map="connectedToolsMap"
       />
     </div>
   </div>
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 import ResultItem2 from './ResultItem2.vue';
 
 export default {
@@ -48,6 +50,43 @@ export default {
     activeFilters: {
       type: Object,
       default: () => ({})
+    }
+  },
+
+  data() {
+    return {
+      // graph IRI -> boolean; undefined while the batch query is in flight
+      connectedToolsMap: {},
+      toolsRequestId: 0
+    };
+  },
+
+  watch: {
+    results: {
+      immediate: true,
+      handler(newResults) {
+        this.fetchConnectedTools(newResults);
+      }
+    }
+  },
+
+  methods: {
+    ...mapActions(['hasConnectedToolsBatch']),
+    async fetchConnectedTools(results) {
+      const requestId = ++this.toolsRequestId;
+      this.connectedToolsMap = {};
+      const graphs = [...new Set((results || []).map((r) => r.g).filter(Boolean))];
+      if (graphs.length === 0) return;
+      try {
+        const map = await this.hasConnectedToolsBatch(graphs);
+        if (requestId !== this.toolsRequestId) return; // results changed mid-flight
+        this.connectedToolsMap = map;
+      } catch (err) {
+        console.info('fetchConnectedTools:' + err);
+        if (requestId !== this.toolsRequestId) return;
+        // stop the per-card spinners; badge simply not shown
+        this.connectedToolsMap = Object.fromEntries(graphs.map((g) => [g, false]));
+      }
     }
   }
 };
