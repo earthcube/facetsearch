@@ -437,6 +437,9 @@ ${inner}
         case 'text':
           fragments += this.buildTextFilter(field, Array.isArray(values) ? values : [values], facetConfig);
           break;
+        case 'variablemeasured':
+          fragments += this.buildVariableMeasuredFilter(field, Array.isArray(values) ? values : [values], facetConfig);
+          break;
         case 'range':
         case 'rangeyear':
         case 'rangedepth':
@@ -756,6 +759,38 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
     if (e < w) [e, w] = [w, e];
     if (n === s || e === w) return null;
     return { north: n, south: s, east: e, west: w };
+  }
+
+  /**
+   * Filter by schema:variableMeasured / PropertyValue names using CONTAINS.
+   * The issue SPARQL pattern: ?subj schema:variableMeasured ?vm . ?vm a schema:PropertyValue .
+   *   ?vm schema:name ?propertyName . FILTER(CONTAINS(LCASE(?propertyName), LCASE(value)))
+   */
+  buildVariableMeasuredFilter(field, values, _facetConfig) {
+    if (!Array.isArray(values) || values.length === 0) return '';
+    const nodeVar = `${field}_vm`;
+    const typeVar = `${field}_pvType`;
+    const nameVar = `${field}_propName`;
+    const containsExprs = values
+      .map(v => `CONTAINS(LCASE(STR(?${nameVar})), LCASE("${this.escapeValue(v)}"))`)
+      .join(' || ');
+    return `  ?subj schema:variableMeasured|sschema:variableMeasured ?${nodeVar} .
+  VALUES ?${typeVar} { schema:PropertyValue sschema:PropertyValue }
+  ?${nodeVar} a ?${typeVar} .
+  ?${nodeVar} schema:name|sschema:name ?${nameVar} .
+  FILTER(${containsExprs}) .\n`;
+  }
+
+  /**
+   * Triple pattern that binds ?value to distinct PropertyValue names for facet option lists.
+   */
+  buildVariableMeasuredPropertyPattern(field) {
+    const nodeVar = `${field}_vm_opt`;
+    const typeVar = `${field}_pvType_opt`;
+    return `  ?subj schema:variableMeasured|sschema:variableMeasured ?${nodeVar} .
+  VALUES ?${typeVar} { schema:PropertyValue sschema:PropertyValue }
+  ?${nodeVar} a ?${typeVar} .
+  ?${nodeVar} schema:name|sschema:name ?value .\n`;
   }
 
   buildGenericFilter(field, values, facetConfig) {
