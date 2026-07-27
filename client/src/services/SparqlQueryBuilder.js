@@ -763,8 +763,9 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
 
   /**
    * Filter by schema:variableMeasured / PropertyValue names using CONTAINS.
-   * The issue SPARQL pattern: ?subj schema:variableMeasured ?vm . ?vm a schema:PropertyValue .
+   * Issued SPARQL pattern: ?subj schema:variableMeasured ?vm . ?vm a schema:PropertyValue .
    *   ?vm schema:name ?propertyName . FILTER(CONTAINS(LCASE(?propertyName), LCASE(value)))
+   * Values are sanitized via escapeValue (backslash and double-quote escaping) before embedding.
    */
   buildVariableMeasuredFilter(field, values, _facetConfig) {
     if (!Array.isArray(values) || values.length === 0) return '';
