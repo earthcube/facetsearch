@@ -725,9 +725,9 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
 
     //there can be 1000 points.  use the Inserted WKT method above
         return `  ?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCov .
-      ?spatialCov schema:geo|sschema:geo ?geoNode .
-      ?geoNode schema:latitude|sschema:latitude ?lat .
-      ?geoNode schema:longitude|sschema:longitude ?lon .
+      ?spatialCov schema:geo|sschema:geo ?geo .
+      ?geo schema:latitude|sschema:latitude ?lat .
+      ?geo schema:longitude|sschema:longitude ?lon .
       FILTER(?lat >= ${b.south} && ?lat <= ${b.north} && ?lon >= ${b.west} && ?lon <= ${b.east}) .
     `;
   }
