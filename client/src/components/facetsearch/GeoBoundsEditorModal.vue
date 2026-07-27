@@ -52,6 +52,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw';
 import 'leaflet-draw/dist/leaflet.draw.css';
+import { addOceanBasemap } from '@/utils/oceanBasemap.js';
 
 const DEFAULT_CENTER = [20, 0];
 const DEFAULT_ZOOM = 2;
@@ -149,9 +150,7 @@ export default {
       if (!mapElement.value || map) return;
 
       map = L.map(mapElement.value).setView(DEFAULT_CENTER, DEFAULT_ZOOM);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-      }).addTo(map);
+      addOceanBasemap(L, map);
 
       drawnItems = new L.FeatureGroup();
       map.addLayer(drawnItems);
