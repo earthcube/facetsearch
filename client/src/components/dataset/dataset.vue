@@ -127,7 +127,7 @@
                   </div>
 
                   <div v-if="mapping.s_datePublished" class="metadata">
-                    <div class="label">Date</div>
+                    <div class="label">Publication Date</div>
                     <div class="value">{{ mapping.s_datePublished }}</div>
                   </div>
 
@@ -151,10 +151,28 @@
                     <div class="value" v-html="formatCitation(mapping)"></div>
                   </div>
 
+                  <div v-if="mapping.s_providers?.length" class="metadata">
+                    <div class="label">Providers</div>
+                    <div class="value">
+                      <div v-for="(p, i) in mapping.s_providers" :key="i">
+                        <a :href="p.url" target="_blank" rel="noopener">{{ p.name }}</a>
+                      </div>
+                    </div>
+                  </div>
+
                   <div v-if="mapping.s_keywords?.length" class="metadata">
                     <div class="label">Keywords</div>
                     <div class="value">
-                      {{ mapping.s_keywords.join(", ") }}
+                      <span v-for="(kw, idx) in mapping.s_keywords" :key="idx">
+                        <template v-if="typeof kw === 'object' && kw !== null">
+                          <a v-if="kw.url" :href="kw.url" target="_blank" rel="noopener" class="keyword-link">
+                            {{ kw.name }}
+                          </a>
+                          <span v-else>{{ kw.name }}</span>
+                        </template>
+                        <span v-else>{{ kw }}</span>
+                        <span v-if="idx < mapping.s_keywords.length - 1">, </span>
+                      </span>
                     </div>
                   </div>
 
@@ -410,7 +428,6 @@ export default {
       raw_json: "",
       mappings: [],
       geolink: "",
-
       collapsedIndices: [], // keeps track of collapsed panels
     };
   },
@@ -624,7 +641,32 @@ export default {
       }
       this.name = jp["name"];
       this.description = jp["description"];
-      this.keywords = jp["keywords"];
+      
+      // Handle keywords - can be strings or DefinedTerm objects
+      const rawKeywords = jp["keywords"];
+      if (rawKeywords) {
+        const arr = Array.isArray(rawKeywords) ? rawKeywords : [rawKeywords];
+        this.keywords = arr.map((kw) => {
+          // If it's a string, return as is
+          if (typeof kw === "string") {
+            return kw;
+          }
+          
+          // If it's a DefinedTerm object, extract name
+          if (typeof kw === "object" && kw !== null) {
+            const name = 
+              (hasSchemaProperty("name", kw) ? schemaItem("name", kw) : "") ||
+              kw.name ||
+              "";
+            return name || String(kw);
+          }
+          
+          return String(kw);
+        }).filter(Boolean);
+      } else {
+        this.keywords = [];
+      }
+      
       this.vocab = jp["@vocab"];
       this.geolink = jp["geolink"];
 
@@ -730,12 +772,104 @@ export default {
             mapping.has_citation = true;
           }
 
-          const rawKw = schemaItem("keywords", dataset);
-          mapping.s_keywords = Array.isArray(rawKw)
-            ? rawKw
-            : rawKw != null && rawKw !== ""
-              ? [String(rawKw)]
-              : [];
+          // Keywords
+          if (hasSchemaProperty("keywords", dataset)) {
+            const c = schemaItem("keywords", dataset);
+            const arr = Array.isArray(c) ? c : [c];
+            
+            // Handle both string keywords and DefinedTerm objects
+            mapping.s_keywords = arr.map((kw) => {
+              // If it's a string, return as is
+              if (typeof kw === "string") {
+                return kw;
+              }
+              
+              // If it's a DefinedTerm object, extract name and optionally URL
+              if (typeof kw === "object" && kw !== null) {
+                // Try multiple ways to get the name
+                let name = "";
+                if (hasSchemaProperty("name", kw)) {
+                  name = schemaItem("name", kw);
+                } else if (kw.name) {
+                  name = kw.name;
+                } else if (typeof kw === "object" && "@value" in kw) {
+                  // Handle JSON-LD value objects
+                  name = kw["@value"];
+                }
+                
+                // Try multiple ways to get the URL
+                let url = "";
+                if (hasSchemaProperty("url", kw)) {
+                  url = schemaItem("url", kw);
+                } else if (kw.url) {
+                  url = kw.url;
+                } else if (kw["@id"]) {
+                  url = kw["@id"];
+                }
+                
+                // Return object with name and url if available
+                if (name) {
+                  return { name: String(name), url: url || null };
+                } else if (url) {
+                  // If we have a URL but no name, use the URL as the name
+                  return { name: url, url: url };
+                }
+              }
+              
+              // Fallback: try to stringify if it's something else
+              // This handles cases where the object doesn't have expected structure
+              try {
+                return String(kw);
+              } catch (e) {
+                return "[Invalid Keyword]";
+              }
+            }).filter((kw) => {
+              // Filter out invalid keywords
+              if (!kw || kw === "[Invalid Keyword]") return false;
+              // Keep strings
+              if (typeof kw === "string") return true;
+              // Keep objects that have a name property
+              if (typeof kw === "object" && kw !== null && kw.name) return true;
+              return false;
+            });
+          }
+
+          // Providers: keep only {name, url} (support provider/providers; string or object)
+          if (hasSchemaProperty("providers", dataset) || hasSchemaProperty("provider", dataset)) {
+            const raw = hasSchemaProperty("providers", dataset)
+              ? schemaItem("providers", dataset)
+              : schemaItem("provider", dataset);
+
+            const arr = Array.isArray(raw) ? raw : [raw];
+
+            const toProvider = (p) => {
+              if (!p) return null;
+
+              // if it ever comes in as a string, we can't reliably split name/url
+              if (typeof p === "string") {
+                return { name: p, url: p }; // best-effort: link to itself
+              }
+
+              const name =
+                (hasSchemaProperty("name", p) ? schemaItem("name", p) : "") ||
+                (hasSchemaProperty("legalName", p) ? schemaItem("legalName", p) : "") ||
+                p.name ||
+                p.legalName ||
+                "";
+
+              const url =
+                (hasSchemaProperty("url", p) ? schemaItem("url", p) : "") ||
+                p.url ||
+                p["@id"] ||
+                "";
+
+              if (!name && !url) return null;
+              return { name: name || url, url: url || name };
+            };
+
+            mapping.s_providers = arr.map(toProvider).filter(Boolean);
+          }
+
           mapping.s_landingpage = schemaItem("description", dataset);
           mapping.updated = schemaItem("updated", dataset);
           mapping.start_datetime = formatDateToYYYYMMDD(
@@ -758,15 +892,16 @@ export default {
 
           const variableMeasured = schemaItem("variableMeasured", dataset);
           if (variableMeasured) {
-            const vmArr = Array.isArray(variableMeasured)
-              ? variableMeasured
-              : [variableMeasured];
-            mapping.s_variableMeasuredNames = vmArr.map((item) =>
-              _.truncate(schemaItem("name", item), {
-                length: 80,
-                omission: "***",
-              })
-            );
+            const arr = Array.isArray(variableMeasured) ? variableMeasured : [variableMeasured];
+            mapping.s_variableMeasuredNames = arr.map((item) => {
+              // Handle both objects and strings
+              if (typeof item === "string") {
+                return _.truncate(item, { length: 80, omission: "***" });
+              }
+              // Extract name from object (DefinedTerm, PropertyValue, etc.)
+              const name = hasSchemaProperty("name", item) ? schemaItem("name", item) : (item.name || String(item));
+              return _.truncate(name, { length: 80, omission: "***" });
+            }).filter(Boolean);
           }
 
           if (
