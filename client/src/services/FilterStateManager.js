@@ -196,9 +196,10 @@ export class FilterStateManager {
     let e = clamp(east, -180, 180);
     let w = clamp(west, -180, 180);
 
-    // Guardrail for inverted bounds.
+    // Guardrail for inverted latitude.
     if (n < s) [n, s] = [s, n];
-    if (e < w) [e, w] = [w, e];
+    // Do NOT swap east/west: when west > east the box crosses the dateline
+    // and that information must be preserved for correct SPARQL generation.
 
     // Degenerate boxes are treated as empty.
     if (n === s || e === w) return null;
