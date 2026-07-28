@@ -41,6 +41,16 @@ const VALID_FACET_TYPES = ['text', 'range', 'rangeyear', 'rangedepth', 'geo'];
 const VALID_COLLECTION_FACET_TYPES = ['unassigned', 'all'];
 
 /**
+ * Test whether a value is a positive finite number.
+ *
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+function isPositiveFiniteNumber(value) {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0;
+}
+
+/**
  * Test whether a string is a parseable absolute HTTP/HTTPS URL.
  * Template placeholders like ${o} are stripped before parsing so that
  * URLs such as "https://example.com/api/${o}" are still accepted.
@@ -154,7 +164,7 @@ export function validateConfig(config) {
       if (value !== undefined && value !== null && !isValidUrl(value)) {
         warnings.push(
           `Field "${field}" has value "${value}" which does not appear to be a valid HTTP/HTTPS URL ` +
-            `(template placeholders like \${o} are allowed).`
+          '(template placeholders like ${o} are allowed).'
         );
       }
     }
@@ -173,7 +183,7 @@ export function validateConfig(config) {
 
   // --- LIMIT_DEFAULT ---
   if (config.LIMIT_DEFAULT !== undefined) {
-    if (typeof config.LIMIT_DEFAULT !== 'number' || !Number.isFinite(config.LIMIT_DEFAULT) || config.LIMIT_DEFAULT <= 0) {
+    if (!isPositiveFiniteNumber(config.LIMIT_DEFAULT)) {
       warnings.push(
         `Field "LIMIT_DEFAULT" should be a positive number (got "${config.LIMIT_DEFAULT}").`
       );
