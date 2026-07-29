@@ -852,18 +852,20 @@ export const store = _createStore({
         ecrr_graph: facetsConfig.ECRR_GRAPH,
       });
 
+      // POST (not GET): the VALUES clause holds one IRI per visible result,
+      // so at large page sizes (1000/5000) the query can exceed URL length limits.
+      const batchParams = new URLSearchParams();
+      batchParams.append("query", batchQuery);
+      batchParams.append("timeout", facetsConfig.BLAZEGRAPH_TIMEOUT || 60);
+      batchParams.append("queryLn", "sparql");
       const config = {
         url: facetsConfig.TRIPLESTORE_URL,
-        method: "get",
+        method: "post",
         headers: {
           Accept: "application/sparql-results+json",
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        params: {
-          query: batchQuery,
-          timeout: facetsConfig.BLAZEGRAPH_TIMEOUT || 60,
-          queryLn: "sparql",
-        },
+        data: batchParams,
       };
       console.log(
         "hasConnectedToolsBatch:select: " + uncached.length + " graphs"
