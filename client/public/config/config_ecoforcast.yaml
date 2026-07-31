@@ -110,7 +110,7 @@ FACETS:
     title: Variables Measured
     sort: acs
     open: true
-    type: variablemeasured
+    type: propertyvalue
 ORDER_BY_DEFAULT: score
 ORDER_BY_OPTIONS:
   - field: name

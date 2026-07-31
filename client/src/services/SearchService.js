@@ -293,8 +293,8 @@ WHERE {
       resourceType,
       filtersCopy
     );
-    if (facetConfig.type === 'variablemeasured') {
-      q += this.queryBuilder.buildVariableMeasuredPropertyPattern(field);
+    if (facetConfig.type === 'variablemeasured' || facetConfig.type === 'propertyvalue') {
+      q += this.queryBuilder.buildPropertyValueNamePattern(field, facetConfig);
     } else {
       const sparqlProperty =
         facetConfig.sparql_property ||

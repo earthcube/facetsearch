@@ -438,7 +438,8 @@ ${inner}
           fragments += this.buildTextFilter(field, Array.isArray(values) ? values : [values], facetConfig);
           break;
         case 'variablemeasured':
-          fragments += this.buildVariableMeasuredFilter(field, Array.isArray(values) ? values : [values], facetConfig);
+        case 'propertyvalue':
+          fragments += this.buildPropertyValueNameFilter(field, Array.isArray(values) ? values : [values], facetConfig);
           break;
         case 'range':
         case 'rangeyear':
@@ -762,20 +763,27 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
   }
 
   /**
-   * Filter by schema:variableMeasured / PropertyValue names using CONTAINS.
-   * Issued SPARQL pattern: ?subj schema:variableMeasured ?vm . ?vm a schema:PropertyValue .
-   *   ?vm schema:name ?propertyName . FILTER(CONTAINS(LCASE(?propertyName), LCASE(value)))
-   * Values are sanitized via escapeValue (backslash and double-quote escaping) before embedding.
+   * Generic filter for any schema property that points to a PropertyValue node,
+   * matching on schema:name using CONTAINS (case-insensitive).
+   *
+   * The SPARQL property path is taken from facetConfig.sparql_property; it defaults
+   * to schema:variableMeasured so that "variableMeasured" facets work out of the box.
+   * Other PropertyValue relationships (e.g. schema:measurementTechnique) can be
+   * supported by adding a new facet entry in config with the desired sparql_property.
+   *
+   * Values are sanitized via escapeValue (backslash and double-quote escaping).
    */
-  buildVariableMeasuredFilter(field, values, _facetConfig) {
+  buildPropertyValueNameFilter(field, values, facetConfig) {
     if (!Array.isArray(values) || values.length === 0) return '';
-    const nodeVar = `${field}_vm`;
+    const pvProperty =
+      facetConfig?.sparql_property || 'schema:variableMeasured|sschema:variableMeasured';
+    const nodeVar = `${field}_pv`;
     const typeVar = `${field}_pvType`;
-    const nameVar = `${field}_propName`;
+    const nameVar = `${field}_pvName`;
     const containsExprs = values
       .map(v => `CONTAINS(LCASE(STR(?${nameVar})), LCASE("${this.escapeValue(v)}"))`)
       .join(' || ');
-    return `  ?subj schema:variableMeasured|sschema:variableMeasured ?${nodeVar} .
+    return `  ?subj ${pvProperty} ?${nodeVar} .
   VALUES ?${typeVar} { schema:PropertyValue sschema:PropertyValue }
   ?${nodeVar} a ?${typeVar} .
   ?${nodeVar} schema:name|sschema:name ?${nameVar} .
@@ -784,11 +792,14 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
 
   /**
    * Triple pattern that binds ?value to distinct PropertyValue names for facet option lists.
+   * Uses facetConfig.sparql_property (defaults to schema:variableMeasured).
    */
-  buildVariableMeasuredPropertyPattern(field) {
-    const nodeVar = `${field}_vm_opt`;
+  buildPropertyValueNamePattern(field, facetConfig) {
+    const pvProperty =
+      facetConfig?.sparql_property || 'schema:variableMeasured|sschema:variableMeasured';
+    const nodeVar = `${field}_pv_opt`;
     const typeVar = `${field}_pvType_opt`;
-    return `  ?subj schema:variableMeasured|sschema:variableMeasured ?${nodeVar} .
+    return `  ?subj ${pvProperty} ?${nodeVar} .
   VALUES ?${typeVar} { schema:PropertyValue sschema:PropertyValue }
   ?${nodeVar} a ?${typeVar} .
   ?${nodeVar} schema:name|sschema:name ?value .\n`;
