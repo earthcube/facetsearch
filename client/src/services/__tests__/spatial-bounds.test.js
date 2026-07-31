@@ -59,6 +59,10 @@ test('SparqlQueryBuilder generates geo filter with normalized bounds', () => {
 
   assert.match(fragment, /\?lat >= 39 && \?lat <= 41/);
   assert.match(fragment, /\?lon >= -88 && \?lon <= -86/);
+  assert.ok(fragment.includes('schema:spatialCoverage|sschema:spatialCoverage'));
+  assert.ok(fragment.includes('schema:geo|sschema:geo'));
+  assert.ok(fragment.includes('schema:latitude|sschema:latitude'));
+  assert.ok(fragment.includes('schema:longitude|sschema:longitude'));
 });
 
 test('SparqlQueryBuilder skips degenerate geo filter payloads', () => {

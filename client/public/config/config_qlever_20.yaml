@@ -30,6 +30,7 @@ THROUGHPUTDB_URL: https://throughputdb.com/api/ccdrs/annotations
 QUERY_ENGINE: qlever
 SPARQL_QUERY: sparql_query.rq
 SPARQL_HASTOOLS: sparql_hastools.rq
+SPARQL_HASTOOLS_BATCH: sparql_hastools_batch.rq
 SPARQL_TOOLS_WEBSERVICE: sparql_gettools_webservice.rq
 SPARQL_TOOLS_DOWNLOAD: sparql_gettools_download.rq
 SPARQL_RELATED_DATA: sparql_relateddatafilename.rq

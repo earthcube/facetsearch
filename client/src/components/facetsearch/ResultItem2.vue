@@ -64,7 +64,6 @@
 
 <script>
 import _ from "lodash";
-import { mapActions, mapGetters } from "vuex";
 import localforage from "localforage";
 import { normalizeDatasetGraphIri } from "@/utils/datasetIdentifiers.js";
 
@@ -84,15 +83,26 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    /** From Results2 — graph IRI -> boolean, filled by one batched query per page. */
+    connectedToolsMap: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   data() {
     return {
-      connectedTools: undefined,
       collectionNames: undefined,
     };
   },
   computed: {
-    ...mapGetters(["getConnectedTool"]),
+    // undefined (spinner) until Results2's batched query fills the map;
+    // do not read the store's LRU cache here — lru-cache get() mutates
+    // recency state, which loops under Vue reactivity
+    connectedTools() {
+      const gg = this.result.g;
+      if (!gg) return false;
+      return this.connectedToolsMap[gg];
+    },
     resourceTypeLower() {
       return String(this.result.resourceType || "data").toLowerCase();
     },
@@ -110,11 +120,9 @@ export default {
     },
   },
   mounted() {
-    this.hasTool();
     this.inCollection();
   },
   methods: {
-    ...mapActions(["hasConnectedTools"]),
     storageKey() {
       return this.result.g || this.result.subj || "";
     },
@@ -185,27 +193,6 @@ export default {
         autoHideDelay: 5000,
         appendToast: false,
       });
-    },
-    hasTool() {
-      const self = this;
-      const gg = self.result.g;
-      if (!gg) {
-        self.connectedTools = false;
-        return;
-      }
-      if (self.getConnectedTool(gg)) {
-        self.connectedTools = self.getConnectedTool(gg);
-      } else {
-        self
-          .hasConnectedTools(gg)
-          .then(function (o) {
-            self.connectedTools = o;
-          })
-          .catch((err) => {
-            self.connectedTools = false;
-            console.info(err);
-          });
-      }
     },
   },
 };

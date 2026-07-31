@@ -92,6 +92,7 @@ class QueryService {
     const commonQueries = [
       "SPARQL_QUERY",
       "SPARQL_HASTOOLS",
+      "SPARQL_HASTOOLS_BATCH",
       "SPARQL_TOOLS_WEBSERVICE",
       "SPARQL_TOOLS_DOWNLOAD",
       "SPARQL_RELATED_DATA",

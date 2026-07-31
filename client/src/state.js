@@ -803,6 +803,84 @@ export const store = _createStore({
         return hasTool;
       });
     },
+
+    /* Answer the "connected tools" badge for a whole page of results with a
+     * single SELECT (SPARQL_HASTOOLS_BATCH) instead of one ASK per card.
+     * payload: array of graph IRIs. Returns { graphIri: boolean }. */
+    hasConnectedToolsBatch: async function (context, payload) {
+      const graphs = _.uniq((payload || []).filter(Boolean));
+      const resultMap = {};
+      const uncached = [];
+      for (const g of graphs) {
+        if (context.getters.hasConnectedTool(g)) {
+          resultMap[g] = context.getters.getConnectedTool(g);
+        } else {
+          uncached.push(g);
+        }
+      }
+      if (uncached.length === 0) {
+        return resultMap;
+      }
+
+      const facetsConfig = this.state.FacetsConfig;
+      if (!facetsConfig?.SPARQL_HASTOOLS_BATCH) {
+        // batch query not configured; fall back to one ASK per graph
+        await Promise.all(
+          uncached.map((g) =>
+            context
+              .dispatch("hasConnectedTools", g)
+              .then((hasTool) => {
+                resultMap[g] = hasTool;
+              })
+              .catch((err) => {
+                console.info("hasConnectedToolsBatch:fallback:" + err);
+                resultMap[g] = false;
+              })
+          )
+        );
+        return resultMap;
+      }
+
+      const queryText = await queryService.loadQuery(
+        "SPARQL_HASTOOLS_BATCH",
+        facetsConfig
+      );
+      const resultsTemplate = _.template(queryText, esTemplateOptions);
+      const batchQuery = resultsTemplate({
+        gvalues: uncached.map((g) => "<" + g + ">").join(" "),
+        ecrr_service: facetsConfig.ECRR_TRIPLESTORE_URL,
+        ecrr_graph: facetsConfig.ECRR_GRAPH,
+      });
+
+      // POST (not GET): the VALUES clause holds one IRI per visible result,
+      // so at large page sizes (1000/5000) the query can exceed URL length limits.
+      const batchParams = new URLSearchParams();
+      batchParams.append("query", batchQuery);
+      batchParams.append("timeout", facetsConfig.BLAZEGRAPH_TIMEOUT || 60);
+      batchParams.append("queryLn", "sparql");
+      const config = {
+        url: facetsConfig.TRIPLESTORE_URL,
+        method: "post",
+        headers: {
+          Accept: "application/sparql-results+json",
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        data: batchParams,
+      };
+      console.log(
+        "hasConnectedToolsBatch:select: " + uncached.length + " graphs"
+      );
+      const response = await axios.request(config);
+      const withTools = new Set(
+        (response.data?.results?.bindings || []).map((b) => b.g.value)
+      );
+      for (const g of uncached) {
+        const hasTool = withTools.has(g);
+        context.commit("addConnectedTools", { id: g, hasTool: hasTool });
+        resultMap[g] = hasTool;
+      }
+      return resultMap;
+    },
   },
 });
 
