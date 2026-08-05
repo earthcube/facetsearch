@@ -733,10 +733,10 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
     } else {
       lonFilter = `?lon >= ${b.west} && ?lon <= ${b.east}`;
     }
-    return `  ?subj schema:spatialCoverage ?spatialCov .
-      ?spatialCov schema:geo ?geo .
-      ?geo schema:latitude ?lat .
-      ?geo schema:longitude ?lon .
+    return `  ?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCov .
+      ?spatialCov schema:geo|sschema:geo ?geo .
+      ?geo schema:latitude|sschema:latitude ?lat .
+      ?geo schema:longitude|sschema:longitude ?lon .
       FILTER(${latFilter} && ${lonFilter}) .
     `;
   }

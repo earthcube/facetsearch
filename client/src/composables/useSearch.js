@@ -422,7 +422,7 @@ export function useGeoFacet(facetConfig, searchComposable) {
     let e = clamp(east, -180, 180);
     let w = clamp(west, -180, 180);
     if (n < s) [n, s] = [s, n];
-    if (e < w) [e, w] = [w, e];
+    // Do NOT swap east/west: when west > east the box crosses the dateline.
     if (n === s || e === w) return null;
     return { north: n, south: s, east: e, west: w };
   };
