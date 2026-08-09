@@ -79,6 +79,7 @@
             :search-total-count="searchTotalCount"
             :filters="activeFiltersDisplay"
             :loading="isLoading"
+            :last-sparql-query="lastSparqlQuery"
             :current-page="currentPage"
             :current-page-size="pageSize"
             :page-size-options="pageSizeOptions"

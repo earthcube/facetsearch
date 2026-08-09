@@ -107,6 +107,7 @@ export class SearchService {
       }
 
       return {
+        query: sparqlQuery,
         results,
         totalCount: results.length,
         totalCountPromise,

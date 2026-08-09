@@ -53,6 +53,7 @@ export function useSearch(configOrRef) {
   const totalCount = computed(() => state.totalCount);
   const searchTotalCount = computed(() => state.searchTotalCount);
   const error = computed(() => state.error);
+  const lastSparqlQuery = computed(() => state.lastSparqlQuery || '');
   const textQuery = computed({
     get: () => state.textQuery,
     set: (value) => filterStateManager.setTextQuery(value)
@@ -143,6 +144,7 @@ export function useSearch(configOrRef) {
     totalCount,
     searchTotalCount,
     error,
+    lastSparqlQuery,
     textQuery,
     searchExactMatch,
     resourceType,

@@ -34,6 +34,15 @@
 
       <!-- Sort Options -->
       <div class="sort-controls">
+        <b-button
+          v-if="lastSparqlQuery"
+          size="sm"
+          variant="outline-secondary"
+          class="me-2"
+          @click="showQuery = !showQuery"
+        >
+          {{ showQuery ? 'Hide Query' : 'Show Query' }}
+        </b-button>
         <b-form-select
           :value="currentPageSize"
           :options="pageSizeOptionsFormatted"
@@ -60,6 +69,10 @@
         size="sm"
         @input="onPageChange"
       />
+    </div>
+
+    <div v-if="showQuery && lastSparqlQuery" class="query-panel mt-2">
+      <pre class="query-text mb-0">{{ lastSparqlQuery }}</pre>
     </div>
   </div>
 </template>
@@ -104,6 +117,10 @@ export default {
     pageSizeOptions: {
       type: Array,
       default: () => [10, 50, 100]
+    },
+    lastSparqlQuery: {
+      type: String,
+      default: ''
     }
   },
 
@@ -116,6 +133,7 @@ export default {
   setup(props, { emit }) {
     inject('searchComposable');
     const { config, getFacetConfig } = useConfig();
+    const showQuery = ref(false);
 
     // Sort state
     const selectedSort = ref('score');
@@ -180,6 +198,7 @@ export default {
       displayEnd,
       totalPages,
       pageSizeOptionsFormatted,
+      showQuery,
       onPageChange,
       onPageSizeChange
     };
@@ -207,5 +226,18 @@ export default {
 
 .pagination-row :deep(.pagination) {
   margin-bottom: 0;
+}
+
+.query-panel {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  background: #f8f9fa;
+}
+
+.query-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.8rem;
+  padding: 0.75rem;
 }
 </style>
