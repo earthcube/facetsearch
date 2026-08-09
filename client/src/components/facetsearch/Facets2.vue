@@ -3,7 +3,7 @@
     <div v-for="facetSetting in facets" :key="facetSetting.field" class="mb-3">
       <!-- Text Facets (also handles propertyvalue / variablemeasured) -->
       <FacetText2
-        v-if="facetSetting.type === 'text' || facetSetting.type === 'propertyvalue' || facetSetting.type === 'variablemeasured'"
+        v-if="textFacetTypes.includes(facetSetting.type)"
         :facet-config="facetSetting"
       />
 
@@ -48,6 +48,12 @@ export default {
     facets: {
       type: Array,
       required: true
+    }
+  },
+
+  computed: {
+    textFacetTypes() {
+      return ['text', 'propertyvalue', 'variablemeasured'];
     }
   }
 };
