@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import { ref, computed, inject } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useConfig } from '@/composables/useConfig.js';
 
 export default {
@@ -131,9 +131,12 @@ export default {
   },
 
   setup(props, { emit }) {
-    inject('searchComposable');
     const { config, getFacetConfig } = useConfig();
     const showQuery = ref(false);
+
+    watch(() => props.lastSparqlQuery, (newQuery) => {
+      if (!newQuery) showQuery.value = false;
+    });
 
     // Sort state
     const selectedSort = ref('score');
