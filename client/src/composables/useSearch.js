@@ -31,12 +31,15 @@ function routeQueryToSearchParamsString(query) {
   return sp.toString();
 }
 
-/** Pass the `config` computed ref from useConfig() so LIMIT_DEFAULT updates when FacetsConfig changes. */
-export function useSearch(configOrRef) {
+/**
+ * Pass the `config` computed ref from useConfig() so LIMIT_DEFAULT updates when FacetsConfig changes.
+ * options are forwarded to createSearchService (e.g. { mode: 'locations' } for the map explorer).
+ */
+export function useSearch(configOrRef, options = {}) {
   const router = useRouter();
   const route = useRoute();
   const initial = unref(configOrRef) ?? {};
-  const searchService = createSearchService(initial);
+  const searchService = createSearchService(initial, options);
   const filterStateManager = searchService.getFilterStateManager();
 
   watch(

@@ -56,6 +56,12 @@ export function createRouter() {
       // {path:'/search/?q=:q',name:'Search',component:Search,props:true},
       // {path:'/dataset/?o=id',name:'dataset',component:dataset,props:true,},
       {
+        // lazy: keeps Leaflet + markercluster out of the other chunks
+        path: "/map",
+        name: "MapExplorer",
+        component: () => import("@/components/mapexplorer/MapExplorer.vue"),
+      },
+      {
         path: "/search2/",
         name: "Search2",
         component: Search2,
