@@ -724,11 +724,20 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
     // `;
 
     //there can be 1000 points.  use the Inserted WKT method above
-        return `  ?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCov .
+    const latFilter = `?lat >= ${b.south} && ?lat <= ${b.north}`;
+    let lonFilter;
+    if (b.west > b.east) {
+      // Dateline-crossing box: the region wraps around ±180°.
+      // Split into two longitude ranges so the SPARQL filter is correct.
+      lonFilter = `((?lon >= ${b.west} && ?lon <= 180) || (?lon >= -180 && ?lon <= ${b.east}))`;
+    } else {
+      lonFilter = `?lon >= ${b.west} && ?lon <= ${b.east}`;
+    }
+    return `  ?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCov .
       ?spatialCov schema:geo|sschema:geo ?geo .
       ?geo schema:latitude|sschema:latitude ?lat .
       ?geo schema:longitude|sschema:longitude ?lon .
-      FILTER(?lat >= ${b.south} && ?lat <= ${b.north} && ?lon >= ${b.west} && ?lon <= ${b.east}) .
+      FILTER(${latFilter} && ${lonFilter}) .
     `;
   }
 
@@ -753,7 +762,8 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
     let e = clamp(east, -180, 180);
     let w = clamp(west, -180, 180);
     if (n < s) [n, s] = [s, n];
-    if (e < w) [e, w] = [w, e];
+    // Do NOT swap east/west: when west > east the box crosses the dateline and
+    // buildGeoFilter will emit a split longitude filter.
     if (n === s || e === w) return null;
     return { north: n, south: s, east: e, west: w };
   }
