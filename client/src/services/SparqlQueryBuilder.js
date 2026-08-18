@@ -660,11 +660,41 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
   } .\n`;
     }
 
+    // schema:temporalCoverage is often an ISO interval ("2015-01-01/2018-12-31").
+    // True overlap test (dataset start <= filter max && dataset end >= filter min),
+    // like the depth facet, so a 1990-2020 dataset matches a 2010-2015 filter.
+    // Open ends ("2015-01-01/.." or "../2020") fail the xsd:integer cast, leaving
+    // the year unbound; COALESCE substitutes an unbounded sentinel on that side.
     return `  FILTER EXISTS {
     ?subj schema:temporalCoverage|sschema:temporalCoverage ?temporalCoverage_f .
-    FILTER(xsd:integer(SUBSTR(STR(?temporalCoverage_f), 1, 4)) >= ${fMin} &&
-           xsd:integer(SUBSTR(STR(?temporalCoverage_f), 1, 4)) <= ${fMax})
+    BIND(STR(?temporalCoverage_f) AS ?tc_str)
+    BIND(IF(CONTAINS(?tc_str, "/"), STRBEFORE(?tc_str, "/"), ?tc_str) AS ?tc_startStr)
+    BIND(IF(CONTAINS(?tc_str, "/"), STRAFTER(?tc_str, "/"), "") AS ?tc_endStr)
+    BIND(xsd:integer(SUBSTR(?tc_startStr, 1, 4)) AS ?tc_startYear)
+    BIND(xsd:integer(SUBSTR(?tc_endStr, 1, 4)) AS ?tc_endYear)
+    BIND(COALESCE(?tc_startYear, 0) AS ?tc_s)
+    BIND(IF(CONTAINS(?tc_str, "/"), COALESCE(?tc_endYear, 9999), COALESCE(?tc_endYear, ?tc_startYear)) AS ?tc_e)
+    FILTER((BOUND(?tc_startYear) || BOUND(?tc_endYear)) && ?tc_s <= ${fMax} && ?tc_e >= ${fMin})
   } .\n`;
+  }
+
+  /**
+   * QLever-only word completion for the landing search box.
+   * Wildcard ql:contains-word binds the matched word to the special variable
+   * ?ql_matchingword_<textVar>_<token>, so the prefix must stay [a-z0-9]
+   * (also prevents SPARQL injection). Returns null when unsupported.
+   */
+  buildAutocompleteQuery(prefix, limit = 10) {
+    const p = String(prefix || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (p.length < 3 || !this.usesQLever()) return null;
+    return `${this.buildPrefixes()}SELECT ?word (COUNT(?text) AS ?count) WHERE {
+  ?text ql:contains-word "${p}*" .
+  BIND(?ql_matchingword_text_${p} AS ?word)
+}
+GROUP BY ?word
+ORDER BY DESC(?count)
+LIMIT ${Number(limit) > 0 ? Number(limit) : 10}
+`;
   }
 
   /**

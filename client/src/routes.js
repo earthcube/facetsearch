@@ -4,7 +4,7 @@ import {
   createWebHashHistory,
 } from "vue-router";
 
-import landing from "@/components/landing/landing.vue";
+import LandingDirectory from "@/components/landing/LandingDirectory.vue";
 import dataset from "@/components/dataset/dataset.vue";
 import tool from "@/components/tools/tool.vue";
 import about from "@/components/help/about.vue";
@@ -48,9 +48,11 @@ export function createRouter() {
     routes: [
       {
         path: "/",
-        redirect: "/Search2",
+        name: "landing",
+        component: LandingDirectory,
       },
-      { path: "/landing", name: "landing", component: landing },
+      // old bookmarks: the landing page now lives at the root
+      { path: "/landing", redirect: "/" },
       // {path:'/search/?q=:q',name:'Search',component:Search,props:true},
       // {path:'/dataset/?o=id',name:'dataset',component:dataset,props:true,},
       {
