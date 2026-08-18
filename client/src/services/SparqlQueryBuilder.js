@@ -285,6 +285,78 @@ export class SparqlQueryBuilder {
     return this.buildFacetCountWhereBody(textQuery, searchExactMatch, resourceType, filters);
   }
 
+  /** Normalized bounds of the active geo facet filter, or null. */
+  getActiveGeoBounds(filters) {
+    if (!filters || typeof filters !== 'object') return null;
+    for (const [field, values] of Object.entries(filters)) {
+      const cfg = this.getFacetConfig(field);
+      if (cfg?.type !== 'geo' || !values) continue;
+      const b = this.normalizeGeoBounds(values?.bounds || values);
+      if (b) return b;
+    }
+    return null;
+  }
+
+  /**
+   * Lightweight per-dataset locations projection for the map explorer.
+   * Inner subquery narrows candidate ?subj (type + text + filters, incl. the
+   * bbox via buildGeoFilter) to at most `limit` subjects BEFORE walking their
+   * geo nodes — a dataset can carry very many GeoCoordinates. The outer walk
+   * re-applies the bbox so the SAMPLE point stays inside the viewport; lat and
+   * lon are SAMPLEd independently, so the marker is a representative point
+   * (each coordinate individually in-bbox), not necessarily one source point.
+   */
+  buildLocationsQuery(searchParams) {
+    const { textQuery, searchExactMatch, resourceType, filters = {}, limit } = searchParams || {};
+    const n = Number(limit);
+    const effectiveLimit = Number.isFinite(n) && n > 0 ? Math.min(n, 5000) : 1000;
+    const bounds = this.getActiveGeoBounds(filters);
+
+    let inner = '';
+    if (textQuery) {
+      // Selective-subject subquery first, full text on the narrowed set after:
+      // a flat join of text search with geo/range constraints takes QLever ~10x
+      // longer (measured: 40s vs 4s on text + bbox + temporal).
+      inner += this.buildQleverSelectiveSubjectSubquery(resourceType, filters);
+      inner += this.buildTextSearchFragment(textQuery, searchExactMatch);
+    } else {
+      inner += this.buildSubjDatasetHead();
+      inner += this.buildResourceTypeConstraints(resourceType);
+      inner += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+      inner += this.buildConstraintRangeFragments(filters);
+    }
+    if (!bounds) {
+      // No viewport yet: still require coordinates, so the candidate LIMIT is
+      // spent only on datasets that can actually appear on the map.
+      inner += `  ?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCov0 .
+  ?spatialCov0 schema:geo|sschema:geo ?geo0 .
+  ?geo0 schema:latitude|sschema:latitude ?lat0 .
+`;
+    }
+
+    const outerBboxFilter = bounds
+      ? `  FILTER(${this.buildGeoBoundsFilterExpr(bounds)}) .\n`
+      : '';
+
+    let query = this.buildPrefixes();
+    query += `SELECT ?g ?subj (SAMPLE(?name_r) AS ?name) (SAMPLE(?lat) AS ?lat_s) (SAMPLE(?lon) AS ?lon_s)
+WHERE {
+  {
+    SELECT DISTINCT ?subj WHERE {
+${indentSparqlLines(inner, 4)}    }
+    LIMIT ${effectiveLimit}
+  }
+  ?subj schema:spatialCoverage|sschema:spatialCoverage ?sc .
+  ?sc schema:geo|sschema:geo ?geo .
+  ?geo schema:latitude|sschema:latitude ?lat .
+  ?geo schema:longitude|sschema:longitude ?lon .
+${outerBboxFilter}  GRAPH ?g { ?subj schema:name|sschema:name ?name_r . }
+}
+GROUP BY ?g ?subj
+`;
+    return query;
+  }
+
   /**
    * Innermost subquery: narrow ?subj with type + facet + range EXISTS constraints
    * before broad full-text expansion (earthcube/facetsearch#261).
@@ -758,6 +830,16 @@ LIMIT ${Number(limit) > 0 ? Number(limit) : 10}
     // `;
 
     //there can be 1000 points.  use the Inserted WKT method above
+    return `  ?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCov .
+      ?spatialCov schema:geo|sschema:geo ?geo .
+      ?geo schema:latitude|sschema:latitude ?lat .
+      ?geo schema:longitude|sschema:longitude ?lon .
+      FILTER(${this.buildGeoBoundsFilterExpr(b)}) .
+    `;
+  }
+
+  /** Boolean bbox expression over ?lat/?lon for already-normalized bounds. */
+  buildGeoBoundsFilterExpr(b) {
     const latFilter = `?lat >= ${b.south} && ?lat <= ${b.north}`;
     let lonFilter;
     if (b.west > b.east) {
@@ -767,12 +849,7 @@ LIMIT ${Number(limit) > 0 ? Number(limit) : 10}
     } else {
       lonFilter = `?lon >= ${b.west} && ?lon <= ${b.east}`;
     }
-    return `  ?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCov .
-      ?spatialCov schema:geo|sschema:geo ?geo .
-      ?geo schema:latitude|sschema:latitude ?lat .
-      ?geo schema:longitude|sschema:longitude ?lon .
-      FILTER(${latFilter} && ${lonFilter}) .
-    `;
+    return `${latFilter} && ${lonFilter}`;
   }
 
   normalizeGeoBounds(raw) {

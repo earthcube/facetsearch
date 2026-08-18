@@ -1,10 +1,10 @@
 <template>
   <div>
-    <b-button variant="primary" @click="editorVisible = true">
-      Draw a search area
+    <b-button variant="primary" :to="{ path: '/map' }">
+      Explore the map
     </b-button>
-    <b-button variant="outline-secondary" class="ml-2" :to="{ path: '/search2/' }">
-      Open search
+    <b-button variant="outline-secondary" class="ml-2" @click="editorVisible = true">
+      Draw a search area
     </b-button>
 
     <GeoBoundsEditorModal

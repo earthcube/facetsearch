@@ -44,7 +44,7 @@
           <EntryTile
             icon="globe"
             title="Search by location"
-            description="Draw a bounding box on a map to find datasets in an area of interest."
+            description="Explore dataset locations on a map, or draw a bounding box for an area of interest. Covers datasets with point coordinates."
           >
             <SpatialEntryTile />
           </EntryTile>
