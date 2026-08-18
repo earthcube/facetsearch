@@ -123,6 +123,11 @@ FACETS:
     sort: acs
     open: true
     type: rangedepth
+  - field: variableMeasured
+    title: Variables Measured
+    sort: acs
+    open: true
+    type: propertyvalue
   - field: temporalCoverage
     title: Temporal Coverage
     sort: acs
