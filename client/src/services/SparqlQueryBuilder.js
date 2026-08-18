@@ -964,6 +964,69 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
   escapeValue(value) {
     return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
   }
+
+  /** Escape a string for safe use inside a SPARQL REGEX(...) pattern argument. */
+  escapeRegex(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  /**
+   * Find the DataCatalog document(s) for a source (Gleaner "reponame").
+   * Named graphs are keyed by the harvested document URN (urn:...:reponame:sha),
+   * so a source's release file is located by matching ":reponame:" inside ?g.
+   */
+  buildCatalogLookupQuery(source) {
+    const pattern = this.escapeRegex(String(source ?? ''));
+    let query = this.buildPrefixes();
+    query += `SELECT DISTINCT ?g ?subj ?name ?description WHERE {
+  GRAPH ?g {
+    VALUES ?catType { schema:DataCatalog sschema:DataCatalog }
+    ?subj a ?catType .
+    OPTIONAL { ?subj schema:name|sschema:name ?name }
+    OPTIONAL { ?subj schema:description|sschema:description ?description }
+  }
+  FILTER(REGEX(STR(?g), ":${pattern}:"))
+}
+LIMIT 20
+`;
+    return query;
+  }
+
+  /** Paginated list of Datasets embedded in a specific catalog document (named graph). */
+  buildCatalogDatasetsQuery(graphUri, { limit = 10, offset = 0 } = {}) {
+    let query = this.buildPrefixes();
+    query += `SELECT ?subj ?name ?description ?url
+  (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)
+WHERE {
+  GRAPH <${graphUri}> {
+    VALUES ?sosType { schema:Dataset sschema:Dataset }
+    ?subj a ?sosType .
+    ?subj schema:name|sschema:name ?name .
+    OPTIONAL { ?subj schema:description|sschema:description ?description . }
+    OPTIONAL { ?subj schema:url|sschema:url ?url . }
+    OPTIONAL { ?subj schema:keywords|sschema:keywords ?kwu . }
+  }
+}
+GROUP BY ?subj ?name ?description ?url
+ORDER BY ?name
+LIMIT ${Number(limit)}
+OFFSET ${Number(offset)}
+`;
+    return query;
+  }
+
+  /** Total count of Datasets embedded in a specific catalog document (named graph). */
+  buildCatalogDatasetsCountQuery(graphUri) {
+    let query = this.buildPrefixes();
+    query += `SELECT (COUNT(DISTINCT ?subj) AS ?count) WHERE {
+  GRAPH <${graphUri}> {
+    VALUES ?sosType { schema:Dataset sschema:Dataset }
+    ?subj a ?sosType .
+  }
+}
+`;
+    return query;
+  }
 }
 
 // Factory function to create query builder with config

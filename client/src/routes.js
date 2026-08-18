@@ -9,6 +9,7 @@ import dataset from "@/components/dataset/dataset.vue";
 import tool from "@/components/tools/tool.vue";
 import about from "@/components/help/about.vue";
 import report from "@/components/help/report.vue";
+import DataCatalogView from "@/components/catalog/DataCatalogView.vue";
 import collection from "@/components/collection/Collection.vue";
 import configuration from "@/components/configuration.vue";
 import Search2 from "@/components/facetsearch/Search2.vue";
@@ -86,6 +87,12 @@ export function createRouter() {
         path: "/report/:source",
         name: "report",
         component: report,
+        props: true,
+      },
+      {
+        path: "/catalog/:source",
+        name: "catalog",
+        component: DataCatalogView,
         props: true,
       },
       { path: "/collection", name: "collection", component: collection },

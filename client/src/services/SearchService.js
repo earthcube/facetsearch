@@ -328,6 +328,35 @@ LIMIT 200
   }
 
   // -------------------------
+  // DataCatalog (per-source, SPARQL-paginated)
+  // -------------------------
+
+  /**
+   * Locate the DataCatalog document(s) for a source (Gleaner "reponame").
+   * Returns [] when no catalog is harvested for that source, or more than one
+   * entry when several catalog documents match (rare, but possible).
+   */
+  async getCatalogForSource(source) {
+    const query = this.queryBuilder.buildCatalogLookupQuery(source);
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processResults(response);
+  }
+
+  /** One page of Datasets embedded in a catalog document (named graph IRI). */
+  async getCatalogDatasetsPage(graphUri, { limit = 10, offset = 0 } = {}) {
+    const query = this.queryBuilder.buildCatalogDatasetsQuery(graphUri, { limit, offset });
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processResults(response);
+  }
+
+  /** Total Dataset count for a catalog document (named graph IRI). */
+  async getCatalogDatasetsCount(graphUri) {
+    const query = this.queryBuilder.buildCatalogDatasetsCountQuery(graphUri);
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processCountResult(response);
+  }
+
+  // -------------------------
   // Expose helpers
   // -------------------------
 

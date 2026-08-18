@@ -163,6 +163,14 @@ in case more intro paragraph text is needed
                 }"
                 >Reports</router-link
               >
+              <span class="mx-1">|</span>
+              <router-link
+                :to="{
+                  name: 'catalog',
+                  params: { source: item.source },
+                }"
+                >Data Catalog</router-link
+              >
             </div>
           </b-card-text>
 
