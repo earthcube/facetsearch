@@ -134,6 +134,24 @@ FACETS:
 #    sort: acs
 #    open: true
 #    type: text
+# Landing-page starter queries. Each entry's `query` keys map 1:1 onto the
+# Search2 URL grammar (q/resourceType/searchExactMatch reserved; facet fields
+# as values or arrays; ranges as "min,max"; geo as "N,S,E,W").
+# Optional per-entry `target: map` opens the query in the map explorer instead.
+STARTER_QUERIES:
+  - label: Recent seismic datasets
+    description: Datasets mentioning seismic, published since 2020
+    query:
+      q: seismic
+      datep: "2020,2026"
+  - label: Ocean CTD data
+    description: Hydrographic CTD datasets
+    query:
+      q: CTD
+  - label: Datasets covering 2010-2015
+    description: Temporal coverage overlapping 2010 through 2015
+    query:
+      temporalCoverage: "2010,2015"
 ORDER_BY_DEFAULT: score
 ORDER_BY_OPTIONS:
   - field: name

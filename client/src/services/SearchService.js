@@ -1,5 +1,6 @@
 // client/src/services/SearchService.js
 import axios from 'axios';
+import { default as LRUCache } from 'lru-cache';
 import { createSparqlQueryBuilder } from './SparqlQueryBuilder.js';
 import { createFilterStateManager } from './FilterStateManager.js';
 
@@ -44,6 +45,8 @@ export class SearchService {
     // console.info('[SearchService] Engine:', this.config?.QUERY_ENGINE, 'Endpoint:', this.config?.TRIPLESTORE_URL);
 
     this.queryBuilder = createSparqlQueryBuilder(config);
+
+    this.autocompleteCache = new LRUCache({ max: 200, ttl: 5 * 60_000 });
 
     // Filter state manager wires executeQuery
     this.filterStateManager = createFilterStateManager(
@@ -242,6 +245,32 @@ export class SearchService {
       }
       return out;
     });
+  }
+
+  // -------------------------
+  // Autocomplete (landing keyword entry; QLever word index only)
+  // -------------------------
+
+  /**
+   * Word completions for a typed prefix, ranked by corpus frequency.
+   * Returns [] when the prefix is too short or the engine is not QLever.
+   */
+  async getAutocompleteSuggestions(prefix) {
+    const query = this.queryBuilder.buildAutocompleteQuery(prefix);
+    if (!query) return [];
+    const cacheKey = query;
+    const cached = this.autocompleteCache.get(cacheKey);
+    if (cached) return cached;
+    const data = await this.sendToTriplestoreWithFallback(query);
+    const bindings = data?.results?.bindings || [];
+    const suggestions = bindings
+      .map((b) => ({
+        word: b.word?.value ?? '',
+        count: parseInt(b.count?.value ?? '0', 10) || 0,
+      }))
+      .filter((s) => s.word.trim().length > 0);
+    this.autocompleteCache.set(cacheKey, suggestions);
+    return suggestions;
   }
 
   // -------------------------
