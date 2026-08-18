@@ -129,11 +129,11 @@ FACETS:
     sort: acs
     open: true
     type: rangeyear
-#  - field: variableMeasured
-#    title: Variables Measured
-#    sort: acs
-#    open: true
-#    type: text
+  - field: variableMeasured
+    title: Variables Measured
+    sort: acs
+    open: true
+    type: propertyvalue
 ORDER_BY_DEFAULT: score
 ORDER_BY_OPTIONS:
   - field: name

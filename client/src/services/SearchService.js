@@ -278,10 +278,6 @@ SELECT ?value (0 as ?count) WHERE { FILTER(false) } LIMIT 0
       resourceType = '',
     } = searchContext;
 
-    const sparqlProperty =
-      facetConfig.sparql_property ||
-      this.queryBuilder.getDefaultSparqlProperty(field);
-
     // Exclude this facet's own filters to avoid self-filtering options
     const filtersCopy = { ...(currentFilters || {}) };
     delete filtersCopy[field];
@@ -297,7 +293,14 @@ WHERE {
       resourceType,
       filtersCopy
     );
-    q += this.queryBuilder.buildFacetPropertyPattern(field, sparqlProperty);
+    if (facetConfig.type === 'variablemeasured' || facetConfig.type === 'propertyvalue') {
+      q += this.queryBuilder.buildPropertyValueNamePattern(field, facetConfig);
+    } else {
+      const sparqlProperty =
+        facetConfig.sparql_property ||
+        this.queryBuilder.getDefaultSparqlProperty(field);
+      q += this.queryBuilder.buildFacetPropertyPattern(field, sparqlProperty);
+    }
     q += `}
 GROUP BY ?value
 ORDER BY DESC(?count) ?value
