@@ -972,56 +972,92 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
 
   /**
    * Find the DataCatalog document(s) for a source (Gleaner "reponame").
-   * Named graphs are keyed by the harvested document URN (urn:...:reponame:sha),
-   * so a source's release file is located by matching ":reponame:" inside ?g.
+   * Named graphs are keyed by the harvested document URN
+   * (urn:gleaner.io:eco:<reponame>:datacatalog:<sha256>), so a source's release
+   * document is located by anchoring that shape against ?g.
    */
   buildCatalogLookupQuery(source) {
     const pattern = this.escapeRegex(String(source ?? ''));
     let query = this.buildPrefixes();
-    query += `SELECT DISTINCT ?g ?subj ?name ?description WHERE {
+    query += `SELECT DISTINCT ?g ?subj ?name ?description ?dateCreated ?organization ?publisher ?provider
+WHERE {
   GRAPH ?g {
     VALUES ?catType { schema:DataCatalog sschema:DataCatalog }
     ?subj a ?catType .
     OPTIONAL { ?subj schema:name|sschema:name ?name }
     OPTIONAL { ?subj schema:description|sschema:description ?description }
+    OPTIONAL { ?subj schema:dateCreated|sschema:dateCreated ?dateCreated }
+    OPTIONAL { ?subj schema:sourceOrganization/schema:name ?organization }
+    OPTIONAL { ?subj schema:publisher/schema:name ?publisher }
+    OPTIONAL { ?subj schema:provider/schema:name ?provider }
   }
-  FILTER(REGEX(STR(?g), ":${pattern}:"))
+  FILTER(REGEX(STR(?g), "^urn:gleaner\\\\.io:eco:${pattern}:datacatalog:[0-9a-f]{64}$"))
 }
 LIMIT 20
 `;
     return query;
   }
 
-  /** Paginated list of Datasets embedded in a specific catalog document (named graph). */
+  /**
+   * One page of the Datasets a catalog document lists.
+   *
+   * A release document does not embed its Datasets: it holds `schema:dataset`
+   * pointers whose objects are the per-dataset harvest graph URNs. So the page is
+   * cut from those pointers (cheap, catalog-graph only) and each pointed-at graph
+   * is then joined for the record's own name/description/url/keywords. That join is
+   * OPTIONAL so a pointer to a graph that was never harvested still yields a row,
+   * keeping page length consistent with the pointer count.
+   *
+   * DISTINCT matters: schema: and sschema: expand to the same IRI, so the
+   * alternation would otherwise return every pointer twice and short the page.
+   *
+   * ?g is the harvest graph URN, which is also the route id for /dataset/:id.
+   */
   buildCatalogDatasetsQuery(graphUri, { limit = 10, offset = 0 } = {}) {
     let query = this.buildPrefixes();
-    query += `SELECT ?subj ?name ?description ?url
+    query += `SELECT ?g ?subj
+  (SAMPLE(?nameU) AS ?name)
+  (SAMPLE(?descriptionU) AS ?description)
+  (SAMPLE(?urlU) AS ?url)
   (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)
 WHERE {
-  GRAPH <${graphUri}> {
-    VALUES ?sosType { schema:Dataset sschema:Dataset }
-    ?subj a ?sosType .
-    ?subj schema:name|sschema:name ?name .
-    OPTIONAL { ?subj schema:description|sschema:description ?description . }
-    OPTIONAL { ?subj schema:url|sschema:url ?url . }
-    OPTIONAL { ?subj schema:keywords|sschema:keywords ?kwu . }
+  {
+    SELECT DISTINCT ?g WHERE {
+      GRAPH <${graphUri}> {
+        ?cat schema:dataset|sschema:dataset ?g .
+      }
+    }
+    ORDER BY ?g
+    LIMIT ${Number(limit)}
+    OFFSET ${Number(offset)}
+  }
+  OPTIONAL {
+    GRAPH ?g {
+      VALUES ?sosType { schema:Dataset sschema:Dataset }
+      ?subj a ?sosType .
+      OPTIONAL { ?subj schema:name|sschema:name ?nameU . }
+      OPTIONAL { ?subj schema:description|sschema:description ?descriptionU . }
+      OPTIONAL { ?subj schema:url|sschema:url ?urlU . }
+      OPTIONAL { ?subj schema:keywords|sschema:keywords ?kwu . }
+    }
   }
 }
-GROUP BY ?subj ?name ?description ?url
-ORDER BY ?name
-LIMIT ${Number(limit)}
-OFFSET ${Number(offset)}
+GROUP BY ?g ?subj
+ORDER BY ?g
 `;
     return query;
   }
 
-  /** Total count of Datasets embedded in a specific catalog document (named graph). */
+  /**
+   * Total Datasets a catalog document lists. Counts the `schema:dataset` pointers
+   * in the catalog graph, so it stays consistent with the page query above and
+   * never touches the per-dataset graphs.
+   */
   buildCatalogDatasetsCountQuery(graphUri) {
     let query = this.buildPrefixes();
-    query += `SELECT (COUNT(DISTINCT ?subj) AS ?count) WHERE {
+    query += `SELECT (COUNT(DISTINCT ?ds) AS ?count) WHERE {
   GRAPH <${graphUri}> {
-    VALUES ?sosType { schema:Dataset sschema:Dataset }
-    ?subj a ?sosType .
+    ?cat schema:dataset|sschema:dataset ?ds .
   }
 }
 `;

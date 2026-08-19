@@ -26,10 +26,21 @@
       <b-card class="mb-4" bg-variant="light" border-variant="secondary">
         <b-card-title v-html="catalog.name || source"></b-card-title>
         <b-card-text v-if="catalog.description" v-html="catalog.description"></b-card-text>
+        <div v-if="catalogAgents.length" class="small mb-2">
+          <div v-for="agent in catalogAgents" :key="agent.label" class="d-flex mb-1">
+            <div class="text-muted flex-shrink-0" style="width: 8rem">{{ agent.label }}</div>
+            <div>
+              <a v-if="isLink(agent.value)" :href="agent.value" target="_blank" rel="noopener">{{
+                agent.value
+              }}</a>
+              <span v-else>{{ agent.value }}</span>
+            </div>
+          </div>
+        </div>
         <b-card-text class="text-muted small mb-0">
           Source: {{ source }} &mdash; {{ totalCount.toLocaleString() }} dataset{{
             totalCount === 1 ? "" : "s"
-          }}
+          }}<span v-if="catalog.dateCreated"> &mdash; generated {{ catalog.dateCreated }}</span>
         </b-card-text>
       </b-card>
 
@@ -54,12 +65,27 @@
       </div>
 
       <b-list-group v-else class="mb-3">
-        <b-list-group-item v-for="(ds, index) in datasets" :key="ds.subj || index">
+        <b-list-group-item v-for="(ds, index) in datasets" :key="ds.g || ds.subj || index">
           <h6 class="mb-1">
-            <a v-if="ds.url" :href="ds.url" target="_blank" rel="noopener" v-html="ds.name"></a>
-            <span v-else v-html="ds.name"></span>
+            <router-link :to="datasetLink(ds)">{{ datasetTitle(ds) }}</router-link>
+            <b-badge v-if="!ds.name" variant="secondary" class="ml-2 font-weight-normal"
+              >no schema:name</b-badge
+            >
           </h6>
-          <p v-if="ds.description" class="small text-muted mb-1" v-html="ds.description"></p>
+          <div class="small text-muted mb-1">
+            <span class="text-monospace">{{ ds.subj }}</span>
+            <a
+              v-if="ds.url"
+              :href="ds.url"
+              target="_blank"
+              rel="noopener"
+              class="ml-2"
+              >source&nbsp;&#8599;</a
+            >
+          </div>
+          <p v-if="ds.description" class="small text-muted mb-1">
+            {{ truncate(ds.description) }}
+          </p>
           <div v-if="ds.kw && ds.kw.length">
             <b-badge
               v-for="(kw, kwIndex) in ds.kw"
@@ -93,6 +119,7 @@
 import backButton from "@/components/backButton.vue";
 import { useCatalog } from "@/composables/useCatalog.js";
 import { useConfig } from "@/composables/useConfig.js";
+import { normalizeDatasetGraphIri } from "@/utils/datasetIdentifiers.js";
 
 export default {
   name: "DataCatalogView",
@@ -108,6 +135,15 @@ export default {
     return useCatalog(config, props.source);
   },
   computed: {
+    catalogAgents() {
+      return [
+        ["Organization", this.catalog?.organization],
+        ["Publisher", this.catalog?.publisher],
+        ["Provider", this.catalog?.provider],
+      ]
+        .map(([label, value]) => ({ label, value: String(value ?? "").trim() }))
+        .filter((entry) => entry.value.length > 0);
+    },
     displayStart() {
       if (this.totalCount <= 0) return 0;
       return (this.page - 1) * this.pageSize + 1;
@@ -125,6 +161,24 @@ export default {
         value: Number(size),
         text: `${Number(size)} / page`,
       }));
+    },
+  },
+  methods: {
+    isLink(value) {
+      return /^https?:\/\//i.test(String(value));
+    },
+    /** Not every harvested record carries a schema:name. */
+    datasetTitle(ds) {
+      return ds.name || ds.subj || ds.g || "(untitled dataset)";
+    },
+    /** ?g is the per-dataset harvest graph URN, which is the /dataset/:d route id. */
+    datasetLink(ds) {
+      const id = normalizeDatasetGraphIri(ds.g) || ds.g || ds.id || ds.subj || "";
+      return { name: "dataset", params: { d: id } };
+    },
+    truncate(text, max = 300) {
+      const t = String(text || "");
+      return t.length > max ? `${t.slice(0, max).trimEnd()}\u2026` : t;
     },
   },
   watch: {
