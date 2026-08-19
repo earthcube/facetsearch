@@ -21,7 +21,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { addOceanBasemap } from '@/utils/oceanBasemap.js';
 
-const DEFAULT_CENTER = [20, 0];
+const DEFAULT_CENTER = [20, 180];
 const DEFAULT_ZOOM = 2;
 
 export default {
@@ -61,10 +61,8 @@ export default {
       if (west <= east) {
         return [{ north, south, east, west }];
       }
-      return [
-        { north, south, west, east: 180 },
-        { north, south, west: -180, east },
-      ];
+      // Keep one visual rectangle in Pacific-centered view by unwrapping east.
+      return [{ north, south, west, east: east + 360 }];
     };
 
     const clearRectangle = () => {

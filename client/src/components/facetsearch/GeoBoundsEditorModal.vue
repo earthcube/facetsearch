@@ -55,7 +55,7 @@ import 'leaflet-draw';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { addOceanBasemap } from '@/utils/oceanBasemap.js';
 
-const DEFAULT_CENTER = [20, 0];
+const DEFAULT_CENTER = [20, 180];
 const DEFAULT_ZOOM = 2;
 
 export default {
@@ -143,10 +143,9 @@ export default {
       if (west <= east) {
         return [{ north, south, east, west }];
       }
-      return [
-        { north, south, west, east: 180 },
-        { north, south, west: -180, east },
-      ];
+      // Display crossing boxes as a single unwrapped rectangle in the
+      // Pacific-centered view (east shifted by +360).
+      return [{ north, south, west, east: east + 360 }];
     };
 
     const getBoundsFromEditedLayers = (layers) => {
