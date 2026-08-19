@@ -36,31 +36,79 @@ export default {
   setup(props) {
     const mapElement = ref(null);
     let map = null;
-    let rectangle = null;
+    let rectangles = [];
 
-    const getLatLngBounds = (bounds) =>
-      L.latLngBounds(
-        L.latLng(bounds.south, bounds.west),
-        L.latLng(bounds.north, bounds.east)
-      );
+    const normalizeLongitude = (lng) => {
+      const value = Number(lng);
+      if (!Number.isFinite(value)) return null;
+      return ((value + 180) % 360 + 360) % 360 - 180;
+    };
+
+    const toDisplaySegments = (bounds) => {
+      if (!bounds) return [];
+      const north = Number(bounds.north);
+      const south = Number(bounds.south);
+      const east = normalizeLongitude(bounds.east);
+      const west = normalizeLongitude(bounds.west);
+      if (
+        !Number.isFinite(north) ||
+        !Number.isFinite(south) ||
+        east === null ||
+        west === null
+      ) {
+        return [];
+      }
+      if (west <= east) {
+        return [{ north, south, east, west }];
+      }
+      return [
+        { north, south, west, east: 180 },
+        { north, south, west: -180, east },
+      ];
+    };
 
     const clearRectangle = () => {
-      if (rectangle && map) {
-        map.removeLayer(rectangle);
-        rectangle = null;
+      if (!map) return;
+      rectangles.forEach((rectangle) => map.removeLayer(rectangle));
+      rectangles = [];
+    };
+
+    const addRectangle = (segment) =>
+      L.rectangle(
+        L.latLngBounds(
+          L.latLng(segment.south, segment.west),
+          L.latLng(segment.north, segment.east)
+        ),
+        {
+          color: '#dc3545',
+          weight: 2,
+          fillOpacity: 0.08,
+        }
+      );
+
+    const fitPreviewBounds = (segments) => {
+      if (!map || !segments.length) return;
+      // Crossing boxes produce two segments, one at each map edge. Keep a world
+      // overview for those cases so both sides remain visible in preview.
+      if (segments.length > 1) {
+        map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+        return;
       }
+      const only = segments[0];
+      const bounds = L.latLngBounds(
+        L.latLng(only.south, only.west),
+        L.latLng(only.north, only.east)
+      );
+      map.fitBounds(bounds, { padding: [8, 8] });
     };
 
     const renderBounds = async () => {
       if (!map) return;
       clearRectangle();
       if (props.bounds) {
-        rectangle = L.rectangle(getLatLngBounds(props.bounds), {
-          color: '#dc3545',
-          weight: 2,
-          fillOpacity: 0.08,
-        }).addTo(map);
-        map.fitBounds(rectangle.getBounds(), { padding: [8, 8] });
+        const segments = toDisplaySegments(props.bounds);
+        rectangles = segments.map((segment) => addRectangle(segment).addTo(map));
+        fitPreviewBounds(segments);
       } else {
         map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
       }
