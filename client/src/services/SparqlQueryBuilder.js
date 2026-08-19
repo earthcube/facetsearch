@@ -964,6 +964,128 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
   escapeValue(value) {
     return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
   }
+
+  /** Escape a string for safe use inside a SPARQL REGEX(...) pattern argument. */
+  escapeRegex(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  /**
+   * A source's Nabu release catalog, addressed by its named graph URN.
+   *
+   * The URN is the catalog's identity, not the source slug: every release
+   * catalog uses the same subject IRI (urn:gleaner.io:eco:datacatalog), so the
+   * graph is the only thing telling iris's catalog apart from wodb's.
+   */
+  buildCatalogByGraphQuery(graphUri) {
+    let query = this.buildPrefixes();
+    query += `SELECT DISTINCT ?g ?subj ?name ?description ?dateCreated ?organization ?publisher ?provider
+WHERE {
+  BIND(<${graphUri}> AS ?g)
+  GRAPH ?g {
+    VALUES ?catType { schema:DataCatalog sschema:DataCatalog }
+    ?subj a ?catType .
+    OPTIONAL { ?subj schema:name|sschema:name ?name }
+    OPTIONAL { ?subj schema:description|sschema:description ?description }
+    OPTIONAL { ?subj schema:dateCreated|sschema:dateCreated ?dateCreated }
+    OPTIONAL { ?subj schema:sourceOrganization/schema:name ?organization }
+    OPTIONAL { ?subj schema:publisher/schema:name ?publisher }
+    OPTIONAL { ?subj schema:provider/schema:name ?provider }
+  }
+}
+LIMIT 20
+`;
+    return query;
+  }
+
+  /**
+   * Every Nabu release catalog, one row per source. Callers map the source slug
+   * out of ?g to turn a slug into the URN the catalog page is addressed by.
+   *
+   * The anchored shape matters: the per-dataset :data: graphs also carry
+   * `a schema:DataCatalog` (the publisher's own declared catalog), and an
+   * unanchored match would pull in thousands of them.
+   */
+  buildCatalogListQuery() {
+    let query = this.buildPrefixes();
+    query += `SELECT DISTINCT ?g ?dateCreated WHERE {
+  GRAPH ?g {
+    VALUES ?catType { schema:DataCatalog sschema:DataCatalog }
+    ?subj a ?catType .
+    OPTIONAL { ?subj schema:dateCreated|sschema:dateCreated ?dateCreated }
+  }
+  FILTER(REGEX(STR(?g), "^urn:gleaner\\\\.io:eco:[^:]+:datacatalog:[0-9a-f]{64}$"))
+}
+LIMIT 500
+`;
+    return query;
+  }
+
+  /**
+   * One page of the Datasets a catalog document lists.
+   *
+   * A release document does not embed its Datasets: it holds `schema:dataset`
+   * pointers whose objects are the per-dataset harvest graph URNs. So the page is
+   * cut from those pointers (cheap, catalog-graph only) and each pointed-at graph
+   * is then joined for the record's own name/description/url/keywords. That join is
+   * OPTIONAL so a pointer to a graph that was never harvested still yields a row,
+   * keeping page length consistent with the pointer count.
+   *
+   * DISTINCT matters: schema: and sschema: expand to the same IRI, so the
+   * alternation would otherwise return every pointer twice and short the page.
+   *
+   * ?g is the harvest graph URN, which is also the route id for /dataset/:id.
+   */
+  buildCatalogDatasetsQuery(graphUri, { limit = 10, offset = 0 } = {}) {
+    let query = this.buildPrefixes();
+    query += `SELECT ?g ?subj
+  (SAMPLE(?nameU) AS ?name)
+  (SAMPLE(?descriptionU) AS ?description)
+  (SAMPLE(?urlU) AS ?url)
+  (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)
+WHERE {
+  {
+    SELECT DISTINCT ?g WHERE {
+      GRAPH <${graphUri}> {
+        ?cat schema:dataset|sschema:dataset ?g .
+      }
+    }
+    ORDER BY ?g
+    LIMIT ${Number(limit)}
+    OFFSET ${Number(offset)}
+  }
+  OPTIONAL {
+    GRAPH ?g {
+      VALUES ?sosType { schema:Dataset sschema:Dataset }
+      ?subj a ?sosType .
+      OPTIONAL { ?subj schema:name|sschema:name ?nameU . }
+      OPTIONAL { ?subj schema:description|sschema:description ?descriptionU . }
+      OPTIONAL { ?subj schema:url|sschema:url ?urlU . }
+      OPTIONAL { ?subj schema:keywords|sschema:keywords ?kwu . }
+    }
+  }
+}
+GROUP BY ?g ?subj
+ORDER BY ?g
+`;
+    return query;
+  }
+
+  /**
+   * Total Datasets a catalog document lists. Counts the `schema:dataset` pointers
+   * in the catalog graph, so it stays consistent with the page query above and
+   * never touches the per-dataset graphs.
+   */
+  buildCatalogDatasetsCountQuery(graphUri) {
+    let query = this.buildPrefixes();
+    query += `SELECT (COUNT(DISTINCT ?ds) AS ?count) WHERE {
+  GRAPH <${graphUri}> {
+    ?cat schema:dataset|sschema:dataset ?ds .
+  }
+}
+`;
+    return query;
+  }
 }
 
 // Factory function to create query builder with config
