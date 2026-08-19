@@ -1014,7 +1014,7 @@ LIMIT 20
     ?subj a ?catType .
     OPTIONAL { ?subj schema:dateCreated|sschema:dateCreated ?dateCreated }
   }
-  FILTER(REGEX(STR(?g), "^urn:gleaner\\\\.io:eco:[^:]+:datacatalog:[0-9a-f]{64}$"))
+  FILTER(REGEX(STR(?g), "^urn:gleaner\\\\.io:.*:[^:]+:datacatalog:[0-9a-f]{64}$"))
 }
 LIMIT 500
 `;
