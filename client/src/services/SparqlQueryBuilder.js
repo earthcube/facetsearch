@@ -971,16 +971,17 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
   }
 
   /**
-   * Find the DataCatalog document(s) for a source (Gleaner "reponame").
-   * Named graphs are keyed by the harvested document URN
-   * (urn:gleaner.io:eco:<reponame>:datacatalog:<sha256>), so a source's release
-   * document is located by anchoring that shape against ?g.
+   * A source's Nabu release catalog, addressed by its named graph URN.
+   *
+   * The URN is the catalog's identity, not the source slug: every release
+   * catalog uses the same subject IRI (urn:gleaner.io:eco:datacatalog), so the
+   * graph is the only thing telling iris's catalog apart from wodb's.
    */
-  buildCatalogLookupQuery(source) {
-    const pattern = this.escapeRegex(String(source ?? ''));
+  buildCatalogByGraphQuery(graphUri) {
     let query = this.buildPrefixes();
     query += `SELECT DISTINCT ?g ?subj ?name ?description ?dateCreated ?organization ?publisher ?provider
 WHERE {
+  BIND(<${graphUri}> AS ?g)
   GRAPH ?g {
     VALUES ?catType { schema:DataCatalog sschema:DataCatalog }
     ?subj a ?catType .
@@ -991,9 +992,31 @@ WHERE {
     OPTIONAL { ?subj schema:publisher/schema:name ?publisher }
     OPTIONAL { ?subj schema:provider/schema:name ?provider }
   }
-  FILTER(REGEX(STR(?g), "^urn:gleaner\\\\.io:eco:${pattern}:datacatalog:[0-9a-f]{64}$"))
 }
 LIMIT 20
+`;
+    return query;
+  }
+
+  /**
+   * Every Nabu release catalog, one row per source. Callers map the source slug
+   * out of ?g to turn a slug into the URN the catalog page is addressed by.
+   *
+   * The anchored shape matters: the per-dataset :data: graphs also carry
+   * `a schema:DataCatalog` (the publisher's own declared catalog), and an
+   * unanchored match would pull in thousands of them.
+   */
+  buildCatalogListQuery() {
+    let query = this.buildPrefixes();
+    query += `SELECT DISTINCT ?g ?dateCreated WHERE {
+  GRAPH ?g {
+    VALUES ?catType { schema:DataCatalog sschema:DataCatalog }
+    ?subj a ?catType .
+    OPTIONAL { ?subj schema:dateCreated|sschema:dateCreated ?dateCreated }
+  }
+  FILTER(REGEX(STR(?g), "^urn:gleaner\\\\.io:eco:[^:]+:datacatalog:[0-9a-f]{64}$"))
+}
+LIMIT 500
 `;
     return query;
   }

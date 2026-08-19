@@ -332,12 +332,18 @@ LIMIT 200
   // -------------------------
 
   /**
-   * Locate the DataCatalog document(s) for a source (Gleaner "reponame").
-   * Returns [] when no catalog is harvested for that source, or more than one
-   * entry when several catalog documents match (rare, but possible).
+   * The release catalog held in a named graph. Returns [] when that graph holds
+   * no DataCatalog.
    */
-  async getCatalogForSource(source) {
-    const query = this.queryBuilder.buildCatalogLookupQuery(source);
+  async getCatalogByGraph(graphUri) {
+    const query = this.queryBuilder.buildCatalogByGraphQuery(graphUri);
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processResults(response);
+  }
+
+  /** Every Nabu release catalog, for turning a source slug into its URN. */
+  async getCatalogList() {
+    const query = this.queryBuilder.buildCatalogListQuery();
     const response = await this.sendToTriplestoreWithFallback(query);
     return this.processResults(response);
   }

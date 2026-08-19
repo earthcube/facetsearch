@@ -89,9 +89,11 @@ export function createRouter() {
         component: report,
         props: true,
       },
+      // Keyed by the catalog's named graph URN: every Nabu release catalog uses
+      // the same subject IRI, so the graph is its only identity.
       {
-        path: "/catalog/:source",
-        name: "catalog",
+        path: "/source/:urn",
+        name: "source",
         component: DataCatalogView,
         props: true,
       },

@@ -8,14 +8,14 @@
 
     <div v-if="isLoadingCatalog" class="text-center py-5">
       <b-spinner class="me-2"></b-spinner>
-      <span>Loading catalog for {{ source }}&hellip;</span>
+      <span>Loading catalog for {{ source || urn }}&hellip;</span>
     </div>
 
     <div v-else-if="notFound" class="no-results text-center py-5">
       <i class="fas fa-search fa-3x text-muted mb-3"></i>
       <h5 class="text-muted">No data catalog found</h5>
       <p class="text-muted">
-        No DataCatalog has been harvested for source <strong>{{ source }}</strong>
+        No DataCatalog is held in <strong>{{ urn }}</strong>
       </p>
     </div>
 
@@ -28,7 +28,7 @@
         <b-card-title class="name"
           ><span v-html="catalog.name || source"></span
         ></b-card-title>
-        <b-card-title class="publisher">{{ source }}</b-card-title>
+        <b-card-title class="publisher">{{ urn }}</b-card-title>
 
         <b-card-text v-if="catalog.description" class="description small mb-2"
           ><span v-html="catalog.description"></span
@@ -114,21 +114,26 @@ import backButton from "@/components/backButton.vue";
 import Results2 from "@/components/facetsearch/Results2.vue";
 import { useCatalog } from "@/composables/useCatalog.js";
 import { useConfig } from "@/composables/useConfig.js";
+import { catalogSourceFromUrn } from "@/utils/datasetIdentifiers.js";
 
 export default {
   name: "DataCatalogView",
   components: { backButton, Results2 },
   props: {
-    source: {
+    urn: {
       type: String,
       required: true,
     },
   },
   setup(props) {
     const { config } = useConfig();
-    return useCatalog(config, () => props.source);
+    return useCatalog(config, () => props.urn);
   },
   computed: {
+    /** All release catalogs share one subject IRI, so the slug lives in the URN. */
+    source() {
+      return catalogSourceFromUrn(this.urn);
+    },
     catalogAgents() {
       return [
         ["Organization", this.catalog?.organization],
@@ -158,7 +163,7 @@ export default {
     },
   },
   watch: {
-    source() {
+    urn() {
       this.load();
     },
   },

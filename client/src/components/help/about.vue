@@ -163,11 +163,12 @@ in case more intro paragraph text is needed
                 }"
                 >Reports</router-link
               >
-              <span class="mx-1">|</span>
+              <span v-if="catalogUrnFor(item.source)" class="mx-1">|</span>
               <router-link
+                v-if="catalogUrnFor(item.source)"
                 :to="{
-                  name: 'catalog',
-                  params: { source: item.source },
+                  name: 'source',
+                  params: { urn: catalogUrnFor(item.source) },
                 }"
                 >Data Catalog</router-link
               >
@@ -259,6 +260,8 @@ in case more intro paragraph text is needed
 import axios from "axios";
 import { mapState, mapGetters } from "vuex";
 import { tenantDefault } from "@/config.js";
+import { createSearchService } from "@/services/SearchService.js";
+import { catalogSourceFromUrn } from "@/utils/datasetIdentifiers.js";
 
 export default {
   name: "about.vue",
@@ -269,6 +272,9 @@ export default {
       community: "Not Set",
       community_url: null,
       visibleImages: [],
+      // source slug -> catalog graph URN; a source with no harvested catalog
+      // is simply absent, and its link is not rendered
+      catalogUrns: {},
     };
   },
   computed: {
@@ -305,8 +311,29 @@ export default {
     //   community = "all";
     this.reportsJson = `${s3base}tenant/${community}/latest/report_stats.json`;
     this.fetchAllReports();
+    this.fetchCatalogUrns();
   },
   methods: {
+    catalogUrnFor(source) {
+      return this.catalogUrns[String(source || "")] || "";
+    },
+    /**
+     * The catalog page is addressed by graph URN, but a source card only knows
+     * its slug, so resolve the whole set once here.
+     */
+    async fetchCatalogUrns() {
+      try {
+        const rows = await createSearchService(this.FacetsConfig).getCatalogList();
+        this.catalogUrns = Object.fromEntries(
+          rows
+            .map((r) => [catalogSourceFromUrn(r.g), r.g])
+            .filter(([source]) => source)
+        );
+      } catch (err) {
+        // non-fatal: the Data Catalog links just do not appear
+        console.warn("fetchCatalogUrns failed:", err?.message || err);
+      }
+    },
     fetchAllReports() {
       axios.get(this.reportsJson).then((response) => {
         this.reports = response.data;

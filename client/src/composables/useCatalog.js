@@ -2,22 +2,25 @@ import { ref, computed, unref, watch } from 'vue';
 import { createSearchService } from '@/services/SearchService.js';
 
 /**
- * Loads a source's DataCatalog and pages through its embedded Datasets via SPARQL
- * LIMIT/OFFSET, rather than fetching+framing the whole (potentially huge) release
- * document client-side.
+ * Loads the release catalog held in a named graph and pages through the datasets
+ * it lists via SPARQL LIMIT/OFFSET, rather than fetching+framing the whole
+ * (potentially huge) release document client-side.
+ *
+ * Keyed by the catalog's graph URN, not a source slug: all release catalogs share
+ * one subject IRI, so the graph is the catalog's only identity.
  */
-export function useCatalog(configOrRef, sourceOrRef) {
+export function useCatalog(configOrRef, urnOrRef) {
   const initial = unref(configOrRef) ?? {};
   const searchService = createSearchService(initial);
 
   /**
-   * The route param changes without remounting this view (/catalog/iris ->
-   * /catalog/wodb reuses the component), so the source has to be read at call
-   * time. Accepts a getter, a ref, or a plain string.
+   * The route param changes without remounting this view (one catalog URN ->
+   * another reuses the component), so it has to be read at call time. Accepts a
+   * getter, a ref, or a plain string.
    */
-  const currentSource = () => {
-    const s = typeof sourceOrRef === 'function' ? sourceOrRef() : unref(sourceOrRef);
-    return s == null ? '' : String(s);
+  const currentUrn = () => {
+    const s = typeof urnOrRef === 'function' ? urnOrRef() : unref(urnOrRef);
+    return s == null ? '' : String(s).trim();
   };
 
   watch(
@@ -83,7 +86,12 @@ export function useCatalog(configOrRef, sourceOrRef) {
     isLoadingCatalog.value = true;
     error.value = null;
     try {
-      const matches = await searchService.getCatalogForSource(currentSource());
+      const urn = currentUrn();
+      if (!urn) {
+        notFound.value = true;
+        return;
+      }
+      const matches = await searchService.getCatalogByGraph(urn);
       if (!matches.length) {
         notFound.value = true;
         return;
