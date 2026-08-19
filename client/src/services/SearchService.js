@@ -399,6 +399,41 @@ LIMIT 200
   }
 
   // -------------------------
+  // DataCatalog (per-source, SPARQL-paginated)
+  // -------------------------
+
+  /**
+   * The release catalog held in a named graph. Returns [] when that graph holds
+   * no DataCatalog.
+   */
+  async getCatalogByGraph(graphUri) {
+    const query = this.queryBuilder.buildCatalogByGraphQuery(graphUri);
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processResults(response);
+  }
+
+  /** Every Nabu release catalog, for turning a source slug into its URN. */
+  async getCatalogList() {
+    const query = this.queryBuilder.buildCatalogListQuery();
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processResults(response);
+  }
+
+  /** One page of Datasets embedded in a catalog document (named graph IRI). */
+  async getCatalogDatasetsPage(graphUri, { limit = 10, offset = 0 } = {}) {
+    const query = this.queryBuilder.buildCatalogDatasetsQuery(graphUri, { limit, offset });
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processResults(response);
+  }
+
+  /** Total Dataset count for a catalog document (named graph IRI). */
+  async getCatalogDatasetsCount(graphUri) {
+    const query = this.queryBuilder.buildCatalogDatasetsCountQuery(graphUri);
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processCountResult(response);
+  }
+
+  // -------------------------
   // Expose helpers
   // -------------------------
 

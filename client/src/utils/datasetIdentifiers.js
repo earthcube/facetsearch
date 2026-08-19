@@ -57,3 +57,23 @@ export function datasetJsonLdPathVariants(idStr) {
 
   return out;
 }
+
+/**
+ * Named graph URN of a Nabu release catalog:
+ * urn:gleaner.io:eco:<source>:datacatalog:<sha256>
+ */
+const CATALOG_URN_RE = /^urn:gleaner\.io:eco:([^:]+):datacatalog:[0-9a-f]{64}$/i;
+
+/** True if `s` addresses a release catalog document. */
+export function isCatalogUrn(s) {
+  return CATALOG_URN_RE.test(String(s || "").trim());
+}
+
+/**
+ * Source slug carried by a catalog URN. Every release catalog shares one subject
+ * IRI, so the slug is only recoverable from the graph URN.
+ */
+export function catalogSourceFromUrn(s) {
+  const m = CATALOG_URN_RE.exec(String(s || "").trim());
+  return m ? m[1] : "";
+}
