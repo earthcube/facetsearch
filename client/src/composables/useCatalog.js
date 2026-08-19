@@ -6,9 +6,19 @@ import { createSearchService } from '@/services/SearchService.js';
  * LIMIT/OFFSET, rather than fetching+framing the whole (potentially huge) release
  * document client-side.
  */
-export function useCatalog(configOrRef, source) {
+export function useCatalog(configOrRef, sourceOrRef) {
   const initial = unref(configOrRef) ?? {};
   const searchService = createSearchService(initial);
+
+  /**
+   * The route param changes without remounting this view (/catalog/iris ->
+   * /catalog/wodb reuses the component), so the source has to be read at call
+   * time. Accepts a getter, a ref, or a plain string.
+   */
+  const currentSource = () => {
+    const s = typeof sourceOrRef === 'function' ? sourceOrRef() : unref(sourceOrRef);
+    return s == null ? '' : String(s);
+  };
 
   watch(
     () => unref(configOrRef),
@@ -29,8 +39,14 @@ export function useCatalog(configOrRef, source) {
 
   const pageSizeOptions = computed(() => {
     const fromConfig = unref(configOrRef)?.LIMIT_OPTIONS;
-    if (Array.isArray(fromConfig) && fromConfig.length > 0) return fromConfig.map((v) => Number(v));
-    return [10, 20, 50, 100];
+    const sizes =
+      Array.isArray(fromConfig) && fromConfig.length > 0
+        ? fromConfig.map((v) => Number(v))
+        : [10, 20, 50, 100];
+    // LIMIT_DEFAULT is not necessarily one of LIMIT_OPTIONS (config_qlever_20
+    // defaults to 20 but offers 10/50/100/...), which leaves the select blank.
+    if (!sizes.includes(pageSize.value)) sizes.push(pageSize.value);
+    return sizes.sort((a, b) => a - b);
   });
 
   let loadGeneration = 0;
@@ -67,7 +83,7 @@ export function useCatalog(configOrRef, source) {
     isLoadingCatalog.value = true;
     error.value = null;
     try {
-      const matches = await searchService.getCatalogForSource(source);
+      const matches = await searchService.getCatalogForSource(currentSource());
       if (!matches.length) {
         notFound.value = true;
         return;

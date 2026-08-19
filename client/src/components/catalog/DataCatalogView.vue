@@ -6,16 +6,17 @@
       </b-col>
     </b-row>
 
-    <div v-if="isLoadingCatalog" class="text-center my-5">
-      <b-spinner variant="primary" />
-      <p class="mt-2">Loading catalog for {{ source }}&hellip;</p>
+    <div v-if="isLoadingCatalog" class="text-center py-5">
+      <b-spinner class="me-2"></b-spinner>
+      <span>Loading catalog for {{ source }}&hellip;</span>
     </div>
 
-    <div v-else-if="notFound">
-      <b-alert show variant="warning">
-        No DataCatalog was found for source <strong>{{ source }}</strong
-        >.
-      </b-alert>
+    <div v-else-if="notFound" class="no-results text-center py-5">
+      <i class="fas fa-search fa-3x text-muted mb-3"></i>
+      <h5 class="text-muted">No data catalog found</h5>
+      <p class="text-muted">
+        No DataCatalog has been harvested for source <strong>{{ source }}</strong>
+      </p>
     </div>
 
     <div v-else-if="error">
@@ -23,107 +24,100 @@
     </div>
 
     <div v-else-if="catalog">
-      <b-card class="mb-4" bg-variant="light" border-variant="secondary">
-        <b-card-title v-html="catalog.name || source"></b-card-title>
-        <b-card-text v-if="catalog.description" v-html="catalog.description"></b-card-text>
-        <div v-if="catalogAgents.length" class="small mb-2">
-          <div v-for="agent in catalogAgents" :key="agent.label" class="d-flex mb-1">
-            <div class="text-muted flex-shrink-0" style="width: 8rem">{{ agent.label }}</div>
-            <div>
-              <a v-if="isLink(agent.value)" :href="agent.value" target="_blank" rel="noopener">{{
-                agent.value
-              }}</a>
-              <span v-else>{{ agent.value }}</span>
-            </div>
-          </div>
-        </div>
-        <b-card-text class="text-muted small mb-0">
-          Source: {{ source }} &mdash; {{ totalCount.toLocaleString() }} dataset{{
-            totalCount === 1 ? "" : "s"
-          }}<span v-if="catalog.dateCreated"> &mdash; generated {{ catalog.dateCreated }}</span>
-        </b-card-text>
-      </b-card>
+      <b-card tag="section" class="rounded-0 catalog-master mb-3">
+        <b-card-title class="name"
+          ><span v-html="catalog.name || source"></span
+        ></b-card-title>
+        <b-card-title class="publisher">{{ source }}</b-card-title>
 
-      <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-        <div>
-          <span v-if="totalCount > 0">
-            Showing {{ displayStart.toLocaleString() }}-{{ displayEnd.toLocaleString() }} of
-            {{ totalCount.toLocaleString() }} datasets
-          </span>
-        </div>
-        <b-form-select
-          :value="pageSize"
-          :options="pageSizeSelectOptions"
-          size="sm"
-          style="width: 130px"
-          @input="setPageSize"
-        />
-      </div>
+        <b-card-text v-if="catalog.description" class="description small mb-2"
+          ><span v-html="catalog.description"></span
+        ></b-card-text>
 
-      <div v-if="isLoadingDatasets" class="text-center my-4">
-        <b-spinner small variant="primary" />
-      </div>
-
-      <b-list-group v-else class="mb-3">
-        <b-list-group-item v-for="(ds, index) in datasets" :key="ds.g || ds.subj || index">
-          <h6 class="mb-1">
-            <router-link :to="datasetLink(ds)">{{ datasetTitle(ds) }}</router-link>
-            <b-badge v-if="!ds.name" variant="secondary" class="ml-2 font-weight-normal"
-              >no schema:name</b-badge
-            >
-          </h6>
-          <div class="small text-muted mb-1">
-            <span class="text-monospace">{{ ds.subj }}</span>
+        <div v-for="agent in catalogAgents" :key="agent.label" class="agents">
+          <b-badge variant="primary" class="result-badge mr-2 flex-shrink-0">
+            {{ agent.label }}
+          </b-badge>
+          <div class="values">
             <a
-              v-if="ds.url"
-              :href="ds.url"
+              v-if="isLink(agent.value)"
+              :href="agent.value"
+              class="agent mx-2"
               target="_blank"
               rel="noopener"
-              class="ml-2"
-              >source&nbsp;&#8599;</a
+              >{{ agent.value }}</a
             >
+            <span v-else class="agent mx-2 text-secondary">{{ agent.value }}</span>
           </div>
-          <p v-if="ds.description" class="small text-muted mb-1">
-            {{ truncate(ds.description) }}
-          </p>
-          <div v-if="ds.kw && ds.kw.length">
-            <b-badge
-              v-for="(kw, kwIndex) in ds.kw"
-              :key="kwIndex"
-              variant="info"
-              class="mr-1"
-              >{{ kw }}</b-badge
-            >
-          </div>
-        </b-list-group-item>
-        <b-list-group-item v-if="datasets.length === 0">
-          No datasets on this page.
-        </b-list-group-item>
-      </b-list-group>
+        </div>
 
-      <b-pagination
-        v-if="totalPages > 1"
-        :value="page"
-        :total-rows="totalCount"
-        :per-page="pageSize"
-        :limit="7"
-        align="center"
-        size="sm"
-        @input="setPage"
-      />
+        <div class="badges mt-2">
+          <b-badge variant="data" class="result-badge mr-1">
+            <b-icon class="mr-1" icon="server"></b-icon>
+            {{ totalCount.toLocaleString() }}
+            {{ totalCount === 1 ? "dataset" : "datasets" }}
+          </b-badge>
+          <b-badge v-if="catalog.dateCreated" variant="light" class="result-badge mr-1">
+            <b-icon class="mr-1" icon="clock"></b-icon>
+            generated {{ catalog.dateCreated }}
+          </b-badge>
+        </div>
+      </b-card>
+
+      <div class="result-header mb-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="result-count">
+            <h5 class="mb-1">
+              <span v-if="isLoadingDatasets">
+                <b-spinner small class="me-2"></b-spinner>
+                Loading&hellip;
+              </span>
+              <span v-else-if="totalCount > 0">
+                Showing {{ displayStart.toLocaleString() }}-{{ displayEnd.toLocaleString() }} of
+                {{ totalCount.toLocaleString() }} datasets
+              </span>
+              <span v-else>0 datasets</span>
+            </h5>
+          </div>
+
+          <div class="sort-controls">
+            <b-form-select
+              :value="pageSize"
+              :options="pageSizeSelectOptions"
+              size="sm"
+              class="page-size-select"
+              @input="setPageSize"
+            />
+          </div>
+        </div>
+
+        <div v-if="totalPages > 1" class="pagination-row mt-2">
+          <b-pagination
+            :value="page"
+            :total-rows="totalCount"
+            :per-page="pageSize"
+            :limit="7"
+            align="center"
+            size="sm"
+            @input="setPage"
+          />
+        </div>
+      </div>
+
+      <Results2 :results="datasets" :loading="isLoadingDatasets" />
     </div>
   </b-container>
 </template>
 
 <script>
 import backButton from "@/components/backButton.vue";
+import Results2 from "@/components/facetsearch/Results2.vue";
 import { useCatalog } from "@/composables/useCatalog.js";
 import { useConfig } from "@/composables/useConfig.js";
-import { normalizeDatasetGraphIri } from "@/utils/datasetIdentifiers.js";
 
 export default {
   name: "DataCatalogView",
-  components: { backButton },
+  components: { backButton, Results2 },
   props: {
     source: {
       type: String,
@@ -132,7 +126,7 @@ export default {
   },
   setup(props) {
     const { config } = useConfig();
-    return useCatalog(config, props.source);
+    return useCatalog(config, () => props.source);
   },
   computed: {
     catalogAgents() {
@@ -163,24 +157,6 @@ export default {
       }));
     },
   },
-  methods: {
-    isLink(value) {
-      return /^https?:\/\//i.test(String(value));
-    },
-    /** Not every harvested record carries a schema:name. */
-    datasetTitle(ds) {
-      return ds.name || ds.subj || ds.g || "(untitled dataset)";
-    },
-    /** ?g is the per-dataset harvest graph URN, which is the /dataset/:d route id. */
-    datasetLink(ds) {
-      const id = normalizeDatasetGraphIri(ds.g) || ds.g || ds.id || ds.subj || "";
-      return { name: "dataset", params: { d: id } };
-    },
-    truncate(text, max = 300) {
-      const t = String(text || "");
-      return t.length > max ? `${t.slice(0, max).trimEnd()}\u2026` : t;
-    },
-  },
   watch: {
     source() {
       this.load();
@@ -189,9 +165,106 @@ export default {
   mounted() {
     this.load();
   },
+  methods: {
+    isLink(value) {
+      return /^https?:\/\//i.test(String(value));
+    },
+  },
 };
 </script>
 
 <style scoped lang="scss">
 @import "@/assets/bootstrapcss/custom";
+
+// Mirrors article.result-item-master in ResultItem2, minus the click affordance.
+section.catalog-master {
+  border: 2px solid $gray-400;
+  box-shadow: none;
+
+  .card-body {
+    padding: ($spacer * 1.5) $spacer;
+  }
+
+  .badge {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0 8px;
+    height: 26px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+
+    .b-icon {
+      font-size: 12px;
+      line-height: 1;
+    }
+  }
+}
+
+.agents {
+  display: flex;
+  align-items: flex-start;
+
+  .values {
+    font: {
+      size: 80%;
+    }
+    display: flex;
+    flex-wrap: wrap;
+
+    .agent {
+      padding: {
+        left: 0;
+      }
+    }
+  }
+}
+
+.name {
+  color: $gray-800;
+
+  font: {
+    weight: 600;
+    size: 120%;
+  }
+  line: {
+    height: 120%;
+  }
+}
+
+.publisher {
+  color: $gray-500;
+
+  margin: {
+    top: -($spacer * 0.4);
+  }
+
+  font: {
+    style: italic;
+    size: 90%;
+  }
+}
+
+.description {
+  color: $gray-500;
+}
+
+.result-header {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 1rem;
+}
+
+.page-size-select {
+  width: 120px;
+}
+
+.pagination-row :deep(.pagination) {
+  margin-bottom: 0;
+}
+
+.no-results {
+  color: #6c757d;
+}
 </style>
