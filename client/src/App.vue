@@ -2,9 +2,9 @@
   <div id="app" class="pb-5">
     <navHeader></navHeader>
 
-    <router-view></router-view>
+    <router-view />
     <div class="fixed-bottom float-right font-weight-lighter">
-     {{title}} Version: {{appVersion}} Date: {{appDate}} {{ NODE_ENV }}
+      {{ title }} Version: {{ appVersion }} Date: {{ appDate }} {{ NODE_ENV }}
     </div>
   </div>
 </template>
@@ -24,7 +24,6 @@ export default {
     return {
       NODE_ENV: "",
       title: import.meta.env.VITE_APP_TITLE,
-
     };
   },
   computed: {

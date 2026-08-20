@@ -26,7 +26,8 @@ router.get('/config', function(req, res, next) {
    // res.status(err.response.status)
     res.json(returnConfig);
 });
-router.get('/tools/*path', function(req,
+
+router.get('/tools/{*splat}', function(req,
                               res,
                               next) {
   var path = url.parse(req.url).pathname;
@@ -63,7 +64,7 @@ router.get('/tools/*path', function(req,
 // dataset/{urn}/download -- return download links and mime types
 //                           maybe return possible transformation
 // dataset/{urn}/download/{type} -- return the data in format as a proxy
-router.get('/dataset/*path/downloads', function(req
+router.get('/dataset/{*splat}/downloads', function(req
                                             ,res
                                             , next){
     var path = url.parse(req.url).pathname;
@@ -85,7 +86,7 @@ router.get('/dataset/*path/downloads', function(req
         }
     )
 })
-router.get('/dataset/*path', function(req,
+router.get('/dataset/{*splat}', function(req,
                                 res,
                                 next) {
   var path = url.parse(req.url).pathname;

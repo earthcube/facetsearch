@@ -1,0 +1,40 @@
+{
+  "name": "Text facet: Publisher filter",
+  "description": "Test publisher facet filtering",
+  "tests": [
+    {
+      "name": "publisher: discovery only",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "pubname", "active": false }
+      ]
+    },
+    {
+      "name": "publisher: single publisher (IEDA)",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "pubname", "active": true, "values": ["Interdisciplinary Earth Data Alliance (IEDA)"] }
+      ]
+    },    {
+      "name": "publisher: single publisher (BCODMO)",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "pubname", "active": true, "values": ["Biological and Chemical Data Management Office"] }
+      ]
+    },
+    {
+      "name": "publisher: single publisher (EarthChem)",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "pubname", "active": true, "values": ["EarthChem Library"] }
+      ]
+    },
+    {
+      "name": "publisher: multiple publishers (IEDA or EarthChem)",
+      "search": "water",
+      "facets": [
+        { "type": "text", "field": "pubname", "active": true, "values": ["Interdisciplinary Earth Data Alliance (IEDA)", "EarthChem Library"] }
+      ]
+    }
+  ]
+}

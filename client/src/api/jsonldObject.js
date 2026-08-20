@@ -31,6 +31,34 @@ import jsonld from "jsonld";
 //
 // }
 
+/**
+ * JSON-LD @type may be compact ("Dataset"), expanded (https://schema.org/Dataset),
+ * schema:Dataset, or an array of types.
+ */
+/** True if @type is schema:GeoShape (data may use "Geoshape" vs "GeoShape"). */
+const isGeoShapeType = function (t) {
+  if (typeof t !== "string") return false;
+  const leaf = t.includes("#") ? t.split("#").pop() : t.split("/").pop();
+  return (leaf || "").toLowerCase() === "geoshape";
+};
+
+const matchesSchemaType = function (typeVal, localName) {
+  if (typeVal == null) return false;
+  const candidates = new Set([
+    localName,
+    `schema:${localName}`,
+    `https://schema.org/${localName}`,
+    `http://schema.org/${localName}`,
+  ]);
+  const ok = (t) => {
+    if (typeof t !== "string") return false;
+    if (candidates.has(t)) return true;
+    return t.endsWith(`/${localName}`) || t.endsWith(`#${localName}`);
+  };
+  if (Array.isArray(typeVal)) return typeVal.some(ok);
+  return ok(typeVal);
+};
+
 const frameJsonLD = async function (jsonldObj, schemaType) {
   let frame = JSON.parse(`
 {
@@ -48,6 +76,7 @@ const frameJsonLD = async function (jsonldObj, schemaType) {
 };
 
 const schemaItem = function (name, json_compacted, noSchemaMessage = "") {
+  if (json_compacted == null) return noSchemaMessage;
   let s_name = json_compacted["https://schema.org/" + name]
     ? json_compacted["https://schema.org/" + name]
     : json_compacted["http://schema.org/" + name]
@@ -59,11 +88,11 @@ const schemaItem = function (name, json_compacted, noSchemaMessage = "") {
 };
 const hasSchemaProperty = function (name, jsonObj) {
   if (jsonObj === undefined) return false;
-  // eslint-disable-next-line no-prototype-builtins
+   
   if (
-    jsonObj.hasOwnProperty("https://schema.org/" + name) ||
-    jsonObj.hasOwnProperty("http://schema.org/" + name) ||
-    jsonObj.hasOwnProperty(name)
+    Object.prototype.hasOwnProperty.call(jsonObj, "https://schema.org/" + name) ||
+    Object.prototype.hasOwnProperty.call(jsonObj, "http://schema.org/" + name) ||
+    Object.prototype.hasOwnProperty.call(jsonObj, name)
   )
     return true;
 };
@@ -73,7 +102,7 @@ const geoplacename = function (s_spatialCoverage) {
     var s_place = s_spatialCoverage.find((obj) =>
       hasSchemaProperty("name", obj)
     );
-    placename = schemaItem("name", s_place);
+    placename = s_place ? schemaItem("name", s_place) : "";
   } else {
     placename = hasSchemaProperty("name", s_spatialCoverage)
       ? schemaItem("name", s_spatialCoverage)
@@ -103,15 +132,12 @@ const getFirstGeoShape = function (s_spatialCoverage, shapetype) {
     // get first match
     geo = geo.find(
       (obj) =>
-        obj["@type"].endsWith("GeoShape") && hasSchemaProperty(shapetype, obj)
+        isGeoShapeType(obj["@type"]) && hasSchemaProperty(shapetype, obj)
     );
   }
   if (geo) {
     //console.log(geo['@type'])
-    if (
-      geo["@type"].endsWith("GeoShape") &&
-      hasSchemaProperty(shapetype, geo)
-    ) {
+    if (isGeoShapeType(geo["@type"]) && hasSchemaProperty(shapetype, geo)) {
       var g = schemaItem(shapetype, geo);
       var coords = g
         .replaceAll(",", " ")
@@ -142,7 +168,8 @@ const getGeoCoordinates = function (s_spatialCoverage) {
     );
     let spatialCofType = spatialC.filter(function (obj) {
       let geoInternal = schemaItem("geo", obj);
-      return geoInternal["@type"].endsWith("GeoCoordinates");
+      const gt = geoInternal && geoInternal["@type"];
+      return typeof gt === "string" && gt.endsWith("GeoCoordinates");
     });
     if (spatialCofType) {
       spatialCofType = spatialCofType.map(function (obj) {
@@ -228,6 +255,25 @@ const matchDistributions = function (s_distribution, s_encodingFormatArray) {
   // }
   return downloads;
 };
+/** Drop duplicate distribution rows (same URL + format), e.g. from expanded JSON-LD / SPARQL. */
+function dedupeDistributionDownloads(downloads) {
+  if (!Array.isArray(downloads) || downloads.length < 2) return downloads;
+  const seen = new Set();
+  const out = [];
+  for (const d of downloads) {
+    const url = String(d.contentUrl ?? "").trim();
+    const fmt = String(d.encodingFormat ?? "").trim();
+    const key =
+      url !== ""
+        ? `${url}\0${fmt}`
+        : `__nourl__\0${String(d.linkName ?? "")}\0${fmt}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(d);
+  }
+  return out;
+}
+
 const getDistributions = function (s_distribution) {
   var downloads = [];
   //if (! s_distribution &&  ! s_url) return [];
@@ -248,7 +294,7 @@ const getDistributions = function (s_distribution) {
   //     }
   //     downloads.push(link)
   // }
-  return downloads;
+  return dedupeDistributionDownloads(downloads);
 };
 
 const formatDateToYYYYMMDD = function (dateString) {
@@ -310,7 +356,7 @@ const makeLinkObj = function (obj_dist) {
       encodingFormat: encodingFormatString,
       name: name,
       linkName: linkName,
-      description: description
+      description: description,
     });
   } else {
     name = hasSchemaProperty("name", obj_dist)
@@ -331,7 +377,7 @@ const makeLinkObj = function (obj_dist) {
       encodingFormat: encodingFormats,
       name: name,
       linkName: linkName,
-      description: description
+      description: description,
     });
   }
   return downloads;
@@ -349,6 +395,7 @@ const makeLinkObj = function (obj_dist) {
 export {
   //  getJsonLD,
   frameJsonLD,
+  matchesSchemaType,
   schemaItem,
   hasSchemaProperty,
   getGeoCoordinates,
@@ -357,5 +404,5 @@ export {
   getDistributions,
   makeLinkObj,
   matchDistributions,
-  formatDateToYYYYMMDD
+  formatDateToYYYYMMDD,
 };

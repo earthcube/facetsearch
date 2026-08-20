@@ -28,7 +28,7 @@
 
 <script>
 export default {
-  name: "Menu",
+  name: "CollectionMenu",
   data() {
     return {
       cartMenu: {

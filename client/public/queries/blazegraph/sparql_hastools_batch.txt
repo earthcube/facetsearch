@@ -1,0 +1,32 @@
+# batched version of sparql_hastools.txt: one query answers the
+# "connected tools" badge for a whole page of results.
+# ${gvalues} is a space-separated list of graph IRIs, e.g. <urn:a> <urn:b>
+PREFIX schema:  <https://schema.org/>
+PREFIX schemaold:  <http://schema.org/>
+SELECT DISTINCT ?g
+WHERE {
+  VALUES ?g { ${gvalues} }
+  GRAPH ?g
+	  {
+		{
+		  ?s schemaold:distribution|schema:distribution ?dist .
+		  ?dist  schemaold:encodingFormat|schema:encodingFormat ?type .
+		  ?dist schemaold:contentUrl|schema:contentUrl|schema:url|schemaold:url  ?curl
+		}
+		UNION {
+		  VALUES (?dataset) { ( schema:Dataset ) ( schemaold:Dataset ) }
+		  ?s a ?dataset .
+		  ?s  schemaold:encodingFormat|schema:encodingFormat ?type .
+		  }
+	 }
+	 BIND (str(?type) as ?label)
+	 SERVICE <${ecrr_service}> {
+	  GRAPH <${ecrr_graph}>
+	   {
+		  ?rrs schema:supportingData ?df.
+			  ?df schema:encodingFormat  ?label ;
+				  schema:position "input".
+			  ?rrs schema:name ?name.
+	   }
+   }
+}

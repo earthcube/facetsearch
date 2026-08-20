@@ -15,6 +15,10 @@ Generally,
 run server,
 run client.
 
+# CLAUDE Code note
+Use the vue skills:
+https://github.com/vuejs-ai/skills?tab=readme-ov-file
+
 
 ## Quick Instructions:
 ### client configuration
@@ -106,3 +110,4 @@ yarn lint
 # Docker
 A docker-compose file is included [docker-compose_dev.yaml](docker/docker-compose_dev.yaml)
 The geocodes repository has the latest  [docker-compose file](https://github.com/earthcube/geocodes/blob/main/deployment/geocodes-compose-local.yaml)
+

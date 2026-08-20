@@ -1,17 +1,13 @@
 <template>
   <b-container fluid="md" class="mt-5">
     <!-- allow logo to size according to container. fill with primary color from bootstrap variables -->
-    <b-container class="pt-5">
-      <b-row class="justify-content-center">
-        <b-col md="5" class="text-center">
-          <template v-if="currentTenant">
-            <span class="logo text-nowrap">{{ currentTenant.name }}</span>
-          </template>
-          <template v-else>
-            <logoGeoCodes class="d-block mx-auto" fill="#18598b" style="max-width:260px;width:100%" />
-          </template>
-        </b-col>
-      </b-row>
+    <b-container class="col-md-5 pt-5">
+      <template v-if="currentTenant">
+        <span class="logo">{{ currentTenant.name }}</span>
+      </template>
+      <template v-else>
+        <logoGeoCodes fill="#18598b" width="100%" />
+      </template>
     </b-container>
 
     <b-container class="col-md-5 mt-4">
@@ -39,24 +35,23 @@
                   d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"
                 /></svg
             ></b-button>
-            <VueToggles
-              id="checkbox"
-              :value="searchExactMatch"
-              :height="35"
-              :width="75"
-              checked-text="AND"
-              unchecked-text="OR"
-              checked-bg="#777"
-              :disabled="false"
-              @click="searchExactMatch = !searchExactMatch"
-            />
-            <b-tooltip target="checkbox1" placement="right" triggers="hover">
-              {{
-                searchExactMatch
-                  ? "Unselect to match any of the search terms"
-                  : "Select to match all of the search terms"
-              }}
-            </b-tooltip>
+            <b-button id="search-info-btn" variant="outline-secondary" type="button" class="mr-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+              </svg>
+            </b-button>
+            <b-popover target="search-info-btn" triggers="click blur" placement="bottom" title="Search Tips">
+              <div>
+                <p><strong>AND search (default):</strong> Multiple words are all required.<br/>
+                <em>Example:</em> <code>water chemistry</code> → results must contain both words.</p>
+                <p><strong>OR search:</strong> Use <code> or </code> (lowercase, with spaces) between terms.<br/>
+                <em>Example:</em> <code>Atlantic or Pacific</code> → results containing either term.</p>
+                <p><strong>Combined:</strong> <code>sediment North Atlantic or North Pacific</code><br/>
+                → must contain "sediment" AND ("North Atlantic" OR "North Pacific").</p>
+                <p class="mb-0"><strong>Exact match checkbox:</strong> When unchecked, each word becomes a separate OR branch instead of requiring all words.</p>
+              </div>
+            </b-popover>
           </b-input-group-append>
         </b-input-group>
 
@@ -83,12 +78,12 @@
         <b-carousel-slide>
           {{ currentTenant.landing_introduction }}
         </b-carousel-slide>
-<!--        <b-carousel-slide> a schema.org/Dataset search </b-carousel-slide>-->
-<!--        <b-carousel-slide>-->
-<!--          Geoscience Cyberinfrastructure-->
-<!--          <span class="text-nowrap">for Open Discovery</span>-->
-<!--          <span class="text-nowrap">in the Earth Sciences</span>-->
-<!--        </b-carousel-slide>-->
+        <!--        <b-carousel-slide> a schema.org/Dataset search </b-carousel-slide>-->
+        <!--        <b-carousel-slide>-->
+        <!--          Geoscience Cyberinfrastructure-->
+        <!--          <span class="text-nowrap">for Open Discovery</span>-->
+        <!--          <span class="text-nowrap">in the Earth Sciences</span>-->
+        <!--        </b-carousel-slide>-->
       </b-carousel>
       <b-container fluid="md" class="mt-5">
         <div class="d-flex justify-content-between align-items-center">
@@ -101,47 +96,65 @@
         </div>
       </b-container>
 
-    <b-card-group columns class="d-flex flex-wrap justify-content-start mt-4">
-      <b-card
-        v-for="(item, index) in reports"
-        :key="index"
-        no-body
-        class="text-center card-equal d-flex flex-column"
-        style="flex: 0 1 340px;"
-      >
-        <b-card-body v-if="item.source != 'geocodes_demo_datasets'" class = "d-flex flex-column flex-grow-1">
-          <b-card-title>
-            <b-link
-              target="_blank"
-              class="d-flex flex-column align-items-center"
-              :href="item.website"
-            >
-              <div v-if="visibleImages[index]"
-                class="logo d-flex justify-content-center align-items-center"
+      <b-card-group columns class="d-flex flex-wrap justify-content-start mt-4">
+        <b-card
+          v-for="(item, index) in reports"
+          :key="index"
+          no-body
+          class="text-center card-equal d-flex flex-column"
+          style="flex: 0 1 340px"
+        >
+          <b-card-body
+            v-if="item.source != 'geocodes_demo_datasets'"
+            class="d-flex flex-column flex-grow-1"
+          >
+            <b-card-title>
+              <b-link
+                target="_blank"
+                class="d-flex flex-column align-items-center"
+                :href="item.website"
               >
-                <b-img fluid :src="'/images/repo/' + item.image" class="card-logo"
-                @error="visibleImages[index] = false"></b-img>
-              </div>
+                <div
+                  v-if="visibleImages[index]"
+                  class="logo d-flex justify-content-center align-items-center"
+                >
+                  <b-img
+                    fluid
+                    :src="'/images/repo/' + item.image"
+                    class="card-logo"
+                    @error="visibleImages[index] = false"
+                  ></b-img>
+                </div>
 
-              <div class="mt-3">{{ item.title }}</div>
-            </b-link>
-          </b-card-title>
+                <div class="mt-3">{{ item.title }}</div>
+              </b-link>
+            </b-card-title>
 
-          <b-card-text class="d-flex flex-column flex-grow-1 justify-content-between">
-            <i v-if="item.records > 0"
-              >{{ item.records }} record{{ item.records == 1 ? "" : "s" }}</i
+            <b-card-text
+              class="d-flex flex-column flex-grow-1 justify-content-between"
             >
+              <i v-if="item.records > 0"
+                >{{ item.records }} record{{ item.records == 1 ? "" : "s" }}</i
+              >
 
-            <div class="mt-3 small text-left description-container" v-html="item.description"></div>
+              <div
+                class="mt-3 small text-left description-container"
+                v-html="item.description"
+              ></div>
 
-            <div class="mt-auto pt-3 text-left">
-              <router-link
-                :to="{ name: 'report', params: { source: item.source}, query: { description: item.description }}"
-                >Reports</router-link>
-            </div>
-          </b-card-text>
+              <div class="mt-auto pt-3 text-left">
+                <router-link
+                  :to="{
+                    name: 'report',
+                    params: { source: item.source },
+                    query: { description: item.description },
+                  }"
+                  >Reports</router-link
+                >
+              </div>
+            </b-card-text>
 
-          <!--
+            <!--
 //left this here in case the description was too much to be shown all the time (use collapse). problem is, sometimes expanding forces an item to move to a different column (feels like it disappears)
 //could use accordian option to only allow a single card to be expanded at a time...but still doesn't solve the issue completely and why this was moved to show the description by default
                     <b-card-text
@@ -161,9 +174,9 @@
                         </div>
                     </b-card-text>
 -->
-        </b-card-body>
-      </b-card>
-    </b-card-group>
+          </b-card-body>
+        </b-card>
+      </b-card-group>
     </b-container>
   </b-container>
 </template>
@@ -171,20 +184,16 @@
 <script>
 //import VueRouter from 'vue-router'
 import logoGeoCodes from "@/components/logos/logoGeoCodes.vue";
-import {mapGetters, mapMutations, mapState} from "vuex";
-import VueToggles from "vue-toggles";
+import { mapMutations, mapState } from "vuex";
 import axios from "axios";
-import yaml from "js-yaml";
-import {tenantDefault} from "@/config.js";
-
+import { tenantDefault } from "@/config.js";
 
 export default {
   name: "Landing",
-  components: { logoGeoCodes, VueToggles },
+  components: { logoGeoCodes },
   data() {
     return {
       q: "",
-      searchExactMatch: false,
       toolOptionsSelected: "all",
       toolOptions: [
         { value: "all", text: "All" },
@@ -193,7 +202,7 @@ export default {
       ],
       slide: 0,
       reports: null,
-      visibleImages: []
+      visibleImages: [],
     };
   },
   computed: {
@@ -203,16 +212,30 @@ export default {
     },
     currentTenant() {
       if (!this.tenantData?.tenant) return tenantDefault.tenant[0];
-      return this.tenantData.tenant.find(
-        t => t.community === this.currentCommunity
-      ) || tenantDefault.tenant[0];
+      return (
+        this.tenantData.tenant.find(
+          (t) => t.community === this.currentCommunity
+        ) || tenantDefault.tenant[0]
+      );
     },
     tenantData() {
       return this.$store.getters.getTenantData;
-    }
+    },
   },
   mounted() {
     const s3base = this.FacetsConfig.S3_REPORTS_URL;
+    // Optional: skip OSS request (avoids console 403 when bucket is private / local dev).
+    if (
+      import.meta.env.VITE_SKIP_LANDING_REPORT_STATS === "true" ||
+      this.FacetsConfig.FETCH_LANDING_REPORT_STATS === false
+    ) {
+      this.reports = [];
+      return;
+    }
+    if (!s3base || String(s3base).trim() === "") {
+      this.reports = [];
+      return;
+    }
     let community = this.FacetsConfig.COMMUNITY;
     if (
       community === undefined ||
@@ -228,12 +251,12 @@ export default {
     onSubmit() {
       var query = this.q;
       var resourceType = this.toolOptionsSelected;
-      var exact =  this.searchExactMatch
+      // Default: AND / all terms (structured search); use ` or ` in the query for OR.
       this.$router.push({
-        name: "Search",
+        name: "Search2",
         query: {
           q: query,
-          searchExactMatch: exact,
+          searchExactMatch: "true",
           resourceType: resourceType,
         },
       });
@@ -241,16 +264,24 @@ export default {
     onReset() {
       this.setTextQuery("");
     },
+    /**
+     * Loads "Top Repositories" cards from S3_REPORTS_URL/.../report_stats.json.
+     * A browser console 403/404 here means the OSS object is not publicly readable or missing —
+     * not a search/SPARQL issue. EarthCube ops must allow anonymous GET on that path (or proxy via API).
+     */
     fetchAllReports() {
       axios
-        .get(this.reportsJson)
+        .get(this.reportsJson, { timeout: 10000 })
         .then((response) => {
           this.reports = response.data
             .sort((a, b) => b.records - a.records) // Sort in descending order
-            .slice(0, 3)
+            .slice(0, 3);
           this.visibleImages = this.reports.map(() => true);
+        })
+        .catch(() => {
+          this.reports = [];
         });
-    }
+    },
   },
 };
 </script>
@@ -316,17 +347,17 @@ export default {
 }
 
 .logo {
-    font-family: 'Open Sans', sans-serif;
-    font-size: 72px;
-    color: #2A5279;
-    letter-spacing: 2px;
-    display: inline-flex;
-    align-items: center;
+  font-family: "Open Sans", sans-serif;
+  font-size: 72px;
+  color: #2a5279;
+  letter-spacing: 2px;
+  display: inline-flex;
+  align-items: center;
 }
 
-.card-logo{
+.card-logo {
   max: {
-    width: 200px;
+    width: 100px;
   }
   max: {
     height: 100px;

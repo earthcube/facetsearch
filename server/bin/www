@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 /**
+ * Load environment variables from .env before anything reads process.env.
+ */
+require('dotenv').config();
+
+/**
  * Module dependencies.
  */
 

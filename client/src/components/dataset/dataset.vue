@@ -3,11 +3,15 @@
     <b-overlay :show="obscurePage" rounded="sm">
       <b-row class="align-items-center mb-3">
         <b-col cols="auto">
-          <back-button/>
+          <back-button />
         </b-col>
-
       </b-row>
-      <b-card class="mt-3" bg-variant="light" border-variant="secondary" v-if="isDataCatalog">
+      <b-card
+        v-if="isDataCatalog"
+        class="mt-3"
+        bg-variant="light"
+        border-variant="secondary"
+      >
         <b-card-header>Records from DataCatalog</b-card-header>
         <b-card-body>
           <b-list-group flush>
@@ -22,42 +26,51 @@
 
             <b-list-group-item>
               <strong>Keywords:</strong>
-              <b-badge v-for="(kw, idx) in keywords" :key="idx" variant="info" class="mr-1">
-                {{kw}}
+              <b-badge
+                v-for="(kw, idx) in keywords"
+                :key="idx"
+                variant="info"
+                class="mr-1"
+              >
+                {{ kw }}
               </b-badge>
             </b-list-group-item>
-
           </b-list-group>
         </b-card-body>
         <b-card-footer>
-          <div v-if="mappings.length>0"> Number of Datasets: {{ mappings.length }}</div>
+          <div v-if="mappings.length > 0">
+            Number of Datasets: {{ mappings.length }}
+          </div>
         </b-card-footer>
       </b-card>
       <div v-for="(mapping, index) in mappings" :key="index">
         <b-card no-body class="mb-2">
           <!-- Toggle Header -->
           <b-card-header
-              class="d-flex justify-content-between align-items-center"
-              @click="toggleCollapse(index)"
-              style="cursor: pointer;"
+            class="d-flex justify-content-between align-items-center"
+            style="cursor: pointer"
+            @click="toggleCollapse(index)"
           >
             <h5 class="mb-0" v-html="mapping.s_name"></h5>
-            <b-icon :icon="collapsedIndices.includes(index) ? 'chevron-down' : 'chevron-up'"/>
+            <b-icon
+              :icon="
+                collapsedIndices.includes(index) ? 'chevron-down' : 'chevron-up'
+              "
+            />
           </b-card-header>
 
           <!-- Collapsible Body -->
-          <b-collapse :id="'collapse-' + index" :visible="!collapsedIndices.includes(index)">
+          <b-collapse
+            :id="'collapse-' + index"
+            :visible="!collapsedIndices.includes(index)"
+          >
             <b-card-body>
               <b-row class="align-items-center">
                 <!--                <b-col>-->
                 <!--                  <p>{{ mapping.description }}</p>-->
                 <!--                </b-col>-->
-                <b-col cols="right">
-                  <feedback
-                      subject="Dataset"
-                      :name="mapping.s_name"
-                      :urn="d"
-                  />
+                <b-col cols="12" class="text-md-right mb-2">
+                  <feedback subject="Dataset" :name="mapping.s_name" :urn="d" />
                 </b-col>
               </b-row>
               <b-row>
@@ -66,11 +79,11 @@
                     <div class="label">Type</div>
                     <div class="value">
                       <b-icon
-                          font-scale="2"
-                          class="mr-1"
-                          shift-v="-2"
-                          :icon="'data' == 'data' ? 'server' : 'tools'"
-                          :variant="'data' == 'data' ? 'data' : 'tool'"
+                        font-scale="2"
+                        class="mr-1"
+                        shift-v="-2"
+                        :icon="'data' == 'data' ? 'server' : 'tools'"
+                        :variant="'data' == 'data' ? 'data' : 'tool'"
                       ></b-icon>
                       <b-badge variant="data" class="mr-1 mb-1">Data</b-badge>
                     </div>
@@ -83,25 +96,31 @@
 
                   <div v-if="mapping.s_contributor" class="metadata">
                     <div class="label">Creator</div>
-                    <div v-if="!Array.isArray(mapping.s_contributor)" class="value">
+                    <div
+                      v-if="!Array.isArray(mapping.s_contributor)"
+                      class="value"
+                    >
                       {{ mapping.s_contributor }}
                     </div>
-                    <div v-if="Array.isArray(mapping.s_contributor)" class="value">
+                    <div
+                      v-if="Array.isArray(mapping.s_contributor)"
+                      class="value"
+                    >
                       <div v-for="i in mapping.s_contributor" :key="i">
                         {{ i }}
                       </div>
                     </div>
                   </div>
 
-          <div v-if="mapping.publisher" class="metadata">
-            <div class="label">Publisher</div>
-            <div class="value">{{ mapping.publisher }}</div>
-          </div>
+                  <div v-if="mapping.publisher" class="metadata">
+                    <div class="label">Publisher</div>
+                    <div class="value">{{ mapping.publisher }}</div>
+                  </div>
 
-          <div v-if="mapping.s_provider" class="metadata">
-            <div class="label">Provider</div>
-            <div class="value">{{ mapping.s_provider }}</div>
-          </div>
+                  <div v-if="mapping.s_provider" class="metadata">
+                    <div class="label">Provider</div>
+                    <div class="value">{{ mapping.s_provider }}</div>
+                  </div>
                   <div v-if="mapping.s_publisher" class="metadata">
                     <div class="label">Publisher</div>
                     <div class="value">{{ mapping.publisher }}</div>
@@ -119,7 +138,7 @@
 
                   <div v-if="mapping.start_datetime" class="metadata">
                     <div class="label">Start Date</div>
-                    <div class="value">{{ mapping.start_datetime }}</div>
+                    <div class="va]lue">{{ mapping.start_datetime }}</div>
                   </div>
 
                   <div v-if="mapping.end_datetime" class="metadata">
@@ -127,44 +146,57 @@
                     <div class="value">{{ mapping.end_datetime }}</div>
                   </div>
 
-          <div v-if="mapping.s_providers?.length" class="metadata">
-            <div class="label">Providers</div>
-            <div class="value">
-              <div v-for="(p, i) in mapping.s_providers" :key="i">
-                <a :href="p.url" target="_blank" rel="noopener">{{ p.name }}</a>
-              </div>
-            </div>
-          </div>
+                  <div v-if="mapping.has_citation" class="metadata">
+                    <div class="label">Citation</div>
+                    <div class="value" v-html="formatCitation(mapping)"></div>
+                  </div>
 
-          <div v-if="mapping.s_keywords?.length" class="metadata">
-            <div class="label">Keywords</div>
-            <div class="value">
-              <span v-for="(kw, idx) in mapping.s_keywords" :key="idx">
-                <template v-if="typeof kw === 'object' && kw !== null">
-                  <a v-if="kw.url" :href="kw.url" target="_blank" rel="noopener" class="keyword-link">
-                    {{ kw.name }}
-                  </a>
-                  <span v-else>{{ kw.name }}</span>
-                </template>
-                <span v-else>{{ kw }}</span>
-                <span v-if="idx < mapping.s_keywords.length - 1">, </span>
-              </span>
-            </div>
-          </div>
+                  <div v-if="mapping.s_providers?.length" class="metadata">
+                    <div class="label">Providers</div>
+                    <div class="value">
+                      <div v-for="(p, i) in mapping.s_providers" :key="i">
+                        <a :href="p.url" target="_blank" rel="noopener">{{ p.name }}</a>
+                      </div>
+                    </div>
+                  </div>
 
-          <div
-            v-if="mapping.s_variableMeasuredNames?.length > 0"
-            class="varaibles"
-          >
-            <div class="label">Variables Measured</div>
-            <div class="value">
-              <span v-for="vm in mapping.s_variableMeasuredNames" :key="vm">
-                <b-badge class="mr-1" variant="light"> {{ vm }}</b-badge>
-              </span>
-            </div>
-          </div>
+                  <div v-if="mapping.s_keywords?.length" class="metadata">
+                    <div class="label">Keywords</div>
+                    <div class="value">
+                      <span v-for="(kw, idx) in mapping.s_keywords" :key="idx">
+                        <template v-if="typeof kw === 'object' && kw !== null">
+                          <a v-if="kw.url" :href="kw.url" target="_blank" rel="noopener" class="keyword-link">
+                            {{ kw.name }}
+                          </a>
+                          <span v-else>{{ kw.name }}</span>
+                        </template>
+                        <span v-else>{{ kw }}</span>
+                        <span v-if="idx < mapping.s_keywords.length - 1">, </span>
+                      </span>
+                    </div>
+                  </div>
 
-                  <div v-if="mapping.s_downloads || mapping.s_url" class="metadata">
+                  <div
+                    v-if="mapping.s_variableMeasuredNames?.length > 0"
+                    class="varaibles"
+                  >
+                    <div class="label">Variables Measured</div>
+                    <div class="value">
+                      <span
+                        v-for="vm in mapping.s_variableMeasuredNames"
+                        :key="vm"
+                      >
+                        <b-badge class="mr-1" variant="light">
+                          {{ vm }}</b-badge
+                        >
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    v-if="mapping.s_downloads || mapping.s_url"
+                    class="metadata"
+                  >
                     <div class="label">Links</div>
                     <div class="value">
                       <!--                        <div style="font-weight:600;">Object URL text/plain; application=magic-tsv</div>-->
@@ -182,30 +214,45 @@
                       </div>
 
                       <div v-for="i in mapping.s_downloads" :key="i.name">
-                        <div style="font-weight: 600">Distribution: {{ i.name }}</div>
+                        <div style="font-weight: 600">
+                          Distribution: {{ i.name }}
+                        </div>
                         <!-- do we want this? -->
                         <div
-                            v-if="i.encodingFormat && i.name !== i.encodingFormat"
-                            style="font-weight: 600"
+                          v-if="i.encodingFormat && i.name !== i.encodingFormat"
+                          style="font-weight: 600"
                         >
                           {{ i.encodingFormat }}
                         </div>
                         <div>
                           <!-- Show the URL if it does NOT start with 's3:' -->
-                          <a v-if="!i.contentUrl.startsWith('s3:')" target="_blank" :href="i.contentUrl">{{
-                              i.contentUrl
-                            }}</a>
+                          <a
+                            v-if="
+                              i.contentUrl &&
+                              !String(i.contentUrl).startsWith('s3:')
+                            "
+                            target="_blank"
+                            :href="i.contentUrl"
+                            >{{ i.contentUrl }}</a
+                          >
                           <!-- Show the button if the URL starts with 's3:' -->
                           <button
-                              v-else
-                              class="data-access-button"
-                              @click="dataAccessWindow(i.description)"
+                            v-else-if="
+                              i.contentUrl &&
+                              String(i.contentUrl).startsWith('s3:')
+                            "
+                            class="data-access-button"
+                            @click="dataAccessWindow(i.description)"
                           >
                             View Access Code
                           </button>
                         </div>
                         <!-- Dialog -->
-                        <div v-if="isDialogOpen" class="dialog-backdrop" @click.self="closeDialog">
+                        <div
+                          v-if="isDialogOpen"
+                          class="dialog-backdrop"
+                          @click.self="closeDialog"
+                        >
                           <div class="dialog-content">
                             <h3>URL Copied!</h3>
                             <p>{{ dialogContent }}</p>
@@ -227,7 +274,10 @@
                 </b-col>
 
                 <b-col md="4">
-                  <DatasetLocation :m="mapping" :index="index"></DatasetLocation>
+                  <DatasetLocation
+                    :m="mapping"
+                    :index="index"
+                  ></DatasetLocation>
 
                   <b-card>
                     <b-card-title>Downloads</b-card-title>
@@ -239,6 +289,40 @@
           </b-collapse>
         </b-card>
       </div>
+
+      <b-card v-if="showFallbackDatasetCard" class="mb-3">
+        <b-card-body>
+          <b-row class="align-items-start">
+            <b-col md="8">
+              <h4 class="page_title mb-2">{{ fallbackDatasetTitle }}</h4>
+              <div class="mb-2">
+                <feedback
+                  subject="Dataset"
+                  :name="fallbackDatasetTitle"
+                  :urn="d"
+                />
+              </div>
+              <div
+                v-if="fallbackDatasetDescription"
+                class="text-muted"
+                v-html="fallbackDatasetDescription"
+              />
+              <b-alert show variant="warning" class="small mt-3 mb-0">
+                Structured metadata panels could not be built for this record (or
+                they are still loading). Use the Metadata section at the bottom to
+                inspect JSON-LD. Connected tools and related data below still use
+                this dataset id.
+              </b-alert>
+            </b-col>
+            <b-col md="4">
+              <b-card>
+                <b-card-title>Downloads</b-card-title>
+                <downloadfiles :d="d" :m="fallbackDownloadMapping" />
+              </b-card>
+            </b-col>
+          </b-row>
+        </b-card-body>
+      </b-card>
 
       <connected-tools :d="d"></connected-tools>
 
@@ -253,15 +337,15 @@
             <!--            <b-icon icon="code-slash" class="mr-1"-->
             <!--            ></b-icon>-->
             <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="currentColor"
-                class="bi bi-code-slash"
-                viewBox="0 0 16 16"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-code-slash"
+              viewBox="0 0 16 16"
             >
               <path
-                  d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"
+                d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"
               />
             </svg>
             Metadata
@@ -271,10 +355,10 @@
             <b-card>
               <!-- TODO remove inline style attributes -->
               <vue-json-pretty
-                  class="text-left"
-                  :show-line="true"
-                  :deep="2"
-                  :data="jsonLdObj"
+                class="text-left"
+                :show-line="true"
+                :deep="2"
+                :data="jsonLdObj"
               />
             </b-card>
           </b-collapse>
@@ -290,11 +374,10 @@ import ConnectedTools from "@/components/dataset/connectedTools.vue";
 import Downloadfiles from "@/components/dataset/downloadfiles.vue";
 import relatedData from "@/components/dataset/relatedData.vue";
 import sampleInfo from "@/components/dataset/igsnSampleList.vue";
-import annotation from "@/components/dataset/annotation.vue";
 import feedback from "@/components/feedback/feedback.vue";
 import citationButton from "@/components/dataset/citationButton.vue";
 import backButton from "@/components/backButton.vue";
-import {mapState, mapActions} from "vuex";
+import { mapState, mapActions } from "vuex";
 import _ from "lodash";
 import {
   geoplacename,
@@ -304,11 +387,12 @@ import {
   hasSchemaProperty,
   schemaItem,
   frameJsonLD,
-  formatDateToYYYYMMDD
+  matchesSchemaType,
+  formatDateToYYYYMMDD,
 } from "../../api/jsonldObject";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
-import {marked} from "marked";
+import { marked } from "marked";
 
 export default {
   compatConfig: {
@@ -325,7 +409,6 @@ export default {
     // "json-view": JSONView,
     VueJsonPretty,
     relatedData,
-    annotation,
     feedback,
     citationButton,
     backButton,
@@ -345,16 +428,22 @@ export default {
       raw_json: "",
       mappings: [],
       geolink: "",
-      providers: [],
       collapsedIndices: [], // keeps track of collapsed panels
     };
   },
   watch: {
-    jsonLdObj: "toMetadata",
+    jsonLdObj: {
+      handler() {
+        this.toMetadata();
+      },
+      deep: true,
+    },
     "$route.params.d": function (d) {
       this.obscurePage = false;
-      // should get fanche and overlay a loading... then remove loading in toMetadata
-      this.$store.dispatch("fetchJsonLd", d);
+      this.$store
+        .dispatch("fetchJsonLd", d)
+        .then(() => this.$nextTick(() => this.toMetadata()))
+        .catch(() => {});
     },
   },
   async mounted() {
@@ -362,26 +451,64 @@ export default {
     this.$store.commit("setJsonLd", {});
     this.$store.commit("setJsonLdCompact", {});
     this.obscurePage = true;
+    const datasetId = this.d || this.$route.params.d;
     this.$store
-        .dispatch("fetchJsonLd", this.d)
-        .then(() => {
-          this.obscurePage = false;
-        })
-        .catch((ex) => {
-          this.obscurePage = false;
-          this.$bvToast.toast(
-              `This is probably an issue with stale data, or bad identifier: ` + ex,
-              {
-                title: "No JSONLD Metadata Found",
+      .dispatch("fetchJsonLd", datasetId)
+      .then(() => {
+        this.obscurePage = false;
+        this.$nextTick(() => this.toMetadata());
+      })
+      .catch((ex) => {
+        this.obscurePage = false;
+        this.$bvToast.toast(
+          `This is probably an issue with stale data, or bad identifier: ` + ex,
+          {
+            title: "No JSONLD Metadata Found",
 
-                solid: true,
-                appendToast: false,
-              }
-          );
-        });
+            solid: true,
+            appendToast: false,
+          }
+        );
+      });
   },
   computed: {
-    ...mapState(["jsonLdObj", "jsonLdCompact"])
+    ...mapState(["jsonLdObj", "jsonLdCompact"]),
+    showFallbackDatasetCard() {
+      if (this.obscurePage) return false;
+      if (this.mappings.length > 0) return false;
+      if (this.isDataCatalog) return false;
+      const jp = this.jsonLdObj;
+      if (!jp || typeof jp !== "object") return false;
+      if (Object.keys(jp).length === 0) return false;
+      return matchesSchemaType(jp["@type"], "Dataset");
+    },
+    fallbackDatasetTitle() {
+      const n = this.jsonLdObj?.name;
+      if (typeof n === "string") return n;
+      if (n && typeof n === "object" && n["@value"] != null) {
+        return String(n["@value"]);
+      }
+      return "Dataset";
+    },
+    fallbackDatasetDescription() {
+      const d = this.jsonLdObj?.description;
+      if (typeof d === "string") return d;
+      if (d && typeof d === "object" && d["@value"] != null) {
+        return String(d["@value"]);
+      }
+      return "";
+    },
+    fallbackDownloadMapping() {
+      const jp = this.jsonLdObj;
+      if (!jp || typeof jp !== "object") {
+        return { s_downloads: [] };
+      }
+      const dist = schemaItem("distribution", jp);
+      const url = schemaItem("url", jp);
+      return {
+        s_downloads: getDistributions(dist, url),
+      };
+    },
   },
   methods: {
     toggleCollapse(index) {
@@ -394,15 +521,20 @@ export default {
     },
     ...mapActions(["fetchJsonLd"]),
     async dataAccessWindow(content) {
+      const scriptClose = '</' + 'script>';
       content = marked(content, {
-        highlight: function (code, language) {
+        highlight: function (code, _language) {
           return code; // Optionally highlight the code here
-        }
+        },
       });
 
       try {
         // Open a new window with the rendered content
-        const newWindow = window.open("", "_blank", "width=800,height=600,left=350");
+        const newWindow = window.open(
+          "",
+          "_blank",
+          "width=800,height=600,left=350"
+        );
         if (newWindow) {
           newWindow.document.write(`
             <html>
@@ -477,7 +609,7 @@ export default {
                     };
                     pre.appendChild(copyButton);
                   });
-                <\/script>
+                ${scriptClose}
               </body>
             </html>
           `);
@@ -499,45 +631,12 @@ export default {
     },
     toMetadata() {
       var self = this;
-      var mapping = {
-        "s_name": "",
-        "s_description": "",
-        s_url: "",
-        s_contributor: "",
-        s_datePublished: "",
-        s_sdPublisher: "",
-        s_citation: "",
-        has_citation: "",
-        s_keywords: [],
-        s_providers: [],
-        s_landingpage: "",
-        s_downloads: [],
-        s_identifier: "",
-        details: {},
-        raw_json: "",
-        html_name: "",
-        publisher: "",
-        description: "",
-        s_publisher: "",
-        s_publishedDate: "",
-        has_s_url: false,
-        downloads: [],
-        s_distribution: "",
-        s_variableMeasuredNames: [],
-        s_doiurl: "",
-        doi_citation: "", // s_ is schema... doi_citation not a schema element
-        doi_metadata: "",
-        s_spatialCoverage: false,
-        placenames: "",
-        box: "",
-        poly: "",
-        points: [],
-        updated: "",
-        start_datetime: "",
-        end_datetime: ""
-      };
-      var jp = self.jsonLdObj; // framed dataset
-      if (jp["@type"] == "DataCatalog") {
+      var jp = self.jsonLdObj;
+      if (!jp || typeof jp !== "object") return;
+      if (JSON.stringify(jp) === "{}") return;
+
+      this.isDataCatalog = false;
+      if (matchesSchemaType(jp["@type"], "DataCatalog")) {
         this.isDataCatalog = true;
       }
       this.name = jp["name"];
@@ -571,21 +670,35 @@ export default {
       this.vocab = jp["@vocab"];
       this.geolink = jp["geolink"];
 
-      if (JSON.stringify(jp) === "{}") return;
-      frameJsonLD(jp, "Dataset").then((jp) => {
-        if (jp === undefined) return;
-
-        this.mappings = []; // Reset the array
-
+      const resolveDatasetNodes = (framed, raw) => {
         let datasets = [];
-        if (jp["@graph"] !== undefined) {
-          datasets = jp["@graph"].filter(item => item["@type"] === "Dataset");
-
-        } else if (jp["@type"] === "Dataset") {
-          datasets = [jp];
-
+        if (
+          framed &&
+          typeof framed === "object" &&
+          framed["@graph"] !== undefined
+        ) {
+          datasets = framed["@graph"].filter((item) =>
+            matchesSchemaType(item["@type"], "Dataset")
+          );
+        } else if (
+          framed &&
+          typeof framed === "object" &&
+          matchesSchemaType(framed["@type"], "Dataset")
+        ) {
+          datasets = [framed];
         }
+        if (
+          datasets.length === 0 &&
+          raw &&
+          matchesSchemaType(raw["@type"], "Dataset")
+        ) {
+          datasets = [raw];
+        }
+        return datasets;
+      };
 
+      const buildMappingsFromDatasets = (datasets) => {
+        this.mappings = [];
         if (datasets.length === 0) {
           console.warn("No datasets found.");
           return;
@@ -602,8 +715,13 @@ export default {
 
           if (hasSchemaProperty("datePublished", dataset)) {
             mapping.s_datePublished = schemaItem("datePublished", dataset);
-          } else if (hasSchemaProperty("datePublished", mapping.s_distribution)) {
-            mapping.s_datePublished = schemaItem("datePublished", mapping.s_distribution);
+          } else if (
+            hasSchemaProperty("datePublished", mapping.s_distribution)
+          ) {
+            mapping.s_datePublished = schemaItem(
+              "datePublished",
+              mapping.s_distribution
+            );
           } else if (hasSchemaProperty("dateCreated", dataset)) {
             mapping.s_datePublished = schemaItem("dateCreated", dataset);
           }
@@ -626,8 +744,10 @@ export default {
             const c = schemaItem("contributor", dataset);
             if (Array.isArray(c)) {
               mapping.s_contributor = c
-                  .map(obj => hasSchemaProperty("name", obj) ? schemaItem("name", obj) : "")
-                  .filter(Boolean);
+                .map((obj) =>
+                  hasSchemaProperty("name", obj) ? schemaItem("name", obj) : ""
+                )
+                .filter(Boolean);
             } else {
               mapping.s_contributor = schemaItem("name", c);
             }
@@ -638,8 +758,10 @@ export default {
             const cr = schemaItem("creator", dataset);
             if (Array.isArray(cr)) {
               mapping.s_contributor = cr
-                  .map(obj => hasSchemaProperty("name", obj) ? schemaItem("name", obj) : "")
-                  .filter(Boolean);
+                .map((obj) =>
+                  hasSchemaProperty("name", obj) ? schemaItem("name", obj) : ""
+                )
+                .filter(Boolean);
             } else {
               mapping.s_contributor = schemaItem("name", cr);
             }
@@ -750,10 +872,17 @@ export default {
 
           mapping.s_landingpage = schemaItem("description", dataset);
           mapping.updated = schemaItem("updated", dataset);
-          mapping.start_datetime = formatDateToYYYYMMDD(schemaItem("start_datetime", dataset));
-          mapping.end_datetime = formatDateToYYYYMMDD(schemaItem("end_datetime", dataset));
+          mapping.start_datetime = formatDateToYYYYMMDD(
+            schemaItem("start_datetime", dataset)
+          );
+          mapping.end_datetime = formatDateToYYYYMMDD(
+            schemaItem("end_datetime", dataset)
+          );
 
-          mapping.s_downloads = getDistributions(mapping.s_distribution, dataset.url);
+          mapping.s_downloads = getDistributions(
+            mapping.s_distribution,
+            dataset.url
+          );
 
           mapping.s_spatialCoverage = schemaItem("spatialCoverage", dataset);
           mapping.placename = geoplacename(mapping.s_spatialCoverage);
@@ -776,8 +905,8 @@ export default {
           }
 
           if (
-              JSON.stringify(dataset) !== "{}" &&
-              (mapping.s_name === undefined || mapping.s_name === "")
+            JSON.stringify(dataset) !== "{}" &&
+            (mapping.s_name === undefined || mapping.s_name === "")
           ) {
             console.log("json issue");
             this.$bvToast.toast(`See Metadata for item description`, {
@@ -791,7 +920,26 @@ export default {
         });
 
         this.obscurePage = false;
-      });
+      };
+
+      frameJsonLD(jp, "Dataset")
+        .then((framed) => {
+          try {
+            buildMappingsFromDatasets(resolveDatasetNodes(framed, jp));
+          } catch (e) {
+            console.error("buildMappingsFromDatasets failed:", e);
+            this.obscurePage = false;
+          }
+        })
+        .catch((err) => {
+          console.warn("frameJsonLD failed:", err);
+          try {
+            buildMappingsFromDatasets(resolveDatasetNodes(jp, jp));
+          } catch (e) {
+            console.error("buildMappingsFromDatasets fallback failed:", e);
+            this.obscurePage = false;
+          }
+        });
     },
     formatCitation(mapping) {
       const raw = mapping.s_citation;
@@ -815,9 +963,7 @@ export default {
       }
 
       // 3) Build the formatted HTML
-      const authors = (c.author || [])
-        .map(a => a.name)
-        .join(", ");
+      const authors = (c.author || []).map((a) => a.name).join(", ");
       const year = c.datePublished
         ? `(${new Date(c.datePublished).getFullYear()})`
         : "";
@@ -828,8 +974,8 @@ export default {
         typeof c.identifier?.value === "string"
           ? c.identifier.value
           : Array.isArray(c.identifier?.value)
-            ? c.identifier.value[0]
-            : "";
+          ? c.identifier.value[0]
+          : "";
       const doi = doiVal.replace(/^doi:/, "");
 
       return `
@@ -837,11 +983,14 @@ export default {
         ${year}
         <em>${title}</em>
         ${journal ? `, ${journal}` : ""}
-        ${doi ? `.&nbsp;<a href="https://doi.org/${doi}" target="_blank">doi:${doi}</a>` : ""}
+        ${
+          doi
+            ? `.&nbsp;<a href="https://doi.org/${doi}" target="_blank">doi:${doi}</a>`
+            : ""
+        }
       `;
     },
   },
-
 };
 </script>
 
@@ -1141,4 +1290,5 @@ i {
   background-color: #003f8a; /* Even darker blue when clicked */
   transform: translateY(0); /* Reset the lift */
 }
+
 </style>

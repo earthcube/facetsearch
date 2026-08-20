@@ -1,0 +1,41 @@
+{
+  "name": "Temporal coverage facet",
+  "description": "Test temporal coverage facet filtering with year ranges",
+  "tests": [
+    {
+      "name": "temporal: discovery only",
+      "search": "ocean",
+      "facets": [
+        { "type": "rangeyear", "field": "temporalCoverage", "active": false }
+      ]
+    },
+    {
+      "name": "temporal: narrow range (2010-2020)",
+      "search": "ocean",
+      "facets": [
+        { "type": "rangeyear", "field": "temporalCoverage", "active": true, "values": { "min": 2010, "max": 2020 } }
+      ]
+    },
+    {
+      "name": "temporal: wide range (1990-2025)",
+      "search": "ocean",
+      "facets": [
+        { "type": "rangeyear", "field": "temporalCoverage", "active": true, "values": { "min": 1990, "max": 2025 } }
+      ]
+    },
+    {
+      "name": "temporal: historical (1900-1960)",
+      "search": "ocean",
+      "facets": [
+        { "type": "rangeyear", "field": "temporalCoverage", "active": true, "values": { "min": 1900, "max": 1960 } }
+      ]
+    },
+    {
+      "name": "temporal: recent only (2020-2026)",
+      "search": "ocean",
+      "facets": [
+        { "type": "rangeyear", "field": "temporalCoverage", "active": true, "values": { "min": 2020, "max": 2026 } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Date published facet",
+  "description": "Test date published year range filtering",
+  "tests": [
+    {
+      "name": "datePublished: discovery only",
+      "search": "water",
+      "facets": [
+        { "type": "rangeyear", "field": "datep", "active": false }
+      ]
+    },
+    {
+      "name": "datePublished: last 5 years (2021-2026)",
+      "search": "water",
+      "facets": [
+        { "type": "rangeyear", "field": "datep", "active": true, "values": { "min": 2021, "max": 2026 } }
+      ]
+    },
+    {
+      "name": "datePublished: last decade (2016-2026)",
+      "search": "water",
+      "facets": [
+        { "type": "rangeyear", "field": "datep", "active": true, "values": { "min": 2016, "max": 2026 } }
+      ]
+    }
+  ]
+}

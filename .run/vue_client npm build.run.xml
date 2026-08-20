@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="vue_client npm build" type="js.build_tools.npm" folderName="buil">
+  <configuration default="false" name="vue_client npm build" type="js.build_tools.npm" folderName="build">
     <package-json value="$PROJECT_DIR$/client/package.json" />
     <command value="run" />
     <scripts>
@@ -7,6 +7,9 @@
     </scripts>
     <node-interpreter value="project" />
     <envs />
+    <EXTENSION ID="com.intellij.javascript.debugger.execution.StartBrowserRunConfigurationExtension">
+      <browser with-js-debugger="true" />
+    </EXTENSION>
     <method v="2" />
   </configuration>
 </component>

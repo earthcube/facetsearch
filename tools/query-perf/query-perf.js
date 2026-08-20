@@ -1,0 +1,709 @@
+#!/usr/bin/env node
+/**
+ * Facet Query Performance Tester
+ *
+ * Tests SPARQL query performance using the production SparqlQueryBuilder
+ * from the client app. Loads config, converts test parameters to the same
+ * searchParams format the app uses, and measures query execution time.
+ *
+ * Usage:
+ *   node tools/query-perf/query-perf.js --help
+ */
+
+import fs from "fs";
+import path from "path";
+import yaml from "../../client/node_modules/js-yaml/index.js";
+import { scenarioToSearchParams, describeFacets } from "./lib/scenario-adapter.js";
+import { SparqlQueryBuilder } from "../../client/src/services/SparqlQueryBuilder.js";
+
+// ---------------------------------------------------------------------------
+// Argument parsing
+// ---------------------------------------------------------------------------
+
+const USAGE = `
+Usage: node query-perf.js [options]
+
+Options:
+  --config <path>        Path to a YAML config file (default: config_qlever_20.yaml)
+  --endpoint <url>       Override SPARQL endpoint URL from config
+  --engine <name>        Query engine: blazegraph | qlever (default: from config)
+
+  --search <terms>       Search terms (default: "water")
+  --exact <bool>         Exact match mode (default: false)
+  --resource-type <type> Resource type: data | tool | all (default: all)
+  --limit <n>            SPARQL LIMIT (default: 10)
+  --offset <n>           SPARQL OFFSET (default: 0)
+
+  --facet <json>         Add a facet filter as inline JSON (repeatable)
+  --scenario <path>      Load a test scenario file (runs all tests in it)
+
+  --timeout <ms>         HTTP timeout per request (default: 30000)
+  --runs <n>             Measured runs per test (default: 3)
+  --warmup <n>           Warmup runs (default: 1)
+
+  --show-query           Save the rendered SPARQL query to the output dir as a .rq file
+  --show-results         Print first 5 result rows
+  --json                 Machine-readable JSON output
+  --compare <path>       Compare against a previous JSON result file
+  --save <path>          Save results to a JSON file for later comparison
+  --output-dir <path>    Directory for saved queries and failing queries (default: sparql-test/)
+  --analyze-errors       Send failing queries to Claude for analysis and improvement suggestions
+  --help                 Show this help message
+
+Facet JSON format (for --facet):
+  --facet '{"type":"text","field":"kw","active":true,"values":["Temperature"]}'
+  --facet '{"type":"depthrange","field":"minDepth","active":true,"values":{"min":-1000,"max":0}}'
+  --facet '{"type":"rangeyear","field":"temporalCoverage","active":true,"values":{"min":2010,"max":2025}}'
+  --facet '{"type":"geo","field":"spatialCoverage","active":true,"values":{"minLat":20,"maxLat":60,"minLon":-80,"maxLon":0}}'
+
+Examples:
+  # Basic search test
+  node query-perf.js --search "ocean temperature" --runs 5
+
+  # Test with keyword facet filter
+  node query-perf.js --search water --facet '{"type":"text","field":"kw","active":true,"values":["Temperature","Ocean"]}'
+
+  # Run a stored scenario
+  node query-perf.js --scenario tools/query-perf/scenarios/depth-range.json
+
+  # Run all scenarios in a directory
+  node query-perf.js --scenario tools/query-perf/scenarios/
+
+  # Save results for later comparison
+  node query-perf.js --scenario tools/query-perf/scenarios/multi-facet.json --save results/baseline.json
+
+  # Compare against baseline
+  node query-perf.js --scenario tools/query-perf/scenarios/multi-facet.json --compare results/baseline.json
+`;
+
+function parseArgs(argv) {
+  const args = {
+    config: null,
+    endpoint: null,
+    engine: null,
+    search: null,
+    exact: "false",
+    resourceType: "all",
+    limit: 10,
+    offset: 0,
+    timeout: 30000,
+    runs: 3,
+    warmup: 1,
+    facets: [],
+    scenario: null,
+    showQuery: false,
+    showResults: false,
+    json: false,
+    compare: null,
+    save: null,
+    outputDir: "sparql-test",
+    analyzeErrors: false,
+  };
+
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    const next = () => argv[++i];
+    switch (arg) {
+      case "--config": args.config = next(); break;
+      case "--endpoint": args.endpoint = next(); break;
+      case "--engine": args.engine = next(); break;
+      case "--search": args.search = next(); break;
+      case "--exact": args.exact = next(); break;
+      case "--resource-type": args.resourceType = next(); break;
+      case "--limit": args.limit = parseInt(next(), 10); break;
+      case "--offset": args.offset = parseInt(next(), 10); break;
+      case "--timeout": args.timeout = parseInt(next(), 10); break;
+      case "--runs": args.runs = parseInt(next(), 10); break;
+      case "--warmup": args.warmup = parseInt(next(), 10); break;
+      case "--facet": {
+        try { args.facets.push(JSON.parse(next())); }
+        catch (e) { console.error(`Invalid --facet JSON: ${e.message}`); process.exit(1); }
+        break;
+      }
+      case "--scenario": args.scenario = next(); break;
+      case "--show-query": args.showQuery = true; break;
+      case "--show-results": args.showResults = true; break;
+      case "--json": args.json = true; break;
+      case "--compare": args.compare = next(); break;
+      case "--save": args.save = next(); break;
+      case "--output-dir": args.outputDir = next(); break;
+      case "--errors-dir": args.outputDir = next(); break; // legacy alias
+      case "--analyze-errors": args.analyzeErrors = true; break;
+      case "--help": console.log(USAGE); process.exit(0);
+      default:
+        console.error(`Unknown option: ${arg}\n`);
+        console.log(USAGE);
+        process.exit(1);
+    }
+  }
+  return args;
+}
+
+// ---------------------------------------------------------------------------
+// Config loading
+// ---------------------------------------------------------------------------
+
+function resolveConfigPath(configArg) {
+  if (configArg) return path.resolve(configArg);
+  const candidates = [
+    path.resolve("client/public/config/config_qlever_20.yaml"),
+    path.resolve("../client/public/config/config_qlever_20.yaml"),
+    path.resolve("client/public/config/config.yaml"),
+    path.resolve("../client/public/config/config.yaml"),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  console.error("Could not find config.yaml. Use --config to specify its path.");
+  process.exit(1);
+}
+
+function loadConfig(configPath, args) {
+  const config = yaml.load(fs.readFileSync(configPath, "utf8"));
+  // CLI overrides
+  if (args.engine) config.QUERY_ENGINE = args.engine;
+  return config;
+}
+
+// ---------------------------------------------------------------------------
+// SPARQL execution
+// ---------------------------------------------------------------------------
+
+function extractErrorMessage(body) {
+  // Blazegraph echoes the full query in the error body before the actual cause.
+  // Skip past the queryStr block and find the first exception line.
+  const lines = body.split("\n");
+  const causeIdx = lines.findIndex((l) =>
+    /^\s*(java\.|org\.|com\.|Exception|Error|Caused by)/i.test(l.trim())
+  );
+  if (causeIdx !== -1) {
+    // Return the first exception line plus the next for context
+    return lines.slice(causeIdx, causeIdx + 2).join(" | ").trim().slice(0, 300);
+  }
+  // Fallback: first non-empty line that isn't the PREFIX/SELECT echo
+  const firstMeaningful = lines.find((l) => l.trim() && !/^(PREFIX|SELECT|WHERE|SPARQL-QUERY:)/i.test(l.trim()));
+  return (firstMeaningful || body).trim().slice(0, 300);
+}
+
+async function executeSparqlQuery(endpointUrl, sparql, timeout) {
+  const params = new URLSearchParams();
+  params.append("query", sparql);
+  params.append("queryLn", "sparql");
+
+  const url = `${endpointUrl}?${params.toString()}`;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+
+  const start = performance.now();
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { Accept: "application/sparql-results+json" },
+      signal: controller.signal,
+    });
+    const elapsed = performance.now() - start;
+
+    if (!response.ok) {
+      const body = await response.text();
+      return { elapsed, error: `HTTP ${response.status}: ${extractErrorMessage(body)}`, errorBody: body, resultCount: 0, results: null };
+    }
+    const data = await response.json();
+    if (data.status === "ERROR" || data.exception) {
+      return { elapsed, error: data.exception || "Unknown QLever error", errorBody: JSON.stringify(data, null, 2), resultCount: 0, results: null };
+    }
+    const bindings = data.results ? data.results.bindings : [];
+    return { elapsed, error: null, resultCount: bindings.length, results: data };
+  } catch (err) {
+    const elapsed = performance.now() - start;
+    const msg = err.name === "AbortError" ? `Timeout after ${timeout}ms` : err.message;
+    return { elapsed, error: msg, resultCount: 0, results: null };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Stats helpers
+// ---------------------------------------------------------------------------
+
+function computeStats(timings) {
+  const sorted = [...timings].sort((a, b) => a - b);
+  const sum = sorted.reduce((a, b) => a + b, 0);
+  const mean = sum / sorted.length;
+  const median = sorted.length % 2 === 0
+    ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
+    : sorted[Math.floor(sorted.length / 2)];
+  const min = sorted[0];
+  const max = sorted[sorted.length - 1];
+  const variance = sorted.reduce((acc, v) => acc + (v - mean) ** 2, 0) / sorted.length;
+  const stddev = Math.sqrt(variance);
+  const p95idx = Math.min(Math.ceil(sorted.length * 0.95) - 1, sorted.length - 1);
+  const p95 = sorted[p95idx];
+  return { mean, median, min, max, stddev, p95, count: sorted.length };
+}
+
+function fmt(ms) {
+  if (ms < 1000) return `${ms.toFixed(1)}ms`;
+  return `${(ms / 1000).toFixed(3)}s`;
+}
+
+function roundStats(stats) {
+  const r = (v) => Math.round(v * 100) / 100;
+  return { mean: r(stats.mean), median: r(stats.median), min: r(stats.min), max: r(stats.max), stddev: r(stats.stddev), p95: r(stats.p95) };
+}
+
+// ---------------------------------------------------------------------------
+// Error file saving
+// ---------------------------------------------------------------------------
+
+function sanitizeName(name) {
+  return name.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 80);
+}
+
+function scenarioOutputDir(baseDir, scenario) {
+  const slug = sanitizeName(scenario.name || path.basename(scenario._file || "misc", ".json"));
+  return path.join(path.resolve(baseDir), slug);
+}
+
+// Keep old name as alias used internally
+const scenarioErrorsDir = scenarioOutputDir;
+
+function cleanOutputDir(dir) {
+  const resolved = path.resolve(dir);
+  if (!fs.existsSync(resolved)) return;
+  const files = fs.readdirSync(resolved).filter((f) => f.endsWith(".rq"));
+  for (const f of files) fs.unlinkSync(path.join(resolved, f));
+}
+
+function buildQueryHeader(meta) {
+  const lines = [];
+  lines.push(`# Test:      ${meta.name || "unnamed"}`);
+  lines.push(`# Search:    "${meta.search || ""}"  Limit: ${meta.limit ?? "?"}`);
+
+  for (const f of (meta.facets || [])) {
+    if (!f.active) continue;
+    const vals = f.values != null ? JSON.stringify(f.values) : "";
+    lines.push(`# Filter:    ${f.field}(${f.type})${vals ? `: ${vals}` : ""}`);
+  }
+  const discovery = (meta.facets || []).filter((f) => !f.active).map((f) => `${f.field}(${f.type})`);
+  if (discovery.length) lines.push(`# Discovery: ${discovery.join(", ")}`);
+
+  lines.push(`# Results:   ${meta.resultCount ?? "?"}`);
+  lines.push(`# Endpoint:  ${meta.endpoint || "?"}`);
+  lines.push(`# Timestamp: ${meta.timestamp || new Date().toISOString()}`);
+  return lines.join("\n") + "\n";
+}
+
+function saveQueryFile(outputDir, testName, sparql, meta = {}) {
+  const dir = path.resolve(outputDir);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const safeName = sanitizeName(testName || "unnamed");
+  const filepath = path.join(dir, `${safeName}.rq`);
+  fs.writeFileSync(filepath, buildQueryHeader({ ...meta, name: testName }) + "\n" + sparql + "\n");
+  return filepath;
+}
+
+function saveErrorQuery(errorsDir, testName, sparql, errors, meta = {}) {
+  const dir = path.resolve(errorsDir);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const safeName = sanitizeName(testName || "unnamed");
+  const filename = `${timestamp}_${safeName}.rq`;
+  const filepath = path.join(dir, filename);
+
+  const header = buildQueryHeader({ ...meta, name: testName });
+  const errorLines = errors.map((e) => {
+    const lines = [`# ERROR run ${e.run}: ${e.error}`];
+    if (e.errorBody) {
+      lines.push("#");
+      lines.push("# --- Full server response ---");
+      e.errorBody.trim().split("\n").forEach((l) => lines.push(`# ${l}`));
+      lines.push("# --- End response ---");
+    }
+    return lines.join("\n");
+  });
+  fs.writeFileSync(filepath, `${header}\n${errorLines.join("\n\n")}\n\n${sparql}\n`);
+  return filepath;
+}
+
+// ---------------------------------------------------------------------------
+// LLM error analysis
+// ---------------------------------------------------------------------------
+
+async function analyzeErrorsWithLLM(errorFiles) {
+  if (errorFiles.length === 0) return;
+
+  // Try to use the claude CLI if available; otherwise print instructions.
+  const { execSync } = await import("child_process");
+  const hasClaude = (() => {
+    try { execSync("claude --version", { stdio: "pipe" }); return true; }
+    catch { return false; }
+  })();
+
+  console.log(`\n${"=".repeat(70)}`);
+  console.log("ERROR ANALYSIS");
+  console.log("=".repeat(70));
+
+  if (!hasClaude) {
+    console.log("Install the Claude CLI to enable automatic analysis.");
+    console.log("Failing queries saved to:");
+    for (const f of errorFiles) console.log(`  ${f}`);
+    return;
+  }
+
+  for (const filepath of errorFiles) {
+    const content = fs.readFileSync(filepath, "utf8");
+    console.log(`\nAnalyzing: ${path.basename(filepath)}`);
+    const prompt = [
+      "The following SPARQL query failed. The error is in the comments at the top.",
+      "Explain what is likely wrong and suggest a fix or improvement to the UI code that generates this query.",
+      "Be concise.",
+      "",
+      content,
+    ].join("\n");
+
+    try {
+      const result = execSync(`claude -p ${JSON.stringify(prompt)}`, {
+        stdio: ["pipe", "pipe", "pipe"],
+        encoding: "utf8",
+        timeout: 60000,
+      });
+      console.log(result.trim());
+    } catch (e) {
+      console.log(`  Analysis failed: ${e.message}`);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Scenario loading
+// ---------------------------------------------------------------------------
+
+function loadScenarios(scenarioPath) {
+  const resolved = path.resolve(scenarioPath);
+  const stat = fs.statSync(resolved);
+
+  if (stat.isDirectory()) {
+    const files = fs.readdirSync(resolved).filter((f) => f.endsWith(".json")).sort();
+    const scenarios = [];
+    for (const file of files) {
+      const data = JSON.parse(fs.readFileSync(path.join(resolved, file), "utf8"));
+      data._file = file;
+      scenarios.push(data);
+    }
+    return scenarios;
+  }
+
+  const data = JSON.parse(fs.readFileSync(resolved, "utf8"));
+  data._file = path.basename(resolved);
+  return [data];
+}
+
+// ---------------------------------------------------------------------------
+// Single test execution
+// ---------------------------------------------------------------------------
+
+async function runSingleTest(testDef, args, config, testName = "unnamed", outputDir = null) {
+  const endpointUrl = args.endpoint || config.SUMMARYSTORE_URL || config.TRIPLESTORE_URL;
+
+  // Convert scenario/CLI parameters to the same searchParams the client app uses
+  const searchParams = scenarioToSearchParams(testDef, args, config);
+
+  // Build SPARQL using the production SparqlQueryBuilder
+  const builder = new SparqlQueryBuilder(config);
+  const sparql = builder.buildQuery(searchParams);
+
+  const facets = testDef.facets || args.facets;
+  const { active: activeFacets, discovery: discoveryFacets } = describeFacets(facets);
+
+  if (!args.json) {
+    console.log(`  Search:    "${searchParams.textQuery}"  Limit: ${searchParams.limit}`);
+    if (activeFacets.length) console.log(`  Active:    ${activeFacets.join(", ")}`);
+    if (discoveryFacets.length) console.log(`  Discovery: ${discoveryFacets.join(", ")}`);
+  }
+
+  // Warmup
+  const warmup = testDef.warmup != null ? testDef.warmup : args.warmup;
+  for (let i = 0; i < warmup; i++) {
+    if (!args.json) process.stdout.write(`  Warmup ${i + 1}/${warmup}...`);
+    const r = await executeSparqlQuery(endpointUrl, sparql, args.timeout);
+    if (!args.json) console.log(` ${fmt(r.elapsed)}${r.error ? ` ERROR: ${r.error}` : ""}`);
+  }
+
+  // Measured runs
+  const runs = testDef.runs != null ? testDef.runs : args.runs;
+  const timings = [];
+  let lastResult = null;
+  let lastResultCount = 0;
+  const errors = [];
+
+  for (let i = 0; i < runs; i++) {
+    if (!args.json) process.stdout.write(`  Run ${i + 1}/${runs}...`);
+    const r = await executeSparqlQuery(endpointUrl, sparql, args.timeout);
+    if (!args.json) console.log(` ${fmt(r.elapsed)} (${r.resultCount} results)${r.error ? ` ERROR: ${r.error}` : ""}`);
+    timings.push(r.elapsed);
+    lastResultCount = r.resultCount;
+    if (r.results) lastResult = r.results;
+    if (r.error) errors.push({ run: i + 1, error: r.error, errorBody: r.errorBody || null });
+  }
+
+  if (args.showResults && lastResult) {
+    console.log("\n  --- Sample Results (first 5) ---");
+    const bindings = lastResult.results.bindings.slice(0, 5);
+    for (const row of bindings) {
+      const display = {};
+      for (const [k, v] of Object.entries(row)) {
+        display[k] = v.value ? v.value.slice(0, 80) : v;
+      }
+      console.log("  " + JSON.stringify(display, null, 2).replace(/\n/g, "\n  "));
+    }
+  }
+
+  const stats = computeStats(timings);
+
+  const meta = {
+    search: searchParams.textQuery,
+    limit: searchParams.limit,
+    facets: (facets || []).map((f) => ({ type: f.type, field: f.field, active: !!f.active, values: f.values })),
+    resultCount: lastResultCount,
+    endpoint: endpointUrl,
+    timestamp: new Date().toISOString(),
+  };
+
+  if (args.showQuery) {
+    const qFile = saveQueryFile(outputDir ?? args.outputDir, testName, sparql, meta);
+    if (!args.json) console.log(`  Query saved: ${qFile}`);
+  }
+
+  let errorFile = null;
+  if (errors.length > 0) {
+    errorFile = saveErrorQuery(outputDir ?? args.outputDir, testName, sparql, errors, meta);
+    if (!args.json) {
+      console.log(`\n  !! ${errors.length} error(s) in this test:`);
+      for (const e of errors) console.log(`     Run ${e.run}: ${e.error}`);
+      console.log(`  Failing query saved to: ${errorFile}`);
+    }
+  }
+
+  return {
+    search: searchParams.textQuery,
+    limit: searchParams.limit,
+    offset: searchParams.offset,
+    facets: (facets || []).map((f) => ({ type: f.type, field: f.field, active: !!f.active, values: f.values })),
+    activeFacets,
+    runs,
+    resultCount: lastResultCount,
+    errors,
+    errorFile,
+    timings,
+    stats: roundStats(stats),
+    sparql,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Comparison
+// ---------------------------------------------------------------------------
+
+function findBaselineTest(baseline, testName) {
+  if (!baseline || !baseline.tests) return null;
+  return baseline.tests.find((t) => t.name === testName);
+}
+
+function printTestComparison(current, baselineTest) {
+  if (!baselineTest || !baselineTest.stats) return;
+  const pct = ((current.stats.median - baselineTest.stats.median) / baselineTest.stats.median * 100).toFixed(1);
+  const sign = pct >= 0 ? "+" : "";
+  const arrow = pct > 10 ? " !!SLOWER" : pct < -10 ? " FASTER" : "";
+  process.stdout.write(`  vs baseline: ${fmt(baselineTest.stats.median)} -> ${fmt(current.stats.median)} (${sign}${pct}%)${arrow}`);
+  if (current.resultCount !== baselineTest.resultCount) {
+    process.stdout.write(` [results: ${baselineTest.resultCount} -> ${current.resultCount}]`);
+  }
+  console.log("");
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+  const configPath = resolveConfigPath(args.config);
+  const config = loadConfig(configPath, args);
+  const endpointUrl = args.endpoint || config.SUMMARYSTORE_URL || config.TRIPLESTORE_URL;
+
+  if (!endpointUrl) {
+    console.error("No SPARQL endpoint found in config or --endpoint.");
+    process.exit(1);
+  }
+
+  // Load baseline for comparison
+  let baseline = null;
+  if (args.compare) {
+    try {
+      baseline = JSON.parse(fs.readFileSync(path.resolve(args.compare), "utf8"));
+    } catch (e) {
+      console.error(`Could not load comparison file: ${e.message}`);
+    }
+  }
+
+  const allResults = {
+    config: path.relative(process.cwd(), configPath),
+    endpoint: endpointUrl,
+    engine: config.QUERY_ENGINE || "blazegraph",
+    timestamp: new Date().toISOString(),
+    tests: [],
+  };
+
+  if (!args.json) {
+    console.log(`Config:   ${allResults.config}`);
+    console.log(`Endpoint: ${endpointUrl}`);
+    console.log(`Engine:   ${allResults.engine}`);
+    console.log("");
+  }
+
+  // Determine what to run
+  if (args.scenario) {
+    const scenarios = loadScenarios(args.scenario);
+
+    for (const scenario of scenarios) {
+      const errDir = scenarioOutputDir(args.outputDir, scenario);
+      cleanOutputDir(errDir);
+
+      if (!args.json) {
+        console.log(`${"=".repeat(70)}`);
+        console.log(`Scenario: ${scenario.name || scenario._file}`);
+        if (scenario.description) console.log(`  ${scenario.description}`);
+        console.log("=".repeat(70));
+      }
+
+      for (const test of (scenario.tests || [])) {
+        const testName = test.name || "unnamed";
+        if (!args.json) {
+          console.log(`\n--- ${testName} ---`);
+        }
+
+        const result = await runSingleTest(test, args, config, testName, errDir);
+        result.name = testName;
+        result.scenario = scenario.name || scenario._file;
+        allResults.tests.push(result);
+
+        if (!args.json) {
+          console.log(`  >> Median: ${fmt(result.stats.median)}  Mean: ${fmt(result.stats.mean)}  Results: ${result.resultCount}`);
+          const baselineTest = findBaselineTest(baseline, testName);
+          if (baselineTest) printTestComparison(result, baselineTest);
+        }
+      }
+    }
+  } else {
+    // Single test mode
+    cleanOutputDir(args.outputDir);
+    const testName = args.facets.length > 0
+      ? `search:"${args.search}" + ${args.facets.map((f) => f.field).join("+")}`
+      : `search:"${args.search}"`;
+
+    if (!args.json) {
+      console.log(`--- ${testName} ---`);
+    }
+
+    const result = await runSingleTest({}, args, config, testName);
+    result.name = testName;
+    allResults.tests.push(result);
+
+    if (!args.json) {
+      console.log(`\n--- Performance Summary ---`);
+      console.log(`Results:   ${result.resultCount}`);
+      console.log(`Mean:      ${fmt(result.stats.mean)}`);
+      console.log(`Median:    ${fmt(result.stats.median)}`);
+      console.log(`Min:       ${fmt(result.stats.min)}`);
+      console.log(`Max:       ${fmt(result.stats.max)}`);
+      console.log(`Std Dev:   ${fmt(result.stats.stddev)}`);
+      console.log(`P95:       ${fmt(result.stats.p95)}`);
+      if (result.errors.length > 0) {
+        console.log(`\nERRORS (${result.errors.length}/${result.runs} runs failed):`);
+        for (const e of result.errors) console.log(`  Run ${e.run}: ${e.error}`);
+        if (result.errorFile) console.log(`  Query saved: ${result.errorFile}`);
+      }
+
+      const baselineTest = findBaselineTest(baseline, testName);
+      if (baselineTest) printTestComparison(result, baselineTest);
+    }
+  }
+
+  // Collect all error files across tests
+  const allErrorFiles = allResults.tests.filter((r) => r.errorFile).map((r) => r.errorFile);
+
+  // Print summary table for scenario mode
+  if (args.scenario && allResults.tests.length > 1 && !args.json) {
+    console.log(`\n${"=".repeat(70)}`);
+    console.log("SUMMARY");
+    console.log("=".repeat(70));
+    console.log(
+      padRight("Test", 45) +
+      padRight("Median", 12) +
+      padRight("P95", 12) +
+      padRight("Results", 10) +
+      "Errors"
+    );
+    console.log("-".repeat(85));
+    for (const r of allResults.tests) {
+      const errorCol = r.errors.length > 0 ? `FAILED ${r.errors.length}/${r.runs}` : "-";
+      console.log(
+        padRight(r.name, 45) +
+        padRight(fmt(r.stats.median), 12) +
+        padRight(fmt(r.stats.p95), 12) +
+        padRight(String(r.resultCount), 10) +
+        errorCol
+      );
+    }
+
+    // List failures with messages after the table
+    const failed = allResults.tests.filter((r) => r.errors.length > 0);
+    if (failed.length > 0) {
+      console.log(`\n${"=".repeat(70)}`);
+      console.log(`FAILED QUERIES (${failed.length} test(s))`);
+      console.log("=".repeat(70));
+      for (const r of failed) {
+        console.log(`\n  ${r.name}`);
+        for (const e of r.errors) console.log(`    Run ${e.run}: ${e.error}`);
+        if (r.errorFile) console.log(`    Saved: ${r.errorFile}`);
+      }
+    }
+  }
+
+  // JSON output
+  if (args.json) {
+    const output = JSON.parse(JSON.stringify(allResults));
+    for (const t of output.tests) delete t.sparql;
+    console.log(JSON.stringify(output, null, 2));
+  }
+
+  // LLM analysis of failing queries
+  if (args.analyzeErrors && allErrorFiles.length > 0) {
+    await analyzeErrorsWithLLM(allErrorFiles);
+  } else if (args.analyzeErrors && allErrorFiles.length === 0 && !args.json) {
+    console.log("\nNo errors to analyze.");
+  }
+
+  // Save results
+  if (args.save) {
+    const savePath = path.resolve(args.save);
+    const saveDir = path.dirname(savePath);
+    if (!fs.existsSync(saveDir)) fs.mkdirSync(saveDir, { recursive: true });
+    const output = JSON.parse(JSON.stringify(allResults));
+    for (const t of output.tests) delete t.sparql;
+    fs.writeFileSync(savePath, JSON.stringify(output, null, 2));
+    if (!args.json) console.log(`\nResults saved to: ${args.save}`);
+  }
+}
+
+function padRight(str, len) {
+  return str.length >= len ? str.slice(0, len) : str + " ".repeat(len - str.length);
+}
+
+main().catch((err) => {
+  console.error("Fatal error:", err.message);
+  process.exit(1);
+});

@@ -1,0 +1,298 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: https://www.earthcube.org/geocodes
+        - img [ref=e8]
+      - link [ref=e37] [cursor=pointer]:
+        - /url: "#/landing"
+        - img [ref=e39]
+      - list [ref=e51]:
+        - listitem [ref=e52]:
+          - group [ref=e54]:
+            - searchbox "Search" [ref=e55]
+            - button [ref=e57] [cursor=pointer]:
+              - img [ref=e58]
+        - listitem [ref=e60]:
+          - link "Saved Items" [ref=e61] [cursor=pointer]:
+            - /url: "#/collection"
+        - button "SPARQL" [ref=e63] [cursor=pointer]
+        - listitem [ref=e64]:
+          - link "About" [ref=e65] [cursor=pointer]:
+            - /url: "#/about"
+  - generic [ref=e68]:
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - generic [ref=e71]: Search
+        - group [ref=e72]:
+          - textbox "Search" [ref=e73]:
+            - /placeholder: Enter search terms...
+            - text: water
+          - button [ref=e75] [cursor=pointer]
+        - generic [ref=e77]:
+          - checkbox "Exact match" [ref=e78]
+          - generic [ref=e79]: Exact match
+      - generic [ref=e4698]:
+        - generic [ref=e4699]: Active Filters (1)
+        - button "Clear All" [ref=e4700] [cursor=pointer]
+      - generic [ref=e80]:
+        - heading "Resource Type" [level=6] [ref=e84] [cursor=pointer]: Resource Type
+        - generic [ref=e86]:
+          - heading "Keywords" [level=6] [ref=e3177] [cursor=pointer]: Keywords
+          - generic [ref=e4701]:
+            - generic [ref=e4702]:
+              - checkbox "Ross Sea (1072)" [ref=e4703] [cursor=pointer]
+              - generic [ref=e4704] [cursor=pointer]: Ross Sea (1072)
+            - generic [ref=e4705]:
+              - checkbox "Antarctica (928)" [ref=e4706] [cursor=pointer]
+              - generic [ref=e4707] [cursor=pointer]: Antarctica (928)
+            - generic [ref=e4708]:
+              - checkbox "Cryosphere (816)" [ref=e4709] [cursor=pointer]
+              - generic [ref=e4710] [cursor=pointer]: Cryosphere (816)
+            - generic [ref=e4711]:
+              - checkbox "Southern Ocean (784)" [ref=e4712] [cursor=pointer]
+              - generic [ref=e4713] [cursor=pointer]: Southern Ocean (784)
+            - generic [ref=e4714]:
+              - checkbox "Oceans (576)" [ref=e4715] [cursor=pointer]
+              - generic [ref=e4716] [cursor=pointer]: Oceans (576)
+            - button "Show 180 more..." [ref=e4718] [cursor=pointer]
+        - generic [ref=e110]:
+          - heading "Place 1" [level=6] [ref=e4719] [cursor=pointer]:
+            - text: Place
+            - generic [ref=e4720]: "1"
+          - generic [ref=e114]:
+            - generic [ref=e3178]:
+              - generic [ref=e3179]:
+                - checkbox "Ross Sea (536)" [checked] [active] [ref=e3180] [cursor=pointer]
+                - generic [ref=e3181] [cursor=pointer]: Ross Sea (536)
+              - generic [ref=e3182]:
+                - checkbox "WAIS divide (496)" [ref=e3183] [cursor=pointer]
+                - generic [ref=e3184] [cursor=pointer]: WAIS divide (496)
+              - generic [ref=e3185]:
+                - checkbox "Antarctic Peninsula (472)" [ref=e3186] [cursor=pointer]
+                - generic [ref=e3187] [cursor=pointer]: Antarctic Peninsula (472)
+              - generic [ref=e3188]:
+                - checkbox "Siple Dome (272)" [ref=e3189] [cursor=pointer]
+                - generic [ref=e3190] [cursor=pointer]: Siple Dome (272)
+              - generic [ref=e3191]:
+                - checkbox "Transantarctic Mountains (232)" [ref=e3192] [cursor=pointer]
+                - generic [ref=e3193] [cursor=pointer]: Transantarctic Mountains (232)
+              - button "Show 195 more..." [ref=e3195] [cursor=pointer]
+            - button "Clear" [ref=e4722] [cursor=pointer]
+        - heading "Publisher/Repo" [level=6] [ref=e136] [cursor=pointer]: Publisher/Repo
+        - generic [ref=e138]:
+          - heading "Year Published Range" [level=6] [ref=e140] [cursor=pointer]: Year Published Range
+          - generic [ref=e143]:
+            - generic [ref=e145]:
+              - slider [ref=e148]:
+                - generic [ref=e150]: "1990"
+              - slider [ref=e151]:
+                - generic [ref=e153]: "2026"
+            - generic [ref=e154]:
+              - generic [ref=e155]: "1990"
+              - generic [ref=e156]: "2026"
+        - generic [ref=e158]:
+          - heading "Depth Range" [level=6] [ref=e160] [cursor=pointer]: Depth Range
+          - generic [ref=e163]:
+            - generic [ref=e165]:
+              - slider [ref=e168]:
+                - generic [ref=e170]: 0m
+              - slider [ref=e171]:
+                - generic [ref=e173]: 11000m
+            - generic [ref=e174]:
+              - generic [ref=e175]: 0m
+              - generic [ref=e176]: 11000m
+        - generic [ref=e178]:
+          - heading "Temporal Coverage" [level=6] [ref=e180] [cursor=pointer]: Temporal Coverage
+          - generic [ref=e183]:
+            - generic [ref=e185]:
+              - slider [ref=e188]:
+                - generic [ref=e190]: "1990"
+              - slider [ref=e191]:
+                - generic [ref=e193]: "2026"
+            - generic [ref=e194]:
+              - generic [ref=e195]: "1990"
+              - generic [ref=e196]: "2026"
+        - generic [ref=e198]:
+          - heading "Spatial Filter" [level=6] [ref=e200] [cursor=pointer]: Spatial Filter
+          - button "Reset Map" [ref=e205] [cursor=pointer]
+      - button "Feedback" [ref=e207] [cursor=pointer]
+    - generic [ref=e208]:
+      - generic [ref=e210]:
+        - generic [ref=e211]:
+          - heading "15 results" [level=5] [ref=e4723]
+          - generic [ref=e4724]:
+            - text: "Filtered by:"
+            - generic [ref=e4726]: "Place: Ross Sea"
+        - combobox [ref=e214]:
+          - option "Name"
+          - option "Publisher"
+          - option "Date"
+          - option "Relevance" [selected]
+      - generic [ref=e4727]:
+        - generic [ref=e4730]:
+          - generic [ref=e4731]:
+            - heading "Weddell seal summer diving behavior data" [level=6] [ref=e4732]:
+              - link "Weddell seal summer diving behavior" [ref=e4733] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:020b904f822740063851e4999f9e92018461b2b6"
+              - generic [ref=e4734]: data
+            - paragraph [ref=e4735]: "Abstract: We examined the influence of sea ice break-out on seasonal diving patterns and diet of a top predator, the Weddell seal, to understand how phytoplankton blooms impact the vertical distributi..."
+            - generic [ref=e4737]:
+              - generic [ref=e4738]: U.S. Antarctic Program (USAP) Data Center
+              - generic [ref=e4739]: 12/31/2017
+          - button [ref=e4742] [cursor=pointer]
+        - generic [ref=e4745]:
+          - generic [ref=e4746]:
+            - heading "Nearshore pH, temperature, (salinity, depth) at mooring sites in McMurdo Sound, Antarctica, Overwinter 2011-2016 data" [level=6] [ref=e4747]:
+              - link "Nearshore pH, temperature, (salinity, depth) at mooring sites in McMurdo Sound, Antarctica, Overwinter 2011-2016" [ref=e4748] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:2435e4ff04bb9407b20a1d0d1eee5a48df1f19e5"
+              - generic [ref=e4749]: data
+            - paragraph [ref=e4750]: "Abstract: This dataset consists of measurements made of pH (total scale) and temperature at various sites in McMurdo Sound, Antarctica with autonomous DuraFET® - based pH sensors. Sensors logged every..."
+            - generic [ref=e4752]:
+              - generic [ref=e4753]: U.S. Antarctic Program (USAP) Data Center
+              - generic [ref=e4754]: 12/31/2017
+          - button [ref=e4757] [cursor=pointer]
+        - generic [ref=e4760]:
+          - generic [ref=e4761]:
+            - 'heading "Thermoregulation in Free-Living Antarctic Seals: The Missing Link in Effective Ecological Modeling data" [level=6] [ref=e4762]':
+              - 'link "Thermoregulation in Free-Living Antarctic Seals: The Missing Link in Effective Ecological Modeling" [ref=e4763] [cursor=pointer]':
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:3e3d4da46ad62430055eda9d0ab79f261f4c97bc"
+              - generic [ref=e4764]: data
+            - paragraph [ref=e4765]: "Abstract: Despite being an essential physiological component of homeotherm life in polar regions, little is known about the energetic requirements for thermoregulation in either air or water for high-..."
+            - generic [ref=e4767]:
+              - generic [ref=e4768]: U.S. Antarctic Program (USAP) Data Center
+              - generic [ref=e4769]: 12/31/2012
+          - button [ref=e4772] [cursor=pointer]
+        - generic [ref=e4775]:
+          - generic [ref=e4776]:
+            - heading "Weddell seals as autonomous sensors of the winter oceanography of the Ross Sea data" [level=6] [ref=e4777]:
+              - link "Weddell seals as autonomous sensors of the winter oceanography of the Ross Sea" [ref=e4778] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:4cfa0af97a39b22af54cebdc39a88b709d704da0"
+              - generic [ref=e4779]: data
+            - paragraph [ref=e4780]: "Abstract: Marine mammals of the Southern Ocean have evolved diverse life history patterns and foraging strategies to accommodate extreme fluctuations in the physical and biological environment. In lig..."
+            - generic [ref=e4782]:
+              - generic [ref=e4783]: U.S. Antarctic Program (USAP) Data Center
+              - generic [ref=e4784]: 12/31/2013
+          - button [ref=e4787] [cursor=pointer]
+        - generic [ref=e4790]:
+          - generic [ref=e4791]:
+            - heading "Pennell Trough, Ross Sea bathymetry and glacial landforms data" [level=6] [ref=e4792]:
+              - link "Pennell Trough, Ross Sea bathymetry and glacial landforms" [ref=e4793] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:5ed5e7dccfcf33451ea504b0f778f8456e7a1de9"
+              - generic [ref=e4794]: data
+            - paragraph [ref=e4795]: "Abstract: Bathymetry from multibeam echo sounding data in Pennell Trough, Ross Sea, Antarctica was collected onboard the RVIB Nathaniel B. Palmer (NBP) 15-02 cruise using a Kongsberg EM122 operating i..."
+            - generic [ref=e4797]:
+              - generic [ref=e4798]: U.S. Antarctic Program (USAP) Data Center
+              - generic [ref=e4799]: 10/24/2021
+          - button [ref=e4802] [cursor=pointer]
+        - generic [ref=e4805]:
+          - generic [ref=e4806]:
+            - heading "Biogenic silica concentrations from the Ross Sea data" [level=6] [ref=e4807]:
+              - link "Biogenic silica concentrations from the Ross Sea" [ref=e4808] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:6f741b4458ec09687fa2be28fd11b3eae0d6b24e"
+              - generic [ref=e4809]: data
+            - paragraph [ref=e4810]: "Abstract: Biogenic silica concentrations collected from CTD casts during RVIB Nathaniel B. Palmer cruise in the Ross Sea, Southern Ocean from December 2017-February 2018"
+            - generic [ref=e4812]:
+              - generic [ref=e4813]: U.S. Antarctic Program (USAP) Data Center
+              - generic [ref=e4814]: 12/31/2018
+          - button [ref=e4817] [cursor=pointer]
+        - generic [ref=e4820]:
+          - generic [ref=e4821]:
+            - heading "Eddy covariance air-sea momentum, heat, and carbon dioxide fluxes in the Southern Ocean from the N.B. Palmer cruise NBP1210 data" [level=6] [ref=e4822]:
+              - link "Eddy covariance air-sea momentum, heat, and carbon dioxide fluxes in the Southern Ocean from the N.B. Palmer cruise NBP1210" [ref=e4823] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:7f2fed88723a9e50cc323cdd905c50d3c0e0fe57"
+              - generic [ref=e4824]: data
+            - paragraph [ref=e4825]: "Abstract: This dataset contains meteorological and air-sea flux data (momentum, heat, and CO2 fluxes; CO2 gas transfer velocity) collected during the the Nathaniel B. Palmer expedition NBP1210 conduct..."
+            - generic [ref=e4827]:
+              - generic [ref=e4828]: U.S. Antarctic Program (USAP) Data Center
+              - generic [ref=e4829]: 12/31/2019
+          - button [ref=e4832] [cursor=pointer]
+        - generic [ref=e4835]:
+          - generic [ref=e4836]:
+            - heading "Weddell seals as autonomous sensors of the winter oceanography of the Ross Sea data" [level=6] [ref=e4837]:
+              - link "Weddell seals as autonomous sensors of the winter oceanography of the Ross Sea" [ref=e4838] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:8939b9ef8f9bfc046e9bc41588f6ac9174c31249"
+              - generic [ref=e4839]: data
+            - paragraph [ref=e4840]: "Abstract: Marine mammals of the Southern Ocean have evolved diverse life history patterns and foraging strategies to accommodate extreme fluctuations in the physical and biological environment. In lig..."
+            - generic [ref=e4842]:
+              - generic [ref=e4843]: U.S. Antarctic Program (USAP) Data Center
+              - generic [ref=e4844]: 12/31/2012
+          - button [ref=e4847] [cursor=pointer]
+        - generic [ref=e4850]:
+          - generic [ref=e4851]:
+            - heading "Integrative Study of Marine Ice Sheet Stability and Subglacial Life Habitats in W Antarctica - Lake and Ice Stream Subglacial Access Research Drilling (LISSARD) data" [level=6] [ref=e4852]:
+              - link "Integrative Study of Marine Ice Sheet Stability and Subglacial Life Habitats in W Antarctica - Lake and Ice Stream Subglacial Access Research Drilling (LISSARD)" [ref=e4853] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:a0589f07c57061fb455be0ca7643fae0ce8c059d"
+              - generic [ref=e4854]: data
+            - paragraph [ref=e4855]: "Abstract: The LISSARD project (Lake and Ice Stream Subglacial Access Research Drilling) is one of three research components of the WISSARD integrative initiative (Whillans Ice Stream Subglacial Access..."
+            - generic [ref=e4857]:
+              - generic [ref=e4858]: U.S. Antarctic Program (USAP) Data Center
+              - generic [ref=e4859]: 12/31/2015
+          - button [ref=e4862] [cursor=pointer]
+        - generic [ref=e4865]:
+          - generic [ref=e4866]:
+            - heading "Algal pigment concentrations from the Ross Sea data" [level=6] [ref=e4867]:
+              - link "Algal pigment concentrations from the Ross Sea" [ref=e4868] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:ca75fbf44284a65a9458778ef372a7c2bd58b62b"
+              - generic [ref=e4869]: data
+            - paragraph [ref=e4870]: "Abstract: Algal pigment concentrations as measured by HPLC from RV/IB Nathaniel B. Palmer cruise in the Ross Sea from 2017-2018"
+            - generic [ref=e4872]:
+              - generic [ref=e4873]: U.S. Antarctic Program (USAP) Data Center
+              - generic [ref=e4874]: 12/31/2018
+          - button [ref=e4877] [cursor=pointer]
+        - generic [ref=e4880]:
+          - generic [ref=e4881]:
+            - heading "Processed Fluid Chemistry Data from the Ross Sea acquired during the Nathaniel B. Palmer expedition NBP0601 (2005) data" [level=6] [ref=e4882]:
+              - link "Processed Fluid Chemistry Data from the Ross Sea acquired during the Nathaniel B. Palmer expedition NBP0601 (2005)" [ref=e4883] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:d8b7ef96f38c9d5bfbbd4b5c0cc812ca7ebdfd84"
+              - generic [ref=e4884]: data
+            - paragraph [ref=e4885]: "Abstract: This data set was acquired with a Niskin Bottle Fluid Sampler during Nathaniel B. Palmer expedition NBP0601 conducted in 2005 (Chief Scientist: Dr. Giacomo DiTullio). The data files are in X..."
+            - generic [ref=e4887]:
+              - generic [ref=e4888]: Interdisciplinary Earth Data Alliance (IEDA)
+              - generic [ref=e4889]: 10/30/2006
+          - button [ref=e4892] [cursor=pointer]
+        - generic [ref=e4895]:
+          - generic [ref=e4896]:
+            - heading "Processed Fluid Chemistry Data from the Ross Sea acquired during the Nathaniel B. Palmer expedition NBP0601 (2005) data" [level=6] [ref=e4897]:
+              - link "Processed Fluid Chemistry Data from the Ross Sea acquired during the Nathaniel B. Palmer expedition NBP0601 (2005)" [ref=e4898] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:d8b7ef96f38c9d5bfbbd4b5c0cc812ca7ebdfd84"
+              - generic [ref=e4899]: data
+            - paragraph [ref=e4900]: "Abstract: This data set was acquired with a Niskin Bottle Fluid Sampler during Nathaniel B. Palmer expedition NBP0601 conducted in 2005 (Chief Scientist: Dr. Giacomo DiTullio). The data files are in X..."
+            - generic [ref=e4902]:
+              - generic [ref=e4903]: U.S. Antarctic Program (USAP) Data Center
+              - generic [ref=e4904]: 10/30/2006
+          - button [ref=e4907] [cursor=pointer]
+        - generic [ref=e4910]:
+          - generic [ref=e4911]:
+            - heading "Interactive Effects of UV Radiation and Vertical Mixing on Phytoplankton and Bacterial Productivity of Ross Sea Phaeocystis Blooms data" [level=6] [ref=e4912]:
+              - link "Interactive Effects of UV Radiation and Vertical Mixing on Phytoplankton and Bacterial Productivity of Ross Sea Phaeocystis Blooms" [ref=e4913] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:d9d96e8ce5507421f3ce8dedf16130dd54cb4a22"
+              - generic [ref=e4914]: data
+            - paragraph [ref=e4915]: "Abstract: Data from five research cruises from OPP grant entitled \"Interactive Effects of UV and Vertical Mixing on Phytoplankton and Bacterial Productivity of Ross Sea Phaeocystis Bloom (OPP0127022)...."
+            - generic [ref=e4917]:
+              - generic [ref=e4918]: U.S. Antarctic Program (USAP) Data Center
+              - generic [ref=e4919]: 12/31/2007
+          - button [ref=e4922] [cursor=pointer]
+        - generic [ref=e4925]:
+          - generic [ref=e4926]:
+            - heading "Processed Fluid Chemistry Data from the Ross Sea acquired during the Nathaniel B. Palmer expedition NBP0601 data" [level=6] [ref=e4927]:
+              - link "Processed Fluid Chemistry Data from the Ross Sea acquired during the Nathaniel B. Palmer expedition NBP0601" [ref=e4928] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:f73095f5286a340b304c569174e93473608620eb"
+              - generic [ref=e4929]: data
+            - paragraph [ref=e4930]: "Abstract: This data set was acquired with a Niskin Bottle Fluid Sampler during Nathaniel B. Palmer expedition NBP0601 conducted in 2005 (Chief Scientist: Dr. Giacomo DiTullio). The data files are in X..."
+            - generic [ref=e4932]:
+              - generic [ref=e4933]: Interdisciplinary Earth Data Alliance (IEDA)
+              - generic [ref=e4934]: 10/30/2006
+          - button [ref=e4937] [cursor=pointer]
+        - generic [ref=e4940]:
+          - generic [ref=e4941]:
+            - heading "Processed Fluid Chemistry Data from the Ross Sea acquired during the Nathaniel B. Palmer expedition NBP0601 data" [level=6] [ref=e4942]:
+              - link "Processed Fluid Chemistry Data from the Ross Sea acquired during the Nathaniel B. Palmer expedition NBP0601" [ref=e4943] [cursor=pointer]:
+                - /url: "#/dataset/urn:gleaner.io:eco:iedadata:data:f73095f5286a340b304c569174e93473608620eb"
+              - generic [ref=e4944]: data
+            - paragraph [ref=e4945]: "Abstract: This data set was acquired with a Niskin Bottle Fluid Sampler during Nathaniel B. Palmer expedition NBP0601 conducted in 2005 (Chief Scientist: Dr. Giacomo DiTullio). The data files are in X..."
+            - generic [ref=e4947]:
+              - generic [ref=e4948]: U.S. Antarctic Program (USAP) Data Center
+              - generic [ref=e4949]: 10/30/2006
+          - button [ref=e4952] [cursor=pointer]
+  - generic [ref=e219]: "GeoCodes Version: 0.9.10 Date: 2026-05-28"

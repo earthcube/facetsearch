@@ -3,7 +3,11 @@
     <!-- intro paragraph -->
     <b-row class="align-items-stretch">
       <b-col cols="6" class="d-flex">
-        <b-jumbotron text-variant="white" bg-variant="primary" class="w-100 d-flex flex-column">
+        <b-jumbotron
+          text-variant="white"
+          bg-variant="primary"
+          class="w-100 d-flex flex-column"
+        >
           <template #header>
             <span class="text-white">What is GeoCODES?</span>
           </template>
@@ -11,17 +15,22 @@
           <template #lead>
             <span class="p-5 flex-grow-1">
               GeoCODES is an NSF Earthcube program effort to better enable
-              cross-domain discovery of and access to geoscience data and research
-              tools. GeoCODES is made up of three components respectively.
+              cross-domain discovery of and access to geoscience data and
+              research tools. GeoCODES is made up of three components
+              respectively.
             </span>
           </template>
         </b-jumbotron>
       </b-col>
 
       <b-col cols="6" class="d-flex">
-        <b-jumbotron text-variant="white" :style="{ backgroundColor: currentTenant.color || secondary }" class="w-100 d-flex flex-column">
+        <b-jumbotron
+          text-variant="white"
+          :style="{ backgroundColor: currentTenant.color || secondary }"
+          class="w-100 d-flex flex-column"
+        >
           <template #header>
-<!--            <span class="text-white">You are on {{ this.tenantData.tenant[0].community }}</span>-->
+            <!--            <span class="text-white">You are on {{ this.tenantData.tenant[0].community }}</span>-->
             <span class="text-white">You are on {{ currentTenant.name }}</span>
           </template>
 
@@ -33,7 +42,6 @@
         </b-jumbotron>
       </b-col>
     </b-row>
-
 
     <b-card-group deck>
       <b-card
@@ -94,11 +102,9 @@ in case more intro paragraph text is needed
 
     <b-container fluid="md" class="mt-5">
       <h2>
-         <a
-          :href="currentTenant.url"
-          target="_blank"
-          >{{ currentTenant.name }}</a
-        >
+        <a :href="currentTenant.url" target="_blank">{{
+          currentTenant.name
+        }}</a>
       </h2>
       <h5>Repositories crawled and indexed</h5>
     </b-container>
@@ -109,37 +115,62 @@ in case more intro paragraph text is needed
         :key="index"
         no-body
         class="text-center card-equal d-flex flex-column"
-    style="flex: 0 1 356px;"
+        style="flex: 0 1 356px"
       >
-        <b-card-body v-if="item.source != 'geocodes_demo_datasets'" class = "d-flex flex-column flex-grow-1">
+        <b-card-body
+          v-if="item.source != 'geocodes_demo_datasets'"
+          class="d-flex flex-column flex-grow-1"
+        >
           <b-card-title>
             <b-link
               target="_blank"
               class="d-flex flex-column align-items-center"
               :href="item.website"
             >
-              <div v-if="visibleImages[index]"
+              <div
+                v-if="visibleImages[index]"
                 class="logo d-flex justify-content-center align-items-center"
               >
-                <b-img fluid :src="'/images/repo/' + item.image"
-                @error="visibleImages[index] = false"></b-img>
+                <b-img
+                  fluid
+                  :src="'/images/repo/' + item.image"
+                  @error="visibleImages[index] = false"
+                ></b-img>
               </div>
 
               <div class="mt-3">{{ item.title }}</div>
             </b-link>
           </b-card-title>
 
-          <b-card-text class="d-flex flex-column flex-grow-1 justify-content-between">
+          <b-card-text
+            class="d-flex flex-column flex-grow-1 justify-content-between"
+          >
             <i v-if="item.records > 0"
               >{{ item.records }} record{{ item.records == 1 ? "" : "s" }}</i
             >
 
-            <div class="mt-3 small text-left description-container" v-html="item.description"></div>
+            <div
+              class="mt-3 small text-left description-container"
+              v-html="item.description"
+            ></div>
 
             <div class="mt-auto pt-3 text-left">
               <router-link
-                :to="{ name: 'report', params: { source: item.source}, query: { description: item.description } }"
+                :to="{
+                  name: 'report',
+                  params: { source: item.source },
+                  query: { description: item.description },
+                }"
                 >Reports</router-link
+              >
+              <span v-if="catalogUrnFor(item.source)" class="mx-1">|</span>
+              <router-link
+                v-if="catalogUrnFor(item.source)"
+                :to="{
+                  name: 'source',
+                  params: { urn: catalogUrnFor(item.source) },
+                }"
+                >Data Catalog</router-link
               >
             </div>
           </b-card-text>
@@ -227,19 +258,23 @@ in case more intro paragraph text is needed
 
 <script>
 import axios from "axios";
-import { mapState, mapGetters, mapActions} from "vuex";
-import yaml from 'js-yaml';
-import {tenantDefault} from "@/config.js";
+import { mapState, mapGetters } from "vuex";
+import { tenantDefault } from "@/config.js";
+import { createSearchService } from "@/services/SearchService.js";
+import { catalogSourceFromUrn } from "@/utils/datasetIdentifiers.js";
 
 export default {
   name: "about.vue",
   data() {
     return {
       reports: null,
-      title: 'Not Set',
-      community: 'Not Set',
+      title: "Not Set",
+      community: "Not Set",
       community_url: null,
-      visibleImages : []
+      visibleImages: [],
+      // source slug -> catalog graph URN; a source with no harvested catalog
+      // is simply absent, and its link is not rendered
+      catalogUrns: {},
     };
   },
   computed: {
@@ -253,13 +288,15 @@ export default {
     },
     currentTenant() {
       if (!this.tenantData?.tenant) return tenantDefault.tenant[0];
-      return this.tenantData.tenant.find(
-        t => t.community === this.currentCommunity
-      ) || tenantDefault.tenant[0];
+      return (
+        this.tenantData.tenant.find(
+          (t) => t.community === this.currentCommunity
+        ) || tenantDefault.tenant[0]
+      );
     },
     bgColor() {
       return this.generateColorFromTitle("Geochemistry");
-    }
+    },
   },
   async mounted() {
     const s3base = this.FacetsConfig.S3_REPORTS_URL;
@@ -274,8 +311,29 @@ export default {
     //   community = "all";
     this.reportsJson = `${s3base}tenant/${community}/latest/report_stats.json`;
     this.fetchAllReports();
+    this.fetchCatalogUrns();
   },
   methods: {
+    catalogUrnFor(source) {
+      return this.catalogUrns[String(source || "")] || "";
+    },
+    /**
+     * The catalog page is addressed by graph URN, but a source card only knows
+     * its slug, so resolve the whole set once here.
+     */
+    async fetchCatalogUrns() {
+      try {
+        const rows = await createSearchService(this.FacetsConfig).getCatalogList();
+        this.catalogUrns = Object.fromEntries(
+          rows
+            .map((r) => [catalogSourceFromUrn(r.g), r.g])
+            .filter(([source]) => source)
+        );
+      } catch (err) {
+        // non-fatal: the Data Catalog links just do not appear
+        console.warn("fetchCatalogUrns failed:", err?.message || err);
+      }
+    },
     fetchAllReports() {
       axios.get(this.reportsJson).then((response) => {
         this.reports = response.data;
@@ -286,10 +344,17 @@ export default {
     generateColorFromTitle(title) {
       let hash = 0;
       for (let i = 0; i < title.length; i++) {
-        hash = title.charCodeAt(i) + ((hash << 5) - hash);  // Hashing formula
+        hash = title.charCodeAt(i) + ((hash << 5) - hash); // Hashing formula
       }
       // Generate a color from the hash
-      const color = `#${((hash >> 8) & 0xFF).toString(16).padStart(2, '0')}${((hash >> 16) & 0xFF).toString(16).padStart(2, '0')}${((hash >> 24) & 0xFF).toString(16).padStart(2, '0')}`;
+      const color = `#${((hash >> 8) & 0xff).toString(16).padStart(2, "0")}${(
+        (hash >> 16) &
+        0xff
+      )
+        .toString(16)
+        .padStart(2, "0")}${((hash >> 24) & 0xff)
+        .toString(16)
+        .padStart(2, "0")}`;
       return color;
     },
   },

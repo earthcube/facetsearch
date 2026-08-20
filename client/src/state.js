@@ -10,13 +10,21 @@ import _, { isArray } from "underscore";
 //import {bus} from "./main";
 //import SpaqlQuery from 'raw-loader!./src/sparql_blaze/sparql_query.txt'
 //import SpaqlHasToolsQuery from 'raw-loader!./src/sparql_blaze/sparql_hastools.txt'
-import SpaqlQuery from "@/sparql_blaze/sparql_query.txt?raw";
-import SpaqlHasToolsQuery from "@/sparql_blaze/sparql_hastools.txt?raw";
+// Static imports removed - now using dynamic loading via queryService
+import queryService from "@/services/queryService.js";
+import {
+  ensureParsedTerms,
+  parsedHasTerms,
+  parseQueryWithExactFlag,
+  buildTextSearchBlockQlever,
+  buildTextSearchBlockBlazegraph,
+  indentSparqlLines,
+} from "@/utils/queryParser.js";
 import { default as LRUCache } from "lru-cache";
 import localforage from "localforage";
 import yaml from "js-yaml";
-import {commit} from "lodash/seq.js"
-import {tenantDefault} from "@/config.js";
+// import { commit } from "lodash/seq.js";
+import { tenantDefault } from "@/config.js";
 
 let esTemplateOptions = { interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g };
 export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
@@ -38,7 +46,7 @@ export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
 export const store = _createStore({
   state: {
     packageVersion: import.meta.env.VITE_APP_PACKAGE_VERSION || "0",
-    date: import.meta.env.VITE_APP_DATE|| "2021-Unknown",
+    date: import.meta.env.VITE_APP_DATE || "2021-Unknown",
     jsonLdObj: {},
     jsonLdCompact: {},
     toolLdObj: {},
@@ -54,12 +62,12 @@ export const store = _createStore({
     toolsMap: new Map(), // object id, hasConnectedTools
     q: "",
     rt: "all", // resourceType all
-    searchExactMatch: false,
+    searchExactMatch: true,
     // add them to simplify changes
     // should I just dump the facet config object in here/?
     esTemplateOptions: esTemplateOptions,
-    SpaqlQuery: SpaqlQuery,
-    SpaqlHasToolsQuery: SpaqlHasToolsQuery,
+    // Dynamic queries - loaded via queryService
+    queries: new Map(),
     TRIPLESTORE_URL: "https://localhost/blazegraph/namespace/earthcube/sparql'",
     // resultLimit: FacetsConfig.LIMIT_DEFAULT,
     resourceTypeList: new Map([
@@ -79,7 +87,7 @@ export const store = _createStore({
     }),
     collection: {}, // key: name,
     FacetsConfig: null,
-    tenantData: null
+    tenantData: null,
   },
   getters: {
     FacetsConfig: (state) => {
@@ -146,12 +154,21 @@ export const store = _createStore({
       return state.microCache.get(key);
     },
     getTenantData: (state) => {
-      return state.tenantData
-    }
+      return state.tenantData;
+    },
   },
   mutations: {
     setFacetsConfig: (state, obj) => {
       state.FacetsConfig = obj;
+      // Preload common queries when config is set
+      if (obj) {
+        queryService.preloadQueries(obj).catch((error) => {
+          console.warn("Failed to preload queries:", error);
+        });
+      }
+    },
+    setQuery: (state, { key, query }) => {
+      state.queries.set(key, query);
     },
     setNewCollection: (state, obj) => {
       localforage.getItem(obj.key, function (err, value) {
@@ -239,7 +256,7 @@ export const store = _createStore({
     },
     setTenantData(state, data) {
       state.tenantData = data;
-    }
+    },
   },
   actions: {
     async fetchTenantData({ commit }) {
@@ -250,8 +267,8 @@ export const store = _createStore({
         console.log(tenantData);
         commit("setTenantData", tenantData);
       } catch (error) {
-        console.error('Error loading Tenant YAML file:', error);
-        const tenantData = tenantDefault
+        console.error("Error loading Tenant YAML file:", error);
+        const tenantData = tenantDefault;
         commit("setTenantData", tenantData);
       }
     },
@@ -335,9 +352,11 @@ export const store = _createStore({
         this.state.FacetsConfig.API_URL,
         esTemplateOptions
       );
-      const fetchURL =
-        baseUrlt({ window_location_origin: window.location.origin }) +
-        `/dataset/${o}`;
+      const base = baseUrlt({
+        window_location_origin: window.location.origin,
+      }).replace(/\/$/, "");
+      // Do not encode the URN segment: the GeoCodes API expects literal colons (encoding returns 404).
+      const fetchURL = `${base}/dataset/${o}`;
       console.log(fetchURL);
       var url = new URL(fetchURL);
       return axios
@@ -347,7 +366,7 @@ export const store = _createStore({
           async function (r) {
             var content = r.data;
             //console.log(contentAsText);
-            if (typeof content === String) {
+            if (typeof content === "string") {
               content = content.replace(
                 "http://schema.org/",
                 "https://schema.org/"
@@ -399,7 +418,7 @@ export const store = _createStore({
               );
 
               context.commit("setJsonLdCompact", jsonLdobj);
-              throw "JSONLD transformation issue.";
+              // Do not reject the action: raw JSON-LD is already in state; UI depends on fetch settling.
             }
           }
         )
@@ -570,8 +589,7 @@ export const store = _createStore({
       if (resourceType !== undefined && resourceType !== "all") {
         rt = this.state.resourceTypeList.get(resourceType);
       }
-      if (exact == undefined)
-        exact = this.state.searchExactMatch;
+      if (exact == undefined) exact = this.state.searchExactMatch;
 
       event("search", {
         //'event_category': 'query',
@@ -584,9 +602,35 @@ export const store = _createStore({
       //     object: SpaqlQuery,
       //     name: template_name
       // })
-      const resultsTemplate = _.template(SpaqlQuery, esTemplateOptions);
+      // Load query dynamically from configuration
+      const queryText = await queryService.loadQuery(
+        "SPARQL_QUERY",
+        this.state.FacetsConfig
+      );
+      const resultsTemplate = _.template(queryText, esTemplateOptions);
+      const templatePayload = {
+        n: n,
+        o: o,
+        q: q,
+        rt: rt,
+        exact: exact,
+        minRelevance: minRelevance,
+      };
+      if (queryText.includes("${textSearchBlock}")) {
+        let parsed = parseQueryWithExactFlag(q || "", !!exact);
+        if (!parsedHasTerms(parsed)) parsed = ensureParsedTerms(q || "", parsed);
+        const engine = String(
+          this.state.FacetsConfig.QUERY_ENGINE || "blazegraph"
+        ).toLowerCase();
+        if (engine === "qlever") {
+          const block = buildTextSearchBlockQlever(parsed);
+          templatePayload.textSearchBlock = indentSparqlLines(block, 4);
+        } else {
+          templatePayload.textSearchBlock = buildTextSearchBlockBlazegraph(parsed);
+        }
+      }
       //var sparql = self.state.queryTemplates[template_name]({'n': n, 'o': o, 'q': q})
-      var sparql = resultsTemplate({ n: n, o: o, q: q, rt: rt, exact: exact, minRelevance: minRelevance });
+      var sparql = resultsTemplate(templatePayload);
       //var url = "https://graph.geodex.org/blazegraph/namespace/nabu/sparql";
       var url = this.state.FacetsConfig.SUMMARYSTORE_URL;
       var blazetimeout = this.state.FacetsConfig.BLAZEGRAPH_TIMEOUT || 60;
@@ -715,7 +759,12 @@ export const store = _createStore({
       //     object: SpaqlHasToolsQuery,
       //     name: template_name
       // })
-      const resultsTemplate = _.template(SpaqlHasToolsQuery, esTemplateOptions);
+      // Load query dynamically from configuration
+      const queryText = await queryService.loadQuery(
+        "SPARQL_HASTOOLS",
+        this.state.FacetsConfig
+      );
+      const resultsTemplate = _.template(queryText, esTemplateOptions);
 
       let hasToolsQuery = resultsTemplate({
         g: payload,
@@ -753,6 +802,84 @@ export const store = _createStore({
         console.log("put to LRU cache " + payload);
         return hasTool;
       });
+    },
+
+    /* Answer the "connected tools" badge for a whole page of results with a
+     * single SELECT (SPARQL_HASTOOLS_BATCH) instead of one ASK per card.
+     * payload: array of graph IRIs. Returns { graphIri: boolean }. */
+    hasConnectedToolsBatch: async function (context, payload) {
+      const graphs = _.uniq((payload || []).filter(Boolean));
+      const resultMap = {};
+      const uncached = [];
+      for (const g of graphs) {
+        if (context.getters.hasConnectedTool(g)) {
+          resultMap[g] = context.getters.getConnectedTool(g);
+        } else {
+          uncached.push(g);
+        }
+      }
+      if (uncached.length === 0) {
+        return resultMap;
+      }
+
+      const facetsConfig = this.state.FacetsConfig;
+      if (!facetsConfig?.SPARQL_HASTOOLS_BATCH) {
+        // batch query not configured; fall back to one ASK per graph
+        await Promise.all(
+          uncached.map((g) =>
+            context
+              .dispatch("hasConnectedTools", g)
+              .then((hasTool) => {
+                resultMap[g] = hasTool;
+              })
+              .catch((err) => {
+                console.info("hasConnectedToolsBatch:fallback:" + err);
+                resultMap[g] = false;
+              })
+          )
+        );
+        return resultMap;
+      }
+
+      const queryText = await queryService.loadQuery(
+        "SPARQL_HASTOOLS_BATCH",
+        facetsConfig
+      );
+      const resultsTemplate = _.template(queryText, esTemplateOptions);
+      const batchQuery = resultsTemplate({
+        gvalues: uncached.map((g) => "<" + g + ">").join(" "),
+        ecrr_service: facetsConfig.ECRR_TRIPLESTORE_URL,
+        ecrr_graph: facetsConfig.ECRR_GRAPH,
+      });
+
+      // POST (not GET): the VALUES clause holds one IRI per visible result,
+      // so at large page sizes (1000/5000) the query can exceed URL length limits.
+      const batchParams = new URLSearchParams();
+      batchParams.append("query", batchQuery);
+      batchParams.append("timeout", facetsConfig.BLAZEGRAPH_TIMEOUT || 60);
+      batchParams.append("queryLn", "sparql");
+      const config = {
+        url: facetsConfig.TRIPLESTORE_URL,
+        method: "post",
+        headers: {
+          Accept: "application/sparql-results+json",
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        data: batchParams,
+      };
+      console.log(
+        "hasConnectedToolsBatch:select: " + uncached.length + " graphs"
+      );
+      const response = await axios.request(config);
+      const withTools = new Set(
+        (response.data?.results?.bindings || []).map((b) => b.g.value)
+      );
+      for (const g of uncached) {
+        const hasTool = withTools.has(g);
+        context.commit("addConnectedTools", { id: g, hasTool: hasTool });
+        resultMap[g] = hasTool;
+      }
+      return resultMap;
     },
   },
 });
