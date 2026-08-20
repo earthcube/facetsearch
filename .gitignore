@@ -32,3 +32,9 @@ pnpm-debug.log*
 *.sln
 *.sw?
 /server/.env
+
+# Yarn PnP artifacts (client uses the node-modules linker)
+.pnp.*
+
+# Playwright MCP session artifacts (console logs, page snapshots)
+.playwright-mcp/
