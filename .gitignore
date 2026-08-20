@@ -31,3 +31,6 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Playwright MCP session artifacts (console logs, page snapshots)
+.playwright-mcp/
