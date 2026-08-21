@@ -395,6 +395,8 @@ export default {
       cancelSummaryClose();
       // Long enough for the pointer to cross the gap onto the card itself.
       summaryCloseTimer = setTimeout(() => {
+        cancelSummaryFetch();
+        summaryGeneration += 1;
         summaryCard.value = null;
         summaryCloseTimer = null;
       }, 200);
