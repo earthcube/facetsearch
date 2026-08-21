@@ -331,6 +331,7 @@ export class SparqlQueryBuilder {
       inner += `  ?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCov0 .
   ?spatialCov0 schema:geo|sschema:geo ?geo0 .
   ?geo0 schema:latitude|sschema:latitude ?lat0 .
+  ?geo0 schema:longitude|sschema:longitude ?lon0 .
 `;
     }
 
