@@ -151,7 +151,7 @@
 
     <!-- Hover card: dataset detail pulled from the graph store on demand -->
     <div
-      v-if="summaryCard"
+      v-if="summaryCard && !isMobile"
       ref="summaryElement"
       class="summary-card"
       :style="summaryCardStyle"
@@ -734,6 +734,7 @@ export default {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   padding: 0.75rem;
 }
@@ -892,9 +893,48 @@ export default {
 }
 
 @media (max-width: 767.98px) {
+  /* Phone: the dock becomes a bottom sheet with a horizontal tab strip.
+     column-reverse puts the tabs (last in DOM) above the panel. */
   .dock {
-    --panel-width: calc(100vw - 6rem);
-    max-height: 65%;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    flex-direction: column-reverse;
+    max-height: 60%;
+  }
+
+  .dock__panel {
+    width: 100%;
+    max-width: none;
+    border-radius: 0;
+  }
+
+  .dock__tabs {
+    align-self: stretch;
+    flex-direction: row;
+  }
+
+  .dock__tab {
+    flex: 1 1 0;
+    flex-direction: row;
+    justify-content: center;
+    padding: 0.6rem 0.5rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+
+  .dock__tab--active {
+    box-shadow: 0 -0.25rem 0.75rem rgba(0, 0, 0, 0.2);
+  }
+
+  .dock__tab-label {
+    writing-mode: horizontal-tb;
+  }
+
+  /* App.vue pins a fixed-bottom version banner; keep the footer button
+     clear of it while the sheet itself stays flush to the edge. */
+  .dock__footer {
+    padding-bottom: 1.5rem;
   }
 
 }
