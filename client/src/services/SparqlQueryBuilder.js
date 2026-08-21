@@ -288,9 +288,12 @@ export class SparqlQueryBuilder {
   /** Normalized bounds of the active geo facet filter, or null. */
   getActiveGeoBounds(filters) {
     if (!filters || typeof filters !== 'object') return null;
+    const facets = this.config?.FACETS || [];
+    const hasConfiguredGeoFacet = facets.some((f) => f.type === 'geo');
     for (const [field, values] of Object.entries(filters)) {
       const cfg = this.getFacetConfig(field);
-      if (cfg?.type !== 'geo' || !values) continue;
+      const isGeo = cfg?.type === 'geo' || (!hasConfiguredGeoFacet && field === 'spatialCoverage');
+      if (!isGeo || !values) continue;
       const b = this.normalizeGeoBounds(values?.bounds || values);
       if (b) return b;
     }
