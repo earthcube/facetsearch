@@ -95,15 +95,16 @@
                 class="result-list__link"
                 title="Open dataset in a new tab"
               >
-                {{ row.name }} <i class="fas fa-external-link-alt fa-xs text-muted"></i>
+                {{ row.name }} <span class="result-list__ext" aria-hidden="true">&#8599;</span>
               </a>
               <button
                 type="button"
                 class="result-list__action"
                 title="Zoom to this location"
+                aria-label="Zoom to this location"
                 @click="flyTo(row)"
               >
-                <i class="fas fa-crosshairs"></i>
+                <span aria-hidden="true">&#8982;</span>
               </button>
             </li>
           </ul>
@@ -140,7 +141,6 @@
           :aria-selected="String(activePane === pane.id)"
           @click="activePane = pane.id"
         >
-          <i :class="pane.icon"></i>
           <span class="dock__tab-label">{{ pane.label }}</span>
           <b-badge v-if="pane.count" :variant="pane.variant" pill>
             {{ pane.count }}
@@ -179,7 +179,7 @@
       <div class="summary-card__actions">
         <router-link v-if="isMobile" :to="summaryCard.to">View dataset</router-link>
         <a v-else :href="summaryCard.href" target="_blank" rel="noopener">
-          Open in new tab <i class="fas fa-external-link-alt"></i>
+          Open in new tab <span aria-hidden="true">&#8599;</span>
         </a>
       </div>
     </div>
@@ -217,6 +217,21 @@ import { useConfig } from '@/composables/useConfig.js';
 import { addOceanBasemap } from '@/utils/oceanBasemap.js';
 import { viewportToGeoBounds, geoBoundsKey } from '@/utils/mapBounds.js';
 import Facets2 from '@/components/facetsearch/Facets2.vue';
+
+/**
+ * Some sources put citation HTML in schema:name and schema:description
+ * ("<b>Author (2025).</b> Title. <i>Zenodo.</i>"), which renders as escaped
+ * tag soup in a list. Strip tags first, then decode entities in a textarea,
+ * which holds its content as text and never instantiates elements.
+ */
+function stripMarkup(value) {
+  const raw = String(value ?? '');
+  if (!raw) return '';
+  if (!raw.includes('<') && !raw.includes('&')) return raw;
+  const decoder = document.createElement('textarea');
+  decoder.innerHTML = raw.replace(/<[^>]*>/g, ' ');
+  return decoder.value.replace(/\s+/g, ' ').trim();
+}
 
 const MAP_LIMIT = 1000;
 const DEFAULT_CENTER = [20, 0];
@@ -284,6 +299,7 @@ export default {
     };
 
     const closeSummary = () => {
+      cancelSummaryFetch();
       summaryGeneration += 1;
       summaryCard.value = null;
     };
@@ -298,7 +314,7 @@ export default {
     const visibleRows = computed(() =>
       activeRows.value.slice(0, RESULT_LIST_MAX).map((row, index) => ({
         key: `${row.id || row.subj || index}-${index}`,
-        name: String(row.name || row.id || 'Untitled dataset'),
+        name: stripMarkup(row.name) || String(row.id || 'Untitled dataset'),
         to: datasetRoute(row),
         href: router.resolve(datasetRoute(row)).href,
         subj: row.subj || row.id,
@@ -317,14 +333,12 @@ export default {
       {
         id: 'filters',
         label: 'Filters',
-        icon: 'fas fa-sliders-h',
         count: search.filterCount.value,
         variant: 'primary',
       },
       {
         id: 'results',
         label: 'Results',
-        icon: 'fas fa-list-ul',
         count: search.results.value.length,
         variant: 'secondary',
       },
@@ -360,7 +374,15 @@ export default {
     const summaryCard = ref(null);
     const summaryCardStyle = ref({});
     let summaryCloseTimer = null;
+    let summaryFetchTimer = null;
     let summaryGeneration = 0;
+
+    const cancelSummaryFetch = () => {
+      if (summaryFetchTimer) {
+        clearTimeout(summaryFetchTimer);
+        summaryFetchTimer = null;
+      }
+    };
 
     const cancelSummaryClose = () => {
       if (summaryCloseTimer) {
@@ -378,8 +400,9 @@ export default {
       }, 200);
     };
 
-    const previewRow = async (row, event) => {
+    const previewRow = (row, event) => {
       cancelSummaryClose();
+      cancelSummaryFetch();
       const generation = ++summaryGeneration;
 
       // Vertically align the card with the hovered row, to the dock's right.
@@ -404,23 +427,28 @@ export default {
         return;
       }
 
-      try {
-        const summary = await search.searchService.getDatasetSummary(row.subj);
-        // A later hover already replaced this card.
-        if (generation !== summaryGeneration) return;
-        summaryCard.value = {
-          name: summary?.name || row.name,
-          description: summary?.description || '',
-          publisher: summary?.publisher || '',
-          datePublished: (summary?.datePublished || '').slice(0, 10),
-          to: row.to,
-          href: row.href,
-          loading: false,
-        };
-      } catch {
-        if (generation !== summaryGeneration) return;
-        summaryCard.value = { ...summaryCard.value, loading: false };
-      }
+      // Hold off on the query: scanning down the list would otherwise fire one
+      // request per row and trip the triplestore's rate limit.
+      summaryFetchTimer = setTimeout(async () => {
+        summaryFetchTimer = null;
+        try {
+          const summary = await search.searchService.getDatasetSummary(row.subj);
+          // A later hover already replaced this card.
+          if (generation !== summaryGeneration) return;
+          summaryCard.value = {
+            name: stripMarkup(summary?.name) || row.name,
+            description: stripMarkup(summary?.description),
+            publisher: stripMarkup(summary?.publisher),
+            datePublished: (summary?.datePublished || '').slice(0, 10),
+            to: row.to,
+            href: row.href,
+            loading: false,
+          };
+        } catch {
+          if (generation !== summaryGeneration) return;
+          summaryCard.value = { ...summaryCard.value, loading: false };
+        }
+      }, 300);
     };
 
     const flyTo = (row) => {
@@ -495,7 +523,7 @@ export default {
           rowData: row,
         });
         const href = router.resolve(datasetRoute(row)).href;
-        const label = String(row.name || row.id || 'Dataset')
+        const label = (stripMarkup(row.name) || String(row.id || 'Dataset'))
           .replace(/&/g, '&amp;')
           .replace(/</g, '&lt;');
         const linkAttrs = isMobile.value
@@ -566,6 +594,7 @@ export default {
     onBeforeUnmount(() => {
       debouncedApplyViewport.cancel();
       cancelSummaryClose();
+      cancelSummaryFetch();
       if (mobileMedia) {
         mobileMedia.removeEventListener('change', onMobileChange);
         mobileMedia = null;
@@ -777,14 +806,25 @@ export default {
   flex: 1 1 auto;
   min-width: 0;
   overflow-wrap: anywhere;
+  /* Citation-style names run very long; keep every row scannable. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .result-list__item:hover {
   background-color: #f8f9fa;
 }
 
+.result-list__ext {
+  color: #6c757d;
+}
+
 .result-list__action {
   flex: 0 0 auto;
+  min-width: 1.5rem;
+  font-size: 1rem;
   border: 0;
   background: transparent;
   color: #6c757d;
