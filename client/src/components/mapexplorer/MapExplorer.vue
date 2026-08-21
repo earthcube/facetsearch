@@ -482,10 +482,11 @@ export default {
     const fitToBounds = (bounds) => {
       if (!map || !bounds) return;
       suppressMoveEvents = true;
+      const fitEast = bounds.west > bounds.east ? bounds.east + 360 : bounds.east;
       map.fitBounds(
         [
           [bounds.south, bounds.west],
-          [bounds.north, bounds.east],
+          [bounds.north, fitEast],
         ],
         { animate: false }
       );
