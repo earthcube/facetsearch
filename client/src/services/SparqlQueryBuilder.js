@@ -1097,7 +1097,7 @@ WHERE {
   GRAPH ?g {
     ?subj schema:name|sschema:name ?name_r .
     OPTIONAL { ?subj schema:description|sschema:description ?description_r }
-    OPTIONAL { ?subj schema:publisher/schema:name|sschema:publisher/sschema:name ?publisher_r }
+    OPTIONAL { ?subj schema:publisher/schema:name|sschema:publisher/sschema:name|schema:publisher/schema:legalName|sschema:publisher/sschema:legalName ?publisher_r }
     OPTIONAL { ?subj schema:datePublished|sschema:datePublished ?datePublished_r }
     OPTIONAL { ?subj schema:url|sschema:url ?url_r }
   }
