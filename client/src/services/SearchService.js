@@ -58,6 +58,7 @@ export class SearchService {
     this.queryBuilder = createSparqlQueryBuilder(config);
 
     this.autocompleteCache = new LRUCache({ max: 200, ttl: 5 * 60_000 });
+    this.summaryCache = new LRUCache({ max: 300, ttl: 10 * 60_000 });
 
     // Filter state manager wires the mode's query executor
     const executor =
@@ -287,6 +288,24 @@ export class SearchService {
         lon: parseFloat(row.lon_s),
       }))
       .filter((row) => Number.isFinite(row.lat) && Number.isFinite(row.lon));
+  }
+
+  /**
+   * Name/description/publisher for one dataset, for hover cards.
+   * Cached because the map list re-hovers the same rows constantly.
+   * @returns {Promise<{subj: string, g?: string, name?: string, description?: string,
+   *   publisher?: string, datePublished?: string, url?: string} | null>}
+   */
+  async getDatasetSummary(subj) {
+    if (!subj) return null;
+    const cached = this.summaryCache.get(subj);
+    if (cached !== undefined) return cached;
+    const query = this.queryBuilder.buildDatasetSummaryQuery(subj);
+    if (!query) return null;
+    const response = await this.sendToTriplestoreWithFallback(query);
+    const summary = this.processResults(response)[0] || null;
+    this.summaryCache.set(subj, summary);
+    return summary;
   }
 
   // -------------------------

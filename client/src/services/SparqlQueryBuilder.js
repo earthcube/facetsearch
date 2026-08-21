@@ -1078,6 +1078,37 @@ LIMIT ${Number(limit) > 0 ? Number(limit) : 10}
   }
 
   /**
+   * Short summary for one dataset, for hover cards and previews.
+   *
+   * Everything past ?subj is OPTIONAL and SAMPLEd: a dataset missing a
+   * description must still return its name rather than dropping the row.
+   */
+  buildDatasetSummaryQuery(subj) {
+    if (!subj) return null;
+    let query = this.buildPrefixes();
+    query += `SELECT ?g ?subj
+  (SAMPLE(?name_r) AS ?name)
+  (SAMPLE(?description_r) AS ?description)
+  (SAMPLE(?publisher_r) AS ?publisher)
+  (SAMPLE(?datePublished_r) AS ?datePublished)
+  (SAMPLE(?url_r) AS ?url)
+WHERE {
+  BIND(<${subj}> AS ?subj)
+  GRAPH ?g {
+    ?subj schema:name|sschema:name ?name_r .
+    OPTIONAL { ?subj schema:description|sschema:description ?description_r }
+    OPTIONAL { ?subj schema:publisher/schema:name|sschema:publisher/sschema:name ?publisher_r }
+    OPTIONAL { ?subj schema:datePublished|sschema:datePublished ?datePublished_r }
+    OPTIONAL { ?subj schema:url|sschema:url ?url_r }
+  }
+}
+GROUP BY ?g ?subj
+LIMIT 1
+`;
+    return query;
+  }
+
+  /**
    * A source's Nabu release catalog, addressed by its named graph URN.
    *
    * The URN is the catalog's identity, not the source slug: every release
