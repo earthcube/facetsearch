@@ -499,7 +499,7 @@ export class FilterStateManager {
         const b = this.normalizeGeoBounds(values?.bounds ?? values);
         if (b) {
           display[key] = [
-            `N:${b.north.toFixed(2)} S:${b.south.toFixed(2)} E:${b.east.toFixed(2)} W:${b.west.toFixed(2)}`,
+            `N:${b.north.toFixed(2)} W:${b.west.toFixed(2)} E:${b.east.toFixed(2)} S:${b.south.toFixed(2)}`,
           ];
         }
         return;
