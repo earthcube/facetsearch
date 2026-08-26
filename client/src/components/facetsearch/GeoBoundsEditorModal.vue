@@ -20,7 +20,8 @@
         <div class="geo-modal-body">
           <p class="text-muted mb-2">
             Click "Draw Box", then click two corners on the map.
-            Use Edit/Delete tools to adjust, then confirm to apply.
+            Dateline-crossing boxes are preserved; for major shape changes,
+            redraw with "Draw Box" and confirm to apply.
           </p>
           <div ref="mapElement" class="geo-editor-map"></div>
         </div>
@@ -54,7 +55,7 @@ import 'leaflet-draw';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { addOceanBasemap } from '@/utils/oceanBasemap.js';
 
-const DEFAULT_CENTER = [20, 0];
+const DEFAULT_CENTER = [20, 180];
 const DEFAULT_ZOOM = 2;
 
 export default {
@@ -80,6 +81,7 @@ export default {
     let draftBounds = null;
     let tempRectangle = null;
     let firstCorner = null;
+    let firstCornerPoint = null;
     let isTwoClickDrawActive = false;
 
     const cloneBounds = (bounds) => {
@@ -92,38 +94,105 @@ export default {
       };
     };
 
-    const setDraftFromLayer = (layer) => {
-      const bounds = layer.getBounds();
-      draftBounds = {
-        north: bounds.getNorth(),
-        south: bounds.getSouth(),
-        east: bounds.getEast(),
-        west: bounds.getWest(),
-      };
+    const normalizeLongitude = (lng) => {
+      const value = Number(lng);
+      if (!Number.isFinite(value)) return null;
+      return ((value + 180) % 360 + 360) % 360 - 180;
     };
 
-    const getCurrentBoundsFromMap = () => {
-      if (!drawnItems) return null;
-      const layers = drawnItems.getLayers();
-      if (!layers.length) return null;
+    const isDatelineCrossing = (bounds) =>
+      !!bounds && Number(bounds.west) > Number(bounds.east);
 
-      const layer = layers[0];
-      if (!layer?.getBounds) return null;
+    const buildBoundsFromCorners = (a, b, aPoint = null, bPoint = null) => {
+      if (!a || !b) return null;
+      const north = Math.max(a.lat, b.lat);
+      const south = Math.min(a.lat, b.lat);
+      const aLng = normalizeLongitude(a.lng);
+      const bLng = normalizeLongitude(b.lng);
+      if (aLng === null || bLng === null) return null;
 
-      const bounds = layer.getBounds();
+      const span = Math.abs(aLng - bLng);
+      const mapWidth = map?.getSize?.().x || 0;
+      const crossingByPixelDistance =
+        mapWidth > 0 &&
+        aPoint &&
+        bPoint &&
+        Math.abs(Number(aPoint.x) - Number(bPoint.x)) > mapWidth / 2;
+      const crossing = span > 180 || crossingByPixelDistance;
+      const west = crossing ? Math.max(aLng, bLng) : Math.min(aLng, bLng);
+      const east = crossing ? Math.min(aLng, bLng) : Math.max(aLng, bLng);
+
+      if (north === south || east === west) return null;
+      return { north, south, east, west };
+    };
+
+    const toDisplaySegments = (bounds) => {
+      if (!bounds) return [];
+      const north = Number(bounds.north);
+      const south = Number(bounds.south);
+      const east = normalizeLongitude(bounds.east);
+      const west = normalizeLongitude(bounds.west);
+      if (
+        !Number.isFinite(north) ||
+        !Number.isFinite(south) ||
+        east === null ||
+        west === null
+      ) {
+        return [];
+      }
+      if (west <= east) {
+        return [{ north, south, east, west }];
+      }
+      // Display crossing boxes as a single unwrapped rectangle in the
+      // Pacific-centered view (east shifted by +360).
+      return [{ north, south, west, east: east + 360 }];
+    };
+
+    const getBoundsFromEditedLayers = (layers) => {
+      if (!layers?.length) return null;
+      const segments = layers
+        .filter((layer) => !!layer?.getBounds)
+        .map((layer) => {
+          const b = layer.getBounds();
+          return {
+            north: b.getNorth(),
+            south: b.getSouth(),
+            east: normalizeLongitude(b.getEast()),
+            west: normalizeLongitude(b.getWest()),
+          };
+        })
+        .filter((s) => s.east !== null && s.west !== null);
+
+      if (!segments.length) return null;
+      if (segments.length === 1) {
+        const seg = segments[0];
+        return {
+          north: seg.north,
+          south: seg.south,
+          east: seg.east,
+          west: seg.west,
+        };
+      }
+
+      const nearDateLine = 10;
+      const right = segments.find((s) => s.east > 180 - nearDateLine);
+      const left = segments.find((s) => s.west < -180 + nearDateLine);
+      if (right && left) {
+        return {
+          north: Math.max(...segments.map((s) => s.north)),
+          south: Math.min(...segments.map((s) => s.south)),
+          west: Math.min(right.west, right.east),
+          east: Math.max(left.west, left.east),
+        };
+      }
+
       return {
-        north: bounds.getNorth(),
-        south: bounds.getSouth(),
-        east: bounds.getEast(),
-        west: bounds.getWest(),
+        north: Math.max(...segments.map((s) => s.north)),
+        south: Math.min(...segments.map((s) => s.south)),
+        west: Math.min(...segments.map((s) => s.west)),
+        east: Math.max(...segments.map((s) => s.east)),
       };
     };
-
-    const getLatLngBounds = (bounds) =>
-      L.latLngBounds(
-        L.latLng(bounds.south, bounds.west),
-        L.latLng(bounds.north, bounds.east)
-      );
 
     const replaceWithRectangle = (bounds) => {
       if (!map || !drawnItems) return;
@@ -137,13 +206,28 @@ export default {
         return;
       }
 
-      const rectangle = L.rectangle(getLatLngBounds(bounds), {
-        color: '#dc3545',
-        weight: 2,
-        fillOpacity: 0.08,
+      const segments = toDisplaySegments(bounds);
+      let combinedBounds = null;
+      segments.forEach((segment) => {
+        const rectangle = L.rectangle(
+          L.latLngBounds(
+            L.latLng(segment.south, segment.west),
+            L.latLng(segment.north, segment.east)
+          ),
+          {
+            color: '#dc3545',
+            weight: 2,
+            fillOpacity: 0.08,
+          }
+        );
+        drawnItems.addLayer(rectangle);
+        combinedBounds = combinedBounds
+          ? combinedBounds.extend(rectangle.getBounds())
+          : rectangle.getBounds();
       });
-      drawnItems.addLayer(rectangle);
-      map.fitBounds(rectangle.getBounds(), { padding: [20, 20] });
+      if (combinedBounds) {
+        map.fitBounds(combinedBounds, { padding: [20, 20] });
+      }
     };
 
     const initMap = () => {
@@ -177,13 +261,17 @@ export default {
         drawnItems.clearLayers();
         const layer = event.layer;
         drawnItems.addLayer(layer);
-        setDraftFromLayer(layer);
+        draftBounds = getBoundsFromEditedLayers([layer]);
       });
 
       map.on(L.Draw.Event.EDITED, (event) => {
         const layers = event.layers.getLayers();
         if (!layers.length) return;
-        setDraftFromLayer(layers[0]);
+        const editedBounds = getBoundsFromEditedLayers(layers);
+        if (editedBounds) {
+          draftBounds = editedBounds;
+          replaceWithRectangle(draftBounds);
+        }
       });
 
       map.on(L.Draw.Event.DELETED, () => {
@@ -195,6 +283,7 @@ export default {
 
         if (!firstCorner) {
           firstCorner = event.latlng;
+          firstCornerPoint = event.containerPoint;
           if (tempRectangle) {
             map.removeLayer(tempRectangle);
           }
@@ -207,15 +296,13 @@ export default {
           return;
         }
 
-        const finalBounds = L.latLngBounds(firstCorner, event.latlng);
-        const finalRect = L.rectangle(finalBounds, {
-          color: '#dc3545',
-          weight: 2,
-          fillOpacity: 0.08,
-        });
-        drawnItems.clearLayers();
-        drawnItems.addLayer(finalRect);
-        setDraftFromLayer(finalRect);
+        draftBounds = buildBoundsFromCorners(
+          firstCorner,
+          event.latlng,
+          firstCornerPoint,
+          event.containerPoint
+        );
+        replaceWithRectangle(draftBounds);
         stopTwoClickDraw();
       });
 
@@ -239,6 +326,7 @@ export default {
     const stopTwoClickDraw = () => {
       isTwoClickDrawActive = false;
       firstCorner = null;
+      firstCornerPoint = null;
       if (tempRectangle && map) {
         map.removeLayer(tempRectangle);
         tempRectangle = null;
@@ -274,11 +362,8 @@ export default {
     };
 
     const handleConfirm = () => {
-      // Leaflet Draw "EDITED" event only fires after clicking the mini "Save"
-      // button in the draw toolbar. Read bounds directly from the map layer so
-      // modal Confirm always commits the latest visual rectangle position/size.
-      const currentBounds = getCurrentBoundsFromMap();
-      draftBounds = currentBounds ? cloneBounds(currentBounds) : null;
+      // Keep draftBounds as source-of-truth so antimeridian crossing survives
+      // without collapsing through Leaflet bounds normalization.
       emit('confirm', cloneBounds(draftBounds));
     };
 

@@ -12,14 +12,16 @@ export const OCEAN_REFERENCE_URL =
   'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}';
 
 /** Add Esri Ocean base + reference label layers to a Leaflet map. */
-export function addOceanBasemap(L, map) {
+export function addOceanBasemap(L, map, layerOptions = {}) {
   L.tileLayer(OCEAN_BASE_URL, {
     attribution: OCEAN_BASEMAP_ATTRIBUTION,
     maxZoom: 16,
+    ...layerOptions,
   }).addTo(map);
 
   L.tileLayer(OCEAN_REFERENCE_URL, {
     attribution: OCEAN_BASEMAP_ATTRIBUTION,
     maxZoom: 16,
+    ...layerOptions,
   }).addTo(map);
 }
