@@ -19,6 +19,7 @@ export class FilterStateManager {
       searchTotalCount: 0,
       error: null,
       lastQuery: null,
+      lastSparqlQuery: '',
       lastQuerySignature: '',
       lastQueryAt: 0
     });
@@ -261,10 +262,12 @@ export class FilterStateManager {
       if (Array.isArray(outcome)) {
         this.state.results = outcome;
         this.state.totalCount = outcome.length;
+        this.state.lastSparqlQuery = '';
       } else {
         this.state.results = outcome?.results || [];
         this.state.totalCount =
           outcome?.totalCount ?? this.state.results.length;
+        this.state.lastSparqlQuery = outcome?.query || '';
         if (outcome?.totalCountPromise) {
           outcome.totalCountPromise.then((n) => {
             this.state.totalCount = n;
