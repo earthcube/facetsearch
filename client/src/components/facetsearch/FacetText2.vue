@@ -107,7 +107,7 @@
 </template>
 
 <script>
-import { ref, computed, inject } from 'vue';
+import { ref, computed, inject, watch } from 'vue';
 import { useFacet } from '@/composables/useSearch.js';
 
 export default {
@@ -129,14 +129,22 @@ export default {
 
     // Local state
     const showAll = ref(false);
-    const isOpen = ref(props.facetConfig.open !== false);
+    const isHeavyFacetType =
+      props.facetConfig.type === 'propertyvalue' ||
+      props.facetConfig.type === 'variablemeasured';
+    const isOpen = ref(isHeavyFacetType ? false : props.facetConfig.open !== false);
     const optionSortMode = ref('count');
 
-    const sortableFacetFields = ['kw', 'placenames'];
-
-    const supportsOptionSort = computed(() =>
-      sortableFacetFields.includes(props.facetConfig.field)
-    );
+    const supportsOptionSort = computed(() => {
+      const field = props.facetConfig.field;
+      const type = props.facetConfig.type;
+      return (
+        field === 'kw' ||
+        field === 'placenames' ||
+        type === 'propertyvalue' ||
+        type === 'variablemeasured'
+      );
+    });
 
     const sortedOptions = computed(() => {
       const opts = facet.options.value;
@@ -167,7 +175,31 @@ export default {
 
     const toggleOpen = () => {
       isOpen.value = !isOpen.value;
+      if (isOpen.value) {
+        facet.enableOptionsLoading();
+      }
     };
+
+    watch(
+      () => isOpen.value,
+      (open) => {
+        if (open) {
+          facet.enableOptionsLoading();
+        }
+      },
+      { immediate: true }
+    );
+
+    watch(
+      () => facet.hasActiveValues.value,
+      (active) => {
+        if (active) {
+          isOpen.value = true;
+          facet.enableOptionsLoading();
+        }
+      },
+      { immediate: true }
+    );
 
     return {
       ...facet,

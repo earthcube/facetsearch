@@ -220,6 +220,8 @@ export function useFacet(facetConfig, searchComposable) {
   } = searchComposable;
 
   const field = facetConfig.field;
+  const isHeavyFacetType =
+    facetConfig.type === 'propertyvalue' || facetConfig.type === 'variablemeasured';
 
   const activeValues = computed(() => {
     return activeFilters.value[field] || [];
@@ -231,6 +233,7 @@ export function useFacet(facetConfig, searchComposable) {
   });
 
   const { options, loading: optionsLoading, loadOptions } = useFacetOptions(searchService, field);
+  const optionsEnabled = ref(!isHeavyFacetType);
 
   const toggleValue = (value) => {
     if (isFilterActive(field, value)) {
@@ -283,11 +286,18 @@ export function useFacet(facetConfig, searchComposable) {
   };
 
   const loadOptionsForCurrentState = async (force = false) => {
+    if (!optionsEnabled.value) return;
     const searchContext = buildSearchContext();
     const key = optionsLoadKey(searchContext);
     if (!force && key === lastLoadedKey.value) return;
     lastLoadedKey.value = key;
     await loadOptions(searchContext);
+  };
+
+  const enableOptionsLoading = () => {
+    if (optionsEnabled.value) return;
+    optionsEnabled.value = true;
+    void loadOptionsForCurrentState(true);
   };
 
   const scheduleOptionsReload = (force = false) => {
@@ -300,6 +310,7 @@ export function useFacet(facetConfig, searchComposable) {
   watch(
     () => optionsLoadKey(buildSearchContext()),
     () => {
+      if (!optionsEnabled.value) return;
       scheduleOptionsReload(false);
     }
   );
@@ -308,12 +319,27 @@ export function useFacet(facetConfig, searchComposable) {
   watch(
     () => filterStateManager.state.lastQueryAt,
     () => {
+      // Heavy facets (e.g. propertyvalue) should avoid the extra forced reload
+      // after every search completion; it duplicates expensive option queries.
+      if (isHeavyFacetType) return;
+      if (!optionsEnabled.value) return;
       if (!filterStateManager.state.lastQuerySignature) return;
       scheduleOptionsReload(true);
     }
   );
 
+  // If a heavy facet has active values (e.g. hydrated from URL), load options so
+  // the selected values and counts can render correctly.
+  watch(
+    hasActiveValues,
+    (active) => {
+      if (active) enableOptionsLoading();
+    },
+    { immediate: true }
+  );
+
   onMounted(() => {
+    if (!optionsEnabled.value) return;
     const ctx = buildSearchContext();
     const hasQuery = String(ctx.textQuery || '').trim() !== '';
     const hasFilters = Object.keys(ctx.filters || {}).length > 0;
@@ -336,7 +362,8 @@ export function useFacet(facetConfig, searchComposable) {
     setValue,
     clearValues,
     isValueActive,
-    loadOptions: loadOptionsForCurrentState
+    loadOptions: loadOptionsForCurrentState,
+    enableOptionsLoading
   };
 }
 
