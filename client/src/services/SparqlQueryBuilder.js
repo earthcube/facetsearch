@@ -285,6 +285,82 @@ export class SparqlQueryBuilder {
     return this.buildFacetCountWhereBody(textQuery, searchExactMatch, resourceType, filters);
   }
 
+  /** Normalized bounds of the active geo facet filter, or null. */
+  getActiveGeoBounds(filters) {
+    if (!filters || typeof filters !== 'object') return null;
+    const facets = this.config?.FACETS || [];
+    const hasConfiguredGeoFacet = facets.some((f) => f.type === 'geo');
+    for (const [field, values] of Object.entries(filters)) {
+      const cfg = this.getFacetConfig(field);
+      const isGeo = cfg?.type === 'geo' || (!hasConfiguredGeoFacet && field === 'spatialCoverage');
+      if (!isGeo || !values) continue;
+      const b = this.normalizeGeoBounds(values?.bounds || values);
+      if (b) return b;
+    }
+    return null;
+  }
+
+  /**
+   * Lightweight per-dataset locations projection for the map explorer.
+   * Inner subquery narrows candidate ?subj (type + text + filters, incl. the
+   * bbox via buildGeoFilter) to at most `limit` subjects BEFORE walking their
+   * geo nodes — a dataset can carry very many GeoCoordinates. The outer walk
+   * re-applies the bbox so the SAMPLE point stays inside the viewport; lat and
+   * lon are SAMPLEd independently, so the marker is a representative point
+   * (each coordinate individually in-bbox), not necessarily one source point.
+   */
+  buildLocationsQuery(searchParams) {
+    const { textQuery, searchExactMatch, resourceType, filters = {}, limit } = searchParams || {};
+    const n = Number(limit);
+    const effectiveLimit = Number.isFinite(n) && n > 0 ? Math.min(n, 5000) : 1000;
+    const bounds = this.getActiveGeoBounds(filters);
+
+    let inner = '';
+    if (textQuery) {
+      // Selective-subject subquery first, full text on the narrowed set after:
+      // a flat join of text search with geo/range constraints takes QLever ~10x
+      // longer (measured: 40s vs 4s on text + bbox + temporal).
+      inner += this.buildQleverSelectiveSubjectSubquery(resourceType, filters);
+      inner += this.buildTextSearchFragment(textQuery, searchExactMatch);
+    } else {
+      inner += this.buildSubjDatasetHead();
+      inner += this.buildResourceTypeConstraints(resourceType);
+      inner += this.buildFilterFragments(filters, { rangePlacement: 'early' });
+      inner += this.buildConstraintRangeFragments(filters);
+    }
+    if (!bounds) {
+      // No viewport yet: still require coordinates, so the candidate LIMIT is
+      // spent only on datasets that can actually appear on the map.
+      inner += `  ?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCov0 .
+  ?spatialCov0 schema:geo|sschema:geo ?geo0 .
+  ?geo0 schema:latitude|sschema:latitude ?lat0 .
+  ?geo0 schema:longitude|sschema:longitude ?lon0 .
+`;
+    }
+
+    const outerBboxFilter = bounds
+      ? `  FILTER(${this.buildGeoBoundsFilterExpr(bounds)}) .\n`
+      : '';
+
+    let query = this.buildPrefixes();
+    query += `SELECT ?g ?subj (SAMPLE(?name_r) AS ?name) (SAMPLE(?lat) AS ?lat_s) (SAMPLE(?lon) AS ?lon_s)
+WHERE {
+  {
+    SELECT DISTINCT ?subj WHERE {
+${indentSparqlLines(inner, 4)}    }
+    LIMIT ${effectiveLimit}
+  }
+  ?subj schema:spatialCoverage|sschema:spatialCoverage ?sc .
+  ?sc schema:geo|sschema:geo ?geo .
+  ?geo schema:latitude|sschema:latitude ?lat .
+  ?geo schema:longitude|sschema:longitude ?lon .
+${outerBboxFilter}  GRAPH ?g { ?subj schema:name|sschema:name ?name_r . }
+}
+GROUP BY ?g ?subj
+`;
+    return query;
+  }
+
   /**
    * Innermost subquery: narrow ?subj with type + facet + range EXISTS constraints
    * before broad full-text expansion (earthcube/facetsearch#261).
@@ -660,11 +736,41 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
   } .\n`;
     }
 
+    // schema:temporalCoverage is often an ISO interval ("2015-01-01/2018-12-31").
+    // True overlap test (dataset start <= filter max && dataset end >= filter min),
+    // like the depth facet, so a 1990-2020 dataset matches a 2010-2015 filter.
+    // Open ends ("2015-01-01/.." or "../2020") fail the xsd:integer cast, leaving
+    // the year unbound; COALESCE substitutes an unbounded sentinel on that side.
     return `  FILTER EXISTS {
     ?subj schema:temporalCoverage|sschema:temporalCoverage ?temporalCoverage_f .
-    FILTER(xsd:integer(SUBSTR(STR(?temporalCoverage_f), 1, 4)) >= ${fMin} &&
-           xsd:integer(SUBSTR(STR(?temporalCoverage_f), 1, 4)) <= ${fMax})
+    BIND(STR(?temporalCoverage_f) AS ?tc_str)
+    BIND(IF(CONTAINS(?tc_str, "/"), STRBEFORE(?tc_str, "/"), ?tc_str) AS ?tc_startStr)
+    BIND(IF(CONTAINS(?tc_str, "/"), STRAFTER(?tc_str, "/"), "") AS ?tc_endStr)
+    BIND(xsd:integer(SUBSTR(?tc_startStr, 1, 4)) AS ?tc_startYear)
+    BIND(xsd:integer(SUBSTR(?tc_endStr, 1, 4)) AS ?tc_endYear)
+    BIND(COALESCE(?tc_startYear, 0) AS ?tc_s)
+    BIND(IF(CONTAINS(?tc_str, "/"), COALESCE(?tc_endYear, 9999), COALESCE(?tc_endYear, ?tc_startYear)) AS ?tc_e)
+    FILTER((BOUND(?tc_startYear) || BOUND(?tc_endYear)) && ?tc_s <= ${fMax} && ?tc_e >= ${fMin})
   } .\n`;
+  }
+
+  /**
+   * QLever-only word completion for the landing search box.
+   * Wildcard ql:contains-word binds the matched word to the special variable
+   * ?ql_matchingword_<textVar>_<token>, so the prefix must stay [a-z0-9]
+   * (also prevents SPARQL injection). Returns null when unsupported.
+   */
+  buildAutocompleteQuery(prefix, limit = 10) {
+    const p = String(prefix || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (p.length < 3 || !this.usesQLever()) return null;
+    return `${this.buildPrefixes()}SELECT ?word (COUNT(?text) AS ?count) WHERE {
+  ?text ql:contains-word "${p}*" .
+  BIND(?ql_matchingword_text_${p} AS ?word)
+}
+GROUP BY ?word
+ORDER BY DESC(?count)
+LIMIT ${Number(limit) > 0 ? Number(limit) : 10}
+`;
   }
 
   /**
@@ -728,6 +834,16 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
     // `;
 
     //there can be 1000 points.  use the Inserted WKT method above
+    return `  ?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCov .
+      ?spatialCov schema:geo|sschema:geo ?geo .
+      ?geo schema:latitude|sschema:latitude ?lat .
+      ?geo schema:longitude|sschema:longitude ?lon .
+      FILTER(${this.buildGeoBoundsFilterExpr(b)}) .
+    `;
+  }
+
+  /** Boolean bbox expression over ?lat/?lon for already-normalized bounds. */
+  buildGeoBoundsFilterExpr(b) {
     const latFilter = `?lat >= ${b.south} && ?lat <= ${b.north}`;
     let lonFilter;
     if (b.west > b.east) {
@@ -737,12 +853,7 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
     } else {
       lonFilter = `?lon >= ${b.west} && ?lon <= ${b.east}`;
     }
-    return `  ?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCov .
-      ?spatialCov schema:geo|sschema:geo ?geo .
-      ?geo schema:latitude|sschema:latitude ?lat .
-      ?geo schema:longitude|sschema:longitude ?lon .
-      FILTER(${latFilter} && ${lonFilter}) .
-    `;
+    return `${latFilter} && ${lonFilter}`;
   }
 
   normalizeGeoBounds(raw) {
@@ -968,6 +1079,37 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
   /** Escape a string for safe use inside a SPARQL REGEX(...) pattern argument. */
   escapeRegex(value) {
     return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  /**
+   * Short summary for one dataset, for hover cards and previews.
+   *
+   * Everything past ?subj is OPTIONAL and SAMPLEd: a dataset missing a
+   * description must still return its name rather than dropping the row.
+   */
+  buildDatasetSummaryQuery(subj) {
+    if (!subj) return null;
+    let query = this.buildPrefixes();
+    query += `SELECT ?g ?subj
+  (SAMPLE(?name_r) AS ?name)
+  (SAMPLE(?description_r) AS ?description)
+  (SAMPLE(?publisher_r) AS ?publisher)
+  (SAMPLE(?datePublished_r) AS ?datePublished)
+  (SAMPLE(?url_r) AS ?url)
+WHERE {
+  BIND(<${subj}> AS ?subj)
+  GRAPH ?g {
+    ?subj schema:name|sschema:name ?name_r .
+    OPTIONAL { ?subj schema:description|sschema:description ?description_r }
+    OPTIONAL { ?subj schema:publisher/schema:name|sschema:publisher/sschema:name|schema:publisher/schema:legalName|sschema:publisher/sschema:legalName ?publisher_r }
+    OPTIONAL { ?subj schema:datePublished|sschema:datePublished ?datePublished_r }
+    OPTIONAL { ?subj schema:url|sschema:url ?url_r }
+  }
+}
+GROUP BY ?g ?subj
+LIMIT 1
+`;
+    return query;
   }
 
   /**

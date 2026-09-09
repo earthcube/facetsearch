@@ -1,5 +1,6 @@
 // client/src/services/SearchService.js
 import axios from 'axios';
+import { default as LRUCache } from 'lru-cache';
 import { createSparqlQueryBuilder } from './SparqlQueryBuilder.js';
 import { createFilterStateManager } from './FilterStateManager.js';
 
@@ -17,6 +18,9 @@ export function datasetRouteIdFromBinding(row) {
   if (subj.startsWith('urn:')) return subj;
   return subj || g || '';
 }
+
+/** Locations shown on the map explorer per query (candidate-subquery LIMIT). */
+export const MAP_LOCATIONS_LIMIT = 1000;
 
 /** Split SPARQL GROUP_CONCAT values the same way as state.js flattenSparqlResults. */
 export function splitSparqlGroupConcat(value) {
@@ -38,18 +42,39 @@ export function splitSparqlGroupConcat(value) {
  * - Provides facet option utilities (getFacetOptions)
  */
 export class SearchService {
-  constructor(config) {
+  /**
+   * @param {object} config
+   * @param {{ mode?: 'search' | 'locations' }} [options]
+   *   mode 'locations': the filter state manager executes the lightweight
+   *   per-dataset locations query (map explorer) instead of the full search,
+   *   and skips the async COUNT queries.
+   */
+  constructor(config, options = {}) {
     this.config = config;
+    this.mode = options.mode === 'locations' ? 'locations' : 'search';
     // Optional: sanity log; comment out if too noisy
     // console.info('[SearchService] Engine:', this.config?.QUERY_ENGINE, 'Endpoint:', this.config?.TRIPLESTORE_URL);
 
     this.queryBuilder = createSparqlQueryBuilder(config);
 
-    // Filter state manager wires executeQuery
-    this.filterStateManager = createFilterStateManager(
-      config,
-      this.executeQuery.bind(this)
-    );
+    this.autocompleteCache = new LRUCache({ max: 200, ttl: 5 * 60_000 });
+    this.summaryCache = new LRUCache({ max: 300, ttl: 10 * 60_000 });
+
+    // Filter state manager wires the mode's query executor
+    const executor =
+      this.mode === 'locations'
+        ? async (searchParams) => {
+            // The map ignores list pagination: always up to MAP_LOCATIONS_LIMIT
+            // representative points, never the list page size (default 20).
+            const results = await this.getDatasetLocations({
+              ...(searchParams || {}),
+              limit: MAP_LOCATIONS_LIMIT,
+              offset: 0,
+            });
+            return { results, totalCount: results.length };
+          }
+        : this.executeQuery.bind(this);
+    this.filterStateManager = createFilterStateManager(config, executor);
   }
 
   /** Call when store FacetsConfig is replaced so LIMIT_DEFAULT and endpoints stay current. */
@@ -245,6 +270,71 @@ export class SearchService {
   }
 
   // -------------------------
+  // Dataset locations (map explorer)
+  // -------------------------
+
+  /**
+   * Representative point per matching dataset for map display.
+   * Ignores page/offset — the map always shows up to `limit` locations.
+   * @returns {Promise<Array<{id: string, g?: string, subj: string, name?: string, lat: number, lon: number}>>}
+   */
+  async getDatasetLocations(searchParams) {
+    const query = this.queryBuilder.buildLocationsQuery(searchParams);
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processResults(response)
+      .map((row) => ({
+        ...row,
+        lat: parseFloat(row.lat_s),
+        lon: parseFloat(row.lon_s),
+      }))
+      .filter((row) => Number.isFinite(row.lat) && Number.isFinite(row.lon));
+  }
+
+  /**
+   * Name/description/publisher for one dataset, for hover cards.
+   * Cached because the map list re-hovers the same rows constantly.
+   * @returns {Promise<{subj: string, g?: string, name?: string, description?: string,
+   *   publisher?: string, datePublished?: string, url?: string} | null>}
+   */
+  async getDatasetSummary(subj) {
+    if (!subj) return null;
+    const cached = this.summaryCache.get(subj);
+    if (cached !== undefined) return cached;
+    const query = this.queryBuilder.buildDatasetSummaryQuery(subj);
+    if (!query) return null;
+    const response = await this.sendToTriplestoreWithFallback(query);
+    const summary = this.processResults(response)[0] || null;
+    this.summaryCache.set(subj, summary);
+    return summary;
+  }
+
+  // -------------------------
+  // Autocomplete (landing keyword entry; QLever word index only)
+  // -------------------------
+
+  /**
+   * Word completions for a typed prefix, ranked by corpus frequency.
+   * Returns [] when the prefix is too short or the engine is not QLever.
+   */
+  async getAutocompleteSuggestions(prefix) {
+    const query = this.queryBuilder.buildAutocompleteQuery(prefix);
+    if (!query) return [];
+    const cacheKey = query;
+    const cached = this.autocompleteCache.get(cacheKey);
+    if (cached) return cached;
+    const data = await this.sendToTriplestoreWithFallback(query);
+    const bindings = data?.results?.bindings || [];
+    const suggestions = bindings
+      .map((b) => ({
+        word: b.word?.value ?? '',
+        count: parseInt(b.count?.value ?? '0', 10) || 0,
+      }))
+      .filter((s) => s.word.trim().length > 0);
+    this.autocompleteCache.set(cacheKey, suggestions);
+    return suggestions;
+  }
+
+  // -------------------------
   // Facet Options (for FacetText2 / useFacetOptions)
   // -------------------------
 
@@ -376,6 +466,6 @@ LIMIT 200
 }
 
 // Factory
-export function createSearchService(config) {
-  return new SearchService(config);
+export function createSearchService(config, options = {}) {
+  return new SearchService(config, options);
 }
