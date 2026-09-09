@@ -390,6 +390,11 @@ export default {
         summaryCloseTimer = null;
       }
     };
+    const isolateFromMapEvents = (el) => {
+      if (!el) return;
+      L.DomEvent.disableClickPropagation(el);
+      L.DomEvent.disableScrollPropagation(el);
+    };
 
     const scheduleSummaryClose = () => {
       cancelSummaryClose();
@@ -565,11 +570,7 @@ export default {
 
       // Floating overlays sit inside the map container's event space: without
       // this, scrolling the facet list zooms the map and dragging selects it.
-      [panelElement.value, summaryElement.value].forEach((el) => {
-        if (!el) return;
-        L.DomEvent.disableClickPropagation(el);
-        L.DomEvent.disableScrollPropagation(el);
-      });
+      isolateFromMapEvents(panelElement.value);
 
       if (typeof window.matchMedia === 'function') {
         mobileMedia = window.matchMedia(MOBILE_QUERY);
@@ -592,6 +593,10 @@ export default {
       if (initial) fitToBounds(initial);
       setTimeout(() => map && map.invalidateSize(true), 100);
       renderMarkers(search.results.value);
+    });
+
+    watch(summaryElement, (el) => {
+      isolateFromMapEvents(el);
     });
 
     onBeforeUnmount(() => {
