@@ -169,10 +169,11 @@ export class FilterStateManager {
 
   isGeoFacetField(field) {
     const facets = this.config?.FACETS || [];
-    const facet = facets.find((f) => f.field === field);
-    if (facet) return facet.type === 'geo';
-    // If no geo facet is configured at all, treat the fallback field as geo.
     const hasConfiguredGeoFacet = facets.some((f) => f.type === 'geo');
+    const facet = facets.find((f) => f.field === field);
+    if (facet) {
+      return facet.type === 'geo' || (!hasConfiguredGeoFacet && field === 'spatialCoverage');
+    }
     return !hasConfiguredGeoFacet && field === 'spatialCoverage';
   }
 
