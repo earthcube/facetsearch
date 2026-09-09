@@ -7,7 +7,12 @@
         name="q"
         placeholder="Search"
         aria-label="Search"
+        role="combobox"
+        aria-autocomplete="list"
         autocomplete="off"
+        aria-controls="keyword-autocomplete-listbox"
+        :aria-expanded="suggestions.length > 0 ? 'true' : 'false'"
+        :aria-activedescendant="highlighted >= 0 ? `keyword-autocomplete-option-${highlighted}` : null"
         @input="onInput"
         @keydown.down.prevent="moveHighlight(1)"
         @keydown.up.prevent="moveHighlight(-1)"
@@ -52,12 +57,14 @@
 
     <ul
       v-if="suggestions.length > 0"
+      id="keyword-autocomplete-listbox"
       class="suggestion-list list-unstyled shadow-sm"
       role="listbox"
     >
       <li
         v-for="(s, index) in suggestions"
         :key="s.word"
+        :id="`keyword-autocomplete-option-${index}`"
         role="option"
         :aria-selected="index === highlighted"
         :class="['suggestion-item', { active: index === highlighted }]"
