@@ -71,6 +71,9 @@ Key directories:
   - `/dataset/*` - Dataset metadata retrieval
   - `/tools/*` - Tool metadata retrieval  
   - `/config` - Configuration endpoint
+- `server/routes/mcp.js`:
+  - `/mcp` - Model Context Protocol endpoint (Streamable HTTP) exposing the faceted
+    QLever search as MCP tools; see `server/mcp/README.md`
 
 ### Data Flow
 1. Client loads remote YAML configuration on startup
