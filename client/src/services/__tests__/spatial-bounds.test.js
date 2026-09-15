@@ -63,6 +63,9 @@ test('SparqlQueryBuilder generates geo filter with normalized bounds', () => {
   assert.ok(fragment.includes('schema:geo|sschema:geo'));
   assert.ok(fragment.includes('schema:latitude|sschema:latitude'));
   assert.ok(fragment.includes('schema:longitude|sschema:longitude'));
+  // Coordinates are cast before comparison: string-typed literals must match too.
+  assert.ok(fragment.includes('BIND(xsd:double(STR(?latRaw)) AS ?lat)'));
+  assert.ok(fragment.includes('BIND(xsd:double(STR(?lonRaw)) AS ?lon)'));
 });
 
 test('SparqlQueryBuilder skips degenerate geo filter payloads', () => {
