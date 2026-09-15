@@ -774,7 +774,7 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
 
   /**
    * Generic filter for any schema property that points to a PropertyValue node,
-   * matching on schema:name using CONTAINS (case-insensitive).
+   * matching on schema:name with case-insensitive exact equality.
    *
    * The SPARQL property path is taken from facetConfig.sparql_property; it defaults
    * to schema:variableMeasured so that "variableMeasured" facets work out of the box.
@@ -790,14 +790,14 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
     const nodeVar = `${field}_pv`;
     const typeVar = `${field}_pvType`;
     const nameVar = `${field}_pvName`;
-    const containsExprs = values
-      .map(v => `CONTAINS(LCASE(STR(?${nameVar})), LCASE("${this.escapeValue(v)}"))`)
+    const equalsExprs = values
+      .map(v => `LCASE(STR(?${nameVar})) = LCASE("${this.escapeValue(v)}")`)
       .join(' || ');
     return `  ?subj ${pvProperty} ?${nodeVar} .
   VALUES ?${typeVar} { schema:PropertyValue sschema:PropertyValue }
   ?${nodeVar} a ?${typeVar} .
   ?${nodeVar} schema:name|sschema:name ?${nameVar} .
-  FILTER(${containsExprs}) .\n`;
+  FILTER(${equalsExprs}) .\n`;
   }
 
   /**

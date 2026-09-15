@@ -277,6 +277,13 @@ SELECT ?value (0 as ?count) WHERE { FILTER(false) } LIMIT 0
       searchExactMatch = false,
       resourceType = '',
     } = searchContext;
+    const isPropertyValueFacet =
+      facetConfig.type === 'variablemeasured' || facetConfig.type === 'propertyvalue';
+    const configuredLimit = Number(facetConfig.option_limit);
+    const facetOptionLimit =
+      Number.isFinite(configuredLimit) && configuredLimit > 0
+        ? Math.floor(configuredLimit)
+        : (isPropertyValueFacet ? 100 : 200);
 
     // Exclude this facet's own filters to avoid self-filtering options
     const filtersCopy = { ...(currentFilters || {}) };
@@ -304,7 +311,7 @@ WHERE {
     q += `}
 GROUP BY ?value
 ORDER BY DESC(?count) ?value
-LIMIT 200
+LIMIT ${facetOptionLimit}
 `;
     return q;
   }
