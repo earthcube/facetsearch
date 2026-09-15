@@ -7,6 +7,11 @@
  */
 const axios = require('axios');
 const { getFacetsConfig } = require('./facetsConfig');
+const {
+  buildSpatialBoundsQuery,
+  buildSpatialDetailQuery,
+  processSpatialCoverage,
+} = require('./spatialCoverage');
 
 let queryBuilderModulePromise = null;
 
@@ -140,12 +145,46 @@ class FacetSearchService {
     return Number.isNaN(n) ? 0 : n;
   }
 
-  /** One page of results, shaped like a row of the UI result list. */
-  async search(searchParams) {
+  /**
+   * One page of results, shaped like a row of the UI result list.
+   * Spatial coverage is not projected by the facet query, so it is fetched for the
+   * page's subjects in a follow-up query and attached to each row.
+   */
+  async search(searchParams, options = {}) {
     const builder = await this.getQueryBuilder();
     const sparql = builder.buildQuery(searchParams);
     const response = await this.sendQuery(sparql);
-    return { sparql, results: this.processResults(response) };
+    const results = this.processResults(response);
+
+    if (options.includeSpatialCoverage !== false) {
+      const bySubject = await this.spatialCoverageFor(results.map((r) => r.subj));
+      for (const row of results) {
+        row.spatialCoverage = bySubject.get(row.subj) || null;
+      }
+    }
+
+    return { sparql, results };
+  }
+
+  /**
+   * Place names, point bounds and shapes of schema:spatialCoverage for the given subjects.
+   * A lookup failure leaves results without spatial coverage rather than failing the search.
+   * @param {string[]} subjects - subject IRIs
+   * @returns {Promise<Map<string, object>>}
+   */
+  async spatialCoverageFor(subjects) {
+    const boundsQuery = buildSpatialBoundsQuery(subjects);
+    const detailQuery = buildSpatialDetailQuery(subjects);
+    if (!boundsQuery || !detailQuery) return new Map();
+    try {
+      const [bounds, detail] = await Promise.all([
+        this.sendQuery(boundsQuery),
+        this.sendQuery(detailQuery),
+      ]);
+      return processSpatialCoverage(bounds, detail);
+    } catch (err) {
+      return new Map();
+    }
   }
 
   /**

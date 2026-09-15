@@ -737,10 +737,14 @@ ${typeValues}${typeFilter}${textFilters}${rangeConstraints}    }
     } else {
       lonFilter = `?lon >= ${b.west} && ?lon <= ${b.east}`;
     }
+    // Coordinates are stored both as xsd:decimal and as plain string literals; cast
+    // before comparing, otherwise string-typed coordinates never match the bounds.
     return `  ?subj schema:spatialCoverage|sschema:spatialCoverage ?spatialCov .
       ?spatialCov schema:geo|sschema:geo ?geo .
-      ?geo schema:latitude|sschema:latitude ?lat .
-      ?geo schema:longitude|sschema:longitude ?lon .
+      ?geo schema:latitude|sschema:latitude ?latRaw .
+      ?geo schema:longitude|sschema:longitude ?lonRaw .
+      BIND(xsd:double(STR(?latRaw)) AS ?lat)
+      BIND(xsd:double(STR(?lonRaw)) AS ?lon)
       FILTER(${latFilter} && ${lonFilter}) .
     `;
   }

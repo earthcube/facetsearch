@@ -70,6 +70,13 @@ const paginationArgs = {
     .boolean()
     .optional()
     .describe('Include the generated SPARQL in the response.'),
+  includeSpatialCoverage: z
+    .boolean()
+    .optional()
+    .describe(
+      'Return each result\'s schema:spatialCoverage - place names, the bounds of its point ' +
+        'coordinates, and box/polygon/line shape counts (default true; costs one extra query).'
+    ),
 };
 
 const jsonContent = (payload) => ({
@@ -144,13 +151,16 @@ function createMcpServer(config = getFacetsConfig()) {
       title: 'Search datasets',
       description:
         'Search datasets, tools and catalogs in the GeoCodes graph with the facets of the web UI. ' +
-        'Returns one page of results with name, description, publisher, keywords, places, dates and distribution URLs.',
+        'Returns one page of results with name, description, publisher, keywords, places, dates, ' +
+        'spatial coverage and distribution URLs.',
       inputSchema: { ...facetArgs, ...paginationArgs },
     },
     async (args) => {
       try {
         const params = toSearchParams(args, config);
-        const { sparql, results } = await service.search(params);
+        const { sparql, results } = await service.search(params, {
+          includeSpatialCoverage: args.includeSpatialCoverage !== false,
+        });
         return jsonContent({
           query: {
             textQuery: params.textQuery,

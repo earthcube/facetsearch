@@ -12,7 +12,7 @@ header is needed and any number of clients can call it. `GET`/`DELETE` return 40
 | Tool | What it does |
 | --- | --- |
 | `describe_facets` | Lists the available facets (field, title, type, matching tool argument) and the endpoint being queried. |
-| `search_datasets` | One page of results for a free-text query plus facet filters. Returns name, description, publisher, keywords, places, dates, distribution URLs and the dataset id used by `/dataset/:id`. |
+| `search_datasets` | One page of results for a free-text query plus facet filters. Returns name, description, publisher, keywords, places, dates, spatial coverage, distribution URLs and the dataset id used by `/dataset/:id`. |
 | `count_datasets` | Total matches for the same arguments, without paging. Counts distinct datasets when facet filters are active, matching the UI's result counts. |
 | `list_facet_values` | Distinct values of one facet with dataset counts for the current search — the sidebar's option list. The requested facet's own filters are excluded. |
 
@@ -36,6 +36,34 @@ Shared by all search tools; they map 1:1 onto the UI facets:
 
 `search_datasets` also takes `limit`, `offset`, and every tool takes `includeSparql` to return
 the generated query for debugging.
+
+## Spatial coverage in results
+
+The facet query filters on `schema:spatialCoverage` but does not project it, so
+`search_datasets` looks it up for the page's subjects in a follow-up query (`mcp/spatialCoverage.js`)
+and returns it per result:
+
+```json
+"spatialCoverage": {
+  "placeNames": ["Valles Caldera, Jemez River Basin, New Mexico"],
+  "boundingBox": { "north": 35.88, "south": 35.85, "east": -106.45, "west": -106.54 },
+  "pointCount": 12,
+  "boxes": ["-106.53741, 35.847832 -106.449356, 35.883173"],
+  "polygonCount": 0,
+  "lineCount": 0
+}
+```
+
+`boundingBox` is the min/max of the record's `schema:geo` point coordinates; it is a plain
+span, so a record spanning the dateline reports `west` east of `east`. `boxes` are
+`schema:box` literals passed through verbatim because their coordinate order varies by
+source, and polygons and lines are counted rather than returned since they are large GeoJSON
+blobs — read those from the dataset record. `spatialCoverage` is `null` when the record has
+none. Pass `includeSpatialCoverage: false` to skip the extra query.
+
+Latitudes and longitudes are stored both as `xsd:decimal` and as plain string literals, so
+both the `boundingBox` filter and this lookup cast with `xsd:double(STR(...))` before
+comparing; without the cast, string-typed coordinates are silently missed.
 
 ## Configuration
 

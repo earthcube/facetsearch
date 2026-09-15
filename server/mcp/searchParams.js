@@ -93,6 +93,7 @@ function toResultRecord(row) {
     temporalCoverage: row.temporalCoverage,
     keywords: row.kw || [],
     places: row.placenames || [],
+    spatialCoverage: row.spatialCoverage !== undefined ? row.spatialCoverage : null,
     distributionUrls: row.disurl || [],
     subject: row.subj,
     graph: row.g,
