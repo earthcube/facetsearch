@@ -51,7 +51,17 @@
             style="cursor: pointer"
             @click="toggleCollapse(index)"
           >
-            <h5 class="mb-0" v-html="mapping.s_name"></h5>
+            <div class="d-flex align-items-center flex-wrap pr-2">
+              <h5 class="mb-0 mr-2" v-html="mapping.s_name"></h5>
+              <b-badge
+                v-if="mapping.isAiGeneratedMetadata"
+                variant="warning"
+                class="ai-badge"
+                title="This dataset's metadata was generated with AI (ChatGPT/OpenAI) and reviewed by an expert."
+              >
+                AI-generated metadata
+              </b-badge>
+            </div>
             <b-icon
               :icon="
                 collapsedIndices.includes(index) ? 'chevron-down' : 'chevron-up'
@@ -393,6 +403,7 @@ import {
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { marked } from "marked";
+import { getAiDisclosureFromJsonLd } from "@/utils/aiDisclosure.js";
 
 export default {
   compatConfig: {
@@ -706,6 +717,8 @@ export default {
         datasets.forEach((dataset) => {
           const mapping = {};
           mapping.raw_json = dataset;
+          mapping.aiDisclosure = getAiDisclosureFromJsonLd(dataset);
+          mapping.isAiGeneratedMetadata = mapping.aiDisclosure.isAiGeneratedMetadata;
 
           mapping.s_identifier = dataset.identifier;
           mapping.s_name = dataset.name;
@@ -1289,6 +1302,11 @@ i {
 .data-access-button:active {
   background-color: #003f8a; /* Even darker blue when clicked */
   transform: translateY(0); /* Reset the lift */
+}
+
+.ai-badge {
+  white-space: nowrap;
+  font-size: 0.72rem;
 }
 
 </style>
