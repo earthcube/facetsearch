@@ -29,6 +29,22 @@ export function splitSparqlGroupConcat(value) {
   return elements;
 }
 
+function mergeUniqueStringLists(a, b) {
+  const out = [];
+  const seen = new Set();
+  const pushAll = (arr) => {
+    (arr || []).forEach((item) => {
+      const v = String(item || '').trim();
+      if (!v || seen.has(v)) return;
+      seen.add(v);
+      out.push(v);
+    });
+  };
+  pushAll(a);
+  pushAll(b);
+  return out;
+}
+
 /**
  * Main Search Service (QLever-first)
  * - Builds SPARQL from active filters
@@ -219,7 +235,7 @@ export class SearchService {
     if (!response || !response.results || !response.results.bindings) {
       return [];
     }
-    return response.results.bindings.map(binding => {
+    const rows = response.results.bindings.map(binding => {
       const out = {};
       for (const key of Object.keys(binding)) {
         if (binding[key] && binding[key].value !== undefined) {
@@ -242,6 +258,37 @@ export class SearchService {
       }
       return out;
     });
+
+    // QLever can return multiple rows for the same subject across graphs/versions.
+    // The UI count query is subject-distinct, so collapse duplicates here to keep
+    // "Showing X of Y" consistent with rendered cards.
+    const bySubject = new Map();
+    rows.forEach((row) => {
+      const rt = String(row.resourceType || row.resourceType_u || '').toLowerCase();
+      const dedupeKey =
+        rt === 'tool'
+          ? `tool:${String(row.subj || row.id || '')}`
+          : `data:${String(row.subj || '')}`;
+
+      if (!dedupeKey || dedupeKey.endsWith(':')) return;
+
+      const prev = bySubject.get(dedupeKey);
+      if (!prev) {
+        bySubject.set(dedupeKey, row);
+        return;
+      }
+
+      prev.kw = mergeUniqueStringLists(prev.kw, row.kw);
+      prev.placenames = mergeUniqueStringLists(prev.placenames, row.placenames);
+      prev.disurl = mergeUniqueStringLists(prev.disurl, row.disurl);
+
+      // Keep an existing non-empty value, otherwise fill from the new row.
+      ['name', 'description', 'pubname', 'resourceType', 'resourceType_u', 'datep', 'temporalCoverage'].forEach((field) => {
+        if (!prev[field] && row[field]) prev[field] = row[field];
+      });
+    });
+
+    return Array.from(bySubject.values());
   }
 
   // -------------------------
