@@ -25,6 +25,7 @@ export class FilterStateManager {
 
     this.debouncedExecuteQuery = _.debounce(this.executeQuery.bind(this), 300);
     this.isSyncingFromUrl = false;
+    this.queryGeneration = 0;
     this.setupWatchers();
   }
 
@@ -167,8 +168,13 @@ export class FilterStateManager {
   }
 
   isGeoFacetField(field) {
-    const facet = (this.config?.FACETS || []).find((f) => f.field === field);
-    return facet?.type === 'geo';
+    const facets = this.config?.FACETS || [];
+    const hasConfiguredGeoFacet = facets.some((f) => f.type === 'geo');
+    const facet = facets.find((f) => f.field === field);
+    if (facet) {
+      return facet.type === 'geo' || (!hasConfiguredGeoFacet && field === 'spatialCoverage');
+    }
+    return !hasConfiguredGeoFacet && field === 'spatialCoverage';
   }
 
   /**
@@ -245,6 +251,7 @@ export class FilterStateManager {
 
     this.state.isLoading = true;
     this.state.error = null;
+    const generation = ++this.queryGeneration;
 
     const filtersActive = this.hasActiveFacetFilters(params.filters);
     const prevHadFilters = this.hasActiveFacetFilters(this.state.lastQuery?.filters);
@@ -258,35 +265,43 @@ export class FilterStateManager {
       this.state.lastQueryAt = now;
 
       const outcome = await this.queryExecutor(params);
-      if (Array.isArray(outcome)) {
-        this.state.results = outcome;
-        this.state.totalCount = outcome.length;
-      } else {
-        this.state.results = outcome?.results || [];
-        this.state.totalCount =
-          outcome?.totalCount ?? this.state.results.length;
-        if (outcome?.totalCountPromise) {
-          outcome.totalCountPromise.then((n) => {
-            this.state.totalCount = n;
-          });
-        }
-        if (outcome?.searchTotalCountPromise) {
-          outcome.searchTotalCountPromise.then((n) => {
-            this.state.searchTotalCount = n > 0 ? n : this.state.totalCount;
-          });
+      if (generation === this.queryGeneration) {
+        if (Array.isArray(outcome)) {
+          this.state.results = outcome;
+          this.state.totalCount = outcome.length;
         } else {
-          this.state.searchTotalCount = 0;
+          this.state.results = outcome?.results || [];
+          this.state.totalCount =
+            outcome?.totalCount ?? this.state.results.length;
+          if (outcome?.totalCountPromise) {
+            outcome.totalCountPromise.then((n) => {
+              if (generation !== this.queryGeneration) return;
+              this.state.totalCount = n;
+            });
+          }
+          if (outcome?.searchTotalCountPromise) {
+            outcome.searchTotalCountPromise.then((n) => {
+              if (generation !== this.queryGeneration) return;
+              this.state.searchTotalCount = n > 0 ? n : this.state.totalCount;
+            });
+          } else {
+            this.state.searchTotalCount = 0;
+          }
         }
       }
 
     } catch (error) {
-      console.error('Query execution error:', error);
-      this.state.error = error.message || 'Query execution failed';
-      this.state.results = [];
-      this.state.totalCount = 0;
-      this.state.searchTotalCount = 0;
+      if (generation === this.queryGeneration) {
+        console.error('Query execution error:', error);
+        this.state.error = error.message || 'Query execution failed';
+        this.state.results = [];
+        this.state.totalCount = 0;
+        this.state.searchTotalCount = 0;
+      }
     } finally {
-      this.state.isLoading = false;
+      if (generation === this.queryGeneration) {
+        this.state.isLoading = false;
+      }
     }
   }
 
