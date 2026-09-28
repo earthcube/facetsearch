@@ -75,6 +75,59 @@ const frameJsonLD = async function (jsonldObj, schemaType) {
   return jsonld.frame(jsonldObj, frame);
 };
 
+const normalizeJsonLdValue = function (value) {
+  if (Array.isArray(value)) {
+    return value.map((v) => normalizeJsonLdValue(v));
+  }
+  if (value && typeof value === "object") {
+    if (Object.prototype.hasOwnProperty.call(value, "@value")) {
+      return value["@value"];
+    }
+    if (
+      Object.prototype.hasOwnProperty.call(value, "@id") &&
+      Object.keys(value).every((k) => k.startsWith("@"))
+    ) {
+      return value["@id"];
+    }
+  }
+  return value;
+};
+
+const getFirstDisplayScalar = function (value) {
+  const values = Array.isArray(value) ? value : [value];
+  for (const v of values) {
+    const normalized = normalizeJsonLdValue(v);
+    if (
+      typeof normalized === "string" ||
+      typeof normalized === "number" ||
+      typeof normalized === "boolean"
+    ) {
+      const s = String(normalized).trim();
+      if (s) return s;
+      continue;
+    }
+    if (normalized && typeof normalized === "object") {
+      if (Object.prototype.hasOwnProperty.call(normalized, "value")) {
+        const fromValue = getFirstDisplayScalar(normalized.value);
+        if (fromValue) return fromValue;
+      }
+      if (Object.prototype.hasOwnProperty.call(normalized, "name")) {
+        const fromName = getFirstDisplayScalar(normalized.name);
+        if (fromName) return fromName;
+      }
+      if (Object.prototype.hasOwnProperty.call(normalized, "@id")) {
+        const fromId = String(normalized["@id"] || "").trim();
+        if (fromId) return fromId;
+      }
+      if (Object.prototype.hasOwnProperty.call(normalized, "@value")) {
+        const fromAtValue = String(normalized["@value"] || "").trim();
+        if (fromAtValue) return fromAtValue;
+      }
+    }
+  }
+  return "";
+};
+
 const schemaItem = function (name, json_compacted, noSchemaMessage = "") {
   if (json_compacted == null) return noSchemaMessage;
   let s_name = json_compacted["https://schema.org/" + name]
@@ -84,23 +137,6 @@ const schemaItem = function (name, json_compacted, noSchemaMessage = "") {
     : json_compacted[name]
     ? json_compacted[name]
     : noSchemaMessage;
-  const normalizeJsonLdValue = function (value) {
-    if (Array.isArray(value)) {
-      return value.map((v) => normalizeJsonLdValue(v));
-    }
-    if (value && typeof value === "object") {
-      if (Object.prototype.hasOwnProperty.call(value, "@value")) {
-        return value["@value"];
-      }
-      if (
-        Object.prototype.hasOwnProperty.call(value, "@id") &&
-        Object.keys(value).every((k) => k.startsWith("@"))
-      ) {
-        return value["@id"];
-      }
-    }
-    return value;
-  };
   return normalizeJsonLdValue(s_name);
 };
 const hasSchemaProperty = function (name, jsonObj) {
@@ -422,4 +458,5 @@ export {
   makeLinkObj,
   matchDistributions,
   formatDateToYYYYMMDD,
+  getFirstDisplayScalar,
 };

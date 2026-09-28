@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { schemaItem, getDistributions } from "../jsonldObject.js";
+import { schemaItem, getDistributions, getFirstDisplayScalar } from "../jsonldObject.js";
 
 test("schemaItem unwraps JSON-LD @value and simple @id objects", () => {
   const obj = {
@@ -24,4 +24,15 @@ test("getDistributions builds display-friendly strings from language-tagged valu
   assert.equal(downloads[0].encodingFormat, "application/zip");
   assert.equal(downloads[0].linkName, "Dataset package format:application/zip");
   assert.equal(downloads[0].contentUrl, "https://example.org/file.zip");
+});
+
+test("getFirstDisplayScalar selects a string from array/object identifier shapes", () => {
+  const identifier = [
+    { value: { "@language": "en", "@value": " " } },
+    { value: { "@language": "en", "@value": "https://doi.org/10.1594/PANGAEA.887477" } },
+  ];
+  assert.equal(
+    getFirstDisplayScalar(identifier),
+    "https://doi.org/10.1594/PANGAEA.887477"
+  );
 });

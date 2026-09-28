@@ -399,6 +399,7 @@ import {
   frameJsonLD,
   matchesSchemaType,
   formatDateToYYYYMMDD,
+  getFirstDisplayScalar,
 } from "../../api/jsonldObject";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
@@ -724,20 +725,7 @@ export default {
           mapping.isAiGeneratedMetadata = mapping.aiDisclosure.isAiGeneratedMetadata;
 
           const identifier = schemaItem("identifier", dataset);
-          const identifierValues = Array.isArray(identifier) ? identifier : [identifier];
-          mapping.s_identifier = identifierValues
-            .map((id) => {
-              if (typeof id === "string" || typeof id === "number" || typeof id === "boolean") {
-                return String(id);
-              }
-              if (!id || typeof id !== "object") return "";
-              if (hasSchemaProperty("value", id)) return String(schemaItem("value", id));
-              if (hasSchemaProperty("name", id)) return String(schemaItem("name", id));
-              if (id["@value"] != null) return String(id["@value"]);
-              if (id["@id"] != null) return String(id["@id"]);
-              return "";
-            })
-            .find((id) => id.trim()) || "";
+          mapping.s_identifier = getFirstDisplayScalar(identifier);
           mapping.s_name = schemaItem("name", dataset);
           mapping.s_url = schemaItem("url", dataset);
           mapping.s_description = schemaItem("description", dataset);
