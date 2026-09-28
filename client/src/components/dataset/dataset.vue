@@ -723,7 +723,10 @@ export default {
           mapping.aiDisclosure = getAiDisclosureFromJsonLd(dataset);
           mapping.isAiGeneratedMetadata = mapping.aiDisclosure.isAiGeneratedMetadata;
 
-          mapping.s_identifier = schemaItem("identifier", dataset);
+          const identifier = schemaItem("identifier", dataset);
+          mapping.s_identifier = Array.isArray(identifier)
+            ? identifier.find((id) => typeof id === "string" && id.trim()) || identifier[0]
+            : identifier;
           mapping.s_name = schemaItem("name", dataset);
           mapping.s_url = schemaItem("url", dataset);
           mapping.s_description = schemaItem("description", dataset);
