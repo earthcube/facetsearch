@@ -724,9 +724,20 @@ export default {
           mapping.isAiGeneratedMetadata = mapping.aiDisclosure.isAiGeneratedMetadata;
 
           const identifier = schemaItem("identifier", dataset);
-          mapping.s_identifier = Array.isArray(identifier)
-            ? identifier.find((id) => typeof id === "string" && id.trim()) || identifier[0]
-            : identifier;
+          const identifierValues = Array.isArray(identifier) ? identifier : [identifier];
+          mapping.s_identifier = identifierValues
+            .map((id) => {
+              if (typeof id === "string" || typeof id === "number" || typeof id === "boolean") {
+                return String(id);
+              }
+              if (!id || typeof id !== "object") return "";
+              if (hasSchemaProperty("value", id)) return String(schemaItem("value", id));
+              if (hasSchemaProperty("name", id)) return String(schemaItem("name", id));
+              if (id["@value"] != null) return String(id["@value"]);
+              if (id["@id"] != null) return String(id["@id"]);
+              return "";
+            })
+            .find((id) => id.trim()) || "";
           mapping.s_name = schemaItem("name", dataset);
           mapping.s_url = schemaItem("url", dataset);
           mapping.s_description = schemaItem("description", dataset);
