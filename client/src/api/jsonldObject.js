@@ -94,7 +94,7 @@ const normalizeJsonLdValue = function (value) {
     }
     if (
       Object.prototype.hasOwnProperty.call(value, "@id") &&
-      Object.keys(value).every((k) => k.startsWith("@"))
+      Object.keys(value).length === 1
     ) {
       return value["@id"];
     }
