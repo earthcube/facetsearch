@@ -453,7 +453,10 @@ export default {
       this.obscurePage = false;
       this.$store
         .dispatch("fetchJsonLd", d)
-        .then(() => this.$nextTick(() => this.toMetadata()))
+        .then(async () => {
+          await this.$nextTick();
+          this.toMetadata();
+        })
         .catch(() => {});
     },
   },
@@ -650,8 +653,8 @@ export default {
       if (matchesSchemaType(jp["@type"], "DataCatalog")) {
         this.isDataCatalog = true;
       }
-      this.name = jp["name"];
-      this.description = jp["description"];
+      this.name = schemaItem("name", jp);
+      this.description = schemaItem("description", jp);
       
       // Handle keywords - can be strings or DefinedTerm objects
       const rawKeywords = jp["keywords"];
@@ -720,11 +723,11 @@ export default {
           mapping.aiDisclosure = getAiDisclosureFromJsonLd(dataset);
           mapping.isAiGeneratedMetadata = mapping.aiDisclosure.isAiGeneratedMetadata;
 
-          mapping.s_identifier = dataset.identifier;
-          mapping.s_name = dataset.name;
-          mapping.s_url = dataset.url;
-          mapping.s_description = dataset.description;
-          mapping.s_distribution = dataset.distribution;
+          mapping.s_identifier = schemaItem("identifier", dataset);
+          mapping.s_name = schemaItem("name", dataset);
+          mapping.s_url = schemaItem("url", dataset);
+          mapping.s_description = schemaItem("description", dataset);
+          mapping.s_distribution = schemaItem("distribution", dataset);
 
           if (hasSchemaProperty("datePublished", dataset)) {
             mapping.s_datePublished = schemaItem("datePublished", dataset);
@@ -833,7 +836,7 @@ export default {
               // This handles cases where the object doesn't have expected structure
               try {
                 return String(kw);
-              } catch (e) {
+              } catch (_e) {
                 return "[Invalid Keyword]";
               }
             }).filter((kw) => {

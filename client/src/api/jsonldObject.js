@@ -84,7 +84,24 @@ const schemaItem = function (name, json_compacted, noSchemaMessage = "") {
     : json_compacted[name]
     ? json_compacted[name]
     : noSchemaMessage;
-  return s_name;
+  const normalizeJsonLdValue = function (value) {
+    if (Array.isArray(value)) {
+      return value.map((v) => normalizeJsonLdValue(v));
+    }
+    if (value && typeof value === "object") {
+      if (Object.prototype.hasOwnProperty.call(value, "@value")) {
+        return value["@value"];
+      }
+      if (
+        Object.prototype.hasOwnProperty.call(value, "@id") &&
+        Object.keys(value).every((k) => k.startsWith("@"))
+      ) {
+        return value["@id"];
+      }
+    }
+    return value;
+  };
+  return normalizeJsonLdValue(s_name);
 };
 const hasSchemaProperty = function (name, jsonObj) {
   if (jsonObj === undefined) return false;
