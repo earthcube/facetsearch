@@ -81,7 +81,16 @@ const normalizeJsonLdValue = function (value) {
   }
   if (value && typeof value === "object") {
     if (Object.prototype.hasOwnProperty.call(value, "@value")) {
-      return value["@value"];
+      const literalValue = value["@value"];
+      if (
+        literalValue == null ||
+        typeof literalValue === "string" ||
+        typeof literalValue === "number" ||
+        typeof literalValue === "boolean"
+      ) {
+        return literalValue;
+      }
+      return value;
     }
     if (
       Object.prototype.hasOwnProperty.call(value, "@id") &&
