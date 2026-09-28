@@ -654,8 +654,8 @@ export default {
       if (matchesSchemaType(jp["@type"], "DataCatalog")) {
         this.isDataCatalog = true;
       }
-      this.name = schemaItem("name", jp);
-      this.description = schemaItem("description", jp);
+      this.name = getFirstDisplayScalar(schemaItem("name", jp));
+      this.description = getFirstDisplayScalar(schemaItem("description", jp));
       
       // Handle keywords - can be strings or DefinedTerm objects
       const rawKeywords = jp["keywords"];
@@ -726,9 +726,11 @@ export default {
 
           const identifier = schemaItem("identifier", dataset);
           mapping.s_identifier = getFirstDisplayScalar(identifier);
-          mapping.s_name = schemaItem("name", dataset);
-          mapping.s_url = schemaItem("url", dataset);
-          mapping.s_description = schemaItem("description", dataset);
+          mapping.s_name = getFirstDisplayScalar(schemaItem("name", dataset));
+          mapping.s_url = getFirstDisplayScalar(schemaItem("url", dataset));
+          mapping.s_description = getFirstDisplayScalar(
+            schemaItem("description", dataset)
+          );
           mapping.s_distribution = schemaItem("distribution", dataset);
 
           if (hasSchemaProperty("datePublished", dataset)) {
