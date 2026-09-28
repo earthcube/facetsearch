@@ -405,6 +405,7 @@ import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { marked } from "marked";
 import { getAiDisclosureFromJsonLd } from "@/utils/aiDisclosure.js";
+import { getDatasetDisplayFields } from "./datasetDisplayMapping.js";
 
 export default {
   compatConfig: {
@@ -724,14 +725,12 @@ export default {
           mapping.aiDisclosure = getAiDisclosureFromJsonLd(dataset);
           mapping.isAiGeneratedMetadata = mapping.aiDisclosure.isAiGeneratedMetadata;
 
-          const identifier = schemaItem("identifier", dataset);
-          mapping.s_identifier = getFirstDisplayScalar(identifier);
-          mapping.s_name = getFirstDisplayScalar(schemaItem("name", dataset));
-          mapping.s_url = getFirstDisplayScalar(schemaItem("url", dataset));
-          mapping.s_description = getFirstDisplayScalar(
-            schemaItem("description", dataset)
-          );
-          mapping.s_distribution = schemaItem("distribution", dataset);
+          const displayFields = getDatasetDisplayFields(dataset);
+          mapping.s_identifier = displayFields.s_identifier;
+          mapping.s_name = displayFields.s_name;
+          mapping.s_url = displayFields.s_url;
+          mapping.s_description = displayFields.s_description;
+          mapping.s_distribution = displayFields.s_distribution;
 
           if (hasSchemaProperty("datePublished", dataset)) {
             mapping.s_datePublished = schemaItem("datePublished", dataset);
