@@ -108,7 +108,7 @@ export default {
       );
       var mailto_link =
         "mailto:" +
-        "feedback@geocodes.earthcube.org" +
+        "ywkim@illinois.edu" +
         "?subject=" +
         encodeURIComponent(email_subject) +
         "&body=" +
