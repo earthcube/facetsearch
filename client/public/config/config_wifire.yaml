@@ -18,6 +18,7 @@ THROUGHPUTDB_URL: https://throughputdb.com/api/ccdrs/annotations
 QUERY_ENGINE: blazegraph
 SPARQL_QUERY: sparql_query.txt
 SPARQL_HASTOOLS: sparql_hastools.txt
+SPARQL_HASTOOLS_BATCH: sparql_hastools_batch.txt
 SPARQL_TOOLS_WEBSERVICE: sparql_gettools_webservice.txt
 SPARQL_TOOLS_DOWNLOAD: sparql_gettools_download.txt
 SPARQL_RELATED_DATA: sparql_relateddatafilename.txt
