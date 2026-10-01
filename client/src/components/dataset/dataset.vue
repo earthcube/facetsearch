@@ -75,6 +75,17 @@
             :visible="!collapsedIndices.includes(index)"
           >
             <b-card-body>
+              <b-alert
+                v-if="mapping.isAiGeneratedMetadata"
+                show
+                variant="warning"
+                class="small mb-3 ai-disclosure-alert"
+              >
+                This metadata was generated with AI assistance from dataset
+                documentation and other domain sources. Please consult the
+                original sources for authoritative details. If you have any
+                questions, please contact us using the Feedback button.
+              </b-alert>
               <b-row class="align-items-center">
                 <!--                <b-col>-->
                 <!--                  <p>{{ mapping.description }}</p>-->
