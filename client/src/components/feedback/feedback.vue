@@ -108,7 +108,7 @@ export default {
       );
       var mailto_link =
         "mailto:" +
-        "ywkim@illinois.edu" +
+        "lmarini@illinois.edu" +
         "?subject=" +
         encodeURIComponent(email_subject) +
         "&body=" +
@@ -127,7 +127,7 @@ export default {
             .writeText(emailBody)
             .then(() => {
               this.feedbackInfo =
-                "Your feedback message was copied to clipboard. You can paste it into an email to feedback@geocodes.earthcube.org.";
+                "Your feedback message was copied to clipboard. You can paste it into an email to lmarini@illinois.edu.";
             })
             .catch(() => {
               this.feedbackInfo = "";
