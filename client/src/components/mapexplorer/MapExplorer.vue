@@ -201,6 +201,9 @@ import { useRoute, useRouter } from 'vue-router';
 import _ from 'lodash';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png?url';
 import iconUrl from 'leaflet/dist/images/marker-icon.png?url';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png?url';
@@ -233,59 +236,6 @@ function stripMarkup(value) {
 const MAP_LIMIT = 1000;
 const DEFAULT_CENTER = [20, 0];
 const DEFAULT_ZOOM = 2;
-let markerClusterLoadPromise = null;
-
-function appendStylesheetOnce(href) {
-  if (document.querySelector(`link[data-markercluster="${href}"]`)) return;
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = href;
-  link.setAttribute('data-markercluster', href);
-  document.head.appendChild(link);
-}
-
-function loadScriptOnce(src) {
-  return new Promise((resolve, reject) => {
-    const existing = document.querySelector(`script[data-markercluster="${src}"]`);
-    if (existing) {
-      if (existing.getAttribute('data-loaded') === 'true') {
-        resolve();
-      } else {
-        existing.addEventListener('load', () => resolve(), { once: true });
-        existing.addEventListener('error', () => reject(new Error('script failed')), { once: true });
-      }
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = src;
-    script.async = true;
-    script.setAttribute('data-markercluster', src);
-    script.addEventListener('load', () => {
-      script.setAttribute('data-loaded', 'true');
-      resolve();
-    }, { once: true });
-    script.addEventListener('error', () => reject(new Error('script failed')), { once: true });
-    document.head.appendChild(script);
-  });
-}
-
-async function ensureMarkerCluster() {
-  if (typeof L.markerClusterGroup === 'function') return true;
-  if (!markerClusterLoadPromise) {
-    markerClusterLoadPromise = (async () => {
-      try {
-        appendStylesheetOnce('https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css');
-        appendStylesheetOnce('https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css');
-        await loadScriptOnce('https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js');
-      } catch (error) {
-        console.warn('MarkerCluster unavailable; using non-cluster marker layer.', error);
-      }
-      return typeof L.markerClusterGroup === 'function';
-    })();
-  }
-  return markerClusterLoadPromise;
-}
 
 export default {
   name: 'MapExplorer',
@@ -411,7 +361,6 @@ export default {
 
     let map = null;
     let clusterGroup = null;
-    let markerClusterEnabled = false;
 
     // Guards against fitBounds → moveend → setFilter → fitBounds loops:
     // suppress handling while the view is set programmatically, and remember
@@ -558,21 +507,17 @@ export default {
       if (clusterGroup) {
         clusterGroup.clearLayers();
       } else {
-        clusterGroup = markerClusterEnabled
-          ? L.markerClusterGroup({ chunkedLoading: true })
-          : L.layerGroup();
-        if (markerClusterEnabled) {
-          clusterGroup.on('clustermouseover', (event) => {
-            const cluster = event.propagatedFrom || event.layer;
-            if (!cluster) return;
-            focusOnCluster(
-              cluster
-                .getAllChildMarkers()
-                .map((child) => child.options.rowData)
-                .filter(Boolean)
-            );
-          });
-        }
+        clusterGroup = L.markerClusterGroup({ chunkedLoading: true });
+        clusterGroup.on('clustermouseover', (event) => {
+          const cluster = event.propagatedFrom || event.layer;
+          if (!cluster) return;
+          focusOnCluster(
+            cluster
+              .getAllChildMarkers()
+              .map((child) => child.options.rowData)
+              .filter(Boolean)
+          );
+        });
         clusterGroup.on('mouseover', (event) => {
           const row = (event.propagatedFrom || event.layer)?.options?.rowData;
           if (row) focusOnCluster([row]);
@@ -613,7 +558,6 @@ export default {
         search.updateFromUrl(route.query);
       }
       await nextTick();
-      markerClusterEnabled = await ensureMarkerCluster();
       map = L.map(mapElement.value, {
         center: DEFAULT_CENTER,
         zoom: DEFAULT_ZOOM,
