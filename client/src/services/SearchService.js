@@ -1,5 +1,6 @@
 // client/src/services/SearchService.js
 import axios from 'axios';
+import { default as LRUCache } from 'lru-cache';
 import { createSparqlQueryBuilder } from './SparqlQueryBuilder.js';
 import { createFilterStateManager } from './FilterStateManager.js';
 
@@ -18,6 +19,9 @@ export function datasetRouteIdFromBinding(row) {
   return subj || g || '';
 }
 
+/** Locations shown on the map explorer per query (candidate-subquery LIMIT). */
+export const MAP_LOCATIONS_LIMIT = 1000;
+
 /** Split SPARQL GROUP_CONCAT values the same way as state.js flattenSparqlResults. */
 export function splitSparqlGroupConcat(value) {
   if (value == null || value === '') return null;
@@ -29,6 +33,22 @@ export function splitSparqlGroupConcat(value) {
   return elements;
 }
 
+function mergeUniqueStringLists(a, b) {
+  const out = [];
+  const seen = new Set();
+  const pushAll = (arr) => {
+    (arr || []).forEach((item) => {
+      const v = String(item || '').trim();
+      if (!v || seen.has(v)) return;
+      seen.add(v);
+      out.push(v);
+    });
+  };
+  pushAll(a);
+  pushAll(b);
+  return out;
+}
+
 /**
  * Main Search Service (QLever-first)
  * - Builds SPARQL from active filters
@@ -38,18 +58,39 @@ export function splitSparqlGroupConcat(value) {
  * - Provides facet option utilities (getFacetOptions)
  */
 export class SearchService {
-  constructor(config) {
+  /**
+   * @param {object} config
+   * @param {{ mode?: 'search' | 'locations' }} [options]
+   *   mode 'locations': the filter state manager executes the lightweight
+   *   per-dataset locations query (map explorer) instead of the full search,
+   *   and skips the async COUNT queries.
+   */
+  constructor(config, options = {}) {
     this.config = config;
+    this.mode = options.mode === 'locations' ? 'locations' : 'search';
     // Optional: sanity log; comment out if too noisy
     // console.info('[SearchService] Engine:', this.config?.QUERY_ENGINE, 'Endpoint:', this.config?.TRIPLESTORE_URL);
 
     this.queryBuilder = createSparqlQueryBuilder(config);
 
-    // Filter state manager wires executeQuery
-    this.filterStateManager = createFilterStateManager(
-      config,
-      this.executeQuery.bind(this)
-    );
+    this.autocompleteCache = new LRUCache({ max: 200, ttl: 5 * 60_000 });
+    this.summaryCache = new LRUCache({ max: 300, ttl: 10 * 60_000 });
+
+    // Filter state manager wires the mode's query executor
+    const executor =
+      this.mode === 'locations'
+        ? async (searchParams) => {
+            // The map ignores list pagination: always up to MAP_LOCATIONS_LIMIT
+            // representative points, never the list page size (default 20).
+            const results = await this.getDatasetLocations({
+              ...(searchParams || {}),
+              limit: MAP_LOCATIONS_LIMIT,
+              offset: 0,
+            });
+            return { results, totalCount: results.length };
+          }
+        : this.executeQuery.bind(this);
+    this.filterStateManager = createFilterStateManager(config, executor);
   }
 
   /** Call when store FacetsConfig is replaced so LIMIT_DEFAULT and endpoints stay current. */
@@ -219,7 +260,7 @@ export class SearchService {
     if (!response || !response.results || !response.results.bindings) {
       return [];
     }
-    return response.results.bindings.map(binding => {
+    const rows = response.results.bindings.map(binding => {
       const out = {};
       for (const key of Object.keys(binding)) {
         if (binding[key] && binding[key].value !== undefined) {
@@ -242,6 +283,102 @@ export class SearchService {
       }
       return out;
     });
+
+    // QLever can return multiple rows for the same subject across graphs/versions.
+    // The UI count query is subject-distinct, so collapse duplicates here to keep
+    // "Showing X of Y" consistent with rendered cards.
+    const bySubject = new Map();
+    rows.forEach((row) => {
+      const rt = String(row.resourceType || row.resourceType_u || '').toLowerCase();
+      const dedupeKey =
+        rt === 'tool'
+          ? `tool:${String(row.subj || row.id || '')}`
+          : `data:${String(row.subj || '')}`;
+
+      if (!dedupeKey || dedupeKey.endsWith(':')) return;
+
+      const prev = bySubject.get(dedupeKey);
+      if (!prev) {
+        bySubject.set(dedupeKey, row);
+        return;
+      }
+
+      prev.kw = mergeUniqueStringLists(prev.kw, row.kw);
+      prev.placenames = mergeUniqueStringLists(prev.placenames, row.placenames);
+      prev.disurl = mergeUniqueStringLists(prev.disurl, row.disurl);
+
+      // Keep an existing non-empty value, otherwise fill from the new row.
+      ['name', 'description', 'pubname', 'resourceType', 'resourceType_u', 'datep', 'temporalCoverage'].forEach((field) => {
+        if (!prev[field] && row[field]) prev[field] = row[field];
+      });
+    });
+
+    return Array.from(bySubject.values());
+  }
+
+  // -------------------------
+  // Dataset locations (map explorer)
+  // -------------------------
+
+  /**
+   * Representative point per matching dataset for map display.
+   * Ignores page/offset — the map always shows up to `limit` locations.
+   * @returns {Promise<Array<{id: string, g?: string, subj: string, name?: string, lat: number, lon: number}>>}
+   */
+  async getDatasetLocations(searchParams) {
+    const query = this.queryBuilder.buildLocationsQuery(searchParams);
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processResults(response)
+      .map((row) => ({
+        ...row,
+        lat: parseFloat(row.lat_s),
+        lon: parseFloat(row.lon_s),
+      }))
+      .filter((row) => Number.isFinite(row.lat) && Number.isFinite(row.lon));
+  }
+
+  /**
+   * Name/description/publisher for one dataset, for hover cards.
+   * Cached because the map list re-hovers the same rows constantly.
+   * @returns {Promise<{subj: string, g?: string, name?: string, description?: string,
+   *   publisher?: string, datePublished?: string, url?: string} | null>}
+   */
+  async getDatasetSummary(subj) {
+    if (!subj) return null;
+    const cached = this.summaryCache.get(subj);
+    if (cached !== undefined) return cached;
+    const query = this.queryBuilder.buildDatasetSummaryQuery(subj);
+    if (!query) return null;
+    const response = await this.sendToTriplestoreWithFallback(query);
+    const summary = this.processResults(response)[0] || null;
+    this.summaryCache.set(subj, summary);
+    return summary;
+  }
+
+  // -------------------------
+  // Autocomplete (landing keyword entry; QLever word index only)
+  // -------------------------
+
+  /**
+   * Word completions for a typed prefix, ranked by corpus frequency.
+   * Returns [] when the prefix is too short or the engine is not QLever.
+   */
+  async getAutocompleteSuggestions(prefix) {
+    const query = this.queryBuilder.buildAutocompleteQuery(prefix);
+    if (!query) return [];
+    const cacheKey = query;
+    const cached = this.autocompleteCache.get(cacheKey);
+    if (cached) return cached;
+    const data = await this.sendToTriplestoreWithFallback(query);
+    const bindings = data?.results?.bindings || [];
+    const suggestions = bindings
+      .map((b) => ({
+        word: b.word?.value ?? '',
+        count: parseInt(b.count?.value ?? '0', 10) || 0,
+      }))
+      .filter((s) => s.word.trim().length > 0);
+    this.autocompleteCache.set(cacheKey, suggestions);
+    return suggestions;
   }
 
   // -------------------------
@@ -277,10 +414,13 @@ SELECT ?value (0 as ?count) WHERE { FILTER(false) } LIMIT 0
       searchExactMatch = false,
       resourceType = '',
     } = searchContext;
-
-    const sparqlProperty =
-      facetConfig.sparql_property ||
-      this.queryBuilder.getDefaultSparqlProperty(field);
+    const isPropertyValueFacet =
+      facetConfig.type === 'variablemeasured' || facetConfig.type === 'propertyvalue';
+    const configuredLimit = Number(facetConfig.option_limit);
+    const facetOptionLimit =
+      Number.isFinite(configuredLimit) && configuredLimit > 0
+        ? Math.floor(configuredLimit)
+        : (isPropertyValueFacet ? 100 : 200);
 
     // Exclude this facet's own filters to avoid self-filtering options
     const filtersCopy = { ...(currentFilters || {}) };
@@ -297,11 +437,18 @@ WHERE {
       resourceType,
       filtersCopy
     );
-    q += this.queryBuilder.buildFacetPropertyPattern(field, sparqlProperty);
+    if (facetConfig.type === 'variablemeasured' || facetConfig.type === 'propertyvalue') {
+      q += this.queryBuilder.buildPropertyValueNamePattern(field, facetConfig);
+    } else {
+      const sparqlProperty =
+        facetConfig.sparql_property ||
+        this.queryBuilder.getDefaultSparqlProperty(field);
+      q += this.queryBuilder.buildFacetPropertyPattern(field, sparqlProperty);
+    }
     q += `}
 GROUP BY ?value
 ORDER BY DESC(?count) ?value
-LIMIT 200
+LIMIT ${facetOptionLimit}
 `;
     return q;
   }
@@ -325,6 +472,41 @@ LIMIT 200
   }
 
   // -------------------------
+  // DataCatalog (per-source, SPARQL-paginated)
+  // -------------------------
+
+  /**
+   * The release catalog held in a named graph. Returns [] when that graph holds
+   * no DataCatalog.
+   */
+  async getCatalogByGraph(graphUri) {
+    const query = this.queryBuilder.buildCatalogByGraphQuery(graphUri);
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processResults(response);
+  }
+
+  /** Every Nabu release catalog, for turning a source slug into its URN. */
+  async getCatalogList() {
+    const query = this.queryBuilder.buildCatalogListQuery();
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processResults(response);
+  }
+
+  /** One page of Datasets embedded in a catalog document (named graph IRI). */
+  async getCatalogDatasetsPage(graphUri, { limit = 10, offset = 0 } = {}) {
+    const query = this.queryBuilder.buildCatalogDatasetsQuery(graphUri, { limit, offset });
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processResults(response);
+  }
+
+  /** Total Dataset count for a catalog document (named graph IRI). */
+  async getCatalogDatasetsCount(graphUri) {
+    const query = this.queryBuilder.buildCatalogDatasetsCountQuery(graphUri);
+    const response = await this.sendToTriplestoreWithFallback(query);
+    return this.processCountResult(response);
+  }
+
+  // -------------------------
   // Expose helpers
   // -------------------------
 
@@ -338,6 +520,6 @@ LIMIT 200
 }
 
 // Factory
-export function createSearchService(config) {
-  return new SearchService(config);
+export function createSearchService(config, options = {}) {
+  return new SearchService(config, options);
 }

@@ -24,12 +24,12 @@
 
         <!-- Bounds Display -->
         <div v-if="hasActiveBounds" class="bounds-display mb-2">
-          <small class="text-muted">
-            <strong>Bounds:</strong><br>
-            N: {{ committedBounds.north.toFixed(3) }},
-            S: {{ committedBounds.south.toFixed(3) }}<br>
-            E: {{ committedBounds.east.toFixed(3) }},
-            W: {{ committedBounds.west.toFixed(3) }}
+          <small class="text-muted bounds-grid">
+            <strong class="bounds-label">Bounds:</strong>
+            <span class="bounds-north">N: {{ committedBounds.north.toFixed(3) }}</span>
+            <span class="bounds-west">W: {{ committedBounds.west.toFixed(3) }}</span>
+            <span class="bounds-east">E: {{ committedBounds.east.toFixed(3) }}</span>
+            <span class="bounds-south">S: {{ committedBounds.south.toFixed(3) }}</span>
           </small>
         </div>
 
@@ -184,6 +184,33 @@ export default {
   padding: 0.5rem;
   border-radius: 0.25rem;
   font-family: monospace;
+}
+
+.bounds-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.15rem 1rem;
+  align-items: center;
+}
+
+.bounds-label {
+  grid-column: 1 / -1;
+}
+
+.bounds-north,
+.bounds-south {
+  grid-column: 1 / -1;
+  justify-self: center;
+  /* Slight eastward shift for a clearer N / (W E) / S diamond layout */
+  transform: translateX(0.5rem);
+}
+
+.bounds-west {
+  justify-self: start;
+}
+
+.bounds-east {
+  justify-self: end;
 }
 
 .geo-controls {

@@ -25,6 +25,10 @@ import localforage from "localforage";
 import yaml from "js-yaml";
 // import { commit } from "lodash/seq.js";
 import { tenantDefault } from "@/config.js";
+import {
+  fetchExpandedDatasetJsonLdViaSparql,
+  fetchPrimaryDatasetSubjectInGraph,
+} from "@/utils/datasetJsonLdSparqlFallback.js";
 
 let esTemplateOptions = { interpolate: /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g };
 export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
@@ -359,70 +363,40 @@ export const store = _createStore({
       const fetchURL = `${base}/dataset/${o}`;
       console.log(fetchURL);
       var url = new URL(fetchURL);
+      const commitJsonLdFromPayload = async function (payload) {
+        var content = payload;
+        if (typeof content === "string") {
+          content = content.replace("http://schema.org/", "https://schema.org/");
+        } else {
+          content = JSON.stringify(content);
+          content = content.replace("http://schema.org/", "https://schema.org/");
+        }
+
+        let jsonLdobj = JSON.parse(content);
+        context.commit("setJsonLd", jsonLdobj);
+
+        try {
+          await jsonld.compact(jsonLdobj, {}).then((providers) => {
+            var j = JSON.stringify(providers, null, 2);
+            var jp = JSON.parse(j);
+            context.commit("setJsonLdCompact", jp);
+          });
+        } catch (ex) {
+          console.log("JSONLD transformation issue. JSON into JSONLDCompact. " + ex);
+          context.commit("setJsonLdCompact", jsonLdobj);
+          // Do not reject the action: raw JSON-LD is already in state; UI depends on fetch settling.
+        }
+      };
+
       return axios
         .get(url)
         .then(
           //const content = await rawResponse.json();
           async function (r) {
-            var content = r.data;
-            //console.log(contentAsText);
-            if (typeof content === "string") {
-              content = content.replace(
-                "http://schema.org/",
-                "https://schema.org/"
-              );
-            } else {
-              content = JSON.stringify(content);
-              content = content.replace(
-                "http://schema.org/",
-                "https://schema.org/"
-              );
-            }
-
-            // wifire uses jsonld flattened, so at load let's convert items to expanded
-            let jsonLdobj = JSON.parse(content);
-            context.commit("setJsonLd", jsonLdobj);
-
-            // attempt to clean up below. Let's just pass the original
-            // const jsonLdContext = {"@vocab":"https://schema.org/"};
-            // try {
-            //
-            //
-            //     await jsonld.expand(jsonLdobj, jsonLdContext).then((providers) => {
-            //         var j = JSON.stringify(providers, null, 2);
-            //         var jp = JSON.parse(j);
-            //         //   console.log(j.toString());
-            //         context.commit('setJsonLd', jp)
-            //     })
-            // } catch (ex) {
-            //     console.log("JSONLD transformation issue. JSON into JSONLDCompact. " +  ex)
-            //
-            //     context.commit('setJsonLd', jsonLdobj)
-            //     throw "JSONLD transformation issue."
-            // }
-
-            try {
-              // this will return an array, if there is more than one type.
-              // empty context to get what was a mistake... prefix with https://schema.org
-              // do any framing in the component pages.
-
-              await jsonld.compact(jsonLdobj, {}).then((providers) => {
-                var j = JSON.stringify(providers, null, 2);
-                var jp = JSON.parse(j);
-                //   console.log(j.toString());
-                context.commit("setJsonLdCompact", jp);
-              });
-            } catch (ex) {
-              console.log(
-                "JSONLD transformation issue. JSON into JSONLDCompact. " + ex
-              );
-
-              context.commit("setJsonLdCompact", jsonLdobj);
-              // Do not reject the action: raw JSON-LD is already in state; UI depends on fetch settling.
-            }
+            await commitJsonLdFromPayload(r.data);
           }
         )
-        .catch((exception) => {
+        .catch(async (exception) => {
           // Vue.$gtag.event('exception', {
           event("exception", {
             description: `${o} ${exception}`,
@@ -447,6 +421,42 @@ export const store = _createStore({
             console.log(exception.response.status);
             console.log(exception.response.headers);
             if (exception.response.status === 404) {
+              try {
+                const triplestoreUrl =
+                  context.state?.FacetsConfig?.TRIPLESTORE_URL ||
+                  context.state?.TRIPLESTORE_URL;
+                const graphUrn = String(o || "").startsWith("urn:gleaner.io:")
+                  ? String(o)
+                  : "";
+                const subject =
+                  (await fetchPrimaryDatasetSubjectInGraph({
+                    triplestoreUrl,
+                    graph: graphUrn,
+                  })) || String(o || "");
+                const expanded = await fetchExpandedDatasetJsonLdViaSparql({
+                  triplestoreUrl,
+                  subject,
+                  graph: graphUrn || subject,
+                });
+
+                if (expanded && expanded.length > 0) {
+                  try {
+                    const compacted = await jsonld.compact(expanded, {});
+                    context.commit("setJsonLd", compacted);
+                    context.commit("setJsonLdCompact", compacted);
+                  } catch (compactErr) {
+                    console.log(
+                      "Fallback compact error; using expanded JSON-LD",
+                      compactErr
+                    );
+                    context.commit("setJsonLd", { "@graph": expanded });
+                    context.commit("setJsonLdCompact", { "@graph": expanded });
+                  }
+                  return;
+                }
+              } catch (fallbackErr) {
+                console.log("Dataset SPARQL fallback failed", fallbackErr);
+              }
               throw "Issue with Identifier or stale reference in services";
             } else {
               throw (

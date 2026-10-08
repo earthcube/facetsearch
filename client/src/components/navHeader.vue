@@ -36,7 +36,7 @@
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto menu_nav">
           <b-nav-form
-            v-show="$route.name.toLowerCase() != 'landing'"
+            v-show="($route.name || '').toLowerCase() != 'landing'"
             @submit.prevent="onSubmitNavbar"
           >
             <b-input-group size="sm">

@@ -17,6 +17,12 @@
     >
       <template #modal-title> Feedback for {{ subject }}: </template>
       <template #modal-ok> Submit </template>
+      <b-alert v-if="feedbackError" show variant="danger" class="mb-2">
+        {{ feedbackError }}
+      </b-alert>
+      <b-alert v-if="feedbackInfo" show variant="info" class="mb-2">
+        {{ feedbackInfo }}
+      </b-alert>
       <form ref="feedbackForm" @submit.stop.prevent="handleSubmit">
         <div class="mt-2">{{ subject }}: {{ name }}</div>
         <!--        <div class="mt-2">urn: {{ this.urn }}}</div>-->
@@ -59,6 +65,8 @@ export default {
       isFeedbackVisible: true,
       feedback_message: "",
       nameState: null,
+      feedbackError: "",
+      feedbackInfo: "",
     };
   },
   methods: {
@@ -76,6 +84,8 @@ export default {
     resetModal() {
       this.feedback_message = "";
       this.nameState = null;
+      this.feedbackError = "";
+      this.feedbackInfo = "";
     },
     handleOk(bvModalEvt) {
       // Prevent modal from closing
@@ -85,10 +95,8 @@ export default {
     },
     handleSubmit() {
       // Exit when the form isn't valid
-      console.log(this.subject);
-      console.log(this.name);
-      console.log(this.urn);
-      console.log(this.feedback_message);
+      this.feedbackError = "";
+      this.feedbackInfo = "";
       if (!this.checkFormValidity()) {
         return;
       }
@@ -100,12 +108,33 @@ export default {
       );
       var mailto_link =
         "mailto:" +
-        "feedback@geocodes.earthcube.org" +
+        "lmarini@illinois.edu" +
         "?subject=" +
-        email_subject +
+        encodeURIComponent(email_subject) +
         "&body=" +
         encodeURIComponent(emailBody);
-      window.open(mailto_link);
+      let opened = false;
+      try {
+        opened = window.open(mailto_link) !== null;
+      } catch (_err) {
+        opened = false;
+      }
+      if (!opened) {
+        this.feedbackError =
+          "Could not open your email app automatically. Please check your browser pop-up/mail handler settings and try again.";
+        if (navigator?.clipboard?.writeText) {
+          navigator.clipboard
+            .writeText(emailBody)
+            .then(() => {
+              this.feedbackInfo =
+                "Your feedback message was copied to clipboard. You can paste it into an email to lmarini@illinois.edu.";
+            })
+            .catch(() => {
+              this.feedbackInfo = "";
+            });
+        }
+        return;
+      }
       // Hide the modal manually
       this.$nextTick(() => {
         this.$bvModal.hide("feedback-modal");

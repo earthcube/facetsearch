@@ -59,6 +59,15 @@
           <!-- Dynamic Facets -->
           <Facets2 :facets="primaryFacets" />
 
+          <b-button
+            variant="outline-primary"
+            block
+            class="mt-3"
+            :to="{ path: '/map', query: $route.query }"
+          >
+            View on map
+          </b-button>
+
           <div v-if="resourceTypeFacet" class="mb-3">
             <FacetText2 :facet-config="resourceTypeFacet" />
           </div>

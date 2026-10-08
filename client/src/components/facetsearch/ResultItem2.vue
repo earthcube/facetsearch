@@ -37,6 +37,14 @@
       in collections {{ collectionNames }}
     </div>
     <div class="badges mt-2">
+      <b-badge
+        v-if="hasAiGeneratedMetadata"
+        variant="warning"
+        class="result-badge mr-1"
+        title="This dataset's metadata was generated with AI (ChatGPT/OpenAI) and reviewed by an expert."
+      >
+        AI-generated metadata
+      </b-badge>
       <b-badge variant="data" class="result-badge mr-1">
         <b-icon class="mr-1" icon="server"></b-icon>
         {{ result.resourceType || "data" }}
@@ -66,6 +74,7 @@
 import _ from "lodash";
 import localforage from "localforage";
 import { normalizeDatasetGraphIri } from "@/utils/datasetIdentifiers.js";
+import { hasAiGeneratedMetadataKeyword } from "@/utils/aiDisclosure.js";
 
 export default {
   name: "ResultItem2",
@@ -117,6 +126,9 @@ export default {
       if (!d) return [];
       if (Array.isArray(d)) return d.filter((x) => x && String(x).length > 0);
       return [String(d)].filter((x) => x.length > 0);
+    },
+    hasAiGeneratedMetadata() {
+      return hasAiGeneratedMetadataKeyword(this.result.kw);
     },
   },
   mounted() {

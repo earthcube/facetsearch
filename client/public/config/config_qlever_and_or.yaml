@@ -119,6 +119,11 @@ FACETS:
     sort: acs
     open: true
     type: rangedepth
+  - field: variableMeasured
+    title: Variables Measured
+    sort: acs
+    open: true
+    type: propertyvalue
   - field: spatialCoverage
     title: Spatial Filter
     sort: acs
