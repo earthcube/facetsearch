@@ -177,6 +177,19 @@ export class FilterStateManager {
     return !hasConfiguredGeoFacet && field === 'spatialCoverage';
   }
 
+  isRangeFacetField(field) {
+    const facet = (this.config?.FACETS || []).find((f) => f.field === field);
+    return !!facet && ['range', 'rangeyear', 'rangedepth'].includes(facet.type);
+  }
+
+  normalizeRangeValues(values) {
+    if (!Array.isArray(values) || values.length < 2) return null;
+    const a = Number(values[0]);
+    const b = Number(values[1]);
+    if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+    return [Math.min(a, b), Math.max(a, b)];
+  }
+
   /**
    * Canonical geo-bounds object used throughout state/query code:
    * { north, south, east, west } with numeric finite values.
@@ -358,9 +371,27 @@ export class FilterStateManager {
       : Number(this.config?.LIMIT_DEFAULT ?? 10);
 
     const nextActiveFilters = {};
+    const handledRangeFields = new Set();
+
+    // Prefer explicit min/max URL form for range facets when present.
+    (this.config.FACETS || []).forEach((facet) => {
+      if (!['range', 'rangeyear', 'rangedepth'].includes(facet.type)) return;
+      const minKey = `${facet.field}_min`;
+      const maxKey = `${facet.field}_max`;
+      if (!byKey.has(minKey) || !byKey.has(maxKey)) return;
+      const normalized = this.normalizeRangeValues([
+        (byKey.get(minKey) || [])[0],
+        (byKey.get(maxKey) || [])[0],
+      ]);
+      if (!normalized) return;
+      nextActiveFilters[facet.field] = normalized;
+      handledRangeFields.add(facet.field);
+    });
 
     for (const [key, arr] of byKey.entries()) {
       if (reserved.has(key) || arr.length === 0) continue;
+      if (key.endsWith('_min') || key.endsWith('_max')) continue;
+      if (handledRangeFields.has(key)) continue;
 
       const facet = (this.config.FACETS || []).find((f) => f.field === key);
       if (facet?.type === 'geo') {
@@ -375,23 +406,19 @@ export class FilterStateManager {
         ['range', 'rangeyear', 'rangedepth'].includes(facet.type);
 
       if (isRange && arr.length >= 2) {
-        const min = Number(arr[0]);
-        const max = Number(arr[1]);
-        if (!Number.isNaN(min) && !Number.isNaN(max)) {
-          nextActiveFilters[key] = [min, max];
+        const normalized = this.normalizeRangeValues([arr[0], arr[1]]);
+        if (normalized) {
+          nextActiveFilters[key] = normalized;
           continue;
         }
       }
 
       if (isRange && arr.length === 1 && arr[0].includes(',')) {
         const parts = arr[0].split(',').map((p) => p.trim());
-        if (parts.length === 2) {
-          const min = Number(parts[0]);
-          const max = Number(parts[1]);
-          if (!Number.isNaN(min) && !Number.isNaN(max)) {
-            nextActiveFilters[key] = [min, max];
-            continue;
-          }
+        const normalized = this.normalizeRangeValues(parts);
+        if (normalized) {
+          nextActiveFilters[key] = normalized;
+          continue;
         }
       }
 
@@ -494,6 +521,15 @@ export class FilterStateManager {
       if (this.isGeoFacetField(key)) {
         const encoded = this.encodeGeoBoundsForUrl(values?.bounds ?? values);
         if (encoded) params.set(key, encoded);
+        return;
+      }
+
+      if (this.isRangeFacetField(key)) {
+        const normalized = this.normalizeRangeValues(values);
+        if (normalized) {
+          params.set(`${key}_min`, String(normalized[0]));
+          params.set(`${key}_max`, String(normalized[1]));
+        }
         return;
       }
 
