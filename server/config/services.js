@@ -2,7 +2,7 @@ require('dotenv').config()
 var endPoint = process.env.S3ADDRESS || "oss.geocodes-aws.earthcube.org"
 var accessKey = process.env.S3KEY || 'AKIAIOSFODNN7EXAMPLE'
 var secretKey = process.env.S3SECRET || 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
-var useSSL = (process.env.S3SSL === 'true') || true
+var useSSL = String(process.env.S3SSL ?? 'true').toLowerCase() === 'true'
 var s3Port =  parseInt(process.env.S3PORT, 443) || 443
 var bucket = process.env.BUCKET || 'earthcube'
 var bucketpath = process.env.BUCKETPATH || 'summoned'
