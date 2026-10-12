@@ -30,13 +30,25 @@ test('updateFromUrl keeps backward compatibility for comma range value', () => {
   assert.deepEqual(manager.state.activeFilters.temporalCoverage, [2006, 2018]);
 });
 
-test('getUrlParams serializes temporalCoverage as min/max keys', () => {
+test('updateFromUrl parses ISO year interval and normalizes order', () => {
+  const manager = createManager();
+  manager.updateFromUrl('temporalCoverage=2018/2006');
+  assert.deepEqual(manager.state.activeFilters.temporalCoverage, [2006, 2018]);
+});
+
+test('updateFromUrl parses ISO full-date interval and normalizes order', () => {
+  const manager = createManager();
+  manager.updateFromUrl('temporalCoverage=2018-12-31/2006-01-01');
+  assert.deepEqual(manager.state.activeFilters.temporalCoverage, [2006, 2018]);
+});
+
+test('getUrlParams serializes temporalCoverage as ISO interval', () => {
   const manager = createManager();
   manager.setFilter('temporalCoverage', [2018, 2006]);
   const params = manager.getUrlParams();
 
-  assert.match(params, /temporalCoverage_min=2006/);
-  assert.match(params, /temporalCoverage_max=2018/);
-  assert.doesNotMatch(params, /temporalCoverage=2006/);
-  assert.doesNotMatch(params, /temporalCoverage=2018/);
+  assert.match(params, /temporalCoverage=2006%2F2018/);
+  assert.doesNotMatch(params, /temporalCoverage=2006%2C2018/);
+  assert.doesNotMatch(params, /temporalCoverage_min=2006/);
+  assert.doesNotMatch(params, /temporalCoverage_max=2018/);
 });

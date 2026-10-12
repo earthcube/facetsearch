@@ -190,6 +190,26 @@ export class FilterStateManager {
     return [Math.min(a, b), Math.max(a, b)];
   }
 
+  parseTemporalIsoRange(value) {
+    if (value === undefined || value === null) return null;
+    const raw = String(value).trim();
+    if (!raw.includes('/')) return null;
+    const parts = raw.split('/').map((p) => p.trim());
+    if (parts.length !== 2) return null;
+
+    const parseYear = (token) => {
+      if (!token) return null;
+      if (/^\d{4}$/.test(token)) return Number(token);
+      const m = token.match(/^(\d{4})-\d{2}-\d{2}$/);
+      return m ? Number(m[1]) : null;
+    };
+
+    const startYear = parseYear(parts[0]);
+    const endYear = parseYear(parts[1]);
+    if (!Number.isFinite(startYear) || !Number.isFinite(endYear)) return null;
+    return [Math.min(startYear, endYear), Math.max(startYear, endYear)];
+  }
+
   /**
    * Canonical geo-bounds object used throughout state/query code:
    * { north, south, east, west } with numeric finite values.
@@ -422,6 +442,14 @@ export class FilterStateManager {
         }
       }
 
+      if (key === 'temporalCoverage' && isRange && arr.length === 1) {
+        const normalized = this.parseTemporalIsoRange(arr[0]);
+        if (normalized) {
+          nextActiveFilters[key] = normalized;
+          continue;
+        }
+      }
+
       nextActiveFilters[key] = [...arr];
     }
 
@@ -527,8 +555,12 @@ export class FilterStateManager {
       if (this.isRangeFacetField(key)) {
         const normalized = this.normalizeRangeValues(values);
         if (normalized) {
-          params.set(`${key}_min`, String(normalized[0]));
-          params.set(`${key}_max`, String(normalized[1]));
+          if (key === 'temporalCoverage') {
+            params.set(key, `${normalized[0]}/${normalized[1]}`);
+          } else {
+            params.set(`${key}_min`, String(normalized[0]));
+            params.set(`${key}_max`, String(normalized[1]));
+          }
         }
         return;
       }
