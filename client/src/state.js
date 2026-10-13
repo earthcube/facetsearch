@@ -25,6 +25,7 @@ import localforage from "localforage";
 import yaml from "js-yaml";
 // import { commit } from "lodash/seq.js";
 import { tenantDefault } from "@/config.js";
+import { validateAndLogConfig } from "@/services/configValidator.js";
 import {
   fetchExpandedDatasetJsonLdViaSparql,
   fetchPrimaryDatasetSubjectInGraph,
@@ -36,6 +37,7 @@ export async function storeRemoteConfig(remoteConfig = "config/config.yaml") {
     .then((response) => response.text())
     .then((config) => {
       let y = yaml.load(config);
+      validateAndLogConfig(y, remoteConfig);
       let base = store;
       base.commit("setFacetsConfig", y);
       base.commit("setTripleStoreURL", y.TRIPLESTORE_URL);
