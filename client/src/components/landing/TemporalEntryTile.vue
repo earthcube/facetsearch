@@ -54,7 +54,7 @@ export default {
       toYear.value = to;
       router.push({
         path: '/search2/',
-        query: { temporalCoverage: `${from},${to}` },
+        query: { temporalCoverage: `${from}/${to}` },
       });
     };
 
