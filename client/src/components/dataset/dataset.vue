@@ -410,11 +410,13 @@ import {
   frameJsonLD,
   matchesSchemaType,
   formatDateToYYYYMMDD,
+  getFirstDisplayScalar,
 } from "../../api/jsonldObject";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { marked } from "marked";
 import { getAiDisclosureFromJsonLd } from "@/utils/aiDisclosure.js";
+import { getDatasetDisplayFields } from "./datasetDisplayMapping.js";
 
 export default {
   compatConfig: {
@@ -464,7 +466,10 @@ export default {
       this.obscurePage = false;
       this.$store
         .dispatch("fetchJsonLd", d)
-        .then(() => this.$nextTick(() => this.toMetadata()))
+        .then(async () => {
+          await this.$nextTick();
+          this.toMetadata();
+        })
         .catch(() => {});
     },
   },
@@ -661,8 +666,8 @@ export default {
       if (matchesSchemaType(jp["@type"], "DataCatalog")) {
         this.isDataCatalog = true;
       }
-      this.name = jp["name"];
-      this.description = jp["description"];
+      this.name = getFirstDisplayScalar(schemaItem("name", jp));
+      this.description = getFirstDisplayScalar(schemaItem("description", jp));
       
       // Handle keywords - can be strings or DefinedTerm objects
       const rawKeywords = jp["keywords"];
@@ -731,11 +736,12 @@ export default {
           mapping.aiDisclosure = getAiDisclosureFromJsonLd(dataset);
           mapping.isAiGeneratedMetadata = mapping.aiDisclosure.isAiGeneratedMetadata;
 
-          mapping.s_identifier = dataset.identifier;
-          mapping.s_name = dataset.name;
-          mapping.s_url = dataset.url;
-          mapping.s_description = dataset.description;
-          mapping.s_distribution = dataset.distribution;
+          const displayFields = getDatasetDisplayFields(dataset);
+          mapping.s_identifier = displayFields.s_identifier;
+          mapping.s_name = displayFields.s_name;
+          mapping.s_url = displayFields.s_url;
+          mapping.s_description = displayFields.s_description;
+          mapping.s_distribution = displayFields.s_distribution;
 
           if (hasSchemaProperty("datePublished", dataset)) {
             mapping.s_datePublished = schemaItem("datePublished", dataset);
@@ -844,7 +850,7 @@ export default {
               // This handles cases where the object doesn't have expected structure
               try {
                 return String(kw);
-              } catch (e) {
+              } catch (_e) {
                 return "[Invalid Keyword]";
               }
             }).filter((kw) => {
