@@ -190,7 +190,15 @@ test('validateConfig warns when a facet has an unknown type', () => {
 });
 
 test('validateConfig accepts all known facet types', () => {
-  for (const type of ['text', 'range', 'rangeyear', 'rangedepth', 'geo']) {
+  for (const type of [
+    'text',
+    'range',
+    'rangeyear',
+    'rangedepth',
+    'geo',
+    'propertyvalue',
+    'variablemeasured',
+  ]) {
     const cfg = baseConfig({
       FACETS: [{ field: 'f', title: 'F', type }],
     });

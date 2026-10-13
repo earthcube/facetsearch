@@ -35,7 +35,15 @@ const TEMPLATE_URL_FIELDS = ['JSONLD_PROXY', 'SPARQL_NB', 'SPARQL_YASGUI'];
 const VALID_QUERY_ENGINES = ['blazegraph', 'qlever', 'fuseki'];
 
 /** Valid facet types understood by the UI components (see Facets2.vue). */
-const VALID_FACET_TYPES = ['text', 'range', 'rangeyear', 'rangedepth', 'geo'];
+const VALID_FACET_TYPES = [
+  'text',
+  'range',
+  'rangeyear',
+  'rangedepth',
+  'geo',
+  'propertyvalue',
+  'variablemeasured',
+];
 
 /** Valid collection facet types. */
 const VALID_COLLECTION_FACET_TYPES = ['unassigned', 'all'];
