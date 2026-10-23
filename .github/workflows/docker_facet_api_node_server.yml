@@ -25,7 +25,7 @@ jobs:
           NODE_ENV:
             production
         with:
-          node-version: '22'
+          node-version: '26'
       - run: npm install -g corepack
       - run: corepack enable
       - run: yarn install
