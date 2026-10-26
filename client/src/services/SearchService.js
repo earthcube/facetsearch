@@ -287,7 +287,12 @@ export class SearchService {
     // QLever can return multiple rows for the same subject across graphs/versions.
     // The UI count query is subject-distinct, so collapse duplicates here to keep
     // "Showing X of Y" consistent with rendered cards.
+    //
+    // Rows with no subject (e.g. the catalog list, which selects only ?g, or a
+    // catalog pointer whose graph was never harvested) cannot be deduped and
+    // are kept as-is in their original position.
     const bySubject = new Map();
+    const ordered = [];
     rows.forEach((row) => {
       const rt = String(row.resourceType || row.resourceType_u || '').toLowerCase();
       const dedupeKey =
@@ -295,11 +300,15 @@ export class SearchService {
           ? `tool:${String(row.subj || row.id || '')}`
           : `data:${String(row.subj || '')}`;
 
-      if (!dedupeKey || dedupeKey.endsWith(':')) return;
+      if (dedupeKey.endsWith(':')) {
+        ordered.push(row);
+        return;
+      }
 
       const prev = bySubject.get(dedupeKey);
       if (!prev) {
         bySubject.set(dedupeKey, row);
+        ordered.push(row);
         return;
       }
 
@@ -313,7 +322,7 @@ export class SearchService {
       });
     });
 
-    return Array.from(bySubject.values());
+    return ordered;
   }
 
   // -------------------------
