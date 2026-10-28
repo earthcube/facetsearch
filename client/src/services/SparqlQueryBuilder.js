@@ -137,6 +137,8 @@ export class SparqlQueryBuilder {
       `  (GROUP_CONCAT(DISTINCT ?url1; SEPARATOR=", ") AS ?disurl)\n` +
       `  (GROUP_CONCAT(DISTINCT ?placename; SEPARATOR=", ") AS ?placenames)\n` +
       `  (GROUP_CONCAT(DISTINCT ?kwu; SEPARATOR=", ") AS ?kw)\n` +
+      `  (GROUP_CONCAT(DISTINCT ?additionalType_u; SEPARATOR=", ") AS ?additionalType)\n` +
+      `  (GROUP_CONCAT(DISTINCT ?additionalType_rdf; SEPARATOR=", ") AS ?additionalTypeRdf)\n` +
       `  (GROUP_CONCAT(DISTINCT ?resourceType_u; SEPARATOR=", ") AS ?resourceType)\n` +
       `  (MAX(?maxDepth_raw) AS ?maxDepth)\n` +
       `  (MIN(?minDepth_raw) AS ?minDepth)\n`
@@ -410,6 +412,19 @@ ${inner}
       (schema:DataCatalog "DataCatalog")
       (sschema:DataCatalog "DataCatalog")
     }
+  }
+  OPTIONAL {
+    ?subj a ?additionalType_rdf .
+    FILTER(
+      ?additionalType_rdf NOT IN (
+        schema:Dataset,
+        sschema:Dataset,
+        schema:SoftwareApplication,
+        sschema:SoftwareApplication,
+        schema:DataCatalog,
+        sschema:DataCatalog
+      )
+    )
   }
 
 `;
@@ -972,6 +987,7 @@ LIMIT ${Number(limit) > 0 ? Number(limit) : 10}
   OPTIONAL {?subj schema:dateCreated|sschema:dateCreated ?datec .}
   OPTIONAL {?subj schema:dateModified|sschema:dateModified ?datem .}
   OPTIONAL {?subj schema:temporalCoverage|sschema:temporalCoverage ?temporalCoverage_raw .}
+  OPTIONAL {?subj schema:additionalType|sschema:additionalType ?additionalType_u .}
   OPTIONAL {?subj schema:publisher/schema:name|sschema:publisher/sschema:name|schema:publisher/schema:legalName|sschema:publisher/sschema:legalName ?pub_name .}
   OPTIONAL {?subj schema:spatialCoverage/schema:name|sschema:spatialCoverage/sschema:name ?place_name .}
   OPTIONAL {?subj schema:keywords|sschema:keywords ?kwu .}

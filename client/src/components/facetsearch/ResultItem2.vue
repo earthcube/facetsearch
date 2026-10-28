@@ -49,6 +49,14 @@
         <b-icon class="mr-1" icon="server"></b-icon>
         {{ result.resourceType || "data" }}
       </b-badge>
+      <b-badge
+        v-for="(typeLabel, idx) in additionalTypeLabels"
+        :key="`atype-${idx}`"
+        variant="secondary"
+        class="result-badge mr-1"
+      >
+        {{ typeLabel }}
+      </b-badge>
 
       <b-badge v-if="connectedTools" variant="tool" class="result-badge mr-1">
         <b-icon class="mr-1" icon="tools"></b-icon>Connected Tools
@@ -130,6 +138,13 @@ export default {
     hasAiGeneratedMetadata() {
       return hasAiGeneratedMetadataKeyword(this.result.kw);
     },
+    additionalTypeLabels() {
+      const raw = this.result.additionalType;
+      const values = Array.isArray(raw) ? raw : raw ? [raw] : [];
+      return values
+        .map((v) => this.toAdditionalTypeLabel(v))
+        .filter((v, idx, arr) => v && arr.indexOf(v) === idx);
+    },
   },
   mounted() {
     this.inCollection();
@@ -205,6 +220,18 @@ export default {
         autoHideDelay: 5000,
         appendToast: false,
       });
+    },
+    toAdditionalTypeLabel(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return "";
+      if (/^https?:\/\//i.test(raw)) {
+        const lastHash = raw.lastIndexOf("#");
+        const lastSlash = raw.lastIndexOf("/");
+        const cut = Math.max(lastHash, lastSlash);
+        const label = cut >= 0 ? raw.slice(cut + 1) : raw;
+        return decodeURIComponent(label || raw);
+      }
+      return raw;
     },
   },
 };

@@ -49,6 +49,12 @@ function mergeUniqueStringLists(a, b) {
   return out;
 }
 
+function asStringList(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  return [value];
+}
+
 /**
  * Main Search Service (QLever-first)
  * - Builds SPARQL from active filters
@@ -281,6 +287,18 @@ export class SearchService {
       if (out.disurl !== undefined) {
         out.disurl = splitSparqlGroupConcat(out.disurl);
       }
+      if (out.additionalType !== undefined) {
+        out.additionalType = splitSparqlGroupConcat(out.additionalType);
+      }
+      if (out.additionalTypeRdf !== undefined) {
+        out.additionalTypeRdf = splitSparqlGroupConcat(out.additionalTypeRdf);
+      }
+      const mergedAdditionalTypes = mergeUniqueStringLists(
+        asStringList(out.additionalType),
+        asStringList(out.additionalTypeRdf)
+      );
+      out.additionalType = mergedAdditionalTypes.length ? mergedAdditionalTypes : null;
+      delete out.additionalTypeRdf;
       return out;
     });
 
@@ -315,6 +333,11 @@ export class SearchService {
       prev.kw = mergeUniqueStringLists(prev.kw, row.kw);
       prev.placenames = mergeUniqueStringLists(prev.placenames, row.placenames);
       prev.disurl = mergeUniqueStringLists(prev.disurl, row.disurl);
+      prev.additionalType = mergeUniqueStringLists(
+        asStringList(prev.additionalType),
+        asStringList(row.additionalType)
+      );
+      if (!prev.additionalType.length) prev.additionalType = null;
 
       // Keep an existing non-empty value, otherwise fill from the new row.
       ['name', 'description', 'pubname', 'resourceType', 'resourceType_u', 'datep', 'temporalCoverage'].forEach((field) => {
