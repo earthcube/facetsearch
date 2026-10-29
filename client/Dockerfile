@@ -2,7 +2,7 @@ FROM node:lts-alpine AS builder
 
 # Create app directory
 WORKDIR /app
-RUN corepack enable
+RUN npm install -g corepack && corepack enable
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
