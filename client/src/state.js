@@ -399,6 +399,45 @@ export const store = _createStore({
           }
         )
         .catch(async (exception) => {
+          const tryDatasetSparqlFallback = async () => {
+            try {
+              const triplestoreUrl =
+                context.state?.FacetsConfig?.TRIPLESTORE_URL ||
+                context.state?.TRIPLESTORE_URL;
+              const graphUrn = String(o || "").startsWith("urn:gleaner.io:")
+                ? String(o)
+                : "";
+              const subject =
+                (await fetchPrimaryDatasetSubjectInGraph({
+                  triplestoreUrl,
+                  graph: graphUrn,
+                })) || String(o || "");
+              const expanded = await fetchExpandedDatasetJsonLdViaSparql({
+                triplestoreUrl,
+                subject,
+                graph: graphUrn || subject,
+              });
+
+              if (expanded && expanded.length > 0) {
+                try {
+                  const compacted = await jsonld.compact(expanded, {});
+                  context.commit("setJsonLd", compacted);
+                  context.commit("setJsonLdCompact", compacted);
+                } catch (compactErr) {
+                  console.log(
+                    "Fallback compact error; using expanded JSON-LD",
+                    compactErr
+                  );
+                  context.commit("setJsonLd", { "@graph": expanded });
+                  context.commit("setJsonLdCompact", { "@graph": expanded });
+                }
+                return true;
+              }
+            } catch (fallbackErr) {
+              console.log("Dataset SPARQL fallback failed", fallbackErr);
+            }
+            return false;
+          };
           // Vue.$gtag.event('exception', {
           event("exception", {
             description: `${o} ${exception}`,
@@ -423,44 +462,14 @@ export const store = _createStore({
             console.log(exception.response.status);
             console.log(exception.response.headers);
             if (exception.response.status === 404) {
-              try {
-                const triplestoreUrl =
-                  context.state?.FacetsConfig?.TRIPLESTORE_URL ||
-                  context.state?.TRIPLESTORE_URL;
-                const graphUrn = String(o || "").startsWith("urn:gleaner.io:")
-                  ? String(o)
-                  : "";
-                const subject =
-                  (await fetchPrimaryDatasetSubjectInGraph({
-                    triplestoreUrl,
-                    graph: graphUrn,
-                  })) || String(o || "");
-                const expanded = await fetchExpandedDatasetJsonLdViaSparql({
-                  triplestoreUrl,
-                  subject,
-                  graph: graphUrn || subject,
-                });
-
-                if (expanded && expanded.length > 0) {
-                  try {
-                    const compacted = await jsonld.compact(expanded, {});
-                    context.commit("setJsonLd", compacted);
-                    context.commit("setJsonLdCompact", compacted);
-                  } catch (compactErr) {
-                    console.log(
-                      "Fallback compact error; using expanded JSON-LD",
-                      compactErr
-                    );
-                    context.commit("setJsonLd", { "@graph": expanded });
-                    context.commit("setJsonLdCompact", { "@graph": expanded });
-                  }
-                  return;
-                }
-              } catch (fallbackErr) {
-                console.log("Dataset SPARQL fallback failed", fallbackErr);
+              if (await tryDatasetSparqlFallback()) {
+                return;
               }
               throw "Issue with Identifier or stale reference in services";
             } else {
+              if (await tryDatasetSparqlFallback()) {
+                return;
+              }
               throw (
                 "Issue with server responded with an error " +
                 exception.response.status
@@ -471,10 +480,16 @@ export const store = _createStore({
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
             // http.ClientRequest in node.js
             console.log(exception.request);
+            if (await tryDatasetSparqlFallback()) {
+              return;
+            }
             throw "Issue with service possibly not running";
           } else {
             // Something happened in setting up the request that triggered an Error
             console.log("Error", exception.message);
+            if (await tryDatasetSparqlFallback()) {
+              return;
+            }
             throw "Issue with service: " + exception.message;
           }
         });
