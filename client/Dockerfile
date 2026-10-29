@@ -1,4 +1,4 @@
-FROM node:lts-alpine as builder
+FROM node:lts-alpine AS builder
 
 # Create app directory
 WORKDIR /app
@@ -24,7 +24,6 @@ RUN rm -rf node_modules  && yarn install
 RUN yarn build
 
 FROM node:lts-alpine
-RUN corepack enable
 # copy built files from builder image to new clean node image without vite
 COPY --from=builder  /app /app
 WORKDIR /app
@@ -37,5 +36,5 @@ USER node
 
 
 EXPOSE 8080
-CMD ["yarn", "dlx", "http-server" ,"dist"]
+CMD ["node", "./node_modules/http-server/bin/http-server", "dist"]
 #CMD [ "http-server", "dist" ]
